@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceTracker.Core", "Core\FinanceTracker.Core.csproj", "{8352DFC2-9F4C-4E49-A43E-4DC3066A2147}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceTracker.CLI", "CLI\FinanceTracker.CLI.csproj", "{423AA36B-9CFE-41BA-AB94-871B099C2D55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{8352DFC2-9F4C-4E49-A43E-4DC3066A2147}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8352DFC2-9F4C-4E49-A43E-4DC3066A2147}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8352DFC2-9F4C-4E49-A43E-4DC3066A2147}.Release|Any CPU.Build.0 = Release|Any CPU
+		{423AA36B-9CFE-41BA-AB94-871B099C2D55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{423AA36B-9CFE-41BA-AB94-871B099C2D55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{423AA36B-9CFE-41BA-AB94-871B099C2D55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{423AA36B-9CFE-41BA-AB94-871B099C2D55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
