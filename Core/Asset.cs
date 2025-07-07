@@ -4,8 +4,16 @@ namespace FinanceTracker.Core;
 /// Represents a physical, non-monetary asset.
 /// </summary>
 /// <param name="Name">User-friendly name of the asset.</param>
-/// <param name="Value">Current value of the asset in main currency. Must be a non-negative value.</param>
+/// <param name="ValueHistory">History of asset value.</param>
 public record Asset(
     string Name,
-    decimal Value
-);
+    List<(DateOnly Date, Money Value)> ValueHistory
+)
+{
+    /// <summary>
+    /// Current value of the asset.
+    /// </summary>
+    public Money CurrentValue => ValueHistory
+        .OrderBy(x => x.Date)
+        .Last().Value;
+}

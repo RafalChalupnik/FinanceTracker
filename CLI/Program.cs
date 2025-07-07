@@ -73,22 +73,30 @@ var portfolio = new Portfolio(
     Assets: [
         new Asset(
             Name: "Home",
-            Value: 500_000
-            ),
+            ValueHistory: [
+                (new DateOnly(2025, 04, 01), new Money(Amount: 500_000, Currency: "PLN")),
+                (new DateOnly(2025, 07, 01), new Money(Amount: 600_000, Currency: "PLN"))
+            ]),
         new Asset(
             Name: "Car",
-            Value: 50_000
-            )
+            ValueHistory: [
+                (new DateOnly(2025, 04, 01), new Money(Amount: 50_000, Currency: "PLN")),
+                (new DateOnly(2025, 07, 01), new Money(Amount: 40_000, Currency: "PLN"))
+            ])
     ],
     Debts: [
         new Debt(
             "Mortgage",
-            Amount: 300_000
-            ),
+            AmountHistory: [
+                (new DateOnly(2025, 04, 01), new Money(Amount: 320_000, Currency: "PLN")),
+                (new DateOnly(2025, 07, 01), new Money(Amount: 300_000, Currency: "PLN"))
+            ]),
         new Debt(
             "Dryer",
-            Amount: 2_000
-            )
+            AmountHistory: [
+                (new DateOnly(2025, 04, 01), new Money(Amount: 2_100, Currency: "PLN")),
+                (new DateOnly(2025, 07, 01), new Money(Amount: 2_000, Currency: "PLN"))
+            ])
     ]
     );
     

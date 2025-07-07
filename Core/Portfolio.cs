@@ -1,3 +1,5 @@
+using FinanceTracker.Core.Extensions;
+
 namespace FinanceTracker.Core;
 
 /// <summary>
@@ -11,10 +13,8 @@ public record Portfolio(
 {
     public decimal CalculateValue(IReadOnlyDictionary<string, decimal> conversions)
     {
-        return Wallets
-            .Select(wallet => wallet.CalculateValue(conversions))
-            .Sum() 
-            + Assets.Sum(asset => asset.Value)
-            - Debts.Sum(debt => debt.Amount);
+        return Wallets.Sum(wallet => wallet.CalculateValue(conversions))
+            + Assets.Sum(asset => asset.CurrentValue.ApplyConversion(conversions))
+            - Debts.Sum(debt => debt.CurrentAmount.ApplyConversion(conversions));
     }
 }

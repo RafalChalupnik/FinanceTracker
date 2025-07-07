@@ -4,8 +4,16 @@ namespace FinanceTracker.Core;
 /// Represents a debt.
 /// </summary>
 /// <param name="Name">User-friendly name of the debt.</param>
-/// <param name="Amount">Current amount of the debt. Must be a non-negative value.</param>
+/// <param name="AmountHistory">History of debt amount.</param>
 public record Debt(
     string Name,
-    decimal Amount
-    );
+    List<(DateOnly Date, Money Value)> AmountHistory
+)
+{
+    /// <summary>
+    /// Current amount of the debt.
+    /// </summary>
+    public Money CurrentAmount => AmountHistory
+        .OrderBy(x => x.Date)
+        .Last().Value;
+}
