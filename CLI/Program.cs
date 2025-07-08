@@ -40,30 +40,63 @@ var retirementStocksAccount = new PhysicalWallet(
     Currency: "PLN"
 );
 
+// Ledger
+
+var ledger = new Ledger();
+
 // Logical wallets
 
 var emergencyFund = new LogicalWallet(
     Name: "Emergency Fund",
-    Allocations: new Dictionary<PhysicalWallet, decimal>
-    {
-        {savingsAccount, 20_000},
-        {cashPln, 5_000},
-        {cashCad, 1_800},
-        {bonds, 20_000},
-        {retirementBondsAccount, 10_000}
-    },
+    Ledger: ledger,
     Target: 60_000
 );
 
 var longTermWallet = new LogicalWallet(
     Name: "Long-term wallet",
-    Allocations: new Dictionary<PhysicalWallet, decimal>
-    {
-        {retirementBondsAccount, 15_000},
-        {retirementStocksAccount, 25_000}
-    },
+    Ledger: ledger,
     Target: null
 );
+
+// Transactions
+
+ledger.AddRange([
+    new Transaction(
+        Date: new DateOnly(2025, 04, 01),
+        From: null,
+        To: new Allocation(emergencyFund, savingsAccount, 20_000)
+    ),
+    new Transaction(
+        Date: new DateOnly(2025, 04, 01),
+        From: null,
+        To: new Allocation(emergencyFund, cashPln, 5_000)
+    ),
+    new Transaction(
+        Date: new DateOnly(2025, 04, 01),
+        From: null,
+        To: new Allocation(emergencyFund, cashCad, 1_800)
+    ),
+    new Transaction(
+        Date: new DateOnly(2025, 04, 01),
+        From: null,
+        To: new Allocation(emergencyFund, bonds, 20_000)
+    ),
+    new Transaction(
+        Date: new DateOnly(2025, 04, 01),
+        From: null,
+        To: new Allocation(emergencyFund, retirementBondsAccount, 10_000)
+    ),
+    new Transaction(
+        Date: new DateOnly(2025, 04, 01),
+        From: null,
+        To: new Allocation(longTermWallet, retirementBondsAccount, 15_000)
+    ),
+    new Transaction(
+        Date: new DateOnly(2025, 04, 01),
+        From: null,
+        To: new Allocation(longTermWallet, retirementStocksAccount, 25_000)
+    ),
+]);
 
 var portfolio = new Portfolio(
     Wallets: [
