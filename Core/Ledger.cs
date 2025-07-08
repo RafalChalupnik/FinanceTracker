@@ -2,17 +2,16 @@ namespace FinanceTracker.Core;
 
 public record Ledger
 {
-    private readonly List<Transaction> _transactions = new();
+    private readonly List<Transaction> _transactions;
 
+    public Ledger(IEnumerable<Transaction> source)
+    {
+        _transactions = source.ToList();
+    }
+    
     public IReadOnlyList<Transaction> Transactions => _transactions
         .OrderBy(transaction => transaction.Date)
         .ToArray();
-    
-    public void Add(Transaction transaction)
-        => _transactions.Add(transaction);
-    
-    public void AddRange(IEnumerable<Transaction> transactions)
-        => _transactions.AddRange(transactions);
 }
 
 public record Transaction(

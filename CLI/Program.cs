@@ -40,27 +40,21 @@ var retirementStocksAccount = new PhysicalWallet(
     Currency: "PLN"
 );
 
-// Ledger
-
-var ledger = new Ledger();
-
 // Logical wallets
 
 var emergencyFund = new LogicalWallet(
     Name: "Emergency Fund",
-    Ledger: ledger,
     Target: 60_000
 );
 
 var longTermWallet = new LogicalWallet(
     Name: "Long-term wallet",
-    Ledger: ledger,
     Target: null
 );
 
-// Transactions
+// Ledger
 
-ledger.AddRange([
+var ledger = new Ledger([
     new Transaction(
         Date: new DateOnly(2025, 04, 01),
         From: null,
@@ -133,6 +127,6 @@ var portfolio = new Portfolio(
     ]
     );
     
-var value = portfolio.CalculateValue(conversions);
+var value = portfolio.CalculateValue(ledger, conversions);
 
 Console.WriteLine($"Portfolio value: {value}");

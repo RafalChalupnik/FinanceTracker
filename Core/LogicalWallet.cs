@@ -8,15 +8,14 @@ namespace FinanceTracker.Core;
 /// <param name="Target">Target value of the wallet. Null if unspecified.</param>
 public record LogicalWallet(
     string Name,
-    Ledger Ledger,
     decimal? Target = null
 )
 {
     /// <summary>
     /// Gets allocations in the physical wallets.
     /// </summary>
-    public IReadOnlyDictionary<PhysicalWallet, decimal> Allocations =>
-        Ledger.Transactions.Aggregate(
+    public IReadOnlyDictionary<PhysicalWallet, decimal> GetAllocations(Ledger ledger) =>
+        ledger.Transactions.Aggregate(
             seed: new Dictionary<PhysicalWallet, decimal>(),
             func: (allocations, transaction) =>
             {
@@ -36,9 +35,9 @@ public record LogicalWallet(
         )
         .AsReadOnly();
 
-    public decimal CalculateValue(IReadOnlyDictionary<string, decimal> conversions)
+    public decimal CalculateValue(Ledger ledger, IReadOnlyDictionary<string, decimal> conversions)
     {
-        return Allocations
+        return GetAllocations(ledger)
             .Select(allocation => conversions[allocation.Key.Currency] * allocation.Value)
             .Sum();
     }

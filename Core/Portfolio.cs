@@ -11,9 +11,9 @@ public record Portfolio(
     List<Debt> Debts
 )
 {
-    public decimal CalculateValue(IReadOnlyDictionary<string, decimal> conversions)
+    public decimal CalculateValue(Ledger ledger, IReadOnlyDictionary<string, decimal> conversions)
     {
-        return Wallets.Sum(wallet => wallet.CalculateValue(conversions))
+        return Wallets.Sum(wallet => wallet.CalculateValue(ledger, conversions))
             + Assets.Sum(asset => asset.CurrentValue.ApplyConversion(conversions))
             - Debts.Sum(debt => debt.CurrentAmount.ApplyConversion(conversions));
     }
