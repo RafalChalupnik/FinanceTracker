@@ -4,6 +4,7 @@ namespace FinanceTracker.Core.Extensions;
 
 public static class MoneyExtensions
 {
-    public static decimal ApplyConversion(this Money money, IReadOnlyDictionary<string, decimal> conversion)
-        => conversion[money.Currency] * money.Amount;
+    public static T GetLatestValue<T>(this IReadOnlyDictionary<DateOnly, T> history) => history
+        .MaxBy(x => x.Key)
+        .Value;
 }

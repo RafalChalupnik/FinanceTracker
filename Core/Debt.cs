@@ -1,3 +1,4 @@
+using FinanceTracker.Core.Extensions;
 using FinanceTracker.Core.Primitives;
 
 namespace FinanceTracker.Core;
@@ -10,4 +11,9 @@ namespace FinanceTracker.Core;
 public record Debt(
     string Name,
     Dictionary<DateOnly, Money> AmountHistory
-);
+)
+{
+    public decimal LatestAmount => AmountHistory
+        .GetLatestValue()
+        .AmountInMainCurrency;
+}

@@ -1,3 +1,4 @@
+using FinanceTracker.Core.Extensions;
 using FinanceTracker.Core.Primitives;
 
 namespace FinanceTracker.Core;
@@ -12,10 +13,18 @@ public record Wallet(
     string Name,
     List<Component> Components,
     decimal? Target = null
-);
-    
+)
+{
+    public decimal LatestValue => Components
+        .Sum(x => x.LatestAmount);
+}
+
 public record Component(
     string Name,
-    string Currency,
     Dictionary<DateOnly, Money> ValueHistory
-);
+)
+{
+    public decimal LatestAmount => ValueHistory
+        .GetLatestValue()
+        .AmountInMainCurrency;
+}

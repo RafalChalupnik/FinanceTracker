@@ -1,3 +1,4 @@
+using FinanceTracker.Core.Extensions;
 using FinanceTracker.Core.Primitives;
 
 namespace FinanceTracker.Core;
@@ -12,4 +13,10 @@ public record Asset(
     string Name,
     Dictionary<DateOnly, Money> ValueHistory,
     Debt? FinancedBy = null
-);
+)
+{
+    public decimal LatestNetValue =>
+        ValueHistory
+            .GetLatestValue()
+            .AmountInMainCurrency - (FinancedBy?.LatestAmount ?? 0);
+}

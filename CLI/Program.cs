@@ -10,7 +10,6 @@ var portfolio = new Portfolio(
             Components: [
                 new Component(
                     Name: "Savings account",
-                    Currency: "PLN",
                     ValueHistory: new Dictionary<DateOnly, Money> {
                         {
                             new DateOnly(2025, 04, 01), 
@@ -20,7 +19,6 @@ var portfolio = new Portfolio(
                 ),
                 new Component(
                     Name: "Cash - PLN",
-                    Currency: "PLN",
                     ValueHistory: new Dictionary<DateOnly, Money> {
                         {
                             new DateOnly(2025, 04, 01), 
@@ -30,7 +28,6 @@ var portfolio = new Portfolio(
                 ),
                 new Component(
                     Name: "Cash - CAD",
-                    Currency: "CAD",
                     ValueHistory: new Dictionary<DateOnly, Money> {
                         {
                             new DateOnly(2025, 04, 01), 
@@ -40,7 +37,6 @@ var portfolio = new Portfolio(
                 ),
                 new Component(
                     Name: "Bonds",
-                    Currency: "PLN",
                     ValueHistory: new Dictionary<DateOnly, Money> {
                         {
                             new DateOnly(2025, 04, 01), 
@@ -50,7 +46,6 @@ var portfolio = new Portfolio(
                 ),
                 new Component(
                     Name: "Bonds - Retirement account",
-                    Currency: "PLN",
                     ValueHistory: new Dictionary<DateOnly, Money> {
                         {
                             new DateOnly(2025, 04, 01), 
@@ -66,7 +61,6 @@ var portfolio = new Portfolio(
             Components: [
                 new Component(
                     Name: "Bonds",
-                    Currency: "PLN",
                     ValueHistory: new Dictionary<DateOnly, Money> {
                         {
                             new DateOnly(2025, 04, 01), 
@@ -76,7 +70,6 @@ var portfolio = new Portfolio(
                 ),
                 new Component(
                     Name: "Stocks",
-                    Currency: "PLN",
                     ValueHistory: new Dictionary<DateOnly, Money> {
                         {
                             new DateOnly(2025, 04, 01), 
@@ -144,3 +137,6 @@ var portfolio = new Portfolio(
         )
     ]
 );
+
+var latestValue = portfolio.LatestValue;
+Console.WriteLine($"Latest value: {latestValue}");
