@@ -9,5 +9,5 @@ namespace FinanceTracker.Core;
 /// <param name="AmountHistory">History of debt amount in main currency.</param>
 public record Debt(
     string Name,
-    Dictionary<DateOnly, decimal> AmountHistory
+    Dictionary<DateOnly, Money> AmountHistory
 );

@@ -5,5 +5,6 @@ namespace FinanceTracker.Core.Primitives;
 /// </summary>
 public record Money(
     decimal Amount,
-    string Currency
+    string Currency,
+    decimal AmountInMainCurrency
     );

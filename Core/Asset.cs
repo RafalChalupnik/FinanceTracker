@@ -10,6 +10,6 @@ namespace FinanceTracker.Core;
 /// <param name="FinancedBy">Debt that is financing the asset - null if not specified.</param>
 public record Asset(
     string Name,
-    Dictionary<DateOnly, decimal> ValueHistory,
+    Dictionary<DateOnly, Money> ValueHistory,
     Debt? FinancedBy = null
 );

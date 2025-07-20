@@ -11,40 +11,55 @@ var portfolio = new Portfolio(
                 new Component(
                     Name: "Savings account",
                     Currency: "PLN",
-                    ValueHistory: new Dictionary<DateOnly, decimal> {
-                        {new DateOnly(2025, 04, 01), 20_000}
+                    ValueHistory: new Dictionary<DateOnly, Money> {
+                        {
+                            new DateOnly(2025, 04, 01), 
+                            new Money(20_000, "PLN", 20_000)
+                        }
                     }
                 ),
                 new Component(
                     Name: "Cash - PLN",
                     Currency: "PLN",
-                    ValueHistory: new Dictionary<DateOnly, decimal> {
-                        {new DateOnly(2025, 04, 01), 5_000}
+                    ValueHistory: new Dictionary<DateOnly, Money> {
+                        {
+                            new DateOnly(2025, 04, 01), 
+                            new Money(5_000, "PLN", 5_000)
+                        }
                     }
                 ),
                 new Component(
                     Name: "Cash - CAD",
                     Currency: "CAD",
-                    ValueHistory: new Dictionary<DateOnly, decimal> {
-                        {new DateOnly(2025, 04, 01), 1_800}
+                    ValueHistory: new Dictionary<DateOnly, Money> {
+                        {
+                            new DateOnly(2025, 04, 01), 
+                            new Money(1_800, "CAD", 4_788.31m)
+                        }
                     }
                 ),
                 new Component(
                     Name: "Bonds",
                     Currency: "PLN",
-                    ValueHistory: new Dictionary<DateOnly, decimal> {
-                        {new DateOnly(2025, 04, 01), 20_000}
+                    ValueHistory: new Dictionary<DateOnly, Money> {
+                        {
+                            new DateOnly(2025, 04, 01), 
+                            new Money(20_000, "PLN", 20_000)
+                        }
                     }
                 ),
                 new Component(
                     Name: "Bonds - Retirement account",
                     Currency: "PLN",
-                    ValueHistory: new Dictionary<DateOnly, decimal> {
-                        {new DateOnly(2025, 04, 01), 10_000}
+                    ValueHistory: new Dictionary<DateOnly, Money> {
+                        {
+                            new DateOnly(2025, 04, 01), 
+                            new Money(10_000, "PLN", 10_000)
+                        }
                     }
                 )
             ],
-            Target: new Money(60_000, "PLN")
+            Target: 60_000
         ),
         new Wallet(
             Name: "Long-term wallet",
@@ -52,15 +67,21 @@ var portfolio = new Portfolio(
                 new Component(
                     Name: "Bonds",
                     Currency: "PLN",
-                    ValueHistory: new Dictionary<DateOnly, decimal> {
-                        {new DateOnly(2025, 04, 01), 15_000}
+                    ValueHistory: new Dictionary<DateOnly, Money> {
+                        {
+                            new DateOnly(2025, 04, 01), 
+                            new Money(15_000, "PLN", 15_000)
+                        }
                     }
                 ),
                 new Component(
                     Name: "Stocks",
                     Currency: "PLN",
-                    ValueHistory: new Dictionary<DateOnly, decimal> {
-                        {new DateOnly(2025, 04, 01), 25_000}
+                    ValueHistory: new Dictionary<DateOnly, Money> {
+                        {
+                            new DateOnly(2025, 04, 01), 
+                            new Money(25_000, "PLN", 25_000)
+                        }
                     }
                 )
             ]
@@ -69,32 +90,56 @@ var portfolio = new Portfolio(
     Assets: [
         new Asset(
             Name: "Home",
-            ValueHistory: new Dictionary<DateOnly, decimal> {
-                {new DateOnly(2025, 04, 01), 500_000},
-                {new DateOnly(2025, 07, 01), 600_000}
+            ValueHistory: new Dictionary<DateOnly, Money> {
+                {
+                    new DateOnly(2025, 04, 01), 
+                    new Money(500_000, "PLN", 500_000)
+                },
+                {
+                    new DateOnly(2025, 07, 01), 
+                    new Money(600_000, "PLN", 600_000)
+                }
             },
             FinancedBy: new Debt(
                 "Mortgage",
-                AmountHistory: new Dictionary<DateOnly, decimal> {
-                    {new DateOnly(2025, 04, 01), 320_000},
-                    {new DateOnly(2025, 07, 01), 300_000}
+                AmountHistory: new Dictionary<DateOnly, Money> {
+                    {
+                        new DateOnly(2025, 04, 01), 
+                        new Money(320_000, "PLN", 320_000)
+                    },
+                    {
+                        new DateOnly(2025, 07, 01), 
+                        new Money(300_000, "PLN", 300_000)
+                    }
                 }
             )
         ),
         new Asset(
             Name: "Car",
-            ValueHistory: new Dictionary<DateOnly, decimal> {
-                {new DateOnly(2025, 04, 01), 50_000},
-                {new DateOnly(2025, 07, 01), 40_000}
+            ValueHistory: new Dictionary<DateOnly, Money> {
+                {
+                    new DateOnly(2025, 04, 01), 
+                    new Money(50_000, "PLN", 50_000)
+                },
+                {
+                    new DateOnly(2025, 07, 01), 
+                    new Money(40_000, "PLN", 40_000)
+                }
             }
         )
     ],
     Debts: [
         new Debt(
             "Dryer",
-            AmountHistory: new Dictionary<DateOnly, decimal> {
-                {new DateOnly(2025, 04, 01), 2_100},
-                {new DateOnly(2025, 07, 01), 2_000}
+            AmountHistory: new Dictionary<DateOnly, Money> {
+                {
+                    new DateOnly(2025, 04, 01), 
+                    new Money(2_100, "PLN", 2_100)
+                },
+                {
+                    new DateOnly(2025, 07, 01), 
+                    new Money(2_000, "PLN", 2_000)
+                }
             }
         )
     ]
