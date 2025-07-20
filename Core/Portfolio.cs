@@ -9,6 +9,9 @@ public record Portfolio(
     List<Debt> Debts
 )
 {
+    /// <summary>
+    /// Gets the latest value of the portfolio.
+    /// </summary>
     public decimal LatestValue => Wallets
         .Sum(x => x.LatestValue) + Assets
         .Sum(x => x.LatestNetValue) - Debts

@@ -15,6 +15,9 @@ public record Wallet(
     decimal? Target = null
 )
 {
+    /// <summary>
+    /// Gets the latest value of the wallet.
+    /// </summary>
     public decimal LatestValue => Components
         .Sum(x => x.LatestAmount);
 }
@@ -24,6 +27,9 @@ public record Component(
     Dictionary<DateOnly, Money> ValueHistory
 )
 {
+    /// <summary>
+    /// Gets the latest value of the wallet component.
+    /// </summary>
     public decimal LatestAmount => ValueHistory
         .GetLatestValue()
         .AmountInMainCurrency;
