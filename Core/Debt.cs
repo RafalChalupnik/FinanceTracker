@@ -6,8 +6,8 @@ namespace FinanceTracker.Core;
 /// Represents a debt.
 /// </summary>
 /// <param name="Name">User-friendly name of the debt.</param>
-/// <param name="AmountHistory">History of debt amount.</param>
+/// <param name="AmountHistory">History of debt amount in main currency.</param>
 public record Debt(
     string Name,
-    List<Snapshot<decimal>> AmountHistory
+    Dictionary<DateOnly, decimal> AmountHistory
 );

@@ -6,10 +6,10 @@ namespace FinanceTracker.Core;
 /// Represents a physical, non-monetary asset.
 /// </summary>
 /// <param name="Name">User-friendly name of the asset.</param>
-/// <param name="ValueHistory">History of asset value.</param>
+/// <param name="ValueHistory">History of asset value in main currency.</param>
 /// <param name="FinancedBy">Debt that is financing the asset - null if not specified.</param>
 public record Asset(
     string Name,
-    List<Snapshot<decimal>> ValueHistory,
+    Dictionary<DateOnly, decimal> ValueHistory,
     Debt? FinancedBy = null
 );

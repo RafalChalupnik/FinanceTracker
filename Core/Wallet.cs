@@ -17,5 +17,5 @@ public record Wallet(
 public record Component(
     string Name,
     string Currency,
-    List<Snapshot<decimal>> ValueHistory
+    Dictionary<DateOnly, decimal> ValueHistory
     );
