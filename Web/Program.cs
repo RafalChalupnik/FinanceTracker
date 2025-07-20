@@ -1,8 +1,15 @@
+using FinanceTracker.Web;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDbContext<FinanceTrackerContext>(options => options.UseSqlite(
+    builder.Configuration.GetConnectionString("FinanceTracker")
+));
 
 var app = builder.Build();
 
@@ -13,10 +20,17 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var context = services.GetRequiredService<FinanceTrackerContext>();    
+    await context.Database.MigrateAsync();
+}
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-
 
 app.MapControllerRoute(
     name: "default",

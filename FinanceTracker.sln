@@ -2,8 +2,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceTracker.Core", "Core\FinanceTracker.Core.csproj", "{8352DFC2-9F4C-4E49-A43E-4DC3066A2147}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceTracker.CLI", "CLI\FinanceTracker.CLI.csproj", "{423AA36B-9CFE-41BA-AB94-871B099C2D55}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceTracker.Web", "Web\FinanceTracker.Web.csproj", "{3CAE391C-C028-485B-9238-7BD6F073857E}"
 EndProject
 Global

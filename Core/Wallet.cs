@@ -44,7 +44,7 @@ public class Component
     /// </summary>
     public required string Name { get; init; }
     
-    /// <summary>
+    /// <summary
     /// History of wallet component value in the main currency.
     /// </summary>
     public required List<HistoricValue> ValueHistory { get; init; }
