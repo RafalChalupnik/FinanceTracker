@@ -1,3 +1,5 @@
+using FinanceTracker.Core.Primitives;
+
 namespace FinanceTracker.Core.Extensions;
 
 public static class MoneyExtensions

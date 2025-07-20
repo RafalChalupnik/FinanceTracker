@@ -1,132 +1,146 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using FinanceTracker.Core;
-
-// Physical wallets
-
-var conversions = new Dictionary<string, decimal>
-{
-    {"PLN", 1.00m},
-    {"CAD", 2.66m}
-};
-
-var savingsAccount = new PhysicalWallet(
-    "Savings account",
-    Currency: "PLN"
-    );
-
-var cashPln = new PhysicalWallet(
-    Name: "Cash - PLN",
-    Currency: "PLN"
-);
-
-var cashCad = new PhysicalWallet(
-    Name: "Cash - CAD",
-    Currency: "CAD"
-);
-
-var bonds = new PhysicalWallet(
-    "Bonds",
-    Currency: "PLN"
-);
-
-var retirementBondsAccount = new PhysicalWallet(
-    Name: "Retirement Account - Bonds",
-    Currency: "PLN"
-    );
-
-var retirementStocksAccount = new PhysicalWallet(
-    Name: "Retirement Account - Stocks",
-    Currency: "PLN"
-);
-
-// Logical wallets
-
-var emergencyFund = new LogicalWallet(
-    Name: "Emergency Fund",
-    Target: 60_000
-);
-
-var longTermWallet = new LogicalWallet(
-    Name: "Long-term wallet",
-    Target: null
-);
-
-// Ledger
-
-var ledger = new Ledger([
-    new Transaction(
-        Date: new DateOnly(2025, 04, 01),
-        From: null,
-        To: new Allocation(emergencyFund, savingsAccount, 20_000)
-    ),
-    new Transaction(
-        Date: new DateOnly(2025, 04, 01),
-        From: null,
-        To: new Allocation(emergencyFund, cashPln, 5_000)
-    ),
-    new Transaction(
-        Date: new DateOnly(2025, 04, 01),
-        From: null,
-        To: new Allocation(emergencyFund, cashCad, 1_800)
-    ),
-    new Transaction(
-        Date: new DateOnly(2025, 04, 01),
-        From: null,
-        To: new Allocation(emergencyFund, bonds, 20_000)
-    ),
-    new Transaction(
-        Date: new DateOnly(2025, 04, 01),
-        From: null,
-        To: new Allocation(emergencyFund, retirementBondsAccount, 10_000)
-    ),
-    new Transaction(
-        Date: new DateOnly(2025, 04, 01),
-        From: null,
-        To: new Allocation(longTermWallet, retirementBondsAccount, 15_000)
-    ),
-    new Transaction(
-        Date: new DateOnly(2025, 04, 01),
-        From: null,
-        To: new Allocation(longTermWallet, retirementStocksAccount, 25_000)
-    ),
-]);
+using FinanceTracker.Core.Primitives;
 
 var portfolio = new Portfolio(
     Wallets: [
-        emergencyFund,
-        longTermWallet
+        new Wallet(
+            Name: "Emergency Fund",
+            Components: [
+                new Component(
+                    Name: "Savings account",
+                    Currency: "PLN",
+                    ValueHistory: [
+                        new Snapshot<decimal>(
+                            new DateOnly(2025, 04, 01),
+                            Value: 20_000
+                        )
+                    ]
+                ),
+                new Component(
+                    Name: "Cash - PLN",
+                    Currency: "PLN",
+                    ValueHistory: [
+                        new Snapshot<decimal>(
+                            new DateOnly(2025, 04, 01),
+                            Value: 5_000
+                        )
+                    ]
+                ),
+                new Component(
+                    Name: "Cash - CAD",
+                    Currency: "CAD",
+                    ValueHistory: [
+                        new Snapshot<decimal>(
+                            new DateOnly(2025, 04, 01),
+                            Value: 1_800
+                        )
+                    ]
+                ),
+                new Component(
+                    Name: "Bonds",
+                    Currency: "PLN",
+                    ValueHistory: [
+                        new Snapshot<decimal>(
+                            new DateOnly(2025, 04, 01),
+                            Value: 20_000
+                        )
+                    ]
+                ),
+                new Component(
+                    Name: "Bonds - Retirement account",
+                    Currency: "PLN",
+                    ValueHistory: [
+                        new Snapshot<decimal>(
+                            new DateOnly(2025, 04, 01),
+                            Value: 10_000
+                        )
+                    ]
+                )
+            ],
+            Target: new Money(60_000, "PLN")
+        ),
+        new Wallet(
+            Name: "Long-term wallet",
+            Components: [
+                new Component(
+                    Name: "Bonds",
+                    Currency: "PLN",
+                    ValueHistory: [
+                        new Snapshot<decimal>(
+                            new DateOnly(2025, 04, 01),
+                            Value: 15_000
+                        )
+                    ]
+                ),
+                new Component(
+                    Name: "Stocks",
+                    Currency: "PLN",
+                    ValueHistory: [
+                        new Snapshot<decimal>(
+                            new DateOnly(2025, 04, 01),
+                            Value: 25_000
+                        )
+                    ]
+                )
+            ]
+        )
     ],
     Assets: [
         new Asset(
             Name: "Home",
             ValueHistory: [
-                (new DateOnly(2025, 04, 01), new Money(Amount: 500_000, Currency: "PLN")),
-                (new DateOnly(2025, 07, 01), new Money(Amount: 600_000, Currency: "PLN"))
-            ]),
+                new Snapshot<decimal>(
+                    Date: new DateOnly(2025, 04, 01),
+                    Value: 500_000
+                ),
+                new Snapshot<decimal>(
+                    Date: new DateOnly(2025, 07, 01),
+                    Value: 600_000
+                )
+            ],
+            FinancedBy: new Debt(
+                "Mortgage",
+                AmountHistory: [
+                    new Snapshot<decimal>(
+                        Date: new DateOnly(2025, 04, 01),
+                        Value: 320_000
+                    ),
+                    new Snapshot<decimal>(
+                        Date: new DateOnly(2025, 07, 01),
+                        Value: 300_000
+                    )
+                ]
+            )
+        ),
         new Asset(
             Name: "Car",
             ValueHistory: [
-                (new DateOnly(2025, 04, 01), new Money(Amount: 50_000, Currency: "PLN")),
-                (new DateOnly(2025, 07, 01), new Money(Amount: 40_000, Currency: "PLN"))
-            ])
+                new Snapshot<decimal>(
+                    Date: new DateOnly(2025, 04, 01),
+                    Value: 50_000
+                ),
+                new Snapshot<decimal>(
+                    Date: new DateOnly(2025, 07, 01),
+                    Value: 40_000
+                )
+            ]
+        )
     ],
     Debts: [
         new Debt(
-            "Mortgage",
-            AmountHistory: [
-                (new DateOnly(2025, 04, 01), new Money(Amount: 320_000, Currency: "PLN")),
-                (new DateOnly(2025, 07, 01), new Money(Amount: 300_000, Currency: "PLN"))
-            ]),
-        new Debt(
             "Dryer",
             AmountHistory: [
-                (new DateOnly(2025, 04, 01), new Money(Amount: 2_100, Currency: "PLN")),
-                (new DateOnly(2025, 07, 01), new Money(Amount: 2_000, Currency: "PLN"))
-            ])
+                new Snapshot<decimal>(
+                    Date: new DateOnly(2025, 04, 01),
+                    Value: 2_100
+                ),
+                new Snapshot<decimal>(
+                    Date: new DateOnly(2025, 07, 01),
+                    Value: 2_000
+                )
+            ]
+        )
     ]
-    );
-    
-var value = portfolio.CalculateValue(ledger, conversions);
-
-Console.WriteLine($"Portfolio value: {value}");
+);
