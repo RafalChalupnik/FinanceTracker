@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using FinanceTracker.Core.Extensions;
 using FinanceTracker.Core.Primitives;
 
@@ -6,15 +7,26 @@ namespace FinanceTracker.Core;
 /// <summary>
 /// Represents a wallet, consisting of <see cref="Component"/>.
 /// </summary>
-/// <param name="Name">User-friendly name of the wallet.</param>
-/// <param name="Components">Components of the wallet.</param>
-/// <param name="Target">Target value of the wallet in main currency - null if not specified.</param>
-public record Wallet(
-    string Name,
-    List<Component> Components,
-    decimal? Target = null
-)
+public class Wallet
 {
+    [Key]
+    public Guid Id { get; init; }
+    
+    /// <summary>
+    /// User-friendly name of the wallet.
+    /// </summary>
+    public string Name { get; init; }
+    
+    /// <summary>
+    /// Components of the wallet.
+    /// </summary>
+    public List<Component> Components { get; init; }
+    
+    /// <summary>
+    /// Target value of the wallet in the main currency - null if not specified.
+    /// </summary>
+    public decimal? Target { get; init; }
+    
     /// <summary>
     /// Gets the latest value of the wallet.
     /// </summary>
@@ -22,11 +34,21 @@ public record Wallet(
         .Sum(x => x.LatestAmount);
 }
 
-public record Component(
-    string Name,
-    Dictionary<DateOnly, Money> ValueHistory
-)
+public class Component
 {
+    [Key]
+    public Guid Id { get; init; }
+    
+    /// <summary>
+    /// User-friendly name of the wallet component.
+    /// </summary>
+    public string Name { get; init; }
+    
+    /// <summary>
+    /// History of wallet component value in the main currency.
+    /// </summary>
+    public List<HistoricValue> ValueHistory { get; init; }
+    
     /// <summary>
     /// Gets the latest value of the wallet component.
     /// </summary>
