@@ -15,12 +15,12 @@ public class Debt
     /// <summary>
     /// User-friendly name of the debt.
     /// </summary>
-    public string Name { get; init; }
+    public required string Name { get; init; }
     
     /// <summary>
     /// History of debt value in the main currency.
     /// </summary>
-    public List<HistoricValue> AmountHistory { get; init; }
+    public required List<HistoricValue> AmountHistory { get; init; }
     
     /// <summary>
     /// Gets the latest value of the debt.

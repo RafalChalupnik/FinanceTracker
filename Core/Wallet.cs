@@ -15,12 +15,12 @@ public class Wallet
     /// <summary>
     /// User-friendly name of the wallet.
     /// </summary>
-    public string Name { get; init; }
+    public required string Name { get; init; }
     
     /// <summary>
     /// Components of the wallet.
     /// </summary>
-    public List<Component> Components { get; init; }
+    public required List<Component> Components { get; init; }
     
     /// <summary>
     /// Target value of the wallet in the main currency - null if not specified.
@@ -42,12 +42,12 @@ public class Component
     /// <summary>
     /// User-friendly name of the wallet component.
     /// </summary>
-    public string Name { get; init; }
+    public required string Name { get; init; }
     
     /// <summary>
     /// History of wallet component value in the main currency.
     /// </summary>
-    public List<HistoricValue> ValueHistory { get; init; }
+    public required List<HistoricValue> ValueHistory { get; init; }
     
     /// <summary>
     /// Gets the latest value of the wallet component.

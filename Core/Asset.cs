@@ -15,12 +15,12 @@ public class Asset
     /// <summary>
     /// User-friendly name of the asset.
     /// </summary>
-    public string Name { get; init; }
+    public required string Name { get; init; }
     
     /// <summary>
     /// History of asset value in the main currency.
     /// </summary>
-    public List<HistoricValue> ValueHistory { get; init; }
+    public required List<HistoricValue> ValueHistory { get; init; }
     
     /// <summary>
     /// Debt that is financing the asset - null if not specified.

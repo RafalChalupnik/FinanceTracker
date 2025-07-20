@@ -13,22 +13,22 @@ public class Portfolio
     /// <summary>
     /// User-friendly name of the portfolio.
     /// </summary>
-    public string Name { get; init; }
+    public required string Name { get; init; }
     
     /// <summary>
     /// List of wallets.
     /// </summary>
-    public List<Wallet> Wallets { get; init; }
+    public required List<Wallet> Wallets { get; init; }
     
     /// <summary>
     /// List of assets.
     /// </summary>
-    public List<Asset> Assets { get; init; }
+    public required List<Asset> Assets { get; init; }
     
     /// <summary>
     /// List of debts.
     /// </summary>
-    public List<Debt> Debts { get; init; }
+    public required List<Debt> Debts { get; init; }
     
     /// <summary>
     /// Gets the latest value of the portfolio.
