@@ -72,9 +72,9 @@ public class WalletsController(FinanceTrackerContext context) : ControllerBase
         {
             Components = previous.Components
                 .Zip(current.Components)
-                .Select(pair => PortfolioController.CalculateChanges(pair.First, pair.Second))
+                .Select(pair => ValueSnapshotDto.CalculateChanges(pair.First, pair.Second))
                 .ToArray(),
-            Summary = PortfolioController.CalculateChanges(previous.Summary, current.Summary)
+            Summary = ValueSnapshotDto.CalculateChanges(previous.Summary, current.Summary)
         };
     }
 }

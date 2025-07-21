@@ -99,10 +99,10 @@ public class PortfolioController(FinanceTrackerContext context) : ControllerBase
     {
         return current with
         {
-            Wallets = CalculateChanges(previous.Wallets, current.Wallets),
-            Assets = CalculateChanges(previous.Assets, current.Assets),
-            Debts = CalculateChanges(previous.Debts, current.Debts),
-            Summary = CalculateChanges(previous.Summary, current.Summary)
+            Wallets = ValueSnapshotDto.CalculateChanges(previous.Wallets, current.Wallets),
+            Assets = ValueSnapshotDto.CalculateChanges(previous.Assets, current.Assets),
+            Debts = ValueSnapshotDto.CalculateChanges(previous.Debts, current.Debts),
+            Summary = ValueSnapshotDto.CalculateChanges(previous.Summary, current.Summary)
         };
     }
 
@@ -131,20 +131,9 @@ public class PortfolioController(FinanceTrackerContext context) : ControllerBase
         {
             Wallets = previous.Wallets
                 .Zip(current.Wallets)
-                .Select(pair => CalculateChanges(pair.First, pair.Second))
+                .Select(pair => ValueSnapshotDto.CalculateChanges(pair.First, pair.Second))
                 .ToArray(),
-            Summary = CalculateChanges(previous.Summary, current.Summary)
-        };
-    }
-
-    public static ValueSnapshotDto CalculateChanges(ValueSnapshotDto previous, ValueSnapshotDto current)
-    {
-        var change = current.Value - previous.Value;
-
-        return current with
-        {
-            Change = change,
-            CumulativeChange = change + previous.CumulativeChange
+            Summary = ValueSnapshotDto.CalculateChanges(previous.Summary, current.Summary)
         };
     }
 }
