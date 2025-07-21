@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Money from "./Money";
 
 export class FetchData extends Component {
   static displayName = FetchData.name;
@@ -29,12 +30,12 @@ export class FetchData extends Component {
                 <>
                   <th>Value</th>
                   <th>Change</th>
-                  <th style={{ borderRight: '1px solid black' }}>Cumulative Change</th>
+                  <th style={{ borderRight: '1px solid black' }}>Cumulative</th>
                 </>
             )}
             <th>Value</th>
             <th>Change</th>
-            <th>Cumulative Change</th>
+            <th>Cumulative</th>
           </tr>
         </thead>
         <tbody>
@@ -43,14 +44,26 @@ export class FetchData extends Component {
               <td style={{ borderRight: '1px solid black' }}>{data.date}</td>
               {data.wallets.map(wallet =>
                   <>
-                    <td style={{ textAlign: 'right' }}>{wallet.value} PLN</td>
-                    <td style={{ textAlign: 'right', color: data.summary.change > 0 ? 'green' : 'red'}}>{wallet.change} PLN</td>
-                    <td style={{ textAlign: 'right', borderRight: '1px solid black', color: data.summary.cumulativeChange > 0 ? 'green' : 'red' }}>{wallet.cumulativeChange} PLN</td>
+                    <td>
+                      <Money amount={wallet.value} />
+                    </td>
+                    <td>
+                      <Money amount={wallet.change} colorCoding="true"/>
+                    </td>
+                    <td style={{ borderRight: '1px solid black'}}>
+                      <Money amount={wallet.cumulativeChange} colorCoding="true"/>
+                    </td>
                   </>
               )}
-              <td style={{ textAlign: 'right' }}>{data.summary.value} PLN</td>
-              <td style={{ textAlign: 'right', color: data.summary.change > 0 ? 'green' : 'red'}}>{data.summary.change} PLN</td>
-              <td style={{ textAlign: 'right', color: data.summary.cumulativeChange > 0 ? 'green' : 'red'}}>{data.summary.cumulativeChange} PLN</td>
+              <td>
+                <Money amount={data.summary.value} />
+              </td>
+              <td>
+                <Money amount={data.summary.change} colorCoding="true"/>
+              </td>
+              <td>
+                <Money amount={data.summary.cumulativeChange} colorCoding="true"/>
+              </td>
             </tr>
           )}
         </tbody>
