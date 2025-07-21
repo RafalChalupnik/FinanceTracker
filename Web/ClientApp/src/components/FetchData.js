@@ -44,13 +44,13 @@ export class FetchData extends Component {
               {data.wallets.map(wallet =>
                   <>
                     <td style={{ textAlign: 'right' }}>{wallet.value} PLN</td>
-                    <td style={{ textAlign: 'right' }}>{wallet.change} PLN</td>
-                    <td style={{ textAlign: 'right', borderRight: '1px solid black' }}>{wallet.cumulativeChange} PLN</td>
+                    <td style={{ textAlign: 'right', color: data.summary.change > 0 ? 'green' : 'red'}}>{wallet.change} PLN</td>
+                    <td style={{ textAlign: 'right', borderRight: '1px solid black', color: data.summary.cumulativeChange > 0 ? 'green' : 'red' }}>{wallet.cumulativeChange} PLN</td>
                   </>
               )}
               <td style={{ textAlign: 'right' }}>{data.summary.value} PLN</td>
-              <td style={{ textAlign: 'right' }}>{data.summary.change} PLN</td>
-              <td style={{ textAlign: 'right' }}>{data.summary.cumulativeChange} PLN</td>
+              <td style={{ textAlign: 'right', color: data.summary.change > 0 ? 'green' : 'red'}}>{data.summary.change} PLN</td>
+              <td style={{ textAlign: 'right', color: data.summary.cumulativeChange > 0 ? 'green' : 'red'}}>{data.summary.cumulativeChange} PLN</td>
             </tr>
           )}
         </tbody>
