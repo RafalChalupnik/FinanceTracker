@@ -26,13 +26,15 @@ export class FetchData extends Component {
           </tr>
           <tr>
             <th style={{ borderRight: '1px solid black' }}>Date</th>
-            {Array(5).keys().map(_ =>
-                <>
-                  <th>Value</th>
-                  <th>Change</th>
-                  <th style={{ borderRight: '1px solid black' }}>Cumulative</th>
-                </>
-            )}
+              <th>Value</th>
+              <th>Change</th>
+              <th style={{ borderRight: '1px solid black' }}>Cumulative</th>
+              <th>Value</th>
+              <th>Change</th>
+              <th style={{ borderRight: '1px solid black' }}>Cumulative</th>
+              <th>Value</th>
+              <th>Change</th>
+              <th style={{ borderRight: '1px solid black' }}>Cumulative</th>
             <th>Value</th>
             <th>Change</th>
             <th>Cumulative</th>
