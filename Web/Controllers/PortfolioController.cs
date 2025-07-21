@@ -137,7 +137,7 @@ public class PortfolioController(FinanceTrackerContext context) : ControllerBase
         };
     }
 
-    private static ValueSnapshotDto CalculateChanges(ValueSnapshotDto previous, ValueSnapshotDto current)
+    public static ValueSnapshotDto CalculateChanges(ValueSnapshotDto previous, ValueSnapshotDto current)
     {
         var change = current.Value - previous.Value;
 
