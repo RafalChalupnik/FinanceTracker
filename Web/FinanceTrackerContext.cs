@@ -186,27 +186,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                             Date = new DateOnly(2025, 07, 01),
                             Value = new Money(600_000, "PLN", 600_000)
                         }
-                    ],
-                    FinancedBy = new Debt
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Mortgage",
-                        AmountHistory =
-                        [
-                            new HistoricValue
-                            {
-                                Id = Guid.NewGuid(),
-                                Date = new DateOnly(2025, 04, 01),
-                                Value = new Money(320_000, "PLN", 320_000)
-                            },
-                            new HistoricValue
-                            {
-                                Id = Guid.NewGuid(),
-                                Date = new DateOnly(2025, 07, 01),
-                                Value = new Money(300_000, "PLN", 300_000)
-                            }
-                        ]
-                    }
+                    ]
                 },
                 new Asset
                 {
@@ -231,6 +211,26 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
             ],
             Debts =
             [
+                new Debt
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Mortgage",
+                    AmountHistory =
+                    [
+                        new HistoricValue
+                        {
+                            Id = Guid.NewGuid(),
+                            Date = new DateOnly(2025, 04, 01),
+                            Value = new Money(320_000, "PLN", 320_000)
+                        },
+                        new HistoricValue
+                        {
+                            Id = Guid.NewGuid(),
+                            Date = new DateOnly(2025, 07, 01),
+                            Value = new Money(300_000, "PLN", 300_000)
+                        }
+                    ]
+                },
                 new Debt
                 {
                     Id = Guid.NewGuid(),

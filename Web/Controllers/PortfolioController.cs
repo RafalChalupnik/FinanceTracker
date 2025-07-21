@@ -69,7 +69,7 @@ public class PortfolioController(FinanceTrackerContext context) : ControllerBase
     private static PortfolioDateSummaryDto BuildPortfolioDateSummary(DateOnly date, Portfolio portfolio)
     {
         var walletsValue = portfolio.Wallets.Sum(wallet => wallet.GetValueFor(date));
-        var assetsValue = portfolio.Assets.Sum(asset => asset.GetValueFor(date));
+        var assetsValue = portfolio.Assets.Sum(asset => asset.GetValueFor(date).AmountInMainCurrency);
         var debtsAmount = -portfolio.Debts.Sum(debt => debt.GetAmountFor(date).AmountInMainCurrency);
         
         return new PortfolioDateSummaryDto(

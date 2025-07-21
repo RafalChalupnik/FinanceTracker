@@ -24,6 +24,24 @@ namespace FinanceTracker.Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Assets",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    PortfolioId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Assets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Assets_Portfolios_PortfolioId",
+                        column: x => x.PortfolioId,
+                        principalTable: "Portfolios",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Debts",
                 columns: table => new
                 {
@@ -55,30 +73,6 @@ namespace FinanceTracker.Web.Migrations
                     table.PrimaryKey("PK_Wallets", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Wallets_Portfolios_PortfolioId",
-                        column: x => x.PortfolioId,
-                        principalTable: "Portfolios",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Assets",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    FinancedById = table.Column<Guid>(type: "TEXT", nullable: true),
-                    PortfolioId = table.Column<Guid>(type: "TEXT", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Assets", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Assets_Debts_FinancedById",
-                        column: x => x.FinancedById,
-                        principalTable: "Debts",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Assets_Portfolios_PortfolioId",
                         column: x => x.PortfolioId,
                         principalTable: "Portfolios",
                         principalColumn: "Id");
@@ -134,11 +128,6 @@ namespace FinanceTracker.Web.Migrations
                         principalTable: "Debts",
                         principalColumn: "Id");
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Assets_FinancedById",
-                table: "Assets",
-                column: "FinancedById");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Assets_PortfolioId",

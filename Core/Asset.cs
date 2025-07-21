@@ -21,18 +21,13 @@ public class Asset
     /// History of asset value in the main currency.
     /// </summary>
     public required List<HistoricValue> ValueHistory { get; init; }
-    
-    /// <summary>
-    /// Debt that is financing the asset - null if not specified.
-    /// </summary>
-    public Debt? FinancedBy { get; init; }
-    
+
     /// <summary>
     /// Gets value of the wallet component for provided <see cref="DateOnly"/>.
     /// </summary>
-    public decimal GetValueFor(DateOnly date) =>
+    public Money GetValueFor(DateOnly date) =>
         ValueHistory
             .OrderByDescending(x => x.Date)
             .First(x => x.Date <= date)
-            .Value.AmountInMainCurrency - (FinancedBy?.GetAmountFor(date).AmountInMainCurrency ?? 0);
+            .Value;
 }

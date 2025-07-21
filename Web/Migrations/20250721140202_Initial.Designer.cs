@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinanceTracker.Web.Migrations
 {
     [DbContext(typeof(FinanceTrackerContext))]
-    [Migration("20250720105006_Initial")]
+    [Migration("20250721140202_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -27,9 +27,6 @@ namespace FinanceTracker.Web.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("FinancedById")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -38,8 +35,6 @@ namespace FinanceTracker.Web.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("FinancedById");
 
                     b.HasIndex("PortfolioId");
 
@@ -170,15 +165,9 @@ namespace FinanceTracker.Web.Migrations
 
             modelBuilder.Entity("FinanceTracker.Core.Asset", b =>
                 {
-                    b.HasOne("FinanceTracker.Core.Debt", "FinancedBy")
-                        .WithMany()
-                        .HasForeignKey("FinancedById");
-
                     b.HasOne("FinanceTracker.Core.Portfolio", null)
                         .WithMany("Assets")
                         .HasForeignKey("PortfolioId");
-
-                    b.Navigation("FinancedBy");
                 });
 
             modelBuilder.Entity("FinanceTracker.Core.Component", b =>
