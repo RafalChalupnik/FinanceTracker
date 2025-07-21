@@ -19,19 +19,7 @@ public class PortfolioController(FinanceTrackerContext context) : ControllerBase
             .ThenInclude(component => component.ValueHistory)
             .First();
         
-        var summarySnapshots = BuildSummarySnapshots(portfolio.Wallets);
-        
-        return new PortfolioSummaryDto(
-            Wallets: portfolio.Wallets
-                .Select(wallet => BuildWalletDto(wallet, summarySnapshots))
-                .ToArray(),
-            Summary: summarySnapshots
-        );
-    }
-
-    private static ValueSnapshotDto[] BuildSummarySnapshots(IReadOnlyCollection<Wallet> wallets)
-    {
-        var dates = wallets
+        var dates = portfolio.Wallets
             .SelectMany(wallet => wallet.Components)
             .SelectMany(component => component.ValueHistory
                 .Select(date => date.Date))
@@ -39,61 +27,47 @@ public class PortfolioController(FinanceTrackerContext context) : ControllerBase
             .OrderBy(date => date)
             .ToArray();
 
-        return dates
-            .Select(date => new ValueSnapshotDto(
-                Date: date,
-                Value: wallets
-                    .SelectMany(wallet => wallet.Components)
-                    .SelectMany(component => component.ValueHistory
-                        .Where(historicValue => historicValue.Date == date)
-                        .Select(historicValue => historicValue.Value))
-                    .Sum(value => value.AmountInMainCurrency),
-                Change: 0,
-                CumulativeChange: 0,
-                ShareOfWallet: 1
-            ))
-            .ToArray()
-            .Scan(UpdateChangeValues)
-            .ToArray();
-    }
-    
-    private static WalletDto BuildWalletDto(
-        Wallet wallet, 
-        IReadOnlyCollection<ValueSnapshotDto> summarySnapshots
-    )
-    {
-        var valuePerDate = wallet.Components
-            .SelectMany(component => component.ValueHistory)
-            .GroupBy(historicValue => historicValue.Date)
-            .ToDictionary(
-                keySelector: grouping => grouping.Key,
-                elementSelector: grouping => grouping.Sum(x => x.Value.AmountInMainCurrency)
-            );
-
-        var walletSnapshots = summarySnapshots
-            .Select(summarySnapshot =>
-            {
-                var value = valuePerDate.GetValueOrDefault(summarySnapshot.Date, defaultValue: 0);
-
-                return new ValueSnapshotDto(
-                    Date: summarySnapshot.Date,
-                    Value: value,
-                    Change: 0,
-                    CumulativeChange: 0,
-                    ShareOfWallet: value / summarySnapshot.Value
-                );
-            })
-            .ToArray()
-            .Scan(UpdateChangeValues)
-            .ToArray();
-
-        return new WalletDto(
-            Name: wallet.Name,
-            Snapshots: walletSnapshots
+        return new PortfolioSummaryDto(
+            dates
+                .Select(date => BuildDateSummary(date, portfolio.Wallets))
+                .ToArray()
+                .Scan(CalculateChanges)
+                .ToArray()
         );
     }
-    
-    private static ValueSnapshotDto UpdateChangeValues(ValueSnapshotDto previous, ValueSnapshotDto current)
+
+    private static DateSummaryDto BuildDateSummary(DateOnly date, IEnumerable<Wallet> wallets)
+    {
+        var walletDtos = wallets
+            .Select(wallet => new ValueSnapshotDto(
+                Name: wallet.Name,
+                Value: wallet.GetAmountFor(date)
+            ))
+            .ToArray();
+        
+        return new DateSummaryDto(
+            Date: date,
+            Wallets: walletDtos,
+            Summary: new ValueSnapshotDto(
+                Name: "Summary",
+                Value: walletDtos.Sum(wallet => wallet.Value)
+            )
+        );
+    }
+
+    private static DateSummaryDto CalculateChanges(DateSummaryDto previous, DateSummaryDto current)
+    {
+        return current with
+        {
+            Wallets = previous.Wallets
+                .Zip(current.Wallets)
+                .Select(pair => CalculateChanges(pair.First, pair.Second))
+                .ToArray(),
+            Summary = CalculateChanges(current.Summary, previous.Summary)
+        };
+    }
+
+    private static ValueSnapshotDto CalculateChanges(ValueSnapshotDto previous, ValueSnapshotDto current)
     {
         var change = current.Value - previous.Value;
 

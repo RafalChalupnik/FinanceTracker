@@ -21,11 +21,4 @@ public class Debt
     /// History of debt value in the main currency.
     /// </summary>
     public required List<HistoricValue> AmountHistory { get; init; }
-    
-    /// <summary>
-    /// Gets the latest value of the debt.
-    /// </summary>
-    public decimal LatestAmount => AmountHistory
-        .GetLatestValue()
-        .AmountInMainCurrency;
 }

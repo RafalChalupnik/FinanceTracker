@@ -5,31 +5,45 @@ export class FetchData extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { forecasts: [], loading: true };
+    this.state = { portfolio: [], loading: true };
   }
 
   componentDidMount() {
     this.populateWeatherData();
   }
 
-  static renderForecastsTable(forecasts) {
+  static renderPortfolioTable(portfolio) {
     return (
       <table className="table table-striped" aria-labelledby="tableLabel">
         <thead>
           <tr>
             <th>Date</th>
-            <th>Temp. (C)</th>
-            <th>Temp. (F)</th>
-            <th>Summary</th>
+            {portfolio.data[0].wallets.map(_ =>
+                <>
+                  <th>Value</th>
+                  <th>Change</th>
+                  <th>Cumulative Change</th>
+                </>
+            )}
+            <th>Value</th>
+            <th>Change</th>
+            <th>Cumulative Change</th>
           </tr>
         </thead>
         <tbody>
-          {forecasts.map(forecast =>
-            <tr key={forecast.date}>
-              <td>{forecast.date}</td>
-              <td>{forecast.temperatureC}</td>
-              <td>{forecast.temperatureF}</td>
-              <td>{forecast.summary}</td>
+          {portfolio.data.map(data =>
+            <tr key={data.date}>
+              <td>{data.date}</td>
+              {data.wallets.map(wallet =>
+                  <>
+                    <td>{wallet.value}</td>
+                    <td>{wallet.change}</td>
+                    <td>{wallet.cumulativeChange}</td>
+                  </>
+              )}
+              <td>{data.summary.value}</td>
+              <td>{data.summary.change}</td>
+              <td>{data.summary.cumulativeChange}</td>
             </tr>
           )}
         </tbody>
@@ -40,11 +54,11 @@ export class FetchData extends Component {
   render() {
     let contents = this.state.loading
       ? <p><em>Loading...</em></p>
-      : FetchData.renderForecastsTable(this.state.forecasts);
+      : FetchData.renderPortfolioTable(this.state.portfolio);
 
     return (
       <div>
-        <h1 id="tableLabel">Weather forecast</h1>
+        <h1 id="tableLabel">Portfolio</h1>
         <p>This component demonstrates fetching data from the server.</p>
         {contents}
       </div>
@@ -52,8 +66,8 @@ export class FetchData extends Component {
   }
 
   async populateWeatherData() {
-    const response = await fetch('weatherforecast');
+    const response = await fetch('portfolio/summary');
     const data = await response.json();
-    this.setState({ forecasts: data, loading: false });
+    this.setState({ portfolio: data, loading: false });
   }
 }

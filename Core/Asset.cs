@@ -26,12 +26,4 @@ public class Asset
     /// Debt that is financing the asset - null if not specified.
     /// </summary>
     public Debt? FinancedBy { get; init; }
-    
-    /// <summary>
-    /// Gets the latest net value of the asset (including the debt that is financing it).
-    /// </summary>
-    public decimal LatestNetValue =>
-        ValueHistory
-            .GetLatestValue()
-            .AmountInMainCurrency - (FinancedBy?.LatestAmount ?? 0);
 }

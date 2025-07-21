@@ -26,12 +26,12 @@ public class Wallet
     /// Target value of the wallet in the main currency - null if not specified.
     /// </summary>
     public decimal? Target { get; init; }
-    
+
     /// <summary>
-    /// Gets the latest value of the wallet.
+    /// Gets value of the wallet for provided <see cref="DateOnly"/> in main currency.
     /// </summary>
-    public decimal LatestValue => Components
-        .Sum(x => x.LatestAmount);
+    public decimal GetAmountFor(DateOnly date) => Components
+        .Sum(component => component.GetAmountFor(date).AmountInMainCurrency);
 }
 
 public class Component
@@ -48,11 +48,13 @@ public class Component
     /// History of wallet component value in the main currency.
     /// </summary>
     public required List<HistoricValue> ValueHistory { get; init; }
-    
+
     /// <summary>
-    /// Gets the latest value of the wallet component.
+    /// Gets value of the wallet component for provided <see cref="DateOnly"/>.
     /// </summary>
-    public decimal LatestAmount => ValueHistory
-        .GetLatestValue()
-        .AmountInMainCurrency;
+    public Money GetAmountFor(DateOnly date) =>
+        ValueHistory
+            .OrderByDescending(x => x.Date)
+            .First(x => x.Date <= date)
+            .Value;
 }

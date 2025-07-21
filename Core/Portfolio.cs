@@ -29,12 +29,4 @@ public class Portfolio
     /// List of debts.
     /// </summary>
     public required List<Debt> Debts { get; init; }
-    
-    /// <summary>
-    /// Gets the latest value of the portfolio.
-    /// </summary>
-    public decimal LatestValue => Wallets
-        .Sum(x => x.LatestValue) + Assets
-        .Sum(x => x.LatestNetValue) - Debts
-        .Sum(x => x.LatestAmount);
 }
