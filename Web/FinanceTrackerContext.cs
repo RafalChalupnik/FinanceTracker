@@ -25,7 +25,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
     //     // );
     // }
 
-    private static Portfolio BuildTestPortfolio() =>
+    public static Portfolio BuildTestPortfolio() =>
         new()
         {
             Id = Guid.NewGuid(),
