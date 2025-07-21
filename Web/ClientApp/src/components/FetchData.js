@@ -17,8 +17,15 @@ export class FetchData extends Component {
       <table className="table table-striped" aria-labelledby="tableLabel">
         <thead>
           <tr>
+            <th/>
+            {portfolio.data[0].wallets.map(wallet =>
+                <th colSpan="3">{wallet.name}</th>
+            )}
+            <th colSpan="3">Summary</th>
+          </tr>
+          <tr>
             <th>Date</th>
-            {portfolio.data[0].wallets.map(_ =>
+            {portfolio.data[0].wallets.map(wallet =>
                 <>
                   <th>Value</th>
                   <th>Change</th>
@@ -36,14 +43,14 @@ export class FetchData extends Component {
               <td>{data.date}</td>
               {data.wallets.map(wallet =>
                   <>
-                    <td>{wallet.value}</td>
-                    <td>{wallet.change}</td>
-                    <td>{wallet.cumulativeChange}</td>
+                    <td style={{ textAlign: 'right' }}>{wallet.value} PLN</td>
+                    <td style={{ textAlign: 'right' }}>{wallet.change} PLN</td>
+                    <td style={{ textAlign: 'right' }}>{wallet.cumulativeChange} PLN</td>
                   </>
               )}
-              <td>{data.summary.value}</td>
-              <td>{data.summary.change}</td>
-              <td>{data.summary.cumulativeChange}</td>
+              <td style={{ textAlign: 'right' }}>{data.summary.value} PLN</td>
+              <td style={{ textAlign: 'right' }}>{data.summary.change} PLN</td>
+              <td style={{ textAlign: 'right' }}>{data.summary.cumulativeChange} PLN</td>
             </tr>
           )}
         </tbody>
