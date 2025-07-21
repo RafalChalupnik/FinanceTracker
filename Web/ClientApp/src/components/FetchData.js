@@ -10,10 +10,10 @@ export class FetchData extends Component {
   }
 
   componentDidMount() {
-    this.populateWeatherData();
+    this.populateWalletsData();
   }
 
-  static renderPortfolioTable(portfolio) {
+  static renderWalletsTable(portfolio) {
     return (
       <table className="table table-striped" aria-labelledby="tableLabel">
         <thead>
@@ -74,7 +74,7 @@ export class FetchData extends Component {
   render() {
     let contents = this.state.loading
       ? <p><em>Loading...</em></p>
-      : FetchData.renderPortfolioTable(this.state.portfolio);
+      : FetchData.renderWalletsTable(this.state.portfolio);
 
     return (
       <div>
@@ -85,8 +85,8 @@ export class FetchData extends Component {
     );
   }
 
-  async populateWeatherData() {
-    const response = await fetch('portfolio/summary');
+  async populateWalletsData() {
+    const response = await fetch('portfolio/wallets');
     const data = await response.json();
     this.setState({ portfolio: data, loading: false });
   }

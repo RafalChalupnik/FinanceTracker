@@ -1,6 +1,6 @@
 namespace FinanceTracker.Web.DTOs;
 
-public record PortfolioSummaryDto(
+public record WalletsSummaryDto(
     IReadOnlyCollection<DateSummaryDto> Data
 );
 

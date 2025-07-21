@@ -10,8 +10,8 @@ namespace FinanceTracker.Web.Controllers;
 [Route("portfolio")]
 public class PortfolioController(FinanceTrackerContext context) : ControllerBase
 {
-    [HttpGet("summary")]
-    public PortfolioSummaryDto GetSummary()
+    [HttpGet("wallets")]
+    public WalletsSummaryDto GetWallets()
     {
         var portfolio = context.Portfolios
             .Include(portfolio => portfolio.Wallets)
@@ -27,7 +27,7 @@ public class PortfolioController(FinanceTrackerContext context) : ControllerBase
             .OrderBy(date => date)
             .ToArray();
 
-        return new PortfolioSummaryDto(
+        return new WalletsSummaryDto(
             dates
                 .Select(date => BuildDateSummary(date, portfolio.Wallets))
                 .ToArray()
