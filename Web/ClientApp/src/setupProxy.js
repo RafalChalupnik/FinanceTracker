@@ -8,7 +8,8 @@ const context = [
   "/portfolio/summary",
   "/portfolio/wallets",
   "/wallets",
-  "/assets"
+  "/assets",
+  "/debts",
 ];
 
 const onError = (err, req, resp, target) => {

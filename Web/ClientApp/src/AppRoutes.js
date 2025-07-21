@@ -2,6 +2,7 @@ import { WalletsSummary } from "./components/WalletsSummary";
 import {PortfolioSummary} from "./components/PortfolioSummary";
 import {Wallets} from "./components/Wallets";
 import {Assets} from "./components/Assets";
+import {Debts} from "./components/Debts";
 
 const AppRoutes = [
   {
@@ -20,6 +21,10 @@ const AppRoutes = [
   {
     path: '/assets',
     element: <Assets />
+  },
+  {
+    path: '/debts',
+    element: <Debts />
   },
 ];
 

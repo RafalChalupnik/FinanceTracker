@@ -7,57 +7,57 @@ using Microsoft.EntityFrameworkCore;
 namespace FinanceTracker.Web.Controllers;
 
 [ApiController]
-[Route("assets")]
-public class AssetsController(FinanceTrackerContext context) : ControllerBase
+[Route("debts")]
+public class DebtsController(FinanceTrackerContext context) : ControllerBase
 {
     [HttpGet]
-    public AssetsDto GetAssets()
+    public DebtsDto GetDebts()
     {
-        var assets = context.Assets
-            .Include(asset => asset.ValueHistory)
+        var debts = context.Debts
+            .Include(debt => debt.AmountHistory)
             .ToArray();
         
-        var dates = assets
-            .SelectMany(asset => asset.ValueHistory
+        var dates = debts
+            .SelectMany(debt => debt.AmountHistory
                 .Select(date => date.Date))
             .Distinct()
             .OrderBy(date => date)
             .ToArray();
 
-        return new AssetsDto(
+        return new DebtsDto(
             Data: dates
-                .Select(date => BuildAssetsDataDto(date, assets))
+                .Select(date => BuildDebtsDataDto(date, debts))
                 .ToArray()
                 .Scan(CalculateChanges)
                 .ToArray()
         );
     }
-
-    private static AssetDataDto BuildAssetsDataDto(DateOnly date, IEnumerable<Asset> assets)
+    
+    private static DebtDataDto BuildDebtsDataDto(DateOnly date, IEnumerable<Debt> assets)
     {
-        var assetDtos = assets
+        var debtDtos = assets
             .Select(asset => new ValueSnapshotDto(
                 Name: asset.Name,
-                Value: asset.GetValueFor(date).AmountInMainCurrency
+                Value: -asset.GetAmountFor(date).AmountInMainCurrency
             ))
             .ToArray();
         
-        return new AssetDataDto(
+        return new DebtDataDto(
             Date: date,
-            Assets: assetDtos,
+            Debts: debtDtos,
             Summary: new ValueSnapshotDto(
                 Name: "Summary",
-                Value: assetDtos.Sum(asset => asset.Value)
+                Value: debtDtos.Sum(debt => debt.Value)
             )
         );
     }
     
-    private static AssetDataDto CalculateChanges(AssetDataDto previous, AssetDataDto current)
+    private static DebtDataDto CalculateChanges(DebtDataDto previous, DebtDataDto current)
     {
         return current with
         {
-            Assets = previous.Assets
-                .Zip(current.Assets)
+            Debts = previous.Debts
+                .Zip(current.Debts)
                 .Select(pair => ValueSnapshotDto.CalculateChanges(pair.First, pair.Second))
                 .ToArray(),
             Summary = ValueSnapshotDto.CalculateChanges(previous.Summary, current.Summary)
