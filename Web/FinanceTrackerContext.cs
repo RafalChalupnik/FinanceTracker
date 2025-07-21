@@ -49,6 +49,12 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                                     Id = Guid.NewGuid(),
                                     Date = new DateOnly(2025, 04, 01),
                                     Value = new Money(20_000, "PLN", 20_000)
+                                },
+                                new HistoricValue
+                                {
+                                    Id = Guid.NewGuid(),
+                                    Date = new DateOnly(2025, 05, 01),
+                                    Value = new Money(25_000, "PLN", 25_000)
                                 }
                             ]
                         },
@@ -63,6 +69,12 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                                     Id = Guid.NewGuid(),
                                     Date = new DateOnly(2025, 04, 01),
                                     Value = new Money(5_000, "PLN", 5_000)
+                                },
+                                new HistoricValue
+                                {
+                                    Id = Guid.NewGuid(),
+                                    Date = new DateOnly(2025, 06, 01),
+                                    Value = new Money(4_500, "PLN", 4_500)
                                 }
                             ]
                         },
@@ -91,6 +103,12 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                                     Id = Guid.NewGuid(),
                                     Date = new DateOnly(2025, 04, 01),
                                     Value = new Money(20_000, "PLN", 20_000)
+                                },
+                                new HistoricValue
+                                {
+                                    Id = Guid.NewGuid(),
+                                    Date = new DateOnly(2025, 05, 01),
+                                    Value = new Money(22_000, "PLN", 22_000)
                                 }
                             ]
                         },

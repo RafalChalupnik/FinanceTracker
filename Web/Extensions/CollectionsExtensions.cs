@@ -9,9 +9,12 @@ internal static class CollectionsExtensions
             return source;
         }
 
-        var output = new List<T>(capacity: source.Count);
+        var output = new List<T>(capacity: source.Count)
+        {
+            source[0]
+        };
 
-        for (var i = 1; i <= source.Count; i++)
+        for (var i = 1; i < source.Count; i++)
         {
             output.Add(scanFunction(source[i - 1], source[i]));
         }

@@ -24,12 +24,12 @@ export class FetchData extends Component {
             <th colSpan="3">Summary</th>
           </tr>
           <tr>
-            <th>Date</th>
+            <th style={{ borderRight: '1px solid black' }}>Date</th>
             {portfolio.data[0].wallets.map(wallet =>
                 <>
                   <th>Value</th>
                   <th>Change</th>
-                  <th>Cumulative Change</th>
+                  <th style={{ borderRight: '1px solid black' }}>Cumulative Change</th>
                 </>
             )}
             <th>Value</th>
@@ -40,12 +40,12 @@ export class FetchData extends Component {
         <tbody>
           {portfolio.data.map(data =>
             <tr key={data.date}>
-              <td>{data.date}</td>
+              <td style={{ borderRight: '1px solid black' }}>{data.date}</td>
               {data.wallets.map(wallet =>
                   <>
                     <td style={{ textAlign: 'right' }}>{wallet.value} PLN</td>
                     <td style={{ textAlign: 'right' }}>{wallet.change} PLN</td>
-                    <td style={{ textAlign: 'right' }}>{wallet.cumulativeChange} PLN</td>
+                    <td style={{ textAlign: 'right', borderRight: '1px solid black' }}>{wallet.cumulativeChange} PLN</td>
                   </>
               )}
               <td style={{ textAlign: 'right' }}>{data.summary.value} PLN</td>
