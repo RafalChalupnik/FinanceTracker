@@ -63,7 +63,7 @@ public class PortfolioController(FinanceTrackerContext context) : ControllerBase
                 .Zip(current.Wallets)
                 .Select(pair => CalculateChanges(pair.First, pair.Second))
                 .ToArray(),
-            Summary = CalculateChanges(current.Summary, previous.Summary)
+            Summary = CalculateChanges(previous.Summary, current.Summary)
         };
     }
 

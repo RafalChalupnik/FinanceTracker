@@ -1,5 +1,3 @@
-using FinanceTracker.Core.Primitives;
-
 namespace FinanceTracker.Web.DTOs;
 
 public record PortfolioSummaryDto(

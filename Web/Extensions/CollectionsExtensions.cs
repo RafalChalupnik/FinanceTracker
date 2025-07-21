@@ -14,9 +14,9 @@ internal static class CollectionsExtensions
             source[0]
         };
 
-        for (var i = 1; i < source.Count; i++)
+        foreach (var current in source.Skip(1))
         {
-            output.Add(scanFunction(source[i - 1], source[i]));
+            output.Add(scanFunction(output.Last(), current));
         }
 
         return output;
