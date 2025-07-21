@@ -30,8 +30,8 @@ public class Wallet
     /// <summary>
     /// Gets value of the wallet for provided <see cref="DateOnly"/> in main currency.
     /// </summary>
-    public decimal GetAmountFor(DateOnly date) => Components
-        .Sum(component => component.GetAmountFor(date).AmountInMainCurrency);
+    public decimal GetValueFor(DateOnly date) => Components
+        .Sum(component => component.GetValueFor(date).AmountInMainCurrency);
 }
 
 public class Component
@@ -52,7 +52,7 @@ public class Component
     /// <summary>
     /// Gets value of the wallet component for provided <see cref="DateOnly"/>.
     /// </summary>
-    public Money GetAmountFor(DateOnly date) =>
+    public Money GetValueFor(DateOnly date) =>
         ValueHistory
             .OrderByDescending(x => x.Date)
             .First(x => x.Date <= date)

@@ -1,18 +1,12 @@
 namespace FinanceTracker.Web.DTOs;
 
 public record WalletsSummaryDto(
-    IReadOnlyCollection<DateSummaryDto> Data
+    IReadOnlyCollection<WalletsDateSummaryDto> Data
 );
 
-public record DateSummaryDto(
+public record WalletsDateSummaryDto(
     DateOnly Date,
     IReadOnlyCollection<ValueSnapshotDto> Wallets,
     ValueSnapshotDto Summary
-    );
-
-public record ValueSnapshotDto(
-    string Name,
-    decimal Value,
-    decimal Change = 0,
-    decimal CumulativeChange = 0
 );
+

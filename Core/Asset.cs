@@ -26,4 +26,13 @@ public class Asset
     /// Debt that is financing the asset - null if not specified.
     /// </summary>
     public Debt? FinancedBy { get; init; }
+    
+    /// <summary>
+    /// Gets value of the wallet component for provided <see cref="DateOnly"/>.
+    /// </summary>
+    public decimal GetValueFor(DateOnly date) =>
+        ValueHistory
+            .OrderByDescending(x => x.Date)
+            .First(x => x.Date <= date)
+            .Value.AmountInMainCurrency - (FinancedBy?.GetAmountFor(date).AmountInMainCurrency ?? 0);
 }
