@@ -6,7 +6,7 @@ export class Wallets extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { portfolio: [], loading: true };
+        this.state = { data: [], loading: true };
     }
 
     componentDidMount() {
@@ -22,11 +22,9 @@ export class Wallets extends Component {
                         <h1>{wallet.name}</h1>
                         <SummaryTable
                             data={wallet.data}
-                            selectFunc={data => {return {
-                                components: data.components,
-                                summary: data.summary
-                            }}}
-                            isEditable="true"/>
+                            selectFunc={data => data}
+                            isEditable="true"
+                            onUpdate={this.updateComponent}/>
                     </div>
                 )}
             </div>
@@ -36,7 +34,28 @@ export class Wallets extends Component {
         );
     }
 
-    async populateData() {
+    updateComponent = async (id, date, value) => {
+        const response = await fetch("wallets/components/" + id, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                date: date,
+                value: value
+            }),
+        });
+        
+        console.log(response)       
+
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        await this.populateData();
+    }
+
+    populateData = async () => {
         const response = await fetch('wallets');
         const data = await response.json();
         this.setState({ data: data, loading: false });

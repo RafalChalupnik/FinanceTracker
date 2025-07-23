@@ -63,6 +63,7 @@ public class AssetsController(FinanceTrackerContext context) : ControllerBase
             };
 
             asset.ValueHistory.Add(newEntry);
+            context.HistoricValues.Add(newEntry);
         }
 
         await context.SaveChangesAsync();

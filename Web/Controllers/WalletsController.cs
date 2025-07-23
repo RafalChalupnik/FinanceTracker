@@ -1,4 +1,5 @@
 using FinanceTracker.Core;
+using FinanceTracker.Core.Primitives;
 using FinanceTracker.Web.DTOs;
 using FinanceTracker.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -32,6 +33,42 @@ public class WalletsController(FinanceTrackerContext context) : ControllerBase
                 .ToArray()
         );
     }
+    
+    [HttpPut("components/{componentId:guid}")]
+    public async Task<IActionResult> EvaluateWalletComponent(Guid componentId, [FromBody] ValueUpdateDto valueUpdate)
+    {
+        var component = context.Components
+            .Include(component => component.ValueHistory)
+            .FirstOrDefault(component => component.Id == componentId);
+
+        if (component == null)
+        {
+            return NotFound();
+        }
+
+        var alreadyExistingEntry = component.ValueHistory.FirstOrDefault(entry => entry.Date == valueUpdate.Date);
+        var newMoney = new Money(valueUpdate.Value, "PLN", valueUpdate.Value);
+        
+        if (alreadyExistingEntry != null)
+        {
+            alreadyExistingEntry.Value = newMoney;
+        }
+        else
+        {
+            var newEntry = new HistoricValue
+            {
+                Id = Guid.NewGuid(),
+                Date = valueUpdate.Date,
+                Value = newMoney
+            };
+
+            component.ValueHistory.Add(newEntry);
+            context.HistoricValues.Add(newEntry);
+        }
+
+        await context.SaveChangesAsync();
+        return Ok();
+    }
 
     private static WalletDto BuildWalletDto(Wallet wallet, IReadOnlyCollection<DateOnly> dates)
     {
@@ -50,6 +87,7 @@ public class WalletsController(FinanceTrackerContext context) : ControllerBase
         var components = wallet.Components
             .Select(component => new ValueSnapshotDto(
                 Name: component.Name,
+                Id: component.Id,
                 Value: component.GetValueFor(date).AmountInMainCurrency
             ))
             .ToArray();

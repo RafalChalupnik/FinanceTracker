@@ -63,6 +63,7 @@ public class DebtsController(FinanceTrackerContext context) : ControllerBase
             };
 
             debt.AmountHistory.Add(newEntry);
+            context.HistoricValues.Add(newEntry);
         }
 
         await context.SaveChangesAsync();
