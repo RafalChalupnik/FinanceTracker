@@ -45,28 +45,10 @@ public class AssetsController(FinanceTrackerContext context) : ControllerBase
         {
             return NotFound();
         }
-
-        var alreadyExistingEntry = asset.ValueHistory.FirstOrDefault(entry => entry.Date == valueUpdate.Date);
-        var newMoney = new Money(valueUpdate.Value, "PLN", valueUpdate.Value);
         
-        if (alreadyExistingEntry != null)
-        {
-            alreadyExistingEntry.Value = newMoney;
-        }
-        else
-        {
-            var newEntry = new HistoricValue
-            {
-                Id = Guid.NewGuid(),
-                Date = valueUpdate.Date,
-                Value = newMoney
-            };
-
-            asset.ValueHistory.Add(newEntry);
-            context.HistoricValues.Add(newEntry);
-        }
-
+        asset.Evaluate(valueUpdate.Date, new Money(valueUpdate.Value, "PLN", valueUpdate.Value));
         await context.SaveChangesAsync();
+        
         return NoContent();
     }
 
