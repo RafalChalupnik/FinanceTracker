@@ -3,7 +3,8 @@ import Money from "./Money";
 import {EditableMoney} from "./EditableMoney";
 
 const SummaryTable = ({data, selectFunc}) => {
-    let components = selectFunc(data[0])
+    let firstRow = selectFunc(data[0])
+    let components = [...firstRow.components, firstRow.summary]
     
     return (
         <table className="table table-striped" aria-labelledby="tableLabel">
@@ -30,7 +31,7 @@ const SummaryTable = ({data, selectFunc}) => {
             {data.map(row =>
                 <tr key={row.date}>
                     <td>{row.date}</td>
-                    {selectFunc(row).map(component =>
+                    {selectFunc(row).components.map(component =>
                         <>
                             <td style={{borderLeft: '1px solid black'}}>
                                 {/*<Money amount={component.value}/>*/}
@@ -49,6 +50,15 @@ const SummaryTable = ({data, selectFunc}) => {
                             </td>
                         </>
                     )}
+                    <td style={{borderLeft: '1px solid black'}}>
+                        <Money amount={selectFunc(row).summary.value}/>
+                    </td>
+                    <td>
+                        <Money amount={selectFunc(row).summary.change} colorCoding="true"/>
+                    </td>
+                    <td>
+                        <Money amount={selectFunc(row).summary.cumulativeChange} colorCoding="true"/>
+                    </td>
                 </tr>
             )}
             </tbody>

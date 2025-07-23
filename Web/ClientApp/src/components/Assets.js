@@ -18,7 +18,10 @@ export class Assets extends Component {
             ? <p><em>Loading...</em></p>
             : <SummaryTable
                 data={this.state.data}
-                selectFunc={data => [...data.assets, data.summary]} />
+                selectFunc={data => {return {
+                    components: data.assets,
+                    summary: data.summary
+                }}} />
 
         return (
             <div>

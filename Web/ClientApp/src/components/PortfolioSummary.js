@@ -18,7 +18,10 @@ export class PortfolioSummary extends Component {
             ? <p><em>Loading...</em></p>
             : <SummaryTable 
                 data={this.state.data}
-                selectFunc={data => [data.wallets, data.assets, data.debts, data.summary]} />
+                selectFunc={data => {return {
+                    components: [data.wallets, data.assets, data.debts],
+                    summary: data.summary
+                }}} />
 
         return (
             <div>

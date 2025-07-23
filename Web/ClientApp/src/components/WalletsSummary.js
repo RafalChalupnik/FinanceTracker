@@ -18,7 +18,11 @@ export class WalletsSummary extends Component {
         ? <p><em>Loading...</em></p>
         : <SummaryTable
             data={this.state.data}
-            selectFunc={data => [...data.wallets, data.summary]} />
+            selectFunc={data => {return {
+              components: data.wallets,
+              summary: data.summary
+            }}} 
+        />
     
     return (
       <div>

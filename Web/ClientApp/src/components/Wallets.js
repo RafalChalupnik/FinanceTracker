@@ -22,7 +22,10 @@ export class Wallets extends Component {
                         <h1>{wallet.name}</h1>
                         <SummaryTable
                             data={wallet.data}
-                            selectFunc={data => [...data.components, data.summary]} />
+                            selectFunc={data => {return {
+                                components: data.components,
+                                summary: data.summary
+                            }}} />
                     </div>
                 )}
             </div>
