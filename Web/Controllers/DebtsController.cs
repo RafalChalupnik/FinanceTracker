@@ -70,6 +70,18 @@ public class DebtsController(FinanceTrackerContext context) : ControllerBase
         return Ok();
     }
     
+    [HttpDelete("{date}")]
+    public async Task<IActionResult> DeleteEvaluationsFor(DateOnly date)
+    {
+        await context.Debts
+            .Include(debt => debt.AmountHistory)
+            .SelectMany(debt => debt.AmountHistory)
+            .Where(entry => entry.Date == date)
+            .ExecuteDeleteAsync();
+
+        return NoContent();
+    }
+    
     private static DebtDataDto BuildDebtsDataDto(DateOnly date, IEnumerable<Debt> assets)
     {
         var debtDtos = assets
