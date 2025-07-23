@@ -71,6 +71,7 @@ public class AssetsController(FinanceTrackerContext context) : ControllerBase
     private static AssetDataDto BuildAssetsDataDto(DateOnly date, IEnumerable<Asset> assets)
     {
         var assetDtos = assets
+            .OrderBy(asset => asset.DisplaySequence)
             .Select(asset => new ValueSnapshotDto(
                 Name: asset.Name,
                 Value: asset.GetValueFor(date)?.AmountInMainCurrency ?? 0,

@@ -46,7 +46,11 @@ public class DebtsController(FinanceTrackerContext context) : ControllerBase
             return NotFound();
         }
         
-        debt.Evaluate(valueUpdate.Date, new Money(Math.Abs(valueUpdate.Value), "PLN", Math.Abs(valueUpdate.Value)));
+        var newValue = debt.Evaluate(valueUpdate.Date, new Money(Math.Abs(valueUpdate.Value), "PLN", Math.Abs(valueUpdate.Value)));
+        if (newValue != null)
+        {
+            context.Add(newValue);
+        }
         await context.SaveChangesAsync();
         
         return Ok();
@@ -67,6 +71,7 @@ public class DebtsController(FinanceTrackerContext context) : ControllerBase
     private static DebtDataDto BuildDebtsDataDto(DateOnly date, IEnumerable<Debt> assets)
     {
         var debtDtos = assets
+            .OrderBy(asset => asset.DisplaySequence)
             .Select(debt => new ValueSnapshotDto(
                 Name: debt.Name,
                 Id: debt.Id,

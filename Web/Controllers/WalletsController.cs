@@ -21,6 +21,7 @@ public class WalletsController(FinanceTrackerContext context) : ControllerBase
 
         return new WalletsDto(
             Wallets: wallets
+                .OrderBy(asset => asset.DisplaySequence)
                 .Select(BuildWalletDto)
                 .ToArray()
         );
@@ -38,7 +39,11 @@ public class WalletsController(FinanceTrackerContext context) : ControllerBase
             return NotFound();
         }
 
-        component.Evaluate(valueUpdate.Date, new Money(Math.Abs(valueUpdate.Value), "PLN", Math.Abs(valueUpdate.Value)));
+        var newValue = component.Evaluate(valueUpdate.Date, new Money(valueUpdate.Value, "PLN", valueUpdate.Value));
+        if (newValue != null)
+        {
+            context.Add(newValue);
+        }
         await context.SaveChangesAsync();
 
         return Ok();
@@ -82,6 +87,7 @@ public class WalletsController(FinanceTrackerContext context) : ControllerBase
     private static WalletDataDto BuildWalletDataDto(Wallet wallet, DateOnly date)
     {
         var components = wallet.Components
+            .OrderBy(asset => asset.DisplaySequence)
             .Select(component => new ValueSnapshotDto(
                 Name: component.Name,
                 Id: component.Id,

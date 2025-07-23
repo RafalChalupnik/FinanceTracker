@@ -27,6 +27,12 @@ public class PortfolioController(FinanceTrackerContext context) : ControllerBase
             .SelectMany(wallet => wallet.Components)
             .SelectMany(component => component.ValueHistory
                 .Select(date => date.Date))
+            .Concat(portfolio.Assets
+                .SelectMany(asset => asset.ValueHistory)
+                .Select(date => date.Date))
+            .Concat(portfolio.Debts
+                .SelectMany(debt => debt.ValueHistory)
+                .Select(date => date.Date))
             .Distinct()
             .OrderBy(date => date)
             .ToArray();
@@ -109,6 +115,7 @@ public class PortfolioController(FinanceTrackerContext context) : ControllerBase
     private static WalletsDateSummaryDto BuildWalletsDateSummary(DateOnly date, IEnumerable<Wallet> wallets)
     {
         var walletDtos = wallets
+            .OrderBy(asset => asset.DisplaySequence)
             .Select(wallet => new ValueSnapshotDto(
                 Name: wallet.Name,
                 Value: wallet.GetValueFor(date)
