@@ -1,4 +1,5 @@
 using FinanceTracker.Core;
+using FinanceTracker.Core.Primitives;
 using FinanceTracker.Web.DTOs;
 using FinanceTracker.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -33,12 +34,48 @@ public class AssetsController(FinanceTrackerContext context) : ControllerBase
         );
     }
 
+    [HttpPut("{assetId:guid}")]
+    public async Task<IActionResult> EvaluateAsset(Guid assetId, [FromBody] ValueUpdateDto valueUpdate)
+    {
+        var asset = context.Assets
+            .Include(asset => asset.ValueHistory)
+            .FirstOrDefault(asset => asset.Id == assetId);
+
+        if (asset == null)
+        {
+            return NotFound();
+        }
+
+        var alreadyExistingEntry = asset.ValueHistory.FirstOrDefault(entry => entry.Date == valueUpdate.Date);
+        var newMoney = new Money(valueUpdate.Value, "PLN", valueUpdate.Value);
+        
+        if (alreadyExistingEntry != null)
+        {
+            alreadyExistingEntry.Value = newMoney;
+        }
+        else
+        {
+            var newEntry = new HistoricValue
+            {
+                Id = Guid.NewGuid(),
+                Date = valueUpdate.Date,
+                Value = newMoney
+            };
+
+            asset.ValueHistory.Add(newEntry);
+        }
+
+        await context.SaveChangesAsync();
+        return Ok();
+    }
+
     private static AssetDataDto BuildAssetsDataDto(DateOnly date, IEnumerable<Asset> assets)
     {
         var assetDtos = assets
             .Select(asset => new ValueSnapshotDto(
                 Name: asset.Name,
-                Value: asset.GetValueFor(date).AmountInMainCurrency
+                Value: asset.GetValueFor(date).AmountInMainCurrency,
+                Id: asset.Id
             ))
             .ToArray();
         

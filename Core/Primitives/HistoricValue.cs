@@ -9,5 +9,5 @@ public class HistoricValue
     
     public DateOnly Date { get; init; }
     
-    public required Money Value { get; init; }
+    public required Money Value { get; set; }
 }

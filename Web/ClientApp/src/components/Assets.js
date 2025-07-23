@@ -23,6 +23,7 @@ export class Assets extends Component {
                     summary: data.summary
                 }}}
                 isEditable="true"
+                onUpdate={this.updateAsset}
             />
 
         return (
@@ -32,8 +33,28 @@ export class Assets extends Component {
             </div>
         );
     }
+    
+    updateAsset = async (id, date, value) => {
+        const response = await fetch("assets/" + id, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ 
+                date: date,
+                value: value
+            }),
+        });
 
-    async populateData() {
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        await this.populateData();
+    }
+
+    populateData = async () => {
+        console.log('Foo')
         const response = await fetch('assets');
         const data = await response.json();
         this.setState({ data: data.data, loading: false });

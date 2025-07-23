@@ -1,22 +1,22 @@
 import {useState} from "react";
 import Money from "./Money";
 
-export const EditableMoney = ({amount, onNewAmount}) => {
+export const EditableMoney = ({value, onNewValue}) => {
     const [editMode, setEditMode] = useState(false);
-    const [currentAmount, setCurrentAmount] = useState(amount);
+    const [currentValue, setCurrentValue] = useState(value);
     
     if (editMode) {
         return (
             <>
             <input 
                 type="number" 
-                value={currentAmount} 
-                onChange={e => setCurrentAmount(e.target.value)} 
+                value={currentValue} 
+                onChange={e => setCurrentValue(e.target.value)} 
             />
             <button 
                 onClick={() => {
                     setEditMode(false);
-                    onNewAmount(currentAmount);
+                    onNewValue(currentValue);
                 }}
             >
                 Save
@@ -27,7 +27,7 @@ export const EditableMoney = ({amount, onNewAmount}) => {
         return (
             <div style={{float: 'right'}}>
             <Money 
-                amount={currentAmount}
+                amount={currentValue}
             />
             <button onClick={() => setEditMode(true)}>Edit</button>
             </div>
