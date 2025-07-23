@@ -1,4 +1,5 @@
 using FinanceTracker.Core;
+using FinanceTracker.Core.Primitives;
 using FinanceTracker.Web.DTOs;
 using FinanceTracker.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -33,12 +34,48 @@ public class DebtsController(FinanceTrackerContext context) : ControllerBase
         );
     }
     
+    [HttpPut("{debtId:guid}")]
+    public async Task<IActionResult> EvaluateDebt(Guid debtId, [FromBody] ValueUpdateDto valueUpdate)
+    {
+        var debt = context.Debts
+            .Include(debt => debt.AmountHistory)
+            .FirstOrDefault(debt => debt.Id == debtId);
+
+        if (debt == null)
+        {
+            return NotFound();
+        }
+
+        var alreadyExistingEntry = debt.AmountHistory.FirstOrDefault(entry => entry.Date == valueUpdate.Date);
+        var newMoney = new Money(Math.Abs(valueUpdate.Value), "PLN", Math.Abs(valueUpdate.Value));
+        
+        if (alreadyExistingEntry != null)
+        {
+            alreadyExistingEntry.Value = newMoney;
+        }
+        else
+        {
+            var newEntry = new HistoricValue
+            {
+                Id = Guid.NewGuid(),
+                Date = valueUpdate.Date,
+                Value = newMoney
+            };
+
+            debt.AmountHistory.Add(newEntry);
+        }
+
+        await context.SaveChangesAsync();
+        return Ok();
+    }
+    
     private static DebtDataDto BuildDebtsDataDto(DateOnly date, IEnumerable<Debt> assets)
     {
         var debtDtos = assets
-            .Select(asset => new ValueSnapshotDto(
-                Name: asset.Name,
-                Value: -asset.GetAmountFor(date).AmountInMainCurrency
+            .Select(debt => new ValueSnapshotDto(
+                Name: debt.Name,
+                Id: debt.Id,
+                Value: -debt.GetAmountFor(date).AmountInMainCurrency
             ))
             .ToArray();
         

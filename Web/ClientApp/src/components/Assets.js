@@ -54,7 +54,6 @@ export class Assets extends Component {
     }
 
     populateData = async () => {
-        console.log('Foo')
         const response = await fetch('assets');
         const data = await response.json();
         this.setState({ data: data.data, loading: false });

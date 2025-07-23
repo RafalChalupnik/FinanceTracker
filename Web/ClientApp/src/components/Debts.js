@@ -23,6 +23,7 @@ export class Debts extends Component {
                     summary: data.summary
                 }}}
                 isEditable="true"
+                onUpdate={this.updateDebt}
             />
 
         return (
@@ -33,7 +34,26 @@ export class Debts extends Component {
         );
     }
 
-    async populateData() {
+    updateDebt = async (id, date, value) => {
+        const response = await fetch("debts/" + id, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                date: date,
+                value: value
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        await this.populateData();
+    }
+
+    populateData = async () => {
         const response = await fetch('debts');
         const data = await response.json();
         this.setState({ data: data.data, loading: false });
