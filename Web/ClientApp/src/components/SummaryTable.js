@@ -83,7 +83,9 @@ const SummaryTable = ({data, selectFunc, isEditable, onUpdate, onDelete}) => {
                         <td style={{borderLeft: '1px solid black'}}>
                             <EditableMoney
                                 value={0}
-                                onNewValue={newAmount => onUpdate(component.id, newRowDate, newAmount)}
+                                onNewValue={newAmount => {
+                                    onUpdate(component.id, newRowDate, newAmount);
+                                }}
                                 initialEditMode="true"
                             />
                         </td>

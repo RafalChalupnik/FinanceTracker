@@ -26,6 +26,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 b.HasKey(x => x.Id);
                 b.Property(x => x.Name);
                 b.Property(x => x.DisplaySequence);
+                b.HasMany(x => x.ValueHistory);
             });
         
         modelBuilder.Entity<Component>(

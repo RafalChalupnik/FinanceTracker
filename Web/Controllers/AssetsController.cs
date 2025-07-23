@@ -46,7 +46,11 @@ public class AssetsController(FinanceTrackerContext context) : ControllerBase
             return NotFound();
         }
         
-        asset.Evaluate(valueUpdate.Date, new Money(valueUpdate.Value, "PLN", valueUpdate.Value));
+        var newValue = asset.Evaluate(valueUpdate.Date, new Money(valueUpdate.Value, "PLN", valueUpdate.Value));
+        if (newValue != null)
+        {
+            context.Add(newValue);
+        }
         await context.SaveChangesAsync();
         
         return NoContent();

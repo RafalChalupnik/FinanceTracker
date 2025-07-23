@@ -16,22 +16,26 @@ public abstract class EntityWithValueHistory
     /// <summary>
     /// Sets value for specific date.
     /// </summary>
-    public void Evaluate(DateOnly date, Money value)
+    public HistoricValue? Evaluate(DateOnly date, Money value)
     {
         var alreadyExistingEntry = ValueHistory.FirstOrDefault(entry => entry.Date == date);
 
         if (alreadyExistingEntry != null)
         {
             alreadyExistingEntry.Value = value;
+            return null;
         }
         else
         {
-            _valueHistory.Add(new HistoricValue
+            var newValue = new HistoricValue
             {
                 Id = Guid.NewGuid(),
                 Date = date,
                 Value = value
-            });
+            };
+            
+            _valueHistory.Add(newValue);
+            return newValue;
         }
     }
     
