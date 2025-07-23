@@ -24,6 +24,9 @@ namespace FinanceTracker.Web.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("DisplaySequence")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -44,6 +47,9 @@ namespace FinanceTracker.Web.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("DisplaySequence")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -63,6 +69,9 @@ namespace FinanceTracker.Web.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("DisplaySequence")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -89,6 +98,9 @@ namespace FinanceTracker.Web.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Portfolios");
                 });
@@ -143,14 +155,14 @@ namespace FinanceTracker.Web.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("DisplaySequence")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("PortfolioId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal?>("Target")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -192,7 +204,7 @@ namespace FinanceTracker.Web.Migrations
                         .HasForeignKey("ComponentId");
 
                     b.HasOne("FinanceTracker.Core.Debt", null)
-                        .WithMany("AmountHistory")
+                        .WithMany("ValueHistory")
                         .HasForeignKey("DebtId");
                 });
 
@@ -215,7 +227,7 @@ namespace FinanceTracker.Web.Migrations
 
             modelBuilder.Entity("FinanceTracker.Core.Debt", b =>
                 {
-                    b.Navigation("AmountHistory");
+                    b.Navigation("ValueHistory");
                 });
 
             modelBuilder.Entity("FinanceTracker.Core.Portfolio", b =>

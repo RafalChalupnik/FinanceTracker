@@ -1,59 +1,66 @@
 using System.ComponentModel.DataAnnotations;
-using FinanceTracker.Core.Primitives;
+using FinanceTracker.Core.Exceptions;
 
 namespace FinanceTracker.Core;
 
 /// <summary>
 /// Represents a wallet, consisting of <see cref="Component"/>.
 /// </summary>
-public class Wallet
+public class Wallet(string name, int displaySequence)
 {
-    [Key]
-    public Guid Id { get; init; }
+    private readonly List<Component> _components = [];
     
+    [Key]
+    public Guid Id { get; init; } = Guid.NewGuid();
+
     /// <summary>
     /// User-friendly name of the wallet.
     /// </summary>
-    public required string Name { get; init; }
+    public string Name => name;
     
+    /// <summary>
+    /// Sequence in which wallets should be displayed.
+    /// </summary>
+    public int DisplaySequence => displaySequence;
+
     /// <summary>
     /// Components of the wallet.
     /// </summary>
-    public required List<Component> Components { get; init; }
-    
-    /// <summary>
-    /// Target value of the wallet in the main currency - null if not specified.
-    /// </summary>
-    public decimal? Target { get; init; }
+    public IReadOnlyList<Component> Components => _components;
 
     /// <summary>
     /// Gets value of the wallet for provided <see cref="DateOnly"/> in main currency.
     /// </summary>
     public decimal GetValueFor(DateOnly date) => Components
-        .Sum(component => component.GetValueFor(date).AmountInMainCurrency);
+        .Sum(component => component.GetValueFor(date)?.AmountInMainCurrency ?? 0);
+
+    /// <summary>
+    /// Adds <see cref="Component"/> to the wallet.
+    /// </summary>
+    /// <exception cref="DuplicateException"/>
+    public void Add(Component component)
+    {
+        if (Components.Any(x => x.Name == component.Name))
+        {
+            throw new DuplicateException(entityType: nameof(Component), duplicatedValue: component.Name);
+        }
+
+        _components.Add(component);
+    }
 }
 
-public class Component
+public class Component(string name, int displaySequence) : EntityWithValueHistory
 {
     [Key]
-    public Guid Id { get; init; }
-    
+    public Guid Id { get; init; } = Guid.NewGuid();
+
     /// <summary>
     /// User-friendly name of the wallet component.
     /// </summary>
-    public required string Name { get; init; }
+    public string Name => name;
     
     /// <summary>
-    /// History of wallet component value in the main currency.
+    /// Sequence in which wallets should be displayed.
     /// </summary>
-    public required List<HistoricValue> ValueHistory { get; init; }
-
-    /// <summary>
-    /// Gets value of the wallet component for provided <see cref="DateOnly"/>.
-    /// </summary>
-    public Money GetValueFor(DateOnly date) =>
-        ValueHistory
-            .OrderByDescending(x => x.Date)
-            .First(x => x.Date <= date)
-            .Value;
+    public int DisplaySequence => displaySequence;
 }

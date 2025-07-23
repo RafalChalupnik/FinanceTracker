@@ -38,27 +38,9 @@ public class WalletsController(FinanceTrackerContext context) : ControllerBase
             return NotFound();
         }
 
-        var alreadyExistingEntry = component.ValueHistory.FirstOrDefault(entry => entry.Date == valueUpdate.Date);
-        var newMoney = new Money(valueUpdate.Value, "PLN", valueUpdate.Value);
-        
-        if (alreadyExistingEntry != null)
-        {
-            alreadyExistingEntry.Value = newMoney;
-        }
-        else
-        {
-            var newEntry = new HistoricValue
-            {
-                Id = Guid.NewGuid(),
-                Date = valueUpdate.Date,
-                Value = newMoney
-            };
-
-            component.ValueHistory.Add(newEntry);
-            context.HistoricValues.Add(newEntry);
-        }
-
+        component.Evaluate(valueUpdate.Date, new Money(Math.Abs(valueUpdate.Value), "PLN", Math.Abs(valueUpdate.Value)));
         await context.SaveChangesAsync();
+
         return Ok();
     }
     
@@ -103,7 +85,7 @@ public class WalletsController(FinanceTrackerContext context) : ControllerBase
             .Select(component => new ValueSnapshotDto(
                 Name: component.Name,
                 Id: component.Id,
-                Value: component.GetValueFor(date).AmountInMainCurrency
+                Value: component.GetValueFor(date)?.AmountInMainCurrency ?? 0
             ))
             .ToArray();
         

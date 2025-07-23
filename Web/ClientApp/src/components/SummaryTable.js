@@ -4,9 +4,14 @@ import Money from "./Money";
 import {EditableMoney} from "./EditableMoney";
 
 const SummaryTable = ({data, selectFunc, isEditable, onUpdate, onDelete}) => {
+    let [newRowDate, setNewRowDate] = useState(null)
+    
+    if (data.length === 0) {
+        return (<h2>No data</h2>)
+    }
+    
     let firstRow = selectFunc(data[0])
     let components = [...firstRow.components, firstRow.summary]
-    let [newRowDate, setNewRowDate] = useState(null)
     
     return (
         <table className="table table-striped" aria-labelledby="tableLabel">

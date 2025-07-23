@@ -20,7 +20,7 @@ public class PortfolioController(FinanceTrackerContext context) : ControllerBase
             .Include(portfolio => portfolio.Assets)
             .ThenInclude(component => component.ValueHistory)
             .Include(portfolio => portfolio.Debts)
-            .ThenInclude(component => component.AmountHistory)
+            .ThenInclude(component => component.ValueHistory)
             .First();
         
         var dates = portfolio.Wallets
@@ -69,8 +69,8 @@ public class PortfolioController(FinanceTrackerContext context) : ControllerBase
     private static PortfolioDateSummaryDto BuildPortfolioDateSummary(DateOnly date, Portfolio portfolio)
     {
         var walletsValue = portfolio.Wallets.Sum(wallet => wallet.GetValueFor(date));
-        var assetsValue = portfolio.Assets.Sum(asset => asset.GetValueFor(date).AmountInMainCurrency);
-        var debtsAmount = -portfolio.Debts.Sum(debt => debt.GetAmountFor(date).AmountInMainCurrency);
+        var assetsValue = portfolio.Assets.Sum(asset => asset.GetValueFor(date)?.AmountInMainCurrency ?? 0);
+        var debtsAmount = -portfolio.Debts.Sum(debt => debt.GetValueFor(date)?.AmountInMainCurrency ?? 0);
         
         return new PortfolioDateSummaryDto(
             Date: date,

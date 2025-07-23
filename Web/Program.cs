@@ -27,15 +27,15 @@ using (var scope = app.Services.CreateScope())
     var context = services.GetRequiredService<FinanceTrackerContext>();    
     await context.Database.MigrateAsync();
 
-    // var testPortfolio = FinanceTrackerContext.BuildTestPortfolio();
-    //
-    // var testPortfolioExists = await context.Portfolios.AnyAsync(portfolio => portfolio.Name == testPortfolio.Name);
-    //
-    // if (testPortfolioExists == false)
-    // {
-    //     await context.Portfolios.AddAsync(testPortfolio);
-    //     await context.SaveChangesAsync();   
-    // }
+    var testPortfolio = FinanceTrackerContext.BuildTestPortfolio();
+    
+    var testPortfolioExists = await context.Portfolios.AnyAsync(portfolio => portfolio.Name == testPortfolio.Name);
+    
+    if (testPortfolioExists == false)
+    {
+        await context.Portfolios.AddAsync(testPortfolio);
+        await context.SaveChangesAsync();   
+    }
 }
 
 app.UseHttpsRedirection();

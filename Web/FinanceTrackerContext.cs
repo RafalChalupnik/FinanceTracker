@@ -23,237 +23,83 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
         modelBuilder.Entity<Asset>(
             b =>
             {
-                b.HasKey(asset => asset.Id);
-                b.Property(asset => asset.Name);
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Name);
+                b.Property(x => x.DisplaySequence);
+            });
+        
+        modelBuilder.Entity<Component>(
+            b =>
+            {
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Name);
+                b.Property(x => x.DisplaySequence);
+            });
+        
+        modelBuilder.Entity<Debt>(
+            b =>
+            {
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Name);
+                b.Property(x => x.DisplaySequence);
+            });
+        
+        modelBuilder.Entity<Portfolio>(
+            b =>
+            {
+                b.HasKey(x => x.Id);
+                b.HasIndex(x => x.Name).IsUnique();
+            });
+        
+        modelBuilder.Entity<Wallet>(
+            b =>
+            {
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Name);
+                b.Property(x => x.DisplaySequence);
             });
     }
 
-    // public static Portfolio BuildTestPortfolio() =>
-    //     new()
-    //     {
-    //         Id = Guid.NewGuid(),
-    //         Name = "My portfolio",
-    //         Wallets =
-    //         [
-    //             new Wallet
-    //             {
-    //                 Id = Guid.NewGuid(),
-    //                 Name = "Emergency Fund",
-    //                 Components =
-    //                 [
-    //                     new Component
-    //                     {
-    //                         Id = Guid.NewGuid(),
-    //                         Name = "Savings Account",
-    //                         ValueHistory =
-    //                         [
-    //                             new HistoricValue
-    //                             {
-    //                                 Id = Guid.NewGuid(),
-    //                                 Date = new DateOnly(2025, 04, 01),
-    //                                 Value = new Money(20_000, "PLN", 20_000)
-    //                             },
-    //                             new HistoricValue
-    //                             {
-    //                                 Id = Guid.NewGuid(),
-    //                                 Date = new DateOnly(2025, 05, 01),
-    //                                 Value = new Money(25_000, "PLN", 25_000)
-    //                             }
-    //                         ]
-    //                     },
-    //                     new Component
-    //                     {
-    //                         Id = Guid.NewGuid(),
-    //                         Name = "Cash - PLN",
-    //                         ValueHistory =
-    //                         [
-    //                             new HistoricValue
-    //                             {
-    //                                 Id = Guid.NewGuid(),
-    //                                 Date = new DateOnly(2025, 04, 01),
-    //                                 Value = new Money(5_000, "PLN", 5_000)
-    //                             },
-    //                             new HistoricValue
-    //                             {
-    //                                 Id = Guid.NewGuid(),
-    //                                 Date = new DateOnly(2025, 06, 01),
-    //                                 Value = new Money(4_500, "PLN", 4_500)
-    //                             }
-    //                         ]
-    //                     },
-    //                     new Component
-    //                     {
-    //                         Id = Guid.NewGuid(),
-    //                         Name = "Cash - CAD",
-    //                         ValueHistory =
-    //                         [
-    //                             new HistoricValue
-    //                             {
-    //                                 Id = Guid.NewGuid(),
-    //                                 Date = new DateOnly(2025, 04, 01),
-    //                                 Value = new Money(1_800, "CAD", 4_788.31m)
-    //                             }
-    //                         ]
-    //                     },
-    //                     new Component
-    //                     {
-    //                         Id = Guid.NewGuid(),
-    //                         Name = "Bonds",
-    //                         ValueHistory =
-    //                         [
-    //                             new HistoricValue
-    //                             {
-    //                                 Id = Guid.NewGuid(),
-    //                                 Date = new DateOnly(2025, 04, 01),
-    //                                 Value = new Money(20_000, "PLN", 20_000)
-    //                             },
-    //                             new HistoricValue
-    //                             {
-    //                                 Id = Guid.NewGuid(),
-    //                                 Date = new DateOnly(2025, 05, 01),
-    //                                 Value = new Money(22_000, "PLN", 22_000)
-    //                             }
-    //                         ]
-    //                     },
-    //                     new Component
-    //                     {
-    //                         Id = Guid.NewGuid(),
-    //                         Name = "Bonds - Retirement Account",
-    //                         ValueHistory =
-    //                         [
-    //                             new HistoricValue
-    //                             {
-    //                                 Id = Guid.NewGuid(),
-    //                                 Date = new DateOnly(2025, 04, 01),
-    //                                 Value = new Money(10_000, "PLN", 10_000)
-    //                             }
-    //                         ]
-    //                     }
-    //                 ],
-    //                 Target = 60_000
-    //             },
-    //             new Wallet
-    //             {
-    //                 Id = Guid.NewGuid(),
-    //                 Name = "Long-term Wallet",
-    //                 Components =
-    //                 [
-    //                     new Component
-    //                     {
-    //                         Id = Guid.NewGuid(),
-    //                         Name = "Bonds",
-    //                         ValueHistory =
-    //                         [
-    //                             new HistoricValue
-    //                             {
-    //                                 Id = Guid.NewGuid(),
-    //                                 Date = new DateOnly(2025, 04, 01),
-    //                                 Value = new Money(15_000, "PLN", 15_000)
-    //                             }
-    //                         ]
-    //                     },
-    //                     new Component
-    //                     {
-    //                         Id = Guid.NewGuid(),
-    //                         Name = "Stocks",
-    //                         ValueHistory =
-    //                         [
-    //                             new HistoricValue
-    //                             {
-    //                                 Id = Guid.NewGuid(),
-    //                                 Date = new DateOnly(2025, 04, 01),
-    //                                 Value = new Money(25_000, "PLN", 25_000)
-    //                             }
-    //                         ]
-    //                     }
-    //                 ]
-    //             }
-    //         ],
-    //         Assets =
-    //         [
-    //             new Asset
-    //             {
-    //                 Id = Guid.NewGuid(),
-    //                 Name = "Home",
-    //                 ValueHistory =
-    //                 [
-    //                     new HistoricValue
-    //                     {
-    //                         Id = Guid.NewGuid(),
-    //                         Date = new DateOnly(2025, 04, 01),
-    //                         Value = new Money(500_000, "PLN", 500_000)
-    //                     },
-    //                     new HistoricValue
-    //                     {
-    //                         Id = Guid.NewGuid(),
-    //                         Date = new DateOnly(2025, 07, 01),
-    //                         Value = new Money(600_000, "PLN", 600_000)
-    //                     }
-    //                 ]
-    //             },
-    //             new Asset
-    //             {
-    //                 Id = Guid.NewGuid(),
-    //                 Name = "Car",
-    //                 ValueHistory =
-    //                 [
-    //                     new HistoricValue
-    //                     {
-    //                         Id = Guid.NewGuid(),
-    //                         Date = new DateOnly(2025, 04, 01),
-    //                         Value = new Money(50_000, "PLN", 50_000)
-    //                     },
-    //                     new HistoricValue
-    //                     {
-    //                         Id = Guid.NewGuid(),
-    //                         Date = new DateOnly(2025, 07, 01),
-    //                         Value = new Money(40_000, "PLN", 40_000)
-    //                     }
-    //                 ]
-    //             }
-    //         ],
-    //         Debts =
-    //         [
-    //             new Debt
-    //             {
-    //                 Id = Guid.NewGuid(),
-    //                 Name = "Mortgage",
-    //                 AmountHistory =
-    //                 [
-    //                     new HistoricValue
-    //                     {
-    //                         Id = Guid.NewGuid(),
-    //                         Date = new DateOnly(2025, 04, 01),
-    //                         Value = new Money(320_000, "PLN", 320_000)
-    //                     },
-    //                     new HistoricValue
-    //                     {
-    //                         Id = Guid.NewGuid(),
-    //                         Date = new DateOnly(2025, 07, 01),
-    //                         Value = new Money(300_000, "PLN", 300_000)
-    //                     }
-    //                 ]
-    //             },
-    //             new Debt
-    //             {
-    //                 Id = Guid.NewGuid(),
-    //                 Name = "Dryer",
-    //                 AmountHistory =
-    //                 [
-    //                     new HistoricValue
-    //                     {
-    //                         Id = Guid.NewGuid(),
-    //                         Date = new DateOnly(2025, 04, 01),
-    //                         Value = new Money(2_100, "PLN", 2_100)
-    //                     },
-    //                     new HistoricValue
-    //                     {
-    //                         Id = Guid.NewGuid(),
-    //                         Date = new DateOnly(2025, 07, 01),
-    //                         Value = new Money(2_000, "PLN", 2_000)
-    //                     }
-    //                 ]
-    //             }
-    //         ]
-    //     };
+    public static Portfolio BuildTestPortfolio()
+    {
+        var date = new DateOnly(2020, 1, 1);
+        
+        var emergencyFund = new Wallet("Emergency Fund", displaySequence: 1);
+        AddComponents(emergencyFund, date, ["Savings Account", "Cash - PLN", "Cash - CAD", "Bonds", "Bonds - Retirement Account"]);
+        
+        var longTermWallet = new Wallet("Long-term Wallet", displaySequence: 2);
+        AddComponents(longTermWallet, date, ["Bonds", "Stocks"]);
+
+        var home = new Asset("Home", displaySequence: 1);
+        home.Evaluate(date, new Money(0, "PLN", 0));
+        
+        var car = new Asset("Car", displaySequence: 2);
+        car.Evaluate(date, new Money(0, "PLN", 0));
+        
+        var mortgage = new Debt("Mortgage", displaySequence: 1);
+        mortgage.Evaluate(date, new Money(0, "PLN", 0));
+        
+        var dryer = new Debt("Dryer", displaySequence: 2);
+        dryer.Evaluate(date, new Money(0, "PLN", 0));
+        
+        var portfolio = new Portfolio(name: "My portfolio");
+        portfolio.Add(emergencyFund);
+        portfolio.Add(longTermWallet);
+        portfolio.Add(home);
+        portfolio.Add(car);
+        portfolio.Add(mortgage);
+        portfolio.Add(dryer);
+
+        return portfolio;
+    }
+
+    private static void AddComponents(Wallet wallet, DateOnly date, IEnumerable<string> names)
+    {
+        foreach (var (name, displaySequence) in names.Zip(Enumerable.Range(1, 5)))
+        {
+            var component = new Component(name, displaySequence);
+            component.Evaluate(date, new Money(0, "PLN", 0));
+            wallet.Add(component);
+        }
+    }
 }

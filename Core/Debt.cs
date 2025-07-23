@@ -1,32 +1,22 @@
 using System.ComponentModel.DataAnnotations;
-using FinanceTracker.Core.Primitives;
 
 namespace FinanceTracker.Core;
 
 /// <summary>
 /// Represents a debt.
 /// </summary>
-public class Debt
+public class Debt(string name, int displaySequence) : EntityWithValueHistory
 {
     [Key]
-    public Guid Id { get; init; }
-    
+    public Guid Id { get; init; } = Guid.NewGuid();
+
     /// <summary>
     /// User-friendly name of the debt.
     /// </summary>
-    public required string Name { get; init; }
+    public string Name => name;
     
     /// <summary>
-    /// History of debt value in the main currency.
+    /// Sequence in which wallets should be displayed.
     /// </summary>
-    public required List<HistoricValue> AmountHistory { get; init; }
-    
-    /// <summary>
-    /// Gets value of the wallet component for provided <see cref="DateOnly"/>.
-    /// </summary>
-    public Money GetAmountFor(DateOnly date) =>
-        AmountHistory
-            .OrderByDescending(x => x.Date)
-            .First(x => x.Date <= date)
-            .Value;
+    public int DisplaySequence => displaySequence;
 }

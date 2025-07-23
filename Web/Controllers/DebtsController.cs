@@ -15,11 +15,11 @@ public class DebtsController(FinanceTrackerContext context) : ControllerBase
     public DebtsDto GetDebts()
     {
         var debts = context.Debts
-            .Include(debt => debt.AmountHistory)
+            .Include(debt => debt.ValueHistory)
             .ToArray();
         
         var dates = debts
-            .SelectMany(debt => debt.AmountHistory
+            .SelectMany(debt => debt.ValueHistory
                 .Select(date => date.Date))
             .Distinct()
             .OrderBy(date => date)
@@ -38,35 +38,17 @@ public class DebtsController(FinanceTrackerContext context) : ControllerBase
     public async Task<IActionResult> EvaluateDebt(Guid debtId, [FromBody] ValueUpdateDto valueUpdate)
     {
         var debt = context.Debts
-            .Include(debt => debt.AmountHistory)
+            .Include(debt => debt.ValueHistory)
             .FirstOrDefault(debt => debt.Id == debtId);
 
         if (debt == null)
         {
             return NotFound();
         }
-
-        var alreadyExistingEntry = debt.AmountHistory.FirstOrDefault(entry => entry.Date == valueUpdate.Date);
-        var newMoney = new Money(Math.Abs(valueUpdate.Value), "PLN", Math.Abs(valueUpdate.Value));
         
-        if (alreadyExistingEntry != null)
-        {
-            alreadyExistingEntry.Value = newMoney;
-        }
-        else
-        {
-            var newEntry = new HistoricValue
-            {
-                Id = Guid.NewGuid(),
-                Date = valueUpdate.Date,
-                Value = newMoney
-            };
-
-            debt.AmountHistory.Add(newEntry);
-            context.HistoricValues.Add(newEntry);
-        }
-
+        debt.Evaluate(valueUpdate.Date, new Money(Math.Abs(valueUpdate.Value), "PLN", Math.Abs(valueUpdate.Value)));
         await context.SaveChangesAsync();
+        
         return Ok();
     }
     
@@ -74,8 +56,8 @@ public class DebtsController(FinanceTrackerContext context) : ControllerBase
     public async Task<IActionResult> DeleteEvaluationsFor(DateOnly date)
     {
         await context.Debts
-            .Include(debt => debt.AmountHistory)
-            .SelectMany(debt => debt.AmountHistory)
+            .Include(debt => debt.ValueHistory)
+            .SelectMany(debt => debt.ValueHistory)
             .Where(entry => entry.Date == date)
             .ExecuteDeleteAsync();
 
@@ -88,7 +70,7 @@ public class DebtsController(FinanceTrackerContext context) : ControllerBase
             .Select(debt => new ValueSnapshotDto(
                 Name: debt.Name,
                 Id: debt.Id,
-                Value: -debt.GetAmountFor(date).AmountInMainCurrency
+                Value: -debt.GetValueFor(date)?.AmountInMainCurrency ?? 0
             ))
             .ToArray();
         

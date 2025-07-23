@@ -69,7 +69,7 @@ public class AssetsController(FinanceTrackerContext context) : ControllerBase
         var assetDtos = assets
             .Select(asset => new ValueSnapshotDto(
                 Name: asset.Name,
-                Value: asset.GetValueFor(date).AmountInMainCurrency,
+                Value: asset.GetValueFor(date)?.AmountInMainCurrency ?? 0,
                 Id: asset.Id
             ))
             .ToArray();

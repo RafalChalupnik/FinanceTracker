@@ -29,6 +29,7 @@ namespace FinanceTracker.Web.Migrations
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
+                    DisplaySequence = table.Column<int>(type: "INTEGER", nullable: false),
                     PortfolioId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
@@ -47,6 +48,7 @@ namespace FinanceTracker.Web.Migrations
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
+                    DisplaySequence = table.Column<int>(type: "INTEGER", nullable: false),
                     PortfolioId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
@@ -65,7 +67,7 @@ namespace FinanceTracker.Web.Migrations
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Target = table.Column<decimal>(type: "TEXT", nullable: true),
+                    DisplaySequence = table.Column<int>(type: "INTEGER", nullable: false),
                     PortfolioId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
@@ -84,6 +86,7 @@ namespace FinanceTracker.Web.Migrations
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
+                    DisplaySequence = table.Column<int>(type: "INTEGER", nullable: false),
                     WalletId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
@@ -158,6 +161,12 @@ namespace FinanceTracker.Web.Migrations
                 name: "IX_HistoricValues_DebtId",
                 table: "HistoricValues",
                 column: "DebtId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Portfolios_Name",
+                table: "Portfolios",
+                column: "Name",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Wallets_PortfolioId",
