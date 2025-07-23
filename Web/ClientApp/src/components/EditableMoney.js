@@ -1,8 +1,8 @@
 import {useState} from "react";
 import Money from "./Money";
 
-export const EditableMoney = ({value, onNewValue}) => {
-    const [editMode, setEditMode] = useState(false);
+export const EditableMoney = ({value, initialEditMode, onNewValue}) => {
+    const [editMode, setEditMode] = useState(initialEditMode);
     const [currentValue, setCurrentValue] = useState(value);
     
     if (editMode) {

@@ -1,10 +1,12 @@
 import React from 'react';
+import {useState} from "react";
 import Money from "./Money";
 import {EditableMoney} from "./EditableMoney";
 
 const SummaryTable = ({data, selectFunc, isEditable, onUpdate}) => {
     let firstRow = selectFunc(data[0])
     let components = [...firstRow.components, firstRow.summary]
+    let [newRowDate, setNewRowDate] = useState(null)
     
     return (
         <table className="table table-striped" aria-labelledby="tableLabel">
@@ -60,6 +62,28 @@ const SummaryTable = ({data, selectFunc, isEditable, onUpdate}) => {
                     </td>
                 </tr>
             )}
+            {(isEditable && <tr>
+                <td>
+                    <input 
+                        type="date"
+                        value={newRowDate}
+                        onChange={e => setNewRowDate(e.target.value)}
+                        />
+                </td>
+                {firstRow.components.map(component =>
+                    <>
+                        <td style={{borderLeft: '1px solid black'}}>
+                            <EditableMoney
+                                value={0}
+                                onNewValue={newAmount => onUpdate(component.id, newRowDate, newAmount)}
+                                initialEditMode="true"
+                            />
+                        </td>
+                        <td/>
+                        <td/>
+                    </>
+                )}
+            </tr>)}
             </tbody>
         </table>
     );
