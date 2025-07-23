@@ -24,6 +24,7 @@ export class Assets extends Component {
                 }}}
                 isEditable="true"
                 onUpdate={this.updateAsset}
+                onDelete={this.deleteEvaluations}
             />
 
         return (
@@ -44,6 +45,21 @@ export class Assets extends Component {
                 date: date,
                 value: value
             }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        await this.populateData();
+    }
+
+    deleteEvaluations = async (date) => {
+        const response = await fetch("assets/" + date, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            }
         });
 
         if (!response.ok) {

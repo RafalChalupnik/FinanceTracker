@@ -67,7 +67,19 @@ public class AssetsController(FinanceTrackerContext context) : ControllerBase
         }
 
         await context.SaveChangesAsync();
-        return Ok();
+        return NoContent();
+    }
+
+    [HttpDelete("{date}")]
+    public async Task<IActionResult> DeleteEvaluationsFor(DateOnly date)
+    {
+        await context.Assets
+            .Include(asset => asset.ValueHistory)
+            .SelectMany(asset => asset.ValueHistory)
+            .Where(entry => entry.Date == date)
+            .ExecuteDeleteAsync();
+
+        return NoContent();
     }
 
     private static AssetDataDto BuildAssetsDataDto(DateOnly date, IEnumerable<Asset> assets)

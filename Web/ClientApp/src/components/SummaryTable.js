@@ -3,7 +3,7 @@ import {useState} from "react";
 import Money from "./Money";
 import {EditableMoney} from "./EditableMoney";
 
-const SummaryTable = ({data, selectFunc, isEditable, onUpdate}) => {
+const SummaryTable = ({data, selectFunc, isEditable, onUpdate, onDelete}) => {
     let firstRow = selectFunc(data[0])
     let components = [...firstRow.components, firstRow.summary]
     let [newRowDate, setNewRowDate] = useState(null)
@@ -60,6 +60,9 @@ const SummaryTable = ({data, selectFunc, isEditable, onUpdate}) => {
                     <td>
                         <Money amount={selectFunc(row).summary.cumulativeChange} colorCoding="true"/>
                     </td>
+                    {(isEditable && <td>
+                        <button onClick={() => onDelete(row.date)}>Delete</button>
+                    </td>)}
                 </tr>
             )}
             {(isEditable && <tr>
