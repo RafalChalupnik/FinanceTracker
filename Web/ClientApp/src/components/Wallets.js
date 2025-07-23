@@ -24,7 +24,9 @@ export class Wallets extends Component {
                             data={wallet.data}
                             selectFunc={data => data}
                             isEditable="true"
-                            onUpdate={this.updateComponent}/>
+                            onUpdate={this.updateComponent}
+                            onDelete={date => this.deleteEvaluations(wallet.id, date)}
+                        />
                     </div>
                 )}
             </div>
@@ -47,6 +49,21 @@ export class Wallets extends Component {
         });
         
         console.log(response)       
+
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        await this.populateData();
+    }
+
+    deleteEvaluations = async (walletId, date) => {
+        const response = await fetch("wallets/" + walletId + '/' + date, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        });
 
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);

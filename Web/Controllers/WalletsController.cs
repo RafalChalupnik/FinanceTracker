@@ -18,18 +18,10 @@ public class WalletsController(FinanceTrackerContext context) : ControllerBase
             .Include(wallet => wallet.Components)
             .ThenInclude(component => component.ValueHistory)
             .ToArray();
-        
-        var dates = wallets
-            .SelectMany(wallet => wallet.Components)
-            .SelectMany(component => component.ValueHistory
-                .Select(date => date.Date))
-            .Distinct()
-            .OrderBy(date => date)
-            .ToArray();
 
         return new WalletsDto(
             Wallets: wallets
-                .Select(wallet => BuildWalletDto(wallet, dates))
+                .Select(BuildWalletDto)
                 .ToArray()
         );
     }
@@ -69,10 +61,33 @@ public class WalletsController(FinanceTrackerContext context) : ControllerBase
         await context.SaveChangesAsync();
         return Ok();
     }
-
-    private static WalletDto BuildWalletDto(Wallet wallet, IReadOnlyCollection<DateOnly> dates)
+    
+    [HttpDelete("{walletId:guid}/{date}")]
+    public async Task<IActionResult> DeleteEvaluationsFor(Guid walletId, DateOnly date)
     {
+        await context.Wallets
+            .Include(wallet => wallet.Components)
+            .ThenInclude(component => component.ValueHistory)
+            .Where(wallet => wallet.Id == walletId)
+            .SelectMany(wallet => wallet.Components)
+            .SelectMany(component => component.ValueHistory)
+            .Where(entry => entry.Date == date)
+            .ExecuteDeleteAsync();
+
+        return NoContent();
+    }
+
+    private static WalletDto BuildWalletDto(Wallet wallet)
+    {
+        var dates = wallet.Components
+            .SelectMany(component => component.ValueHistory
+                .Select(date => date.Date))
+            .Distinct()
+            .OrderBy(date => date)
+            .ToArray();
+        
         return new WalletDto(
+            Id: wallet.Id,
             Name: wallet.Name,
             Data: dates
                 .Select(date => BuildWalletDataDto(wallet, date))

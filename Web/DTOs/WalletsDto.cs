@@ -5,6 +5,7 @@ public record WalletsDto(
 );
     
 public record WalletDto(
+    Guid Id,
     string Name,
     IReadOnlyCollection<WalletDataDto> Data
 );
