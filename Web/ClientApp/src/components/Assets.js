@@ -21,7 +21,9 @@ export class Assets extends Component {
                 selectFunc={data => {return {
                     components: data.assets,
                     summary: data.summary
-                }}} />
+                }}}
+                isEditable="true"
+            />
 
         return (
             <div>

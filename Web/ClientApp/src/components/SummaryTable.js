@@ -2,7 +2,7 @@ import React from 'react';
 import Money from "./Money";
 import {EditableMoney} from "./EditableMoney";
 
-const SummaryTable = ({data, selectFunc}) => {
+const SummaryTable = ({data, selectFunc, isEditable}) => {
     let firstRow = selectFunc(data[0])
     let components = [...firstRow.components, firstRow.summary]
     
@@ -35,12 +35,13 @@ const SummaryTable = ({data, selectFunc}) => {
                         <>
                             <td style={{borderLeft: '1px solid black'}}>
                                 {/*<Money amount={component.value}/>*/}
-                                <EditableMoney
+                                {isEditable 
+                                    ? <EditableMoney
                                     amount={component.value}
                                     onNewAmount={newAmount => {
                                         alert('Updated to: ' + newAmount)
-                                    }}
-                                />
+                                    }}/> 
+                                    : <Money amount={component.value}/>}
                             </td>
                             <td>
                                 <Money amount={component.change} colorCoding="true"/>

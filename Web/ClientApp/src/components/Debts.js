@@ -22,6 +22,7 @@ export class Debts extends Component {
                     components: data.debts,
                     summary: data.summary
                 }}}
+                isEditable="true"
             />
 
         return (

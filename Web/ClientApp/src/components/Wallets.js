@@ -25,7 +25,8 @@ export class Wallets extends Component {
                             selectFunc={data => {return {
                                 components: data.components,
                                 summary: data.summary
-                            }}} />
+                            }}}
+                            isEditable="true"/>
                     </div>
                 )}
             </div>
