@@ -19,7 +19,7 @@ export class Debts extends Component {
             : <SummaryTable
                 data={this.state.data}
                 selectFunc={data => {return {
-                    components: data.debts,
+                    components: data.entities,
                     summary: data.summary
                 }}}
                 isEditable="true"

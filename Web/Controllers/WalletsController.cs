@@ -14,10 +14,15 @@ public class WalletsController(
     WalletsPerDateView walletsPerDateView
 ) : ControllerBase
 {
-    [HttpGet("{portfolioId:guid}")]
-    public WalletsPerDateViewDto GetWallets(Guid portfolioId)
-        => walletsPerDateView.GetWalletsPerDate(portfolioId);
-    
+    [HttpGet]
+    public WalletsPerDateViewDto GetWallets()
+    {
+        // TODO: Hack
+        var portfolioId = context.Portfolios.First().Id;
+        
+        return walletsPerDateView.GetWalletsPerDate(portfolioId);
+    }
+
     [HttpPut("components/{componentId:guid}")]
     public async Task<IActionResult> EvaluateWalletComponent(Guid componentId, [FromBody] ValueUpdateDto valueUpdate)
     {

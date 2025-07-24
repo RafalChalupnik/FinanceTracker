@@ -4,12 +4,12 @@ using FinanceTracker.Core.Views.Implementation;
 
 namespace FinanceTracker.Core.Views;
 
-public class WalletsPerDateView(IWalletsRepository repository)
+public class WalletsPerDateView(IRepository repository)
 {
     public WalletsPerDateViewDto GetWalletsPerDate(Guid portfolioId)
     {
         var wallets = repository
-            .GetWallets(portfolioId)
+            .GetEntitiesFor<Wallet>(portfolioId)
             .ToArray();
 
         return new WalletsPerDateViewDto(

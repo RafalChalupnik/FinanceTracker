@@ -14,9 +14,14 @@ public class AssetsController(
     AssetsPerDateView assetsPerDateView
     ) : ControllerBase
 {
-    [HttpGet("{portfolioId:guid}")]
-    public EntitiesPerDateViewDto GetAssets(Guid portfolioId) 
-        => assetsPerDateView.GetAssetsPerDate(portfolioId);
+    [HttpGet]
+    public EntitiesPerDateViewDto GetAssets()
+    {
+        // TODO: Hack
+        var portfolioId = context.Portfolios.First().Id;
+        
+        return assetsPerDateView.GetAssetsPerDate(portfolioId);
+    }
 
     [HttpPut("{assetId:guid}")]
     public async Task<IActionResult> EvaluateAsset(Guid assetId, [FromBody] ValueUpdateDto valueUpdate)

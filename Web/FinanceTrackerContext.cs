@@ -1,4 +1,5 @@
 using FinanceTracker.Core;
+using FinanceTracker.Core.Interfaces;
 using FinanceTracker.Core.Primitives;
 using Microsoft.EntityFrameworkCore;
 
@@ -59,5 +60,26 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 b.Property(x => x.Name);
                 b.Property(x => x.DisplaySequence);
             });
+    }
+    
+    public class Repository(FinanceTrackerContext context) : IRepository
+    {
+        public IQueryable<T> GetEntitiesFor<T>(Guid portfolioId)
+        {
+            return typeof(T) switch
+            {
+                { } t when t == typeof(Asset) => context.Assets
+                    .Include(x => x.ValueHistory)
+                    .Cast<T>(),
+                { } t when t == typeof(Debt) => context.Debts
+                    .Include(x => x.ValueHistory)
+                    .Cast<T>(),
+                { } t when t == typeof(Wallet) => context.Wallets
+                    .Include(wallet => wallet.Components)
+                    .ThenInclude(component => component.ValueHistory)
+                    .Cast<T>(),
+                _ => throw new Exception("Nothing to do")
+            };
+        }
     }
 }

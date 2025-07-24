@@ -14,10 +14,15 @@ public class DebtsController(
     DebtsPerDateView debtsPerDateView
     ) : ControllerBase
 {
-    [HttpGet("{portfolioId:guid}")]
-    public EntitiesPerDateViewDto GetDebts(Guid portfolioId) 
-        => debtsPerDateView.GetDebtsPerDate(portfolioId);
-    
+    [HttpGet]
+    public EntitiesPerDateViewDto GetDebts()
+    {
+        // TODO: Hack
+        var portfolioId = context.Portfolios.First().Id;
+        
+        return debtsPerDateView.GetDebtsPerDate(portfolioId);
+    }
+
     [HttpPut("{debtId:guid}")]
     public async Task<IActionResult> EvaluateDebt(Guid debtId, [FromBody] ValueUpdateDto valueUpdate)
     {

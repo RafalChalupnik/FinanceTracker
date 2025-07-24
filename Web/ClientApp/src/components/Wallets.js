@@ -22,7 +22,10 @@ export class Wallets extends Component {
                         <h1>{wallet.name}</h1>
                         <SummaryTable
                             data={wallet.data}
-                            selectFunc={data => data}
+                            selectFunc={data => {return {
+                                components: data.entities,
+                                summary: data.summary
+                            }}}
                             isEditable="true"
                             onUpdate={this.updateComponent}
                             onDelete={date => this.deleteEvaluations(wallet.id, date)}

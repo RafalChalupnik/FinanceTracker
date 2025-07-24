@@ -21,7 +21,12 @@ public class PortfolioController(
         return portfolioPerDateView.GetPortfolioPerDate(portfolioId);
     }
 
-    [HttpGet("wallets/{portfolioId:guid}")]
-    public EntitiesPerDateViewDto GetWallets(Guid portfolioId)
-        => walletsSummaryPerDateView.GetWalletsSummaryPerDate(portfolioId);
+    [HttpGet("wallets")]
+    public EntitiesPerDateViewDto GetWallets()
+    {
+        // TODO: Hack
+        var portfolioId = context.Portfolios.First().Id;
+        
+        return walletsSummaryPerDateView.GetWalletsSummaryPerDate(portfolioId);
+    }
 }

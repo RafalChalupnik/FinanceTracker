@@ -4,11 +4,11 @@ using FinanceTracker.Core.Views.Implementation;
 
 namespace FinanceTracker.Core.Views;
 
-public class WalletsSummaryPerDateView(IWalletsRepository repository)
+public class WalletsSummaryPerDateView(IRepository repository)
 {
     public EntitiesPerDateViewDto GetWalletsSummaryPerDate(Guid portfolioId) =>
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(repository
-            .GetWallets(portfolioId)
+            .GetEntitiesFor<Wallet>(portfolioId)
             .ToArray()
         );
 }

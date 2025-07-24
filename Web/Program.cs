@@ -1,3 +1,5 @@
+using FinanceTracker.Core.Interfaces;
+using FinanceTracker.Core.Views;
 using FinanceTracker.Web;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +12,10 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<FinanceTrackerContext>(options => options.UseSqlite(
     builder.Configuration.GetConnectionString("FinanceTracker")
 ));
+
+builder.Services
+    .AddScoped<IRepository, FinanceTrackerContext.Repository>()
+    .AddCoreViews();
 
 var app = builder.Build();
 

@@ -4,11 +4,11 @@ using FinanceTracker.Core.Views.Implementation;
 
 namespace FinanceTracker.Core.Views;
 
-public class DebtsPerDateView(IDebtsRepository repository)
+public class DebtsPerDateView(IRepository repository)
 {
     public EntitiesPerDateViewDto GetDebtsPerDate(Guid portfolioId) =>
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(repository
-            .GetDebts(portfolioId)
+            .GetEntitiesFor<Debt>(portfolioId)
             .ToArray()
         );
 }

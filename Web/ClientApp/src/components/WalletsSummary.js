@@ -19,7 +19,7 @@ export class WalletsSummary extends Component {
         : <SummaryTable
             data={this.state.data}
             selectFunc={data => {return {
-              components: data.wallets,
+              components: data.entities,
               summary: data.summary
             }}} 
         />

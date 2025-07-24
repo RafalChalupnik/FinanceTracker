@@ -4,17 +4,13 @@ using FinanceTracker.Core.Views.DTOs;
 
 namespace FinanceTracker.Core.Views;
 
-public class PortfolioPerDateView(
-    IWalletsRepository walletsRepository,
-    IAssetsRepository assetsRepository,
-    IDebtsRepository debtsRepository
-    )
+public class PortfolioPerDateView(IRepository repository)
 {
     public PortfolioPerDateViewDto GetPortfolioPerDate(Guid portfolioId)
     {
-        var wallets = walletsRepository.GetWallets(portfolioId).ToArray();
-        var assets = assetsRepository.GetAssets(portfolioId).ToArray();
-        var debts = debtsRepository.GetDebts(portfolioId).ToArray();
+        var wallets = repository.GetEntitiesFor<Wallet>(portfolioId).ToArray();
+        var assets = repository.GetEntitiesFor<Asset>(portfolioId).ToArray();
+        var debts = repository.GetEntitiesFor<Debt>(portfolioId).ToArray();
 
         var dates = wallets
             .SelectMany(wallet => wallet.GetEvaluationDates())
