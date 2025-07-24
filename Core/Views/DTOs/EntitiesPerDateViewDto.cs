@@ -1,4 +1,14 @@
-namespace FinanceTracker.Web.DTOs;
+namespace FinanceTracker.Core.Views.DTOs;
+
+public record EntitiesPerDateViewDto(
+    IReadOnlyCollection<EntitiesForDateDto> Data
+);
+
+public record EntitiesForDateDto(
+    DateOnly Date,
+    IReadOnlyCollection<ValueSnapshotDto> Entities,
+    ValueSnapshotDto Summary
+);
 
 public record ValueSnapshotDto(
     string Name,

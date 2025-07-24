@@ -2,7 +2,14 @@ using FinanceTracker.Core.Primitives;
 
 namespace FinanceTracker.Core;
 
-public abstract class EntityWithValueHistory
+internal interface IEntityWithValueHistory
+{
+    IEnumerable<DateOnly> GetEvaluationDates();
+    
+    decimal? GetValueFor(DateOnly date);
+}
+
+public abstract class EntityWithValueHistory : IEntityWithValueHistory
 {
     private readonly List<HistoricValue> _valueHistory = [];
     
@@ -38,13 +45,16 @@ public abstract class EntityWithValueHistory
             return newValue;
         }
     }
-    
+
+    public IEnumerable<DateOnly> GetEvaluationDates()
+        => ValueHistory.Select(entry => entry.Date);
+
     /// <summary>
     /// Gets value for provided <see cref="DateOnly"/>.
     /// </summary>
-    public Money? GetValueFor(DateOnly date) =>
+    public decimal? GetValueFor(DateOnly date) =>
         ValueHistory
             .OrderByDescending(x => x.Date)
             .FirstOrDefault(x => x.Date <= date)?
-            .Value;
+            .Value.AmountInMainCurrency;
 }

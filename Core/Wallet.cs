@@ -6,7 +6,7 @@ namespace FinanceTracker.Core;
 /// <summary>
 /// Represents a wallet, consisting of <see cref="Component"/>.
 /// </summary>
-public class Wallet(string name, int displaySequence)
+public class Wallet(string name, int displaySequence) : IOrderableEntity, IEntityWithValueHistory
 {
     private readonly List<Component> _components = [];
     
@@ -28,11 +28,14 @@ public class Wallet(string name, int displaySequence)
     /// </summary>
     public IReadOnlyList<Component> Components => _components;
 
+    public IEnumerable<DateOnly> GetEvaluationDates() => Components
+        .SelectMany(component => component.GetEvaluationDates());
+
     /// <summary>
     /// Gets value of the wallet for provided <see cref="DateOnly"/> in main currency.
     /// </summary>
-    public decimal GetValueFor(DateOnly date) => Components
-        .Sum(component => component.GetValueFor(date)?.AmountInMainCurrency ?? 0);
+    public decimal? GetValueFor(DateOnly date) => Components
+        .Sum(component => component.GetValueFor(date) ?? 0);
 
     /// <summary>
     /// Adds <see cref="Component"/> to the wallet.
@@ -49,7 +52,7 @@ public class Wallet(string name, int displaySequence)
     }
 }
 
-public class Component(string name, int displaySequence) : EntityWithValueHistory
+public class Component(string name, int displaySequence) : EntityWithValueHistory, IOrderableEntity
 {
     [Key]
     public Guid Id { get; init; } = Guid.NewGuid();
