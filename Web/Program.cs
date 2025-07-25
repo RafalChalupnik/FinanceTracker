@@ -1,3 +1,4 @@
+using FinanceTracker.Core;
 using FinanceTracker.Core.Interfaces;
 using FinanceTracker.Core.Queries;
 using FinanceTracker.Web;
@@ -15,7 +16,7 @@ builder.Services.AddDbContext<FinanceTrackerContext>(options => options.UseSqlit
 
 builder.Services
     .AddScoped<IRepository, FinanceTrackerContext.Repository>()
-    .AddCoreViews();
+    .AddCoreCommandsAndQueries();
 
 var app = builder.Build();
 

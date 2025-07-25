@@ -78,8 +78,14 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                     .Include(wallet => wallet.Components)
                     .ThenInclude(component => component.ValueHistory)
                     .Cast<T>(),
-                _ => throw new Exception("Nothing to do")
+                _ => throw new NotImplementedException()
             };
         }
+
+        public void Add<T>(T entity) where T : class
+            => context.Set<T>().Add(entity);
+
+        public async ValueTask SaveChangesAsync()
+            => await context.SaveChangesAsync();
     }
 }

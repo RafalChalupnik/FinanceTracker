@@ -1,3 +1,5 @@
+using FinanceTracker.Core;
+using FinanceTracker.Core.Commands;
 using FinanceTracker.Core.Primitives;
 using FinanceTracker.Core.Queries;
 using FinanceTracker.Core.Queries.DTOs;
@@ -11,7 +13,8 @@ namespace FinanceTracker.Web.Controllers;
 [Route("assets")]
 public class AssetsController(
     FinanceTrackerContext context,
-    AssetsPerDateQuery assetsPerDateQuery
+    AssetsPerDateQuery assetsPerDateQuery,
+    EvaluateEntityCommand evaluateEntityCommand
     ) : ControllerBase
 {
     [HttpGet]
@@ -26,21 +29,15 @@ public class AssetsController(
     [HttpPut("{assetId:guid}")]
     public async Task<IActionResult> EvaluateAsset(Guid assetId, [FromBody] ValueUpdateDto valueUpdate)
     {
-        var asset = context.Assets
-            .Include(asset => asset.ValueHistory)
-            .FirstOrDefault(asset => asset.Id == assetId);
-
-        if (asset == null)
-        {
-            return NotFound();
-        }
-        
-        var newValue = asset.Evaluate(valueUpdate.Date, new Money(valueUpdate.Value, "PLN", valueUpdate.Value));
-        if (newValue != null)
-        {
-            context.Add(newValue);
-        }
-        await context.SaveChangesAsync();
+        await evaluateEntityCommand.Evaluate<Asset>(
+            entityId: assetId, 
+            date: valueUpdate.Date, 
+            new Money(
+                Amount: valueUpdate.Value, 
+                Currency: "PLN", 
+                AmountInMainCurrency: valueUpdate.Value
+            )
+        );
         
         return NoContent();
     }

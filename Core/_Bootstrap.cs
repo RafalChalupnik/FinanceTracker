@@ -1,12 +1,17 @@
+using FinanceTracker.Core.Commands;
+using FinanceTracker.Core.Queries;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FinanceTracker.Core.Queries;
+namespace FinanceTracker.Core;
 
 public static class Bootstrap
 {
-    public static IServiceCollection AddCoreViews(this IServiceCollection services)
+    public static IServiceCollection AddCoreCommandsAndQueries(this IServiceCollection services)
     {
         return services
+            // Commands
+            .AddScoped<EvaluateEntityCommand>()
+            // Queries
             .AddScoped<AssetsPerDateQuery>()
             .AddScoped<DebtsPerDateQuery>()
             .AddScoped<PortfolioPerDateQuery>()

@@ -1,10 +1,6 @@
 namespace FinanceTracker.Core;
 
-internal interface IOrderableEntity
+internal interface IOrderableEntity : IEntity
 {
-    Guid Id { get; }
-    
-    string Name { get; }
-    
     int DisplaySequence { get; }
 }

@@ -1,3 +1,5 @@
+using FinanceTracker.Core;
+using FinanceTracker.Core.Commands;
 using FinanceTracker.Core.Primitives;
 using FinanceTracker.Core.Queries;
 using FinanceTracker.Core.Queries.DTOs;
@@ -11,7 +13,8 @@ namespace FinanceTracker.Web.Controllers;
 [Route("wallets")]
 public class WalletsController(
     FinanceTrackerContext context,
-    WalletsPerDateQuery walletsPerDateQuery
+    WalletsPerDateQuery walletsPerDateQuery,
+    EvaluateEntityCommand evaluateEntityCommand
 ) : ControllerBase
 {
     [HttpGet]
@@ -26,23 +29,17 @@ public class WalletsController(
     [HttpPut("components/{componentId:guid}")]
     public async Task<IActionResult> EvaluateWalletComponent(Guid componentId, [FromBody] ValueUpdateDto valueUpdate)
     {
-        var component = context.Components
-            .Include(component => component.ValueHistory)
-            .FirstOrDefault(component => component.Id == componentId);
-
-        if (component == null)
-        {
-            return NotFound();
-        }
-
-        var newValue = component.Evaluate(valueUpdate.Date, new Money(valueUpdate.Value, "PLN", valueUpdate.Value));
-        if (newValue != null)
-        {
-            context.Add(newValue);
-        }
-        await context.SaveChangesAsync();
-
-        return Ok();
+        await evaluateEntityCommand.Evaluate<Component>(
+            entityId: componentId, 
+            date: valueUpdate.Date, 
+            new Money(
+                Amount: valueUpdate.Value, 
+                Currency: "PLN", 
+                AmountInMainCurrency: valueUpdate.Value
+            )
+        );
+        
+        return NoContent();
     }
     
     [HttpDelete("{walletId:guid}/{date}")]
