@@ -10,6 +10,7 @@ public static class Bootstrap
     {
         return services
             // Commands
+            .AddScoped<DeleteAllEvaluationsForDateCommand>()
             .AddScoped<EvaluateEntityCommand>()
             // Queries
             .AddScoped<AssetsPerDateQuery>()

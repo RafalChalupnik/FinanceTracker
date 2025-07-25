@@ -14,7 +14,8 @@ namespace FinanceTracker.Web.Controllers;
 public class DebtsController(
     FinanceTrackerContext context,
     DebtsPerDateQuery debtsPerDateQuery,
-    EvaluateEntityCommand evaluateEntityCommand
+    EvaluateEntityCommand evaluateEntityCommand,
+    DeleteAllEvaluationsForDateCommand deleteAllEvaluationsForDateCommand
     ) : ControllerBase
 {
     [HttpGet]
@@ -45,12 +46,11 @@ public class DebtsController(
     [HttpDelete("{date}")]
     public async Task<IActionResult> DeleteEvaluationsFor(DateOnly date)
     {
-        await context.Debts
-            .Include(debt => debt.ValueHistory)
-            .SelectMany(debt => debt.ValueHistory)
-            .Where(entry => entry.Date == date)
-            .ExecuteDeleteAsync();
-
+        // TODO: Hack
+        var portfolioId = context.Portfolios.First().Id;
+        
+        await deleteAllEvaluationsForDateCommand.DeleteAllEvaluationsForDate<Debt>(portfolioId, date);
+        
         return NoContent();
     }
 }

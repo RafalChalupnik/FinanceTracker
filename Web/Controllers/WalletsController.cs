@@ -14,7 +14,8 @@ namespace FinanceTracker.Web.Controllers;
 public class WalletsController(
     FinanceTrackerContext context,
     WalletsPerDateQuery walletsPerDateQuery,
-    EvaluateEntityCommand evaluateEntityCommand
+    EvaluateEntityCommand evaluateEntityCommand,
+    DeleteAllEvaluationsForDateCommand deleteAllEvaluationsForDateCommand
 ) : ControllerBase
 {
     [HttpGet]
@@ -45,15 +46,11 @@ public class WalletsController(
     [HttpDelete("{walletId:guid}/{date}")]
     public async Task<IActionResult> DeleteEvaluationsFor(Guid walletId, DateOnly date)
     {
-        await context.Wallets
-            .Include(wallet => wallet.Components)
-            .ThenInclude(component => component.ValueHistory)
-            .Where(wallet => wallet.Id == walletId)
-            .SelectMany(wallet => wallet.Components)
-            .SelectMany(component => component.ValueHistory)
-            .Where(entry => entry.Date == date)
-            .ExecuteDeleteAsync();
-
+        // TODO: Hack
+        var portfolioId = context.Portfolios.First().Id;
+        
+        await deleteAllEvaluationsForDateCommand.DeleteAllEvaluationsForDate<Component>(portfolioId, date);
+        
         return NoContent();
     }
 }

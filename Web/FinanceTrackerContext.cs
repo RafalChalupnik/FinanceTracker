@@ -68,13 +68,26 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
         {
             return typeof(T) switch
             {
-                { } t when t == typeof(Asset) => context.Assets
+                { } t when t == typeof(Asset) => context.Portfolios
+                    .Where(portfolio => portfolio.Id == portfolioId)
+                    .SelectMany(portfolio => portfolio.Assets)
                     .Include(x => x.ValueHistory)
                     .Cast<T>(),
-                { } t when t == typeof(Debt) => context.Debts
+                { } t when t == typeof(Debt) => context.Portfolios
+                    .Where(portfolio => portfolio.Id == portfolioId)
+                    .SelectMany(portfolio => portfolio.Debts)
                     .Include(x => x.ValueHistory)
                     .Cast<T>(),
-                { } t when t == typeof(Wallet) => context.Wallets
+                { } t when t == typeof(Component) => context.Portfolios
+                    .Where(portfolio => portfolio.Id == portfolioId)
+                    .SelectMany(portfolio => portfolio.Wallets)
+                    .Include(wallet => wallet.Components)
+                    .SelectMany(wallet => wallet.Components)
+                    .Include(component => component.ValueHistory)
+                    .Cast<T>(),
+                { } t when t == typeof(Wallet) => context.Portfolios
+                    .Where(portfolio => portfolio.Id == portfolioId)
+                    .SelectMany(portfolio => portfolio.Wallets)
                     .Include(wallet => wallet.Components)
                     .ThenInclude(component => component.ValueHistory)
                     .Cast<T>(),
@@ -84,6 +97,9 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
 
         public void Add<T>(T entity) where T : class
             => context.Set<T>().Add(entity);
+
+        public async ValueTask DeleteAsync<T>(IQueryable<T> entities)
+            => await entities.ExecuteDeleteAsync();
 
         public async ValueTask SaveChangesAsync()
             => await context.SaveChangesAsync();
