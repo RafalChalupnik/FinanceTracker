@@ -1,11 +1,11 @@
 using FinanceTracker.Core.Extensions;
-using FinanceTracker.Core.Views.DTOs;
+using FinanceTracker.Core.Queries.DTOs;
 
-namespace FinanceTracker.Core.Views.Implementation;
+namespace FinanceTracker.Core.Queries.Implementation;
 
 internal static class EntitiesPerDateViewDtoFactory
 {
-    public static EntitiesPerDateViewDto BuildEntitiesPerDateViewDto<T>(
+    public static EntitiesPerDateQueryDto BuildEntitiesPerDateViewDto<T>(
         IReadOnlyCollection<T> entities
         ) where T : IEntityWithValueHistory, IOrderableEntity
     {
@@ -15,7 +15,7 @@ internal static class EntitiesPerDateViewDtoFactory
             .OrderBy(date => date)
             .ToArray();
 
-        return new EntitiesPerDateViewDto(
+        return new EntitiesPerDateQueryDto(
             Data: dates
                 .Select(date => BuildEntitiesForDateDto(
                         date: date,

@@ -1,5 +1,5 @@
-using FinanceTracker.Core.Views;
-using FinanceTracker.Core.Views.DTOs;
+using FinanceTracker.Core.Queries;
+using FinanceTracker.Core.Queries.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceTracker.Web.Controllers;
@@ -8,25 +8,25 @@ namespace FinanceTracker.Web.Controllers;
 [Route("portfolio")]
 public class PortfolioController(
     FinanceTrackerContext context,
-    PortfolioPerDateView portfolioPerDateView,
-    WalletsSummaryPerDateView walletsSummaryPerDateView
+    PortfolioPerDateQuery portfolioPerDateQuery,
+    WalletsSummaryPerDateQuery walletsSummaryPerDateQuery
     ) : ControllerBase
 {
     [HttpGet("summary")]
-    public PortfolioPerDateViewDto GetSummary()
+    public PortfolioPerDateQueryDto GetSummary()
     {
         // TODO: Hack
         var portfolioId = context.Portfolios.First().Id;
 
-        return portfolioPerDateView.GetPortfolioPerDate(portfolioId);
+        return portfolioPerDateQuery.GetPortfolioPerDate(portfolioId);
     }
 
     [HttpGet("wallets")]
-    public EntitiesPerDateViewDto GetWallets()
+    public EntitiesPerDateQueryDto GetWallets()
     {
         // TODO: Hack
         var portfolioId = context.Portfolios.First().Id;
         
-        return walletsSummaryPerDateView.GetWalletsSummaryPerDate(portfolioId);
+        return walletsSummaryPerDateQuery.GetWalletsSummaryPerDate(portfolioId);
     }
 }

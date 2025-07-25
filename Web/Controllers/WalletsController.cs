@@ -1,6 +1,6 @@
 using FinanceTracker.Core.Primitives;
-using FinanceTracker.Core.Views;
-using FinanceTracker.Core.Views.DTOs;
+using FinanceTracker.Core.Queries;
+using FinanceTracker.Core.Queries.DTOs;
 using FinanceTracker.Web.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,16 +11,16 @@ namespace FinanceTracker.Web.Controllers;
 [Route("wallets")]
 public class WalletsController(
     FinanceTrackerContext context,
-    WalletsPerDateView walletsPerDateView
+    WalletsPerDateQuery walletsPerDateQuery
 ) : ControllerBase
 {
     [HttpGet]
-    public WalletsPerDateViewDto GetWallets()
+    public WalletsPerDateQueryDto GetWallets()
     {
         // TODO: Hack
         var portfolioId = context.Portfolios.First().Id;
         
-        return walletsPerDateView.GetWalletsPerDate(portfolioId);
+        return walletsPerDateQuery.GetWalletsPerDate(portfolioId);
     }
 
     [HttpPut("components/{componentId:guid}")]

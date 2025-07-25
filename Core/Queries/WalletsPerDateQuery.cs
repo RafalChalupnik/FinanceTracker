@@ -1,18 +1,18 @@
 using FinanceTracker.Core.Interfaces;
-using FinanceTracker.Core.Views.DTOs;
-using FinanceTracker.Core.Views.Implementation;
+using FinanceTracker.Core.Queries.DTOs;
+using FinanceTracker.Core.Queries.Implementation;
 
-namespace FinanceTracker.Core.Views;
+namespace FinanceTracker.Core.Queries;
 
-public class WalletsPerDateView(IRepository repository)
+public class WalletsPerDateQuery(IRepository repository)
 {
-    public WalletsPerDateViewDto GetWalletsPerDate(Guid portfolioId)
+    public WalletsPerDateQueryDto GetWalletsPerDate(Guid portfolioId)
     {
         var wallets = repository
             .GetEntitiesFor<Wallet>(portfolioId)
             .ToArray();
 
-        return new WalletsPerDateViewDto(
+        return new WalletsPerDateQueryDto(
             Wallets: wallets
                 .Select(wallet => new WalletDto(
                         Id: wallet.Id,

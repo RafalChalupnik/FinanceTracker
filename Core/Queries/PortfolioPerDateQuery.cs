@@ -1,12 +1,12 @@
 using FinanceTracker.Core.Extensions;
 using FinanceTracker.Core.Interfaces;
-using FinanceTracker.Core.Views.DTOs;
+using FinanceTracker.Core.Queries.DTOs;
 
-namespace FinanceTracker.Core.Views;
+namespace FinanceTracker.Core.Queries;
 
-public class PortfolioPerDateView(IRepository repository)
+public class PortfolioPerDateQuery(IRepository repository)
 {
-    public PortfolioPerDateViewDto GetPortfolioPerDate(Guid portfolioId)
+    public PortfolioPerDateQueryDto GetPortfolioPerDate(Guid portfolioId)
     {
         var wallets = repository.GetEntitiesFor<Wallet>(portfolioId).ToArray();
         var assets = repository.GetEntitiesFor<Asset>(portfolioId).ToArray();
@@ -22,7 +22,7 @@ public class PortfolioPerDateView(IRepository repository)
             .OrderBy(date => date)
             .ToArray();
         
-        return new PortfolioPerDateViewDto(
+        return new PortfolioPerDateQueryDto(
             Data: dates
                 .Select(date => BuildPortfolioForDateDto(
                         date,

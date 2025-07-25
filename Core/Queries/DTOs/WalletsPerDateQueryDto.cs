@@ -1,6 +1,6 @@
-namespace FinanceTracker.Core.Views.DTOs;
+namespace FinanceTracker.Core.Queries.DTOs;
 
-public record WalletsPerDateViewDto(
+public record WalletsPerDateQueryDto(
     IReadOnlyCollection<WalletDto> Wallets
 );
     

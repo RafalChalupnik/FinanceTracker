@@ -1,5 +1,5 @@
 using FinanceTracker.Core.Interfaces;
-using FinanceTracker.Core.Views;
+using FinanceTracker.Core.Queries;
 using FinanceTracker.Web;
 using Microsoft.EntityFrameworkCore;
 

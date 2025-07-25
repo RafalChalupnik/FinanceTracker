@@ -1,6 +1,6 @@
-namespace FinanceTracker.Core.Views.DTOs;
+namespace FinanceTracker.Core.Queries.DTOs;
 
-public record EntitiesPerDateViewDto(
+public record EntitiesPerDateQueryDto(
     IReadOnlyCollection<EntitiesForDateDto> Data
 );
 
