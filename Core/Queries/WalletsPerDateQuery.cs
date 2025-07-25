@@ -9,11 +9,12 @@ public class WalletsPerDateQuery(IRepository repository)
     public WalletsPerDateQueryDto GetWalletsPerDate(Guid portfolioId)
     {
         var wallets = repository
-            .GetEntitiesFor<Wallet>(portfolioId)
+            .GetWalletsFor(portfolioId)
             .ToArray();
 
         return new WalletsPerDateQueryDto(
             Wallets: wallets
+                .OrderBy(wallet => wallet.DisplaySequence)
                 .Select(wallet => new WalletDto(
                         Id: wallet.Id,
                         Name: wallet.Name,

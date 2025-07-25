@@ -8,9 +8,9 @@ public class PortfolioPerDateQuery(IRepository repository)
 {
     public PortfolioPerDateQueryDto GetPortfolioPerDate(Guid portfolioId)
     {
-        var wallets = repository.GetEntitiesFor<Wallet>(portfolioId).ToArray();
-        var assets = repository.GetEntitiesFor<Asset>(portfolioId).ToArray();
-        var debts = repository.GetEntitiesFor<Debt>(portfolioId).ToArray();
+        var wallets = repository.GetWalletsFor(portfolioId).ToArray();
+        var assets = repository.GetEntitiesWithValueHistoryFor<Asset>(portfolioId).ToArray();
+        var debts = repository.GetEntitiesWithValueHistoryFor<Debt>(portfolioId).ToArray();
 
         var dates = wallets
             .SelectMany(wallet => wallet.GetEvaluationDates())

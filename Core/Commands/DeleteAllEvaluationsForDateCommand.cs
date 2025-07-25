@@ -5,9 +5,18 @@ namespace FinanceTracker.Core.Commands;
 public class DeleteAllEvaluationsForDateCommand(IRepository repository)
 {
     public async ValueTask DeleteAllEvaluationsForDate<T>(Guid portfolioId, DateOnly date)
-        where T : EntityWithValueHistory
+        where T : EntityWithValueHistory, IEntityInPortfolio
     {
-        var entitiesToDelete = repository.GetEntitiesFor<T>(portfolioId)
+        var entitiesToDelete = repository.GetEntitiesWithValueHistoryFor<T>(portfolioId)
+            .SelectMany(entity => entity.ValueHistory)
+            .Where(entry => entry.Date == date);
+        
+        await repository.DeleteAsync(entitiesToDelete);
+    }
+    
+    public async ValueTask DeleteAllWalletComponentEvaluationsForDate(Guid walletId, DateOnly date)
+    {
+        var entitiesToDelete = repository.GetComponentsForWallet(walletId)
             .SelectMany(entity => entity.ValueHistory)
             .Where(entry => entry.Date == date);
         

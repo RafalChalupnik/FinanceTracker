@@ -8,7 +8,7 @@ public class WalletsSummaryPerDateQuery(IRepository repository)
 {
     public EntitiesPerDateQueryDto GetWalletsSummaryPerDate(Guid portfolioId) =>
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(repository
-            .GetEntitiesFor<Wallet>(portfolioId)
+            .GetWalletsFor(portfolioId)
             .ToArray()
         );
 }

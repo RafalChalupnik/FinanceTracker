@@ -8,7 +8,7 @@ public class AssetsPerDateQuery(IRepository repository)
 {
     public EntitiesPerDateQueryDto GetAssetsPerDate(Guid portfolioId) =>
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(repository
-            .GetEntitiesFor<Asset>(portfolioId)
+            .GetEntitiesWithValueHistoryFor<Asset>(portfolioId)
             .ToArray()
         );
 }

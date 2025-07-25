@@ -5,7 +5,6 @@ using FinanceTracker.Core.Queries;
 using FinanceTracker.Core.Queries.DTOs;
 using FinanceTracker.Web.DTOs;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.Web.Controllers;
 
@@ -46,10 +45,7 @@ public class WalletsController(
     [HttpDelete("{walletId:guid}/{date}")]
     public async Task<IActionResult> DeleteEvaluationsFor(Guid walletId, DateOnly date)
     {
-        // TODO: Hack
-        var portfolioId = context.Portfolios.First().Id;
-        
-        await deleteAllEvaluationsForDateCommand.DeleteAllEvaluationsForDate<Component>(portfolioId, date);
+        await deleteAllEvaluationsForDateCommand.DeleteAllWalletComponentEvaluationsForDate(walletId, date);
         
         return NoContent();
     }

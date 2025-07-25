@@ -8,7 +8,7 @@ public class DebtsPerDateQuery(IRepository repository)
 {
     public EntitiesPerDateQueryDto GetDebtsPerDate(Guid portfolioId) =>
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(repository
-            .GetEntitiesFor<Debt>(portfolioId)
+            .GetEntitiesWithValueHistoryFor<Debt>(portfolioId)
             .ToArray()
         );
 }

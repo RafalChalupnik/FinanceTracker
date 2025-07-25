@@ -51,6 +51,9 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
             {
                 b.HasKey(x => x.Id);
                 b.HasIndex(x => x.Name).IsUnique();
+                b.HasMany(x => x.Assets).WithOne().HasForeignKey(x => x.PortfolioId);
+                b.HasMany(x => x.Debts).WithOne().HasForeignKey(x => x.PortfolioId);
+                b.HasMany(x => x.Wallets).WithOne().HasForeignKey(x => x.PortfolioId);
             });
         
         modelBuilder.Entity<Wallet>(
@@ -64,43 +67,35 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
     
     public class Repository(FinanceTrackerContext context) : IRepository
     {
-        public IQueryable<T> GetEntitiesFor<T>(Guid portfolioId)
+        public IQueryable<T> GetEntitiesWithValueHistoryFor<T>(Guid portfolioId) 
+            where T : EntityWithValueHistory, IEntityInPortfolio
         {
-            return typeof(T) switch
-            {
-                { } t when t == typeof(Asset) => context.Portfolios
-                    .Where(portfolio => portfolio.Id == portfolioId)
-                    .SelectMany(portfolio => portfolio.Assets)
-                    .Include(x => x.ValueHistory)
-                    .Cast<T>(),
-                { } t when t == typeof(Debt) => context.Portfolios
-                    .Where(portfolio => portfolio.Id == portfolioId)
-                    .SelectMany(portfolio => portfolio.Debts)
-                    .Include(x => x.ValueHistory)
-                    .Cast<T>(),
-                { } t when t == typeof(Component) => context.Portfolios
-                    .Where(portfolio => portfolio.Id == portfolioId)
-                    .SelectMany(portfolio => portfolio.Wallets)
-                    .Include(wallet => wallet.Components)
-                    .SelectMany(wallet => wallet.Components)
-                    .Include(component => component.ValueHistory)
-                    .Cast<T>(),
-                { } t when t == typeof(Wallet) => context.Portfolios
-                    .Where(portfolio => portfolio.Id == portfolioId)
-                    .SelectMany(portfolio => portfolio.Wallets)
-                    .Include(wallet => wallet.Components)
-                    .ThenInclude(component => component.ValueHistory)
-                    .Cast<T>(),
-                _ => throw new NotImplementedException()
-            };
+            return context.Set<T>()
+                .Where(entity => entity.PortfolioId == portfolioId)
+                .Include(x => x.ValueHistory);
         }
 
-        public T GetEntity<T>(Guid id) where T : IEntity
+        public IQueryable<Wallet> GetWalletsFor(Guid portfolioId)
         {
-            // TODO: Hack
-            var portfolioId = context.Portfolios.First().Id;
+            return context.Wallets
+                .Where(wallet => wallet.PortfolioId == portfolioId)
+                .Include(wallet => wallet.Components)
+                .ThenInclude(component => component.ValueHistory);
+        }
 
-            return GetEntitiesFor<T>(portfolioId)
+        public IQueryable<Component> GetComponentsForWallet(Guid walletId)
+        {
+            return context.Wallets
+                .Where(wallet => wallet.Id == walletId)
+                .Include(wallet => wallet.Components)
+                .SelectMany(wallet => wallet.Components)
+                .Include(component => component.ValueHistory);
+        }
+
+        public T GetEntityWithValueHistory<T>(Guid id) where T : EntityWithValueHistory, IEntity
+        {
+            return context.Set<T>()
+                .Include(x => x.ValueHistory)
                 .Single(entity => entity.Id == id);
         }
 

@@ -5,7 +5,8 @@ namespace FinanceTracker.Core;
 /// <summary>
 /// Represents a debt.
 /// </summary>
-public class Debt(string name, int displaySequence) : EntityWithValueHistory, IOrderableEntity
+public class Debt(string name, int displaySequence) 
+    : EntityWithValueHistory, IOrderableEntity, IEntityInPortfolio
 {
     [Key]
     public Guid Id { get; init; } = Guid.NewGuid();
@@ -19,4 +20,9 @@ public class Debt(string name, int displaySequence) : EntityWithValueHistory, IO
     /// Sequence in which wallets should be displayed.
     /// </summary>
     public int DisplaySequence => displaySequence;
+    
+    /// <summary>
+    /// Portfolio to which the debt belongs.
+    /// </summary>
+    public Guid PortfolioId { get; } = Guid.Empty;
 }
