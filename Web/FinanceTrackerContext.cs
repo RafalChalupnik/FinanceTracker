@@ -95,6 +95,15 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
             };
         }
 
+        public T GetEntity<T>(Guid id) where T : IEntity
+        {
+            // TODO: Hack
+            var portfolioId = context.Portfolios.First().Id;
+
+            return GetEntitiesFor<T>(portfolioId)
+                .Single(entity => entity.Id == id);
+        }
+
         public void Add<T>(T entity) where T : class
             => context.Set<T>().Add(entity);
 

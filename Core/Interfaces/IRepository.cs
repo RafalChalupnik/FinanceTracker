@@ -4,6 +4,8 @@ public interface IRepository
 {
     IQueryable<T> GetEntitiesFor<T>(Guid portfolioId);
 
+    T GetEntity<T>(Guid id) where T : IEntity;
+
     void Add<T>(T entity) where T : class;
 
     ValueTask DeleteAsync<T>(IQueryable<T> entities);
