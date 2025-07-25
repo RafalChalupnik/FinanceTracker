@@ -30,7 +30,7 @@ namespace FinanceTracker.Web.Migrations
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     DisplaySequence = table.Column<int>(type: "INTEGER", nullable: false),
-                    PortfolioId = table.Column<Guid>(type: "TEXT", nullable: true)
+                    PortfolioId = table.Column<Guid>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -39,7 +39,8 @@ namespace FinanceTracker.Web.Migrations
                         name: "FK_Assets_Portfolios_PortfolioId",
                         column: x => x.PortfolioId,
                         principalTable: "Portfolios",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -49,7 +50,7 @@ namespace FinanceTracker.Web.Migrations
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     DisplaySequence = table.Column<int>(type: "INTEGER", nullable: false),
-                    PortfolioId = table.Column<Guid>(type: "TEXT", nullable: true)
+                    PortfolioId = table.Column<Guid>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -58,7 +59,8 @@ namespace FinanceTracker.Web.Migrations
                         name: "FK_Debts_Portfolios_PortfolioId",
                         column: x => x.PortfolioId,
                         principalTable: "Portfolios",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -68,7 +70,7 @@ namespace FinanceTracker.Web.Migrations
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     DisplaySequence = table.Column<int>(type: "INTEGER", nullable: false),
-                    PortfolioId = table.Column<Guid>(type: "TEXT", nullable: true)
+                    PortfolioId = table.Column<Guid>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -77,7 +79,8 @@ namespace FinanceTracker.Web.Migrations
                         name: "FK_Wallets_Portfolios_PortfolioId",
                         column: x => x.PortfolioId,
                         principalTable: "Portfolios",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
