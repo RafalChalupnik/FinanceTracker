@@ -11,15 +11,14 @@ namespace FinanceTracker.Web.Controllers;
 [ApiController]
 [Route("debts")]
 public class DebtsController(
-    FinanceTrackerContext context,
-    DebtsPerDateQuery debtsPerDateQuery,
+    EntityWithValueHistoryPerDateQuery query,
     EvaluateEntityCommand evaluateEntityCommand,
     DeleteAllEvaluationsForDateCommand deleteAllEvaluationsForDateCommand
     ) : ControllerBase
 {
     [HttpGet]
     public EntitiesPerDateQueryDto GetDebts() 
-        => debtsPerDateQuery.GetDebtsPerDate();
+        => query.GetDebts();
 
     [HttpPut("{debtId:guid}")]
     public async Task<IActionResult> EvaluateDebt(Guid debtId, [FromBody] ValueUpdateDto valueUpdate)

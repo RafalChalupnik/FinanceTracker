@@ -11,14 +11,14 @@ namespace FinanceTracker.Web.Controllers;
 [ApiController]
 [Route("assets")]
 public class AssetsController(
-    AssetsPerDateQuery assetsPerDateQuery,
+    EntityWithValueHistoryPerDateQuery query,
     EvaluateEntityCommand evaluateEntityCommand,
     DeleteAllEvaluationsForDateCommand deleteAllEvaluationsForDateCommand
     ) : ControllerBase
 {
     [HttpGet]
     public EntitiesPerDateQueryDto GetAssets() 
-        => assetsPerDateQuery.GetAssetsPerDate();
+        => query.GetAssets();
 
     [HttpPut("{assetId:guid}")]
     public async Task<IActionResult> EvaluateAsset(Guid assetId, [FromBody] ValueUpdateDto valueUpdate)

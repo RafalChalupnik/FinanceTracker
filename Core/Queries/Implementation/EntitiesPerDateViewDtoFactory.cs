@@ -7,6 +7,26 @@ namespace FinanceTracker.Core.Queries.Implementation;
 internal static class EntitiesPerDateViewDtoFactory
 {
     public static EntitiesPerDateQueryDto BuildEntitiesPerDateViewDto<T>(
+        IQueryable<T> entities,
+        BaseValueType valueType
+    ) where T : IEntityWithValueHistory, IOrderableEntity
+    {
+        var mappedEntities = entities
+            .OrderBy(x => x.DisplaySequence)
+            .AsEnumerable()
+            .Select(entity => new EntityData(
+                    Name: entity.Name,
+                    Dates: entity.GetEvaluationDates().ToArray(),
+                    GetValueForDate: date => entity.GetValueFor(date, valueType),
+                    Id: entity.Id
+                )
+            )
+            .ToArray();
+        
+        return BuildEntitiesPerDateViewDto(mappedEntities);
+    }
+    
+    public static EntitiesPerDateQueryDto BuildEntitiesPerDateViewDto<T>(
         IReadOnlyList<T> orderedEntities,
         BaseValueType valueType
         ) where T : IEntityWithValueHistory, IEntity
