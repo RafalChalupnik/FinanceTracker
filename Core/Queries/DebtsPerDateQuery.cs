@@ -10,6 +10,7 @@ public class DebtsPerDateQuery(IRepository repository)
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
             repository
                 .GetEntitiesWithValueHistory<Debt>()
+                .OrderBy(entity => entity.DisplaySequence)
                 .ToArray(),
             EntitiesPerDateViewDtoFactory.BaseValueType.Negative
         );

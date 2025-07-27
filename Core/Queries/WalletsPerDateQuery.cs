@@ -18,8 +18,20 @@ public class WalletsPerDateQuery(IRepository repository)
                 .Select(wallet => new WalletDto(
                         Id: wallet.Id,
                         Name: wallet.Name,
+                        Headers: wallet.Components
+                            .OrderBy(x => x.DisplaySequence)
+                            .Select(entity => new EntityHeaderDto(
+                                    Name: entity.Name,
+                                    Id: entity.Id
+                                )
+                            )
+                            .ToArray(),
                         Data: EntitiesPerDateViewDtoFactory
-                            .BuildEntitiesPerDateViewDto(wallet.Components, EntitiesPerDateViewDtoFactory.BaseValueType.Positive)
+                            .BuildEntitiesPerDateViewDto(
+                                wallet.Components
+                                    .OrderBy(x => x.DisplaySequence)
+                                    .ToArray(), 
+                                EntitiesPerDateViewDtoFactory.BaseValueType.Positive)
                             .Data
                     )
                 )

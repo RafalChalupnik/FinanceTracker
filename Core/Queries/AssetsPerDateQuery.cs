@@ -10,6 +10,7 @@ public class AssetsPerDateQuery(IRepository repository)
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
             repository
                 .GetEntitiesWithValueHistory<Asset>()
+                .OrderBy(entity => entity.DisplaySequence)
                 .ToArray(),
             EntitiesPerDateViewDtoFactory.BaseValueType.Positive
         );

@@ -1,12 +1,24 @@
 import React, { Component } from 'react';
-import SummaryTable from "./SummaryTable";
+import SummaryTable, {SummaryTableRow} from "./SummaryTable";
+import {getAssets} from '../ApiClient'
+import { SummaryTableHeader } from './SummaryTable';
+import {mapData} from "../SummaryTableMapper";
 
-export class Assets extends Component {
+interface AssetsProps {}
+
+interface AssetsState {
+    headers: SummaryTableHeader[],
+    data: SummaryTableRow[],
+    loading: boolean
+}
+
+export class Assets extends Component<AssetsProps, AssetsState> {
     static displayName = Assets.name;
-
-    constructor(props) {
-        super(props);
-        this.state = { portfolio: [], loading: true };
+    
+    state: AssetsState = {
+        headers: [],
+        data: [],
+        loading: true
     }
 
     componentDidMount() {
@@ -17,12 +29,9 @@ export class Assets extends Component {
         let content = this.state.loading
             ? <p><em>Loading...</em></p>
             : <SummaryTable
+                headers={this.state.headers}
                 data={this.state.data}
-                selectFunc={data => {return {
-                    components: data.entities,
-                    summary: data.summary
-                }}}
-                isEditable="true"
+                isEditable={true}
                 onUpdate={this.updateAsset}
                 onDelete={this.deleteEvaluations}
             />
@@ -35,7 +44,7 @@ export class Assets extends Component {
         );
     }
     
-    updateAsset = async (id, date, value) => {
+    updateAsset = async (id: string, date: Date, value: number) => {
         const response = await fetch("assets/" + id, {
             method: "PUT",
             headers: {
@@ -54,7 +63,7 @@ export class Assets extends Component {
         await this.populateData();
     }
 
-    deleteEvaluations = async (date) => {
+    deleteEvaluations = async (date: Date) => {
         const response = await fetch("assets/" + date, {
             method: "DELETE",
             headers: {
@@ -70,8 +79,11 @@ export class Assets extends Component {
     }
 
     populateData = async () => {
-        const response = await fetch('assets');
-        const data = await response.json();
-        this.setState({ data: data.data, loading: false });
+        const response = await getAssets();
+        
+        let headers: SummaryTableHeader[] = response.headers
+        let data = mapData(headers, response.data)
+        
+        this.setState({ headers: headers, data: data, loading: false });
     }
 }

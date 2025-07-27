@@ -10,6 +10,7 @@ public class WalletsSummaryPerDateQuery(IRepository repository)
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
             repository
                 .GetWallets()
+                .OrderBy(entity => entity.DisplaySequence)
                 .ToArray(),
             EntitiesPerDateViewDtoFactory.BaseValueType.Positive
         );

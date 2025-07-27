@@ -12,7 +12,7 @@ public class PortfolioController(
     ) : ControllerBase
 {
     [HttpGet("summary")]
-    public PortfolioPerDateQueryDto GetSummary() 
+    public EntitiesPerDateQueryDto GetSummary() 
         => portfolioPerDateQuery.GetPortfolioPerDate();
 
     [HttpGet("wallets")]
