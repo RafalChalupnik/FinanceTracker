@@ -21,7 +21,7 @@ const NavMenu = () => {
             container="sm"
         >
           <NavbarBrand tag={Link} to="/">
-            CsharpReactTypeScript
+            Finance Tracker
           </NavbarBrand>
           <NavbarToggler onClick={toggleNavbar} className="mr-2" />
           <Collapse
