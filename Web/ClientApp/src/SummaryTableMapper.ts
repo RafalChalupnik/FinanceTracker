@@ -17,9 +17,6 @@ function zip<T, U>(a: T[], b: U[]): [T, U][] {
 }
 
 export function mapData (headers: SummaryTableHeader[], data: EntitiesForDateDto[]) : SummaryTableRow[] {
-    console.log(headers)
-    console.log(data)
-    
     return data.map(row => {
         return {
             date: row.date,

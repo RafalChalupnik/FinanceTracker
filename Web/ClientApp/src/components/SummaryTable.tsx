@@ -25,14 +25,12 @@ interface SummaryTableProps {
     headers: SummaryTableHeader[];
     data: SummaryTableRow[];
     isEditable: boolean
-    onUpdate?: (id: string, date: Date, value: number) => void;
+    onUpdate?: (id: string, date: string, value: number) => void;
     onDelete?: (date: Date) => void;
 }
 
 const SummaryTable: FC<SummaryTableProps> = (props) => {
-    console.log("Foo: " + new Date())
-    
-    let [newRowDate, setNewRowDate] = useState(new Date())
+    let [newRowDate, setNewRowDate] = useState("")
     
     let componentHeader = (
         <>
@@ -57,7 +55,7 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
                         {isEditable
                             ? <EditableMoney
                                 value={component.value}
-                                onNewValue={newValue => props.onUpdate!(component.id, date, newValue)}/>
+                                onNewValue={newValue => props.onUpdate!(component.id, date.toString(), newValue)}/>
                             : <Money value={component.value}/>}
                     </td>
                     <td>
@@ -75,8 +73,13 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
             <td>
                 <input
                     type="date"
-                    value={newRowDate.toDateString()}
-                    onChange={e => setNewRowDate(new Date(e.target.value))}
+                    value={newRowDate}
+                    onChange={e => {
+                        console.log('Foo')
+                        console.log(e.target.value)
+                        console.log(Date.parse(e.target.value))
+                        setNewRowDate(e.target.value);
+                    }}
                 />
             </td>
             {props.headers.map(header =>
@@ -119,6 +122,9 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
                     <td>{row.date.toString()}</td>
                     {row.components.map(component => componentRow(row.date, component, props.isEditable))}
                     {componentRow(row.date, row.summary, false)}
+                    {props.isEditable && <td>
+                        <button onClick={() => props.onDelete!(row.date)}>Delete</button>
+                    </td>}
                 </tr>
             )}
             {newEntryRow}

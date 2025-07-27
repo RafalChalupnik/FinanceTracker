@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import SummaryTable, {SummaryTableHeader, SummaryTableRow} from "./SummaryTable";
-import {getAssets, getDebts} from "../ApiClient";
+import {getDebts} from "../ApiClient";
 import {mapData} from "../SummaryTableMapper";
 
 interface DebtsProps {}
@@ -43,7 +43,7 @@ export class Debts extends Component<DebtsProps, DebtsState> {
         );
     }
 
-    updateDebt = async (id: string, date: Date, value: number) => {
+    updateDebt = async (id: string, date: string, value: number) => {
         const response = await fetch("debts/" + id, {
             method: "PUT",
             headers: {

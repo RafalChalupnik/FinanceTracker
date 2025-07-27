@@ -7,13 +7,12 @@ namespace FinanceTracker.Web.Controllers;
 [ApiController]
 [Route("portfolio")]
 public class PortfolioController(
-    PortfolioPerDateQuery portfolioPerDateQuery,
-    EntityWithValueHistoryPerDateQuery query
+    SummaryQueries query
     ) : ControllerBase
 {
     [HttpGet("summary")]
     public EntitiesPerDateQueryDto GetSummary() 
-        => portfolioPerDateQuery.GetPortfolioPerDate();
+        => query.GetPortfolioSummary();
 
     [HttpGet("wallets")]
     public EntitiesPerDateQueryDto GetWallets() 

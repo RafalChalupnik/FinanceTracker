@@ -44,7 +44,7 @@ export class Assets extends Component<AssetsProps, AssetsState> {
         );
     }
     
-    updateAsset = async (id: string, date: Date, value: number) => {
+    updateAsset = async (id: string, date: string, value: number) => {
         const response = await fetch("assets/" + id, {
             method: "PUT",
             headers: {

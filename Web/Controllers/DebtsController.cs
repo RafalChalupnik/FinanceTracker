@@ -11,7 +11,7 @@ namespace FinanceTracker.Web.Controllers;
 [ApiController]
 [Route("debts")]
 public class DebtsController(
-    EntityWithValueHistoryPerDateQuery query,
+    SummaryQueries query,
     EvaluateEntityCommand evaluateEntityCommand,
     DeleteAllEvaluationsForDateCommand deleteAllEvaluationsForDateCommand
     ) : ControllerBase

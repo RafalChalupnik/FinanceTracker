@@ -52,7 +52,7 @@ export class Wallets extends Component<WalletsProps, WalletsState> {
         );
     }
 
-    updateComponent = async (id: string, date: Date, value: number) => {
+    updateComponent = async (id: string, date: string, value: number) => {
         const response = await fetch("wallets/components/" + id, {
             method: "PUT",
             headers: {
@@ -63,8 +63,6 @@ export class Wallets extends Component<WalletsProps, WalletsState> {
                 value: value
             }),
         });
-        
-        console.log(response)       
 
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);

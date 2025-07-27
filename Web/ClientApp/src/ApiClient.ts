@@ -34,8 +34,6 @@ interface ValueSnapshotDto {
 export async function getEntities (path: string) {
     const response = await fetch(path);
     const data: EntitiesPerDateQueryDto = await response.json();
-    console.log("lol");
-    console.log(data);
     return data;
 }
 

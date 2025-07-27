@@ -43,3 +43,11 @@ public record ValueSnapshotDto(
         };
     }
 }
+
+public static class ValueSnapshotDtoExtensions
+{
+    public static ValueSnapshotDto? ToValueSnapshotDto(this decimal? value) => 
+        value.HasValue
+            ? new ValueSnapshotDto(value.Value)
+            : null;
+}

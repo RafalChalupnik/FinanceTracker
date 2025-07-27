@@ -7,35 +7,15 @@ namespace FinanceTracker.Core.Queries.Implementation;
 internal static class EntitiesPerDateViewDtoFactory
 {
     public static EntitiesPerDateQueryDto BuildEntitiesPerDateViewDto<T>(
-        IQueryable<T> entities,
-        BaseValueType valueType
+        IEnumerable<T> entities
     ) where T : IEntityWithValueHistory, IOrderableEntity
     {
         var mappedEntities = entities
             .OrderBy(x => x.DisplaySequence)
-            .AsEnumerable()
             .Select(entity => new EntityData(
                     Name: entity.Name,
                     Dates: entity.GetEvaluationDates().ToArray(),
-                    GetValueForDate: date => entity.GetValueFor(date, valueType),
-                    Id: entity.Id
-                )
-            )
-            .ToArray();
-        
-        return BuildEntitiesPerDateViewDto(mappedEntities);
-    }
-    
-    public static EntitiesPerDateQueryDto BuildEntitiesPerDateViewDto<T>(
-        IReadOnlyList<T> orderedEntities,
-        BaseValueType valueType
-        ) where T : IEntityWithValueHistory, IEntity
-    {
-        var mappedEntities = orderedEntities
-            .Select(entity => new EntityData(
-                    Name: entity.Name,
-                    Dates: entity.GetEvaluationDates().ToArray(),
-                    GetValueForDate: date => entity.GetValueFor(date, valueType),
+                    GetValueForDate: date => entity.GetValueFor(date).ToValueSnapshotDto(),
                     Id: entity.Id
                 )
             )
@@ -72,21 +52,6 @@ internal static class EntitiesPerDateViewDtoFactory
                 .CalculateChanges()
                 .ToArray()
         );
-    }
-    
-    public static ValueSnapshotDto? GetValueFor(this IEntityWithValueHistory entity, DateOnly date, BaseValueType valueType)
-    {
-        var decimalValue = entity.GetValueFor(date);
-
-        return decimalValue.HasValue
-            ? new ValueSnapshotDto(
-                Value: valueType switch
-                {
-                    BaseValueType.Positive => Math.Abs(decimalValue.Value),
-                    BaseValueType.Negative => -Math.Abs(decimalValue.Value),
-                    _ => throw new NotImplementedException()
-                })
-            : null;
     }
     
     private static EntitiesForDateDto BuildEntitiesForDateDto(
@@ -135,10 +100,4 @@ internal static class EntitiesPerDateViewDtoFactory
         Func<DateOnly, ValueSnapshotDto?> GetValueForDate,
         Guid? Id = null
     );
-    
-    public enum BaseValueType
-    {
-        Positive,
-        Negative
-    }
 }

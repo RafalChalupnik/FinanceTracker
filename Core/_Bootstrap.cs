@@ -13,8 +13,6 @@ public static class Bootstrap
             .AddScoped<DeleteAllEvaluationsForDateCommand>()
             .AddScoped<EvaluateEntityCommand>()
             // Queries
-            .AddScoped<EntityWithValueHistoryPerDateQuery>()
-            .AddScoped<PortfolioPerDateQuery>()
-            .AddScoped<WalletsPerDateQuery>();
+            .AddScoped<SummaryQueries>();
     }
 }
