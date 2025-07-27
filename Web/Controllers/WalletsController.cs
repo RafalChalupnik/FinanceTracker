@@ -11,20 +11,14 @@ namespace FinanceTracker.Web.Controllers;
 [ApiController]
 [Route("wallets")]
 public class WalletsController(
-    FinanceTrackerContext context,
     WalletsPerDateQuery walletsPerDateQuery,
     EvaluateEntityCommand evaluateEntityCommand,
     DeleteAllEvaluationsForDateCommand deleteAllEvaluationsForDateCommand
 ) : ControllerBase
 {
     [HttpGet]
-    public WalletsPerDateQueryDto GetWallets()
-    {
-        // TODO: Hack
-        var portfolioId = context.Portfolios.First().Id;
-        
-        return walletsPerDateQuery.GetWalletsPerDate(portfolioId);
-    }
+    public WalletsPerDateQueryDto GetWallets() 
+        => walletsPerDateQuery.GetWalletsPerDate();
 
     [HttpPut("components/{componentId:guid}")]
     public async Task<IActionResult> EvaluateWalletComponent(Guid componentId, [FromBody] ValueUpdateDto valueUpdate)

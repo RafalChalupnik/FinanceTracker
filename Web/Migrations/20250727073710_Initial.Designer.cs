@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinanceTracker.Web.Migrations
 {
     [DbContext(typeof(FinanceTrackerContext))]
-    [Migration("20250725181847_Initial")]
+    [Migration("20250727073710_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -34,12 +34,7 @@ namespace FinanceTracker.Web.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("PortfolioId")
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("PortfolioId");
 
                     b.ToTable("Assets");
                 });
@@ -80,35 +75,12 @@ namespace FinanceTracker.Web.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("PortfolioId")
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("PortfolioId");
 
                     b.ToTable("Debts");
                 });
 
-            modelBuilder.Entity("FinanceTracker.Core.Portfolio", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Portfolios");
-                });
-
-            modelBuilder.Entity("FinanceTracker.Core.Primitives.HistoricValue", b =>
+            modelBuilder.Entity("FinanceTracker.Core.HistoricValue", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -126,7 +98,7 @@ namespace FinanceTracker.Web.Migrations
                     b.Property<Guid?>("DebtId")
                         .HasColumnType("TEXT");
 
-                    b.ComplexProperty<Dictionary<string, object>>("Value", "FinanceTracker.Core.Primitives.HistoricValue.Value#Money", b1 =>
+                    b.ComplexProperty<Dictionary<string, object>>("Value", "FinanceTracker.Core.HistoricValue.Value#Money", b1 =>
                         {
                             b1.IsRequired();
 
@@ -165,23 +137,9 @@ namespace FinanceTracker.Web.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("PortfolioId")
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("PortfolioId");
-
                     b.ToTable("Wallets");
-                });
-
-            modelBuilder.Entity("FinanceTracker.Core.Asset", b =>
-                {
-                    b.HasOne("FinanceTracker.Core.Portfolio", null)
-                        .WithMany("Assets")
-                        .HasForeignKey("PortfolioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("FinanceTracker.Core.Component", b =>
@@ -191,16 +149,7 @@ namespace FinanceTracker.Web.Migrations
                         .HasForeignKey("WalletId");
                 });
 
-            modelBuilder.Entity("FinanceTracker.Core.Debt", b =>
-                {
-                    b.HasOne("FinanceTracker.Core.Portfolio", null)
-                        .WithMany("Debts")
-                        .HasForeignKey("PortfolioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("FinanceTracker.Core.Primitives.HistoricValue", b =>
+            modelBuilder.Entity("FinanceTracker.Core.HistoricValue", b =>
                 {
                     b.HasOne("FinanceTracker.Core.Asset", null)
                         .WithMany("ValueHistory")
@@ -215,15 +164,6 @@ namespace FinanceTracker.Web.Migrations
                         .HasForeignKey("DebtId");
                 });
 
-            modelBuilder.Entity("FinanceTracker.Core.Wallet", b =>
-                {
-                    b.HasOne("FinanceTracker.Core.Portfolio", null)
-                        .WithMany("Wallets")
-                        .HasForeignKey("PortfolioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("FinanceTracker.Core.Asset", b =>
                 {
                     b.Navigation("ValueHistory");
@@ -237,15 +177,6 @@ namespace FinanceTracker.Web.Migrations
             modelBuilder.Entity("FinanceTracker.Core.Debt", b =>
                 {
                     b.Navigation("ValueHistory");
-                });
-
-            modelBuilder.Entity("FinanceTracker.Core.Portfolio", b =>
-                {
-                    b.Navigation("Assets");
-
-                    b.Navigation("Debts");
-
-                    b.Navigation("Wallets");
                 });
 
             modelBuilder.Entity("FinanceTracker.Core.Wallet", b =>

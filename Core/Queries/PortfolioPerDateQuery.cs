@@ -6,11 +6,11 @@ namespace FinanceTracker.Core.Queries;
 
 public class PortfolioPerDateQuery(IRepository repository)
 {
-    public PortfolioPerDateQueryDto GetPortfolioPerDate(Guid portfolioId)
+    public PortfolioPerDateQueryDto GetPortfolioPerDate()
     {
-        var wallets = repository.GetWalletsFor(portfolioId).ToArray();
-        var assets = repository.GetEntitiesWithValueHistoryFor<Asset>(portfolioId).ToArray();
-        var debts = repository.GetEntitiesWithValueHistoryFor<Debt>(portfolioId).ToArray();
+        var wallets = repository.GetWallets().ToArray();
+        var assets = repository.GetEntitiesWithValueHistory<Asset>().ToArray();
+        var debts = repository.GetEntitiesWithValueHistory<Debt>().ToArray();
 
         var dates = wallets
             .SelectMany(wallet => wallet.GetEvaluationDates())

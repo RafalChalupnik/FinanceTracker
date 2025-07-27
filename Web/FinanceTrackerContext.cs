@@ -1,6 +1,5 @@
 using FinanceTracker.Core;
 using FinanceTracker.Core.Interfaces;
-using FinanceTracker.Core.Primitives;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.Web;
@@ -14,8 +13,6 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
     public DbSet<Debt> Debts { get; set; }
     
     public DbSet<HistoricValue> HistoricValues { get; set; }
-    
-    public DbSet<Portfolio> Portfolios { get; set; }
     
     public DbSet<Wallet> Wallets { get; set; }
 
@@ -36,6 +33,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 b.HasKey(x => x.Id);
                 b.Property(x => x.Name);
                 b.Property(x => x.DisplaySequence);
+                b.HasMany(x => x.ValueHistory);
             });
         
         modelBuilder.Entity<Debt>(
@@ -44,16 +42,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 b.HasKey(x => x.Id);
                 b.Property(x => x.Name);
                 b.Property(x => x.DisplaySequence);
-            });
-        
-        modelBuilder.Entity<Portfolio>(
-            b =>
-            {
-                b.HasKey(x => x.Id);
-                b.HasIndex(x => x.Name).IsUnique();
-                b.HasMany(x => x.Assets).WithOne().HasForeignKey(x => x.PortfolioId);
-                b.HasMany(x => x.Debts).WithOne().HasForeignKey(x => x.PortfolioId);
-                b.HasMany(x => x.Wallets).WithOne().HasForeignKey(x => x.PortfolioId);
+                b.HasMany(x => x.ValueHistory);
             });
         
         modelBuilder.Entity<Wallet>(
@@ -67,18 +56,15 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
     
     public class Repository(FinanceTrackerContext context) : IRepository
     {
-        public IQueryable<T> GetEntitiesWithValueHistoryFor<T>(Guid portfolioId) 
-            where T : EntityWithValueHistory, IEntityInPortfolio
+        public IQueryable<T> GetEntitiesWithValueHistory<T>() where T : EntityWithValueHistory
         {
             return context.Set<T>()
-                .Where(entity => entity.PortfolioId == portfolioId)
                 .Include(x => x.ValueHistory);
         }
 
-        public IQueryable<Wallet> GetWalletsFor(Guid portfolioId)
+        public IQueryable<Wallet> GetWallets()
         {
             return context.Wallets
-                .Where(wallet => wallet.PortfolioId == portfolioId)
                 .Include(wallet => wallet.Components)
                 .ThenInclude(component => component.ValueHistory);
         }

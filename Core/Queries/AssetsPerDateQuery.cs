@@ -6,9 +6,9 @@ namespace FinanceTracker.Core.Queries;
 
 public class AssetsPerDateQuery(IRepository repository)
 {
-    public EntitiesPerDateQueryDto GetAssetsPerDate(Guid portfolioId) =>
+    public EntitiesPerDateQueryDto GetAssetsPerDate() =>
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(repository
-            .GetEntitiesWithValueHistoryFor<Asset>(portfolioId)
+            .GetEntitiesWithValueHistory<Asset>()
             .ToArray()
         );
 }

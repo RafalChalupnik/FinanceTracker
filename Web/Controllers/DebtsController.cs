@@ -5,7 +5,6 @@ using FinanceTracker.Core.Queries;
 using FinanceTracker.Core.Queries.DTOs;
 using FinanceTracker.Web.DTOs;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.Web.Controllers;
 
@@ -19,13 +18,8 @@ public class DebtsController(
     ) : ControllerBase
 {
     [HttpGet]
-    public EntitiesPerDateQueryDto GetDebts()
-    {
-        // TODO: Hack
-        var portfolioId = context.Portfolios.First().Id;
-        
-        return debtsPerDateQuery.GetDebtsPerDate(portfolioId);
-    }
+    public EntitiesPerDateQueryDto GetDebts() 
+        => debtsPerDateQuery.GetDebtsPerDate();
 
     [HttpPut("{debtId:guid}")]
     public async Task<IActionResult> EvaluateDebt(Guid debtId, [FromBody] ValueUpdateDto valueUpdate)
@@ -46,11 +40,7 @@ public class DebtsController(
     [HttpDelete("{date}")]
     public async Task<IActionResult> DeleteEvaluationsFor(DateOnly date)
     {
-        // TODO: Hack
-        var portfolioId = context.Portfolios.First().Id;
-        
-        await deleteAllEvaluationsForDateCommand.DeleteAllEvaluationsForDate<Debt>(portfolioId, date);
-        
+        await deleteAllEvaluationsForDateCommand.DeleteAllEvaluationsForDate<Debt>(date);
         return NoContent();
     }
 }

@@ -4,10 +4,10 @@ namespace FinanceTracker.Core.Commands;
 
 public class DeleteAllEvaluationsForDateCommand(IRepository repository)
 {
-    public async ValueTask DeleteAllEvaluationsForDate<T>(Guid portfolioId, DateOnly date)
-        where T : EntityWithValueHistory, IEntityInPortfolio
+    public async ValueTask DeleteAllEvaluationsForDate<T>(DateOnly date)
+        where T : EntityWithValueHistory
     {
-        var entitiesToDelete = repository.GetEntitiesWithValueHistoryFor<T>(portfolioId)
+        var entitiesToDelete = repository.GetEntitiesWithValueHistory<T>()
             .SelectMany(entity => entity.ValueHistory)
             .Where(entry => entry.Date == date);
         

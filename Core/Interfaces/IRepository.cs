@@ -2,10 +2,9 @@ namespace FinanceTracker.Core.Interfaces;
 
 public interface IRepository
 {
-    IQueryable<T> GetEntitiesWithValueHistoryFor<T>(Guid portfolioId) 
-        where T : EntityWithValueHistory, IEntityInPortfolio;
+    IQueryable<T> GetEntitiesWithValueHistory<T>() where T : EntityWithValueHistory;
     
-    IQueryable<Wallet> GetWalletsFor(Guid portfolioId);
+    IQueryable<Wallet> GetWallets();
 
     IQueryable<Component> GetComponentsForWallet(Guid walletId);
     

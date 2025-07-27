@@ -7,15 +7,14 @@ internal static class Seeder
 {
     public static async ValueTask SeedDataIfNecessary(FinanceTrackerContext context)
     {
-        if (context.Portfolios.Any() == false)
+        if (context.Assets.Any() == false && context.Debts.Any() == false && context.Wallets.Any() == false)
         {
-            var portfolio = BuildTestPortfolio();
-            context.Add(portfolio);
+            AddTestPortfolio(context);
             await context.SaveChangesAsync();
         }
     }
     
-    private static Portfolio BuildTestPortfolio()
+    private static void AddTestPortfolio(FinanceTrackerContext context)
     {
         var today = DateOnly.FromDateTime(DateTime.Now);
         var dummyValue = new Money(100, "PLN", 100);
@@ -51,15 +50,12 @@ internal static class Seeder
         
         var carPayment = new Debt(name: "Car Payment", displaySequence: 2);
         carPayment.Evaluate(today, dummyValue);
-        
-        var portfolio = new Portfolio("Test Portfolio");
-        portfolio.Add(emergencyFund);
-        portfolio.Add(longTermWallet);
-        portfolio.Add(home);
-        portfolio.Add(car);
-        portfolio.Add(mortgage);
-        portfolio.Add(carPayment);
-        
-        return portfolio;
+
+        context.Add(emergencyFund);
+        context.Add(longTermWallet);
+        context.Add(home);
+        context.Add(car);
+        context.Add(mortgage);
+        context.Add(carPayment);
     }
 }

@@ -12,35 +12,16 @@ namespace FinanceTracker.Web.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Portfolios",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Portfolios", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Assets",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    DisplaySequence = table.Column<int>(type: "INTEGER", nullable: false),
-                    PortfolioId = table.Column<Guid>(type: "TEXT", nullable: false)
+                    DisplaySequence = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Assets", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Assets_Portfolios_PortfolioId",
-                        column: x => x.PortfolioId,
-                        principalTable: "Portfolios",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -49,18 +30,11 @@ namespace FinanceTracker.Web.Migrations
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    DisplaySequence = table.Column<int>(type: "INTEGER", nullable: false),
-                    PortfolioId = table.Column<Guid>(type: "TEXT", nullable: false)
+                    DisplaySequence = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Debts", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Debts_Portfolios_PortfolioId",
-                        column: x => x.PortfolioId,
-                        principalTable: "Portfolios",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -69,18 +43,11 @@ namespace FinanceTracker.Web.Migrations
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    DisplaySequence = table.Column<int>(type: "INTEGER", nullable: false),
-                    PortfolioId = table.Column<Guid>(type: "TEXT", nullable: false)
+                    DisplaySequence = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Wallets", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Wallets_Portfolios_PortfolioId",
-                        column: x => x.PortfolioId,
-                        principalTable: "Portfolios",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -136,19 +103,9 @@ namespace FinanceTracker.Web.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Assets_PortfolioId",
-                table: "Assets",
-                column: "PortfolioId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Components_WalletId",
                 table: "Components",
                 column: "WalletId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Debts_PortfolioId",
-                table: "Debts",
-                column: "PortfolioId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_HistoricValues_AssetId",
@@ -164,17 +121,6 @@ namespace FinanceTracker.Web.Migrations
                 name: "IX_HistoricValues_DebtId",
                 table: "HistoricValues",
                 column: "DebtId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Portfolios_Name",
-                table: "Portfolios",
-                column: "Name",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Wallets_PortfolioId",
-                table: "Wallets",
-                column: "PortfolioId");
         }
 
         /// <inheritdoc />
@@ -194,9 +140,6 @@ namespace FinanceTracker.Web.Migrations
 
             migrationBuilder.DropTable(
                 name: "Wallets");
-
-            migrationBuilder.DropTable(
-                name: "Portfolios");
         }
     }
 }
