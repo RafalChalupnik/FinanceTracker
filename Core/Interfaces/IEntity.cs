@@ -1,4 +1,4 @@
-namespace FinanceTracker.Core;
+namespace FinanceTracker.Core.Interfaces;
 
 public interface IEntity
 {

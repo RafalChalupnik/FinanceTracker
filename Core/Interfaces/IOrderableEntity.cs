@@ -1,4 +1,4 @@
-namespace FinanceTracker.Core;
+namespace FinanceTracker.Core.Interfaces;
 
 internal interface IOrderableEntity : IEntity
 {

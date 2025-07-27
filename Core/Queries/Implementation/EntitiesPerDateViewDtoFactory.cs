@@ -1,4 +1,5 @@
 using FinanceTracker.Core.Extensions;
+using FinanceTracker.Core.Interfaces;
 using FinanceTracker.Core.Queries.DTOs;
 
 namespace FinanceTracker.Core.Queries.Implementation;
@@ -30,7 +31,7 @@ internal static class EntitiesPerDateViewDtoFactory
                     )
                 )
                 .ToArray()
-                .Scan(CalculateChanges)
+                .CalculateChanges()
                 .ToArray()
         );
     }
@@ -46,6 +47,15 @@ internal static class EntitiesPerDateViewDtoFactory
                 Value: valueSnapshots.Sum(entity => entity.Value)
             )
         );
+
+    private static IEnumerable<EntitiesForDateDto> CalculateChanges(this IReadOnlyList<EntitiesForDateDto> values)
+    {
+        EntitiesForDateDto[] firstValue = [values[0]];
+        return firstValue
+            .Concat(values
+                .Scan(CalculateChanges))
+            .ToArray();
+    }
 
     private static EntitiesForDateDto CalculateChanges(EntitiesForDateDto previous, EntitiesForDateDto current)
     {

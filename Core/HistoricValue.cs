@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using FinanceTracker.Core.Primitives;
 
-namespace FinanceTracker.Core.Primitives;
+namespace FinanceTracker.Core;
 
 public class HistoricValue
 {

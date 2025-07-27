@@ -2,23 +2,22 @@ namespace FinanceTracker.Core.Extensions;
 
 internal static class CollectionsExtensions
 {
-    public static IReadOnlyList<T> Scan<T>(this IReadOnlyList<T> source, Func<T, T, T> scanFunction)
+    public static IEnumerable<T> Scan<T>(this IEnumerable<T> source, Func<T, T, T> scanFunction)
     {
-        if (source.Count < 2)
+        using var enumerator = source.GetEnumerator();
+
+        if (enumerator.MoveNext() == false)
         {
-            return source;
+            yield break;
         }
 
-        var output = new List<T>(capacity: source.Count)
-        {
-            source[0]
-        };
+        var previous = enumerator.Current;
 
-        foreach (var current in source.Skip(1))
+        while (enumerator.MoveNext())
         {
-            output.Add(scanFunction(output.Last(), current));
+            var projection = scanFunction(previous, enumerator.Current);
+            yield return projection;
+            previous = projection;
         }
-
-        return output;
     }
 }

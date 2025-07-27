@@ -32,7 +32,7 @@ public class PortfolioPerDateQuery(IRepository repository)
                     )
                 )
                 .ToArray()
-                .Scan(CalculateChanges)
+                .CalculateChanges()
                 .ToArray()
         );
     }
@@ -67,6 +67,18 @@ public class PortfolioPerDateQuery(IRepository repository)
                 Value: walletsValue + assetsValue + debtsValue
             )
         );
+    }
+}
+
+internal static class PortfolioQueryExtensions
+{
+    public static IEnumerable<PortfolioForDateDto> CalculateChanges(this IReadOnlyList<PortfolioForDateDto> values)
+    {
+        PortfolioForDateDto[] firstValue = [values[0]];
+        return firstValue
+            .Concat(values
+                .Scan(CalculateChanges))
+            .ToArray();
     }
     
     private static PortfolioForDateDto CalculateChanges(

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using FinanceTracker.Core.Exceptions;
+using FinanceTracker.Core.Interfaces;
 
 namespace FinanceTracker.Core;
 

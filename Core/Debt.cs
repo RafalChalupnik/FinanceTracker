@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using FinanceTracker.Core.Interfaces;
 
 namespace FinanceTracker.Core;
 
