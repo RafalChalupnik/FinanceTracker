@@ -6,8 +6,15 @@ namespace FinanceTracker.Core.Queries.Implementation;
 
 internal static class EntitiesPerDateViewDtoFactory
 {
+    public enum BaseValueType
+    {
+        Positive,
+        Negative
+    }
+    
     public static EntitiesPerDateQueryDto BuildEntitiesPerDateViewDto<T>(
-        IReadOnlyCollection<T> entities
+        IReadOnlyCollection<T> entities,
+        BaseValueType valueType
         ) where T : IEntityWithValueHistory, IOrderableEntity
     {
         var dates = entities
@@ -24,7 +31,7 @@ internal static class EntitiesPerDateViewDtoFactory
                             .OrderBy(entity => entity.DisplaySequence)
                             .Select(entity => new ValueSnapshotDto(
                                 Name: entity.Name,
-                                Value: entity.GetValueFor(date) ?? 0,
+                                Value: GetValueFor(entity, date, valueType),
                                 Id: entity.Id
                             ))
                             .ToArray()
@@ -34,6 +41,18 @@ internal static class EntitiesPerDateViewDtoFactory
                 .CalculateChanges()
                 .ToArray()
         );
+    }
+
+    private static decimal GetValueFor(this IEntityWithValueHistory entity, DateOnly date, BaseValueType valueType)
+    {
+        var value = Math.Abs(entity.GetValueFor(date) ?? 0);
+
+        return valueType switch
+        {
+            BaseValueType.Positive => value,
+            BaseValueType.Negative => -value,
+            _ => throw new NotImplementedException()
+        };
     }
     
     private static EntitiesForDateDto BuildEntitiesForDateDto(

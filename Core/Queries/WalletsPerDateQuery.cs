@@ -19,7 +19,7 @@ public class WalletsPerDateQuery(IRepository repository)
                         Id: wallet.Id,
                         Name: wallet.Name,
                         Data: EntitiesPerDateViewDtoFactory
-                            .BuildEntitiesPerDateViewDto(wallet.Components)
+                            .BuildEntitiesPerDateViewDto(wallet.Components, EntitiesPerDateViewDtoFactory.BaseValueType.Positive)
                             .Data
                     )
                 )
