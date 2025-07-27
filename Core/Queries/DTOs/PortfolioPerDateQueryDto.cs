@@ -6,8 +6,8 @@ public record PortfolioPerDateQueryDto(
 
 public record PortfolioForDateDto(
     DateOnly Date,
-    ValueSnapshotDto Wallets,
-    ValueSnapshotDto Assets,
-    ValueSnapshotDto Debts,
-    ValueSnapshotDto Summary
+    EntityValueDto Wallets,
+    EntityValueDto Assets,
+    EntityValueDto Debts,
+    EntityValueDto Summary
 );

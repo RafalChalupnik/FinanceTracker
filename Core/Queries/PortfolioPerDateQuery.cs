@@ -44,27 +44,46 @@ public class PortfolioPerDateQuery(IRepository repository)
         IEnumerable<Debt> debts
         )
     {
-        var walletsValue = wallets.Sum(wallet => wallet.GetValueFor(date)) ?? 0;
-        var assetsValue = assets.Sum(asset => asset.GetValueFor(date)) ?? 0;
-        var debtsValue = -debts.Sum(debt => debt.GetValueFor(date)) ?? 0;
+        var walletsValues = wallets.Select(wallet => wallet.GetValueFor(date)).ToArray();
+        var walletsValue = walletsValues.Any(value => value.HasValue)
+            ? new ValueSnapshotDto(
+                Value: walletsValues.Sum(value => value ?? 0)
+            )
+            : null;
+        
+        var assetsValues = assets.Select(asset => asset.GetValueFor(date)).ToArray();
+        var assetsValue = assetsValues.Any(value => value.HasValue)
+            ? new ValueSnapshotDto(
+                Value: assetsValues.Sum(value => value ?? 0)
+            )
+            : null;
+        
+        var debtsValues = debts.Select(debt => debt.GetValueFor(date)).ToArray();
+        var debtsValue = debtsValues.Any(value => value.HasValue)
+            ? new ValueSnapshotDto(
+                Value: -debtsValues.Sum(value => value ?? 0)
+            )
+            : null;
         
         return new PortfolioForDateDto(
             Date: date,
-            Wallets: new ValueSnapshotDto(
+            Wallets: new EntityValueDto(
                 Name: "Wallets",
                 Value: walletsValue
             ),
-            Assets: new ValueSnapshotDto(
+            Assets: new EntityValueDto(
                 Name: "Assets",
                 Value: assetsValue
             ),
-            Debts: new ValueSnapshotDto(
+            Debts: new EntityValueDto(
                 Name: "Debts",
                 Value: debtsValue
             ),
-            Summary: new ValueSnapshotDto(
+            Summary: new EntityValueDto(
                 Name: "Summary",
-                Value: walletsValue + assetsValue + debtsValue
+                Value: new ValueSnapshotDto(
+                    Value: (walletsValue?.Value ?? 0) + (assetsValue?.Value ?? 0) + (debtsValue?.Value ?? 0)
+                )
             )
         );
     }
@@ -85,12 +104,38 @@ internal static class PortfolioQueryExtensions
         PortfolioForDateDto previous, 
         PortfolioForDateDto current)
     {
+        var wallets = ValueSnapshotDto.CalculateChanges(previous.Wallets.Value, current.Wallets.Value);
+        var assets = ValueSnapshotDto.CalculateChanges(previous.Assets.Value, current.Assets.Value);
+        var debts = ValueSnapshotDto.CalculateChanges(previous.Debts.Value, current.Debts.Value);
+
+        var changeSum = (wallets?.Change ?? 0) + (assets?.Change ?? 0) + (debts?.Change ?? 0);
+        
+        var summary = current.Summary.Value != null
+            ? current.Summary.Value with
+            {
+                Change = changeSum,
+                CumulativeChange = changeSum + (previous.Summary.Value?.CumulativeChange ?? 0)
+            }
+            : null;
+        
         return current with
         {
-            Wallets = ValueSnapshotDto.CalculateChanges(previous.Wallets, current.Wallets),
-            Assets = ValueSnapshotDto.CalculateChanges(previous.Assets, current.Assets),
-            Debts = ValueSnapshotDto.CalculateChanges(previous.Debts, current.Debts),
-            Summary = ValueSnapshotDto.CalculateChanges(previous.Summary, current.Summary)       
+            Wallets = current.Wallets with
+            {
+                Value = wallets
+            },
+            Assets = current.Assets with
+            {
+                Value = assets
+            },
+            Debts = current.Debts with
+            {
+                Value = debts
+            },
+            Summary = current.Summary with
+            {
+                Value = summary
+            }
         };
     }
 }

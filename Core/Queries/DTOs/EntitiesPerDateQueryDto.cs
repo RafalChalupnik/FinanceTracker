@@ -6,20 +6,34 @@ public record EntitiesPerDateQueryDto(
 
 public record EntitiesForDateDto(
     DateOnly Date,
-    IReadOnlyCollection<ValueSnapshotDto> Entities,
-    ValueSnapshotDto Summary
+    IReadOnlyCollection<EntityValueDto> Entities,
+    EntityValueDto Summary
+);
+
+public record EntityValueDto(
+    string Name,
+    ValueSnapshotDto? Value,
+    Guid? Id = null
 );
 
 public record ValueSnapshotDto(
-    string Name,
     decimal Value,
     decimal Change = 0,
-    decimal CumulativeChange = 0,
-    Guid? Id = null
+    decimal CumulativeChange = 0
 )
 {
-    public static ValueSnapshotDto CalculateChanges(ValueSnapshotDto previous, ValueSnapshotDto current)
+    public static ValueSnapshotDto? CalculateChanges(ValueSnapshotDto? previous, ValueSnapshotDto? current)
     {
+        if (previous == null && current == null)
+        {
+            return null;
+        }
+
+        if (previous == null)
+        {
+            return current;
+        }
+        
         var change = current.Value - previous.Value;
 
         return current with

@@ -38,32 +38,38 @@ const SummaryTable = ({data, selectFunc, isEditable, onUpdate, onDelete}) => {
             {data.map(row =>
                 <tr key={row.date}>
                     <td>{row.date}</td>
-                    {selectFunc(row).components.map(component =>
-                        <>
+                    {selectFunc(row).components.map(component => component.value !== null
+                        ?
+                        (<>
                             <td style={{borderLeft: '1px solid black'}}>
                                 {/*<Money amount={component.value}/>*/}
                                 {isEditable 
                                     ? <EditableMoney
-                                    value={component.value}
+                                    value={component.value.value}
                                     onNewValue={newAmount => onUpdate(component.id, row.date, newAmount)}/> 
-                                    : <Money amount={component.value}/>}
+                                    : <Money amount={component.value.value}/>}
                             </td>
                             <td>
-                                <Money amount={component.change} colorCoding="true"/>
+                                <Money amount={component.value.change} colorCoding="true"/>
                             </td>
                             <td>
-                                <Money amount={component.cumulativeChange} colorCoding="true"/>
+                                <Money amount={component.value.cumulativeChange} colorCoding="true"/>
                             </td>
-                        </>
+                        </>)
+                        : (<>
+                            <td style={{borderLeft: '1px solid black'}}/>
+                            <td/>
+                            <td/>
+                        </>)
                     )}
                     <td style={{borderLeft: '1px solid black'}}>
-                        <Money amount={selectFunc(row).summary.value}/>
+                        <Money amount={selectFunc(row).summary.value.value}/>
                     </td>
                     <td>
-                        <Money amount={selectFunc(row).summary.change} colorCoding="true"/>
+                        <Money amount={selectFunc(row).summary.value.change} colorCoding="true"/>
                     </td>
                     <td>
-                        <Money amount={selectFunc(row).summary.cumulativeChange} colorCoding="true"/>
+                        <Money amount={selectFunc(row).summary.value.cumulativeChange} colorCoding="true"/>
                     </td>
                     {(isEditable && <td>
                         <button onClick={() => onDelete(row.date)}>Delete</button>
