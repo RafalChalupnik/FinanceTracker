@@ -35,7 +35,6 @@ export class PortfolioSummary extends Component<PortfolioSummaryProps, Portfolio
 
         return (
             <div>
-                <h1 id="tableLabel">Portfolio</h1>
                 {content}
             </div>
         );

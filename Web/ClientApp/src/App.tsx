@@ -70,7 +70,7 @@ const App: React.FC = () => {
     };
 
     return (
-        <Layout>
+        <Layout style={{ minHeight: '100vh' }}>
             <Header style={{ display: 'flex', alignItems: 'center' }}>
                 <Space>
                     <EuroCircleOutlined style={{ margin: 0, color: 'lightgray' }}/>
@@ -87,17 +87,17 @@ const App: React.FC = () => {
                     style={{ flex: 1, minWidth: 0, justifyContent: 'flex-end' }}
                 />
             </Header>
-            <Content style={{ padding: '0 48px' }}>
-                <div
-                    style={{
-                        background: colorBgContainer,
-                        minHeight: 280,
-                        padding: 24,
-                        borderRadius: borderRadiusLG,
-                    }}
-                >
+            <Content style={{ padding: '24px 48px', flex: 1 }}>
+                {/*<div*/}
+                {/*    style={{*/}
+                {/*        background: colorBgContainer,*/}
+                {/*        minHeight: 500,*/}
+                {/*        padding: 24,*/}
+                {/*        borderRadius: borderRadiusLG*/}
+                {/*    }}*/}
+                {/*>*/}
                     {navBar[current].component}
-                </div>
+                {/*</div>*/}
             </Content>
         </Layout>
     );
