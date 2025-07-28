@@ -36,10 +36,9 @@ export class Debts extends Component<DebtsProps, DebtsState> {
             />
 
         return (
-            <div>
-                <h1 id="tableLabel">Debts</h1>
+            <>
                 {content}
-            </div>
+            </>
         );
     }
 

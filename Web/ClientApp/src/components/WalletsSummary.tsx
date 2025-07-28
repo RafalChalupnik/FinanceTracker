@@ -32,13 +32,12 @@ export class WalletsSummary extends Component<WalletsSummaryProps, WalletsSummar
             data={this.state.data}
             isEditable={false}
         />
-    
-    return (
-      <div>
-        <h1 id="tableLabel">Wallets</h1>
-          {content}
-      </div>
-    );
+
+      return (
+          <>
+              {content}
+          </>
+      );
   }
 
   async populateData() {

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import SummaryTable, {SummaryTableHeader, SummaryTableRow} from "./SummaryTable";
 import {getWallets} from "../ApiClient";
 import {mapData} from "../SummaryTableMapper";
+import {Space, Typography} from "antd";
 
 type WalletData = {
     id: string,
@@ -33,18 +34,24 @@ export class Wallets extends Component<WalletsProps, WalletsState> {
         let content = this.state.loading
             ? <p><em>Loading...</em></p>
             : <div>
-                {this.state.wallets.map(wallet =>
-                    <div>
-                        <h1>{wallet.name}</h1>
-                        <SummaryTable
-                            headers={wallet.headers}
-                            data={wallet.data}
-                            isEditable={true}
-                            onUpdate={this.updateComponent}
-                            onDelete={date => this.deleteEvaluations(wallet.id, date)}
-                        />
-                    </div>
-                )}
+                <Space direction="vertical">
+                    {this.state.wallets.map(wallet =>
+                        <div>
+                            <Space direction="vertical">
+                                <Typography.Title level={3} style={{ margin: 0 }}>
+                                    {wallet.name}
+                                </Typography.Title>
+                                <SummaryTable
+                                    headers={wallet.headers}
+                                    data={wallet.data}
+                                    isEditable={true}
+                                    onUpdate={this.updateComponent}
+                                    onDelete={date => this.deleteEvaluations(wallet.id, date)}
+                                />
+                            </Space>
+                        </div>
+                    )}
+                </Space>
             </div>
             
         return (

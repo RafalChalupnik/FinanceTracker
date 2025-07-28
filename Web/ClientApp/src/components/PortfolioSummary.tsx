@@ -34,9 +34,9 @@ export class PortfolioSummary extends Component<PortfolioSummaryProps, Portfolio
             />
 
         return (
-            <div>
+            <>
                 {content}
-            </div>
+            </>
         );
     }
 

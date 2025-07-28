@@ -37,10 +37,9 @@ export class Assets extends Component<AssetsProps, AssetsState> {
             />
 
         return (
-            <div>
-                <h1 id="tableLabel">Assets</h1>
+            <>
                 {content}
-            </div>
+            </>
         );
     }
     
