@@ -1,19 +1,19 @@
 namespace FinanceTracker.Core.Queries.DTOs;
 
 public record EntitiesPerDateQueryDto(
+    IReadOnlyCollection<EntityHeaderDto> Headers,
     IReadOnlyCollection<EntitiesForDateDto> Data
+);
+
+public record EntityHeaderDto(
+    string Name,
+    Guid? Id
 );
 
 public record EntitiesForDateDto(
     DateOnly Date,
-    IReadOnlyCollection<EntityValueDto> Entities,
-    EntityValueDto Summary
-);
-
-public record EntityValueDto(
-    string Name,
-    ValueSnapshotDto? Value,
-    Guid? Id = null
+    IReadOnlyCollection<ValueSnapshotDto?> Entities,
+    ValueSnapshotDto Summary
 );
 
 public record ValueSnapshotDto(
@@ -42,4 +42,12 @@ public record ValueSnapshotDto(
             CumulativeChange = change + previous.CumulativeChange
         };
     }
+}
+
+public static class ValueSnapshotDtoExtensions
+{
+    public static ValueSnapshotDto? ToValueSnapshotDto(this decimal? value) => 
+        value.HasValue
+            ? new ValueSnapshotDto(value.Value)
+            : null;
 }

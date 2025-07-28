@@ -8,17 +8,32 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceTracker.Web.Controllers;
 
+// GET /assets
+// PUT /assets/{id}/evaluations/{date}
+// DELETE /assets/evaluations/{date}
+
+// GET /debts
+// PUT /debts/{id}/evaluations/{date}
+// DELETE /debts/evaluations/{date}
+
+// GET /portfolio
+
+// GET /wallets
+// GET /wallets/components
+// PUT /wallets/components/{id}/evaluations/{date}
+// DELETE /wallets/components/evaluations/{date}
+
 [ApiController]
 [Route("assets")]
 public class AssetsController(
-    AssetsPerDateQuery assetsPerDateQuery,
+    SummaryQueries query,
     EvaluateEntityCommand evaluateEntityCommand,
     DeleteAllEvaluationsForDateCommand deleteAllEvaluationsForDateCommand
     ) : ControllerBase
 {
     [HttpGet]
     public EntitiesPerDateQueryDto GetAssets() 
-        => assetsPerDateQuery.GetAssetsPerDate();
+        => query.GetAssets();
 
     [HttpPut("{assetId:guid}")]
     public async Task<IActionResult> EvaluateAsset(Guid assetId, [FromBody] ValueUpdateDto valueUpdate)

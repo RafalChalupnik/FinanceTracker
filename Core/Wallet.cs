@@ -7,7 +7,7 @@ namespace FinanceTracker.Core;
 /// <summary>
 /// Represents a wallet, consisting of <see cref="Component"/>.
 /// </summary>
-public class Wallet(string name, int displaySequence) : IOrderableEntity, IEntityWithValueHistory
+public class Wallet(string name, int displaySequence) : IEntityWithValueHistory, IOrderableEntity
 {
     private readonly List<Component> _components = [];
     
@@ -53,8 +53,7 @@ public class Wallet(string name, int displaySequence) : IOrderableEntity, IEntit
     }
 }
 
-public class Component(string name, int displaySequence) 
-    : EntityWithValueHistory, IOrderableEntity
+public class Component(string name, int displaySequence) : EntityWithValueHistory, IOrderableEntity
 {
     [Key]
     public Guid Id { get; init; } = Guid.NewGuid();

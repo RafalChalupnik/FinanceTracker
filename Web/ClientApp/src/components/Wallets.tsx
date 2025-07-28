@@ -1,12 +1,28 @@
 import React, { Component } from 'react';
-import SummaryTable from "./SummaryTable";
+import SummaryTable, {SummaryTableHeader, SummaryTableRow} from "./SummaryTable";
+import {getWallets} from "../ApiClient";
+import {mapData} from "../SummaryTableMapper";
 
-export class Wallets extends Component {
+type WalletData = {
+    id: string,
+    name: string,
+    headers: SummaryTableHeader[],
+    data: SummaryTableRow[]
+}
+
+interface WalletsProps {}
+
+interface WalletsState {
+    wallets: WalletData[],
+    loading: boolean
+}
+
+export class Wallets extends Component<WalletsProps, WalletsState> {
     static displayName = Wallets.name;
 
-    constructor(props) {
-        super(props);
-        this.state = { data: [], loading: true };
+    state: WalletsState = {
+        wallets: [],
+        loading: true
     }
 
     componentDidMount() {
@@ -17,16 +33,13 @@ export class Wallets extends Component {
         let content = this.state.loading
             ? <p><em>Loading...</em></p>
             : <div>
-                {this.state.data.wallets.map(wallet =>
+                {this.state.wallets.map(wallet =>
                     <div>
                         <h1>{wallet.name}</h1>
                         <SummaryTable
+                            headers={wallet.headers}
                             data={wallet.data}
-                            selectFunc={data => {return {
-                                components: data.entities,
-                                summary: data.summary
-                            }}}
-                            isEditable="true"
+                            isEditable={true}
                             onUpdate={this.updateComponent}
                             onDelete={date => this.deleteEvaluations(wallet.id, date)}
                         />
@@ -39,7 +52,7 @@ export class Wallets extends Component {
         );
     }
 
-    updateComponent = async (id, date, value) => {
+    updateComponent = async (id: string, date: string, value: number) => {
         const response = await fetch("wallets/components/" + id, {
             method: "PUT",
             headers: {
@@ -50,8 +63,6 @@ export class Wallets extends Component {
                 value: value
             }),
         });
-        
-        console.log(response)       
 
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);
@@ -60,7 +71,7 @@ export class Wallets extends Component {
         await this.populateData();
     }
 
-    deleteEvaluations = async (walletId, date) => {
+    deleteEvaluations = async (walletId: string, date: Date) => {
         const response = await fetch("wallets/" + walletId + '/' + date, {
             method: "DELETE",
             headers: {
@@ -76,8 +87,17 @@ export class Wallets extends Component {
     }
 
     populateData = async () => {
-        const response = await fetch('wallets');
-        const data = await response.json();
-        this.setState({ data: data, loading: false });
+        const response = await getWallets();
+        
+        let wallets : WalletData[] = response.wallets.map(wallet => {
+            return {
+                id: wallet.id,
+                name: wallet.name,
+                headers: wallet.headers,
+                data: mapData(wallet.headers, wallet.data)
+            }
+        })
+        
+        this.setState({ wallets: wallets, loading: false });
     }
 }

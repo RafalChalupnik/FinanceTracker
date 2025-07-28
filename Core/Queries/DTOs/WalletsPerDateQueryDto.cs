@@ -7,5 +7,6 @@ public record WalletsPerDateQueryDto(
 public record WalletDto(
     Guid Id,
     string Name,
+    IReadOnlyCollection<EntityHeaderDto> Headers,
     IReadOnlyCollection<EntitiesForDateDto> Data
 );
