@@ -82,6 +82,47 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
             console.error('Validation failed:', err);
         }
     };
+    
+    const renderUneditableCell = (
+        record: DataType,
+        componentIndex: number,
+        field: keyof SummaryTableComponent,
+        colorCoding: boolean
+    ) => {
+        const component = record.components[componentIndex];
+        const rawValue = component?.[field];
+        
+        const value = typeof rawValue === 'number'
+            ? rawValue as number
+            : undefined;
+        
+        const formattedValue = value !== undefined
+            ? new Intl.NumberFormat('pl-PL', {
+                style: 'currency',
+                currency: 'PLN',
+            }).format(value)
+            : '-';
+
+        const color = value !== undefined && value !== 0 && colorCoding
+            ? (value > 0 ? 'green' : 'red')
+            : 'black'
+
+        return (
+            <div
+                style={{ cursor: 'pointer', color }}
+                onDoubleClick={() => {
+                    form.setFieldsValue({ editable: value });
+                    setEditingCell({
+                        rowKey: record.key,
+                        componentIndex,
+                        field,
+                    });
+                }}
+            >
+                {formattedValue}
+            </div>
+        )
+    }
 
     const renderEditableCell = (
         record: DataType,
@@ -93,28 +134,11 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
             editingCell?.componentIndex === componentIndex &&
             editingCell?.field === field;
 
-        const component = record.components[componentIndex];
-        const value = component?.[field];
-
         return isEditing ? (
             <Form.Item name="editable" style={{ margin: 0 }}>
                 <InputNumber autoFocus onPressEnter={save} onBlur={save} />
             </Form.Item>
-        ) : (
-            <div
-                style={{ cursor: 'pointer' }}
-                onDoubleClick={() => {
-                    form.setFieldsValue({ editable: value });
-                    setEditingCell({
-                        rowKey: record.key,
-                        componentIndex,
-                        field,
-                    });
-                }}
-            >
-                {value ?? '-'}
-            </div>
-        );
+        ) : renderUneditableCell(record, componentIndex, field, false);
     };
 
     function buildComponentColumns (name: string, index: number, isEditable: boolean) {
@@ -133,13 +157,13 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
                     title: 'Change',
                     dataIndex: ['components', index, 'change'],
                     key: `${name}-change`,
-                    render: (_: any, record: DataType) => (record.components[index]?.['change'])
+                    render: (_: any, record: DataType) => renderUneditableCell(record, index, 'change', true)
                 },
                 {
                     title: 'Cumulative',
                     dataIndex: ['components', index, 'cumulativeChange'],
                     key: `${name}-cumulativeChange`,
-                    render: (_: any, record: DataType) => (record.components[index]?.['cumulativeChange'])
+                    render: (_: any, record: DataType) => renderUneditableCell(record, index, 'cumulativeChange', true)
                 }
             ]
         }
