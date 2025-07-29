@@ -62,6 +62,9 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
 
             const { rowKey, componentIndex, field } = editingCell;
             const newValue = values['editable'];
+            
+            const componentId = props.headers[componentIndex].id;
+            props.onUpdate!(componentId, rowKey, newValue);
 
             const newData = [...data];
             const rowIndex = newData.findIndex(item => item.key === rowKey);
