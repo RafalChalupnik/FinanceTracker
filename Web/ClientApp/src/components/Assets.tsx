@@ -81,7 +81,7 @@ export class Assets extends Component<AssetsProps, AssetsState> {
         const response = await getAssets();
         
         let headers: SummaryTableHeader[] = response.headers
-        let data = mapData(headers, response.data)
+        let data = mapData(response.data)
         
         this.setState({ headers: headers, data: data, loading: false });
     }

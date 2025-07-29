@@ -101,7 +101,7 @@ export class Wallets extends Component<WalletsProps, WalletsState> {
                 id: wallet.id,
                 name: wallet.name,
                 headers: wallet.headers,
-                data: mapData(wallet.headers, wallet.data)
+                data: mapData(wallet.data)
             }
         })
         

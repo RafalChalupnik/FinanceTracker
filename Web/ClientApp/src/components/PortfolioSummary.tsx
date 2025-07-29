@@ -44,7 +44,7 @@ export class PortfolioSummary extends Component<PortfolioSummaryProps, Portfolio
         const response = await getPortfolioSummary();
 
         let headers: SummaryTableHeader[] = response.headers
-        let data = mapData(headers, response.data)
+        let data = mapData(response.data)
 
         this.setState({ headers: headers, data: data, loading: false });
     }

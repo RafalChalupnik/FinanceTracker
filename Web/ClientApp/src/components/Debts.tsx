@@ -80,7 +80,7 @@ export class Debts extends Component<DebtsProps, DebtsState> {
         const response = await getDebts();
 
         let headers: SummaryTableHeader[] = response.headers
-        let data = mapData(headers, response.data)
+        let data = mapData(response.data)
 
         this.setState({ headers: headers, data: data, loading: false });
     }

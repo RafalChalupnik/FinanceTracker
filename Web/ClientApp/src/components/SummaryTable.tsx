@@ -13,7 +13,6 @@ type SummaryTableComponent = {
     value: number;
     change: number;
     cumulativeChange: number;
-    id: string;
 }
 
 export type SummaryTableRow = {
