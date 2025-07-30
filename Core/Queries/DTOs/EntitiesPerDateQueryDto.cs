@@ -18,12 +18,22 @@ public record EntitiesForDateDto(
     ValueSnapshotDto Summary
 );
 
-public record ValueSnapshotDto(
-    Money Value,
-    decimal Change = 0,
-    decimal CumulativeChange = 0
-)
+public record ValueSnapshotDto
 {
+    public Money Value { get; init; }
+    public Money Change { get; init; }
+    public Money CumulativeChange { get; init; }
+    
+    public ValueSnapshotDto(
+        Money value,
+        Money? change = null,
+        Money? cumulativeChange = null)
+    {
+        Value = value;
+        Change = change ?? Money.Empty with {Currency = value.Currency};
+        CumulativeChange = cumulativeChange ?? Money.Empty with {Currency = value.Currency};
+    }
+
     public static ValueSnapshotDto? CalculateChanges(ValueSnapshotDto? previous, ValueSnapshotDto? current)
     {
         if (previous == null && current == null)
@@ -35,13 +45,13 @@ public record ValueSnapshotDto(
         {
             return current;
         }
-        
-        var change = current!.Value.AmountInMainCurrency - previous.Value.AmountInMainCurrency;
+
+        var change = current!.Value.Minus(previous.Value, mainCurrency: "PLN");
 
         return current with
         {
             Change = change,
-            CumulativeChange = change + previous.CumulativeChange
+            CumulativeChange = change.Plus(previous.CumulativeChange, mainCurrency: "PLN")
         };
     }
 }

@@ -32,23 +32,8 @@ internal static class CollectionsExtensions
             return null;
         }
         
-        return source.Aggregate((first, second) =>
-        {
-            if (first.Currency == second.Currency)
-            {
-                return new Money(
-                    Amount: first.Amount + second.Amount, 
-                    Currency: first.Currency, 
-                    AmountInMainCurrency: first.AmountInMainCurrency + second.AmountInMainCurrency
-                );
-            }
-            
-            return new Money(
-                Amount: first.AmountInMainCurrency + second.AmountInMainCurrency, 
-                Currency: mainCurrency, 
-                AmountInMainCurrency: first.AmountInMainCurrency + second.AmountInMainCurrency
-            );
-        });
+        return source.Aggregate((first, second) 
+            => first.Plus(second, mainCurrency));
     }
     
     public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> source) where T : class =>

@@ -27,8 +27,8 @@ export interface EntitiesForDateDto {
 
 interface ValueSnapshotDto {
     value: MoneyDto,
-    change: number,
-    cumulativeChange: number
+    change: MoneyDto,
+    cumulativeChange: MoneyDto
 }
 
 interface MoneyDto {
