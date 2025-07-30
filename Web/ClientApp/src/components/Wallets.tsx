@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component, FC, useEffect, useState} from 'react';
 import SummaryTable, {SummaryTableHeader, SummaryTableRow} from "./SummaryTable";
 import {getWallets, MoneyDto} from "../ApiClient";
 import {mapData} from "../SummaryTableMapper";
@@ -13,60 +13,31 @@ type WalletData = {
 
 interface WalletsProps {}
 
-interface WalletsState {
-    wallets: WalletData[],
-    loading: boolean
-}
+const Wallets: FC<WalletsProps> = (props) => {
+    const [isLoading, setIsLoading] = useState(true)
+    const [wallets, setWallets] = useState([] as WalletData[]);
 
-export class Wallets extends Component<WalletsProps, WalletsState> {
-    static displayName = Wallets.name;
+    const populateData = async () => {
+        const response = await getWallets();
 
-    state: WalletsState = {
-        wallets: [],
-        loading: true
+        let wallets : WalletData[] = response.wallets.map(wallet => {
+            return {
+                id: wallet.id,
+                name: wallet.name,
+                headers: wallet.headers,
+                data: mapData(wallet.data)
+            }
+        })
+        
+        setWallets(wallets)
+        setIsLoading(false)
     }
 
-    componentDidMount() {
-        this.populateData();
-    }
+    useEffect(() => {
+        populateData()
+    })
 
-    render() {
-        let content = this.state.loading
-            ? <p><em>Loading...</em></p>
-            : <div>
-                <Space direction="vertical">
-                    {this.state.wallets.map(wallet =>
-                        <div>
-                            <Space direction="vertical">
-                                <Typography.Title level={3} style={{ margin: 0 }}>
-                                    {wallet.name}
-                                </Typography.Title>
-                                <SummaryTable
-                                    headers={wallet.headers}
-                                    data={wallet.data}
-                                    editable={{
-                                        refreshData: async () => {
-                                            const response = await getWallets();
-                                            return mapData(response.wallets
-                                                .find(w => w.id === wallet.id)!
-                                                .data)
-                                        },
-                                        onUpdate: this.updateComponent,
-                                        onDelete: date => this.deleteEvaluations(wallet.id, date),
-                                    }}
-                                />
-                            </Space>
-                        </div>
-                    )}
-                </Space>
-            </div>
-            
-        return (
-            [content]
-        );
-    }
-
-    updateComponent = async (id: string, date: string, value: MoneyDto) => {
+    const updateComponent = async (id: string, date: string, value: MoneyDto) => {
         const response = await fetch("wallets/components/" + id, {
             method: "PUT",
             headers: {
@@ -81,11 +52,9 @@ export class Wallets extends Component<WalletsProps, WalletsState> {
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);
         }
-
-        await this.populateData();
     }
 
-    deleteEvaluations = async (walletId: string, date: Date) => {
+    const deleteEvaluations = async (walletId: string, date: Date) => {
         const response = await fetch("wallets/" + walletId + '/' + date, {
             method: "DELETE",
             headers: {
@@ -96,22 +65,38 @@ export class Wallets extends Component<WalletsProps, WalletsState> {
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);
         }
-
-        await this.populateData();
     }
 
-    populateData = async () => {
-        const response = await getWallets();
-        
-        let wallets : WalletData[] = response.wallets.map(wallet => {
-            return {
-                id: wallet.id,
-                name: wallet.name,
-                headers: wallet.headers,
-                data: mapData(wallet.data)
-            }
-        })
-        
-        this.setState({ wallets: wallets, loading: false });
-    }
+    return isLoading
+        ? <p><em>Loading...</em></p>
+        : (<div>
+            <Space direction="vertical">
+                {wallets.map(wallet =>
+                    <div>
+                        <Space direction="vertical">
+                            <Typography.Title level={3} style={{ margin: 0 }}>
+                                {wallet.name}
+                            </Typography.Title>
+                            <SummaryTable
+                                headers={wallet.headers}
+                                data={wallet.data}
+                                editable={{
+                                    refreshData: async () => {
+                                        const response = await getWallets();
+                                        return mapData(response.wallets
+                                            .find(w => w.id === wallet.id)!
+                                            .data)
+                                    },
+                                    onUpdate: updateComponent,
+                                    onDelete: date => deleteEvaluations(wallet.id, date),
+                                }}
+                            />
+                        </Space>
+                    </div>
+                )}
+            </Space>
+        </div>
+        );
 }
+
+export default Wallets;
