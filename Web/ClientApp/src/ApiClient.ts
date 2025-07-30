@@ -34,7 +34,7 @@ interface ValueSnapshotDto {
 interface MoneyDto {
     amount: number,
     currency: string
-    amountInMainCurrency: string
+    amountInMainCurrency: number
 }
 
 export async function getEntities (path: string) {

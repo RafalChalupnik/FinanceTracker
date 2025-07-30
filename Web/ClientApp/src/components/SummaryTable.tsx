@@ -1,10 +1,11 @@
 import React, { FC } from 'react';
 import {useState} from "react";
-import {Button, DatePicker, Form, InputNumber, Modal, Popconfirm, Space, Table} from "antd";
+import {Button, DatePicker, Form, InputNumber, Modal, Popconfirm, Space, Table, Typography} from "antd";
 import {type ColumnsType} from "antd/es/table";
 import dayjs from "dayjs";
 import {DeleteOutlined} from "@ant-design/icons";
 
+const { Text } = Typography;
 
 export type SummaryTableHeader = {
     name: string;
@@ -20,7 +21,7 @@ type SummaryTableComponent = {
 interface Money {
     amount: number, 
     currency: string,
-    amountInMainCurrency: string
+    amountInMainCurrency: number
 }
 
 export type SummaryTableRow = {
@@ -108,6 +109,55 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
         }
     };
     
+    const formatAmount = (
+        value: Money | undefined, 
+        colorCoding: boolean,
+        onDoubleClick: () => void
+    ) => {
+        if (value === undefined) {
+            return (<div>'-'</div>);
+        }
+
+        let amount = new Intl.NumberFormat('pl-PL', {
+            style: 'currency',
+            currency: value.currency,
+        }).format(value.amount)
+
+        const color = value.amountInMainCurrency !== 0 && colorCoding
+            ? (value.amountInMainCurrency > 0 ? 'green' : 'red')
+            : 'black'
+        
+        if (value.amountInMainCurrency !== value.amount) {
+            let amountInMainCurrency = new Intl.NumberFormat('pl-PL', {
+                style: 'currency',
+                currency: 'PLN',
+            }).format(value.amountInMainCurrency)
+
+            return (
+                <div
+                    style={{ cursor: 'pointer', color, textAlign: 'right' }}
+                    onDoubleClick={onDoubleClick}
+                >
+                    <Space direction={"vertical"}>
+                        {amount}
+                        <Text disabled>{`(${amountInMainCurrency})`}</Text>
+                    </Space>
+                </div>
+            )
+        }
+        else
+        {
+            return (
+                <div
+                    style={{ cursor: 'pointer', color, textAlign: 'right' }}
+                    onDoubleClick={onDoubleClick}
+                >
+                    {amount}
+                </div>
+            )
+        }
+    }
+    
     const renderUneditableCell = (
         record: DataType,
         componentIndex: number,
@@ -130,22 +180,15 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
         const color = value !== undefined && amount !== 0 && colorCoding
             ? (amount > 0 ? 'green' : 'red')
             : 'black'
-
-        return (
-            <div
-                style={{ cursor: 'pointer', color, textAlign: 'right' }}
-                onDoubleClick={() => {
-                    form.setFieldsValue({ editable: value });
-                    setEditingCell({
-                        rowKey: record.key,
-                        componentIndex,
-                        field,
-                    });
-                }}
-            >
-                {formattedValue}
-            </div>
-        )
+        
+        return formatAmount(value, colorCoding, () => {
+            form.setFieldsValue({ editable: value });
+            setEditingCell({
+                rowKey: record.key,
+                componentIndex,
+                field,
+            });
+        })
     }
 
     const renderEditableCell = (
