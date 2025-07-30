@@ -63,7 +63,6 @@ interface DataType {
 type EditableCell = {
     rowKey: string;
     componentIndex: number;
-    field: keyof SummaryTableComponent;
 } | null;
 
 const SummaryTable: FC<SummaryTableProps> = (props) => {
@@ -92,7 +91,7 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
             const values = await form.validateFields();
             if (!editingCell) return;
 
-            const { rowKey, componentIndex, field } = editingCell;
+            const { rowKey, componentIndex } = editingCell;
             
             const newAmount = values['amount'] as number;
             const newCurrency = values['currency'] as (string | undefined) ?? "PLN";
@@ -185,30 +184,20 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
         const value = component?.[field] as (Money | undefined);
         
         return formatAmount(value, colorCoding, () => {
-            form.setFieldsValue({ amount: value });
-            
             setEditingCell({
                 rowKey: record.key,
-                componentIndex,
-                field,
+                componentIndex
             });
+
+            setTimeout(() => {
+                form.setFieldsValue({
+                    amount: value?.amount,
+                    currency: value?.currency,
+                    amountInMainCurrency: value?.amountInMainCurrency,
+                });
+            }, 0);
         })
     }
-
-    const CurrencyInput = (props: InputNumberProps) => {
-        return (
-            <InputNumber
-                {...props}
-                style={{ width: '100%' }}
-                min={0}
-                step={0.01}
-                formatter={(value) =>
-                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                }
-                parser={(value) => value?.replace(/€\s?|(,*)/g, '') ?? ''}
-            />
-        );
-    };
 
     const renderEditableCell = (
         record: DataType,
@@ -217,19 +206,40 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
     ) => {
         const isEditing =
             editingCell?.rowKey === record.key &&
-            editingCell?.componentIndex === componentIndex &&
-            editingCell?.field === field;
+            editingCell?.componentIndex === componentIndex;
 
         return isEditing ? (
             <Space direction={"vertical"}>
                 <Form.Item name="amount" style={{ margin: 0 }}>
-                    <CurrencyInput autoFocus placeholder="0,00" />
+                    <InputNumber
+                        style={{ width: '100%' }}
+                        min={0}
+                        step={0.01}
+                        formatter={(value) =>
+                            `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                        }
+                        parser={(value: string | undefined): number =>
+                            Number(value?.replace(/€\s?|(,*)/g, '') ?? '0')
+                        }
+                        placeholder="0,00"
+                    />
                 </Form.Item>
                 <Form.Item name="currency" style={{ margin: 0 }}>
                     <Input placeholder="PLN" minLength={3} maxLength={3} />
                 </Form.Item>
                 <Form.Item name="amountInMainCurrency" style={{ margin: 0 }}>
-                    <CurrencyInput placeholder="0,00 (value in main currency)" />
+                    <InputNumber
+                        style={{ width: '100%' }}
+                        min={0}
+                        step={0.01}
+                        formatter={(value) =>
+                            `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                        }
+                        parser={(value: string | undefined): number =>
+                            Number(value?.replace(/€\s?|(,*)/g, '') ?? '0')
+                        }
+                        placeholder="0,00"
+                    />
                 </Form.Item>
                 <Space direction={"horizontal"}>
                     <Button onClick={save}>Save</Button>
