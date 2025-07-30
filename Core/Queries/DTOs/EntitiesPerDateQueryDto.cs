@@ -1,3 +1,5 @@
+using FinanceTracker.Core.Primitives;
+
 namespace FinanceTracker.Core.Queries.DTOs;
 
 public record EntitiesPerDateQueryDto(
@@ -17,7 +19,7 @@ public record EntitiesForDateDto(
 );
 
 public record ValueSnapshotDto(
-    decimal Value,
+    Money Value,
     decimal Change = 0,
     decimal CumulativeChange = 0
 )
@@ -34,7 +36,7 @@ public record ValueSnapshotDto(
             return current;
         }
         
-        var change = current.Value - previous.Value;
+        var change = current!.Value.AmountInMainCurrency - previous.Value.AmountInMainCurrency;
 
         return current with
         {
@@ -46,8 +48,8 @@ public record ValueSnapshotDto(
 
 public static class ValueSnapshotDtoExtensions
 {
-    public static ValueSnapshotDto? ToValueSnapshotDto(this decimal? value) => 
-        value.HasValue
-            ? new ValueSnapshotDto(value.Value)
+    public static ValueSnapshotDto? ToValueSnapshotDto(this Money? value) => 
+        value != null
+            ? new ValueSnapshotDto(value)
             : null;
 }

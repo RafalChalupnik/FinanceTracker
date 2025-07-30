@@ -12,9 +12,15 @@ export type SummaryTableHeader = {
 }
 
 type SummaryTableComponent = {
-    value: number;
+    value: Money;
     change: number;
     cumulativeChange: number;
+}
+
+interface Money {
+    amount: number, 
+    currency: string,
+    amountInMainCurrency: string
 }
 
 export type SummaryTableRow = {
@@ -109,21 +115,23 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
         colorCoding: boolean
     ) => {
         const component = record.components[componentIndex];
-        const rawValue = component?.[field];
+        const value = component?.[field] as (Money | number | undefined);
         
-        const value = typeof rawValue === 'number'
-            ? rawValue as number
-            : undefined;
+        let amount = (value as Money)?.amount ?? (value as number) ?? 0;
+        let currency = (value as Money)?.currency ?? 'PLN';
+        
+        console.log('# Value:')
+        console.log(value)
         
         const formattedValue = value !== undefined
             ? new Intl.NumberFormat('pl-PL', {
                 style: 'currency',
-                currency: 'PLN',
-            }).format(value)
+                currency: currency,
+            }).format(amount)
             : '-';
 
-        const color = value !== undefined && value !== 0 && colorCoding
-            ? (value > 0 ? 'green' : 'red')
+        const color = value !== undefined && amount !== 0 && colorCoding
+            ? (amount > 0 ? 'green' : 'red')
             : 'black'
 
         return (

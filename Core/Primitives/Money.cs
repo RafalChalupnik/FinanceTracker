@@ -11,4 +11,11 @@ public record Money(
     decimal Amount,
     string Currency,
     decimal AmountInMainCurrency
-);
+)
+{
+    public static Money Empty => new(
+        Amount: 0, 
+        Currency: "PLN", 
+        AmountInMainCurrency: 0
+    );
+}

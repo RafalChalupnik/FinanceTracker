@@ -26,9 +26,15 @@ export interface EntitiesForDateDto {
 }
 
 interface ValueSnapshotDto {
-    value: number,
+    value: MoneyDto,
     change: number,
     cumulativeChange: number
+}
+
+interface MoneyDto {
+    amount: number,
+    currency: string
+    amountInMainCurrency: string
 }
 
 export async function getEntities (path: string) {

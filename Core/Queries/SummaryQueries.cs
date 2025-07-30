@@ -1,3 +1,4 @@
+using FinanceTracker.Core.Extensions;
 using FinanceTracker.Core.Interfaces;
 using FinanceTracker.Core.Queries.DTOs;
 using FinanceTracker.Core.Queries.Implementation;
@@ -74,21 +75,12 @@ public class SummaryQueries(IRepository repository)
         return new EntitiesPerDateViewDtoFactory.EntityData(
             Name: name,
             Dates: dates,
-            GetValueForDate: date =>
-            {
-                var values = entities
-                    .Select(entity => entity.GetValueFor(date).ToValueSnapshotDto())
-                    .ToArray();
-
-                if (values.All(value => value == null))
-                {
-                    return null;
-                }
-
-                return new ValueSnapshotDto(
-                    Value: values.Sum(x => x?.Value ?? 0)
-                );
-            },
+            GetValueForDate: date => entities
+                .Select(entity => entity.GetValueFor(date))
+                .WhereNotNull()
+                .ToArray()
+                .Sum(mainCurrency: "PLN")
+                .ToValueSnapshotDto(),
             Id: null
         );
     }
