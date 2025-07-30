@@ -88,17 +88,10 @@ const App: React.FC = () => {
                     style={{ flex: 1, minWidth: 0, justifyContent: 'flex-end' }}
                 />
             </Header>
-            <Content style={{ padding: '24px 48px', flex: 1 }}>
-                {/*<div*/}
-                {/*    style={{*/}
-                {/*        background: colorBgContainer,*/}
-                {/*        minHeight: 500,*/}
-                {/*        padding: 24,*/}
-                {/*        borderRadius: borderRadiusLG*/}
-                {/*    }}*/}
-                {/*>*/}
+            <Content style={{ padding: '24px 48px', flex: 1, minWidth: 0 }}>
+                <div style={{ minWidth: 0, overflowX: 'auto' }}>
                     {navBar[current].component}
-                {/*</div>*/}
+                </div>
             </Content>
         </Layout>
     );
