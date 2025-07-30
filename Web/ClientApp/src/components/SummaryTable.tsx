@@ -109,26 +109,15 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
             
             let newData = mapData(await props.editable.refreshData())
             setData(newData);
-
-            // const newData = [...data];
-            // const rowIndex = newData.findIndex(item => item.key === rowKey);
-            // if (rowIndex === -1) return;
-            //
-            // const row = newData[rowIndex];
-            // const component = row.components[componentIndex];
-            // if (!component) return;
-            //
-            // row.components[componentIndex] = {
-            //     ...component,
-            //     [field]: newValue,
-            // };
-            //
-            // setData(newData);
             setEditingCell(null);
         } catch (err) {
             console.error('Validation failed:', err);
         }
     };
+    
+    const cancel = () => {
+        setEditingCell(null);
+    }
     
     const formatAmount = (
         value: Money | undefined, 
@@ -136,7 +125,14 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
         onDoubleClick: () => void
     ) => {
         if (value === undefined) {
-            return (<div>-</div>);
+            return (
+                <div
+                    style={{ cursor: 'pointer', textAlign: 'right' }}
+                    onDoubleClick={onDoubleClick}
+                >
+                    -
+                </div>
+            );
         }
 
         let amount = new Intl.NumberFormat('pl-PL', {
@@ -189,7 +185,8 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
         const value = component?.[field] as (Money | undefined);
         
         return formatAmount(value, colorCoding, () => {
-            form.setFieldsValue({ editable: value });
+            form.setFieldsValue({ amount: value });
+            
             setEditingCell({
                 rowKey: record.key,
                 componentIndex,
@@ -234,7 +231,10 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
                 <Form.Item name="amountInMainCurrency" style={{ margin: 0 }}>
                     <CurrencyInput placeholder="0,00 (value in main currency)" />
                 </Form.Item>
-                <Button onClick={save}>Save</Button>
+                <Space direction={"horizontal"}>
+                    <Button onClick={save}>Save</Button>
+                    <Button onClick={cancel}>Cancel</Button>
+                </Space>
             </Space>
         ) : renderUneditableCell(record, componentIndex, field, false);
     };
