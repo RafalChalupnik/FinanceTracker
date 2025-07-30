@@ -1,7 +1,10 @@
 import React, { FC } from 'react';
 import {useState} from "react";
-import {Money} from "./Money";
-import {EditableMoney} from "./EditableMoney";
+import {Button, DatePicker, Form, InputNumber, Modal, Popconfirm, Space, Table} from "antd";
+import {type ColumnsType} from "antd/es/table";
+import dayjs from "dayjs";
+import {DeleteOutlined} from "@ant-design/icons";
+
 
 export type SummaryTableHeader = {
     name: string;
@@ -12,7 +15,6 @@ type SummaryTableComponent = {
     value: number;
     change: number;
     cumulativeChange: number;
-    id: string;
 }
 
 export type SummaryTableRow = {
@@ -21,115 +23,264 @@ export type SummaryTableRow = {
     summary: SummaryTableComponent
 }
 
+export interface SummaryTableEditableProps {
+    refreshData: () => Promise<SummaryTableRow[]>;
+    onUpdate: (id: string, date: string, value: number) => Promise<void>;
+    onDelete: (date: Date) => Promise<void>;
+}
+
 interface SummaryTableProps {
     headers: SummaryTableHeader[];
     data: SummaryTableRow[];
-    isEditable: boolean
-    onUpdate?: (id: string, date: string, value: number) => void;
-    onDelete?: (date: Date) => void;
+    editable?: SummaryTableEditableProps
 }
 
+interface DataType {
+    key: string;
+    date: Date;
+    components: Array<SummaryTableComponent | undefined>;
+}
+
+type EditableCell = {
+    rowKey: string;
+    componentIndex: number;
+    field: keyof SummaryTableComponent;
+} | null;
+
 const SummaryTable: FC<SummaryTableProps> = (props) => {
-    let [newRowDate, setNewRowDate] = useState("")
-    
-    let componentHeader = (
-        <>
-            <th style={{borderLeft: '1px solid black'}}>Value</th>
-            <th>Change</th>
-            <th>Cumulative</th>
-        </>
-    )
-    
-    function componentRow(date: Date, component: SummaryTableComponent | undefined, isEditable: boolean) {
-        return component === undefined 
-            ? (
-                <>
-                    <td style={{borderLeft: '1px solid black'}}/>
-                    <td/>
-                    <td/>
-                </>
-            ) 
-            : (
-                <>
-                    <td style={{borderLeft: '1px solid black'}}>
-                        {isEditable
-                            ? <EditableMoney
-                                value={component.value}
-                                onNewValue={newValue => props.onUpdate!(component.id, date.toString(), newValue)}/>
-                            : <Money value={component.value}/>}
-                    </td>
-                    <td>
-                        <Money value={component.change} colorCoding={true}/>
-                    </td>
-                    <td>
-                        <Money value={component.cumulativeChange} colorCoding={true}/>
-                    </td>
-                </>
-            )
+    let mapData = (data : SummaryTableRow[]) => {
+        return data.map(row => {
+            return {
+                key: row.date.toString(),
+                date: row.date,
+                components: [...row.components, ...[row.summary]]
+            }
+        })
     }
     
-    let newEntryRow= (
-        props.isEditable && <tr>
-            <td>
-                <input
-                    type="date"
-                    value={newRowDate}
-                    onChange={e => {
-                        console.log('Foo')
-                        console.log(e.target.value)
-                        console.log(Date.parse(e.target.value))
-                        setNewRowDate(e.target.value);
-                    }}
-                />
-            </td>
-            {props.headers.map(header =>
-                <>
-                    <td style={{borderLeft: '1px solid black'}}>
-                        <EditableMoney
-                            value={0}
-                            onNewValue={newAmount => {
-                                props.onUpdate!(header.id!, newRowDate, newAmount);
-                            }}
-                            initialEditMode={true}
-                        />
-                    </td>
-                    <td/>
-                    <td/>
-                </>
-            )}
-        </tr>
-    )
+    const [data, setData] = useState(mapData(props.data));
+    const [form] = Form.useForm();
+    const [editingCell, setEditingCell] = useState<EditableCell>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    
+    const save = async () => {
+        if (!props.editable) {
+            throw new Error('No editable props provided');
+        }
+        
+        try {
+            const values = await form.validateFields();
+            if (!editingCell) return;
+
+            const { rowKey, componentIndex, field } = editingCell;
+            const newValue = values['editable'];
+            
+            const componentId = props.headers[componentIndex].id;
+            await props.editable.onUpdate(componentId, dayjs(new Date(Date.parse(rowKey))).format('YYYY-MM-DD'), newValue);
+            
+            let newData = mapData(await props.editable.refreshData())
+            setData(newData);
+
+            // const newData = [...data];
+            // const rowIndex = newData.findIndex(item => item.key === rowKey);
+            // if (rowIndex === -1) return;
+            //
+            // const row = newData[rowIndex];
+            // const component = row.components[componentIndex];
+            // if (!component) return;
+            //
+            // row.components[componentIndex] = {
+            //     ...component,
+            //     [field]: newValue,
+            // };
+            //
+            // setData(newData);
+            setEditingCell(null);
+        } catch (err) {
+            console.error('Validation failed:', err);
+        }
+    };
+    
+    const renderUneditableCell = (
+        record: DataType,
+        componentIndex: number,
+        field: keyof SummaryTableComponent,
+        colorCoding: boolean
+    ) => {
+        const component = record.components[componentIndex];
+        const rawValue = component?.[field];
+        
+        const value = typeof rawValue === 'number'
+            ? rawValue as number
+            : undefined;
+        
+        const formattedValue = value !== undefined
+            ? new Intl.NumberFormat('pl-PL', {
+                style: 'currency',
+                currency: 'PLN',
+            }).format(value)
+            : '-';
+
+        const color = value !== undefined && value !== 0 && colorCoding
+            ? (value > 0 ? 'green' : 'red')
+            : 'black'
+
+        return (
+            <div
+                style={{ cursor: 'pointer', color, textAlign: 'right' }}
+                onDoubleClick={() => {
+                    form.setFieldsValue({ editable: value });
+                    setEditingCell({
+                        rowKey: record.key,
+                        componentIndex,
+                        field,
+                    });
+                }}
+            >
+                {formattedValue}
+            </div>
+        )
+    }
+
+    const renderEditableCell = (
+        record: DataType,
+        componentIndex: number,
+        field: keyof SummaryTableComponent
+    ) => {
+        const isEditing =
+            editingCell?.rowKey === record.key &&
+            editingCell?.componentIndex === componentIndex &&
+            editingCell?.field === field;
+
+        return isEditing ? (
+            <Form.Item name="editable" style={{ margin: 0 }}>
+                <InputNumber autoFocus onPressEnter={save} onBlur={save} />
+            </Form.Item>
+        ) : renderUneditableCell(record, componentIndex, field, false);
+    };
+
+    function buildComponentColumns (name: string, index: number, isEditable: boolean) {
+        return {
+            title: name,
+            children: [
+                {
+                    title: 'Value',
+                    dataIndex: ['components', index, 'value'],
+                    key: `${name}-value`,
+                    render: (_: any, record: DataType) => isEditable && props.editable
+                        ? renderEditableCell(record, index, 'value')
+                        : renderUneditableCell(record, index, 'value', false)
+                },
+                {
+                    title: 'Change',
+                    dataIndex: ['components', index, 'change'],
+                    key: `${name}-change`,
+                    render: (_: any, record: DataType) => renderUneditableCell(record, index, 'change', true)
+                },
+                {
+                    title: 'Cumulative',
+                    dataIndex: ['components', index, 'cumulativeChange'],
+                    key: `${name}-cumulativeChange`,
+                    render: (_: any, record: DataType) => renderUneditableCell(record, index, 'cumulativeChange', true)
+                }
+            ]
+        }
+    }
+
+    const componentsColumns = props.headers.map((header, componentIndex) => {
+        return buildComponentColumns(header.name, componentIndex, true)
+    })
+
+    const columns: ColumnsType<DataType> = [
+        {
+            title: 'Date',
+            dataIndex: 'date',
+            key: 'date',
+            render: (date: Date) => new Date(date).toLocaleDateString(),
+            fixed: 'left',
+        },
+        ...componentsColumns,
+        buildComponentColumns('Summary', props.headers.length, false)
+    ];
+    
+    if (props.editable) {
+        columns.push({
+            title: '',
+            dataIndex: 'operation',
+            render: (_, record) =>
+                data.length >= 1 ? (
+                    <Popconfirm 
+                        title="Sure to delete?" 
+                        okText={'Yes'}
+                        cancelText={'No'}
+                        okButtonProps={{ danger: true }}
+                        onConfirm={async () => {
+                            await props.editable!.onDelete(record.date);
+                            let newData = mapData(await props.editable!.refreshData())
+                            setData(newData);
+                        }}
+                    >
+                        {/*<span style={{ color: '#1890ff', textDecoration: 'underline', cursor: 'pointer' }}>*/}
+                        {/*    Delete*/}
+                        {/*</span>*/}
+                        <DeleteOutlined />
+                    </Popconfirm>
+                ) : null,
+        })
+    }
+
+    const handleAdd = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleOk = () => {
+        // console.log('Confirmed date:', selectedDate?.format('YYYY-MM-DD'));
+        console.log('Confirmed date:', selectedDate?.toISOString());
+        
+        let newData = [
+            ...data,
+            {
+                key: selectedDate!.toString(),
+                date: selectedDate!,
+                components: props.headers.map(_ => undefined)
+            }
+        ]
+        setData(newData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
+        
+        setIsModalOpen(false);
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
     
     return (
-        <table className="table table-striped" aria-labelledby="tableLabel">
-            <thead>
-                <tr>
-                    <th/> {/*Empty column for Date below*/}
-                    {props.headers.map(header =>
-                        <th colSpan={3}>{header.name}</th>
-                    )}
-                    <th colSpan={3}>Summary</th>
-                </tr>
-                <tr>
-                    <th>Date</th>
-                    {props.headers.map(_ => componentHeader)}
-                    {componentHeader} {/*One more for 'Summary' component*/}
-                </tr>
-            </thead>
-            <tbody>
-            {props.data.map(row =>
-                <tr>
-                    <td>{row.date.toString()}</td>
-                    {row.components.map(component => componentRow(row.date, component, props.isEditable))}
-                    {componentRow(row.date, row.summary, false)}
-                    {props.isEditable && <td>
-                        <button onClick={() => props.onDelete!(row.date)}>Delete</button>
-                    </td>}
-                </tr>
-            )}
-            {newEntryRow}
-            </tbody>
-        </table>
+        <Form form={form} component={false}>
+            <Space direction={"vertical"}>
+                <Table
+                    bordered
+                    dataSource={data}
+                    columns={columns}
+                    pagination={false}
+                    rowKey="key"
+                    scroll={{ x: 'max-content' }}
+                />
+                {props.editable && (
+                    <Button onClick={handleAdd} type="primary" style={{ marginBottom: 16 }}>
+                        Add a row
+                    </Button>
+                )}
+            </Space>
+            <Modal
+                title="Pick a date"
+                open={isModalOpen}
+                onOk={handleOk}
+                onCancel={handleCancel}
+            >
+                <DatePicker onChange={setSelectedDate} />
+            </Modal>
+        </Form>
     )
 };
 
