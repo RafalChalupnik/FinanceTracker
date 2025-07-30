@@ -10,8 +10,9 @@ import {
     WalletOutlined
 } from "@ant-design/icons";
 import {Wallets} from "./components/Wallets";
-import { Assets } from './components/Assets';
 import {Debts} from "./components/Debts";
+import SimpleComponentsTable from "./components/SimpleComponentsTable";
+import {Assets} from "./components/Assets";
 
 const { Header, Content } = Layout;
 

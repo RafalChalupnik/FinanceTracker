@@ -22,7 +22,7 @@ export type SummaryTableRow = {
     summary: SummaryTableComponent
 }
 
-interface SummaryTableEditableProps {
+export interface SummaryTableEditableProps {
     refreshData: () => Promise<SummaryTableRow[]>;
     onUpdate: (id: string, date: string, value: number) => Promise<void>;
     onDelete: (date: Date) => Promise<void>;
