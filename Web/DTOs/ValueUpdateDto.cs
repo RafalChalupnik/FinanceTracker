@@ -1,6 +1,8 @@
+using FinanceTracker.Core.Primitives;
+
 namespace FinanceTracker.Web.DTOs;
 
 public record ValueUpdateDto(
     DateOnly Date,
-    decimal Value
+    Money Value
 );

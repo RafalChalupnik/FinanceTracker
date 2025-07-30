@@ -1,6 +1,18 @@
 import React, { FC } from 'react';
 import {useState} from "react";
-import {Button, DatePicker, Form, InputNumber, Modal, Popconfirm, Space, Table, Typography} from "antd";
+import {
+    Button,
+    DatePicker,
+    Form,
+    Input,
+    InputNumber,
+    InputNumberProps,
+    Modal,
+    Popconfirm,
+    Space,
+    Table,
+    Typography
+} from "antd";
 import {type ColumnsType} from "antd/es/table";
 import dayjs from "dayjs";
 import {DeleteOutlined} from "@ant-design/icons";
@@ -18,7 +30,7 @@ type SummaryTableComponent = {
     cumulativeChange: Money;
 }
 
-interface Money {
+export type Money = {
     amount: number, 
     currency: string,
     amountInMainCurrency: number
@@ -32,7 +44,7 @@ export type SummaryTableRow = {
 
 export interface SummaryTableEditableProps {
     refreshData: () => Promise<SummaryTableRow[]>;
-    onUpdate: (id: string, date: string, value: number) => Promise<void>;
+    onUpdate: (id: string, date: string, value: Money) => Promise<void>;
     onDelete: (date: Date) => Promise<void>;
 }
 
@@ -81,7 +93,16 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
             if (!editingCell) return;
 
             const { rowKey, componentIndex, field } = editingCell;
-            const newValue = values['editable'];
+            
+            const newAmount = values['amount'] as number;
+            const newCurrency = values['currency'] as (string | undefined) ?? "PLN";
+            const newAmountInMainCurrency = values['amountInMainCurrency'] as (number | undefined) ?? newAmount;
+            
+            const newValue : Money = {
+                amount: newAmount,
+                currency: newCurrency,
+                amountInMainCurrency: newAmountInMainCurrency
+            }
             
             const componentId = props.headers[componentIndex].id;
             await props.editable.onUpdate(componentId, dayjs(new Date(Date.parse(rowKey))).format('YYYY-MM-DD'), newValue);
@@ -115,7 +136,7 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
         onDoubleClick: () => void
     ) => {
         if (value === undefined) {
-            return (<div>'-'</div>);
+            return (<div>-</div>);
         }
 
         let amount = new Intl.NumberFormat('pl-PL', {
@@ -167,20 +188,6 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
         const component = record.components[componentIndex];
         const value = component?.[field] as (Money | undefined);
         
-        let amount = (value as Money)?.amount ?? 0;
-        let currency = (value as Money)?.currency ?? 'PLN';
-        
-        const formattedValue = value !== undefined
-            ? new Intl.NumberFormat('pl-PL', {
-                style: 'currency',
-                currency: currency,
-            }).format(amount)
-            : '-';
-
-        const color = value !== undefined && amount !== 0 && colorCoding
-            ? (amount > 0 ? 'green' : 'red')
-            : 'black'
-        
         return formatAmount(value, colorCoding, () => {
             form.setFieldsValue({ editable: value });
             setEditingCell({
@@ -190,6 +197,21 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
             });
         })
     }
+
+    const CurrencyInput = (props: InputNumberProps) => {
+        return (
+            <InputNumber
+                {...props}
+                style={{ width: '100%' }}
+                min={0}
+                step={0.01}
+                formatter={(value) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                }
+                parser={(value) => value?.replace(/€\s?|(,*)/g, '') ?? ''}
+            />
+        );
+    };
 
     const renderEditableCell = (
         record: DataType,
@@ -202,9 +224,18 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
             editingCell?.field === field;
 
         return isEditing ? (
-            <Form.Item name="editable" style={{ margin: 0 }}>
-                <InputNumber autoFocus onPressEnter={save} onBlur={save} />
-            </Form.Item>
+            <Space direction={"vertical"}>
+                <Form.Item name="amount" style={{ margin: 0 }}>
+                    <CurrencyInput autoFocus placeholder="0,00" />
+                </Form.Item>
+                <Form.Item name="currency" style={{ margin: 0 }}>
+                    <Input placeholder="PLN" minLength={3} maxLength={3} />
+                </Form.Item>
+                <Form.Item name="amountInMainCurrency" style={{ margin: 0 }}>
+                    <CurrencyInput placeholder="0,00 (value in main currency)" />
+                </Form.Item>
+                <Button onClick={save}>Save</Button>
+            </Space>
         ) : renderUneditableCell(record, componentIndex, field, false);
     };
 

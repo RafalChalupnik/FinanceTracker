@@ -31,7 +31,7 @@ interface ValueSnapshotDto {
     cumulativeChange: MoneyDto
 }
 
-interface MoneyDto {
+export interface MoneyDto {
     amount: number,
     currency: string
     amountInMainCurrency: number

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import SummaryTable, {SummaryTableHeader, SummaryTableRow} from "./SummaryTable";
-import {getWallets} from "../ApiClient";
+import {getWallets, MoneyDto} from "../ApiClient";
 import {mapData} from "../SummaryTableMapper";
 import {Space, Typography} from "antd";
 
@@ -66,7 +66,7 @@ export class Wallets extends Component<WalletsProps, WalletsState> {
         );
     }
 
-    updateComponent = async (id: string, date: string, value: number) => {
+    updateComponent = async (id: string, date: string, value: MoneyDto) => {
         const response = await fetch("wallets/components/" + id, {
             method: "PUT",
             headers: {

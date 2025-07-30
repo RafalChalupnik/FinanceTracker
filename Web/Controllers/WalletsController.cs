@@ -26,11 +26,7 @@ public class WalletsController(
         await evaluateEntityCommand.Evaluate<Component>(
             entityId: componentId, 
             date: valueUpdate.Date, 
-            new Money(
-                Amount: valueUpdate.Value, 
-                Currency: "PLN", 
-                AmountInMainCurrency: valueUpdate.Value
-            )
+            value: valueUpdate.Value
         );
         
         return NoContent();
