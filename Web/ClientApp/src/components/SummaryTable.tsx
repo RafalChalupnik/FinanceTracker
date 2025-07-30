@@ -21,12 +21,16 @@ export type SummaryTableRow = {
     summary: SummaryTableComponent
 }
 
+interface SummaryTableEditableProps {
+    refreshData: () => Promise<SummaryTableRow[]>;
+    onUpdate: (id: string, date: string, value: number) => Promise<void>;
+    onDelete: (date: Date) => void;
+}
+
 interface SummaryTableProps {
     headers: SummaryTableHeader[];
     data: SummaryTableRow[];
-    isEditable: boolean
-    onUpdate?: (id: string, date: string, value: number) => void;
-    onDelete?: (date: Date) => void;
+    editable?: SummaryTableEditableProps
 }
 
 interface DataType {
@@ -42,19 +46,25 @@ type EditableCell = {
 } | null;
 
 const SummaryTable: FC<SummaryTableProps> = (props) => {
-    let dataSource : DataType[] = props.data.map(row => {
-        return {
-            key: row.date.toString(),
-            date: row.date,
-            components: [...row.components, ...[row.summary]]
-        }
-    })
+    let mapData = (data : SummaryTableRow[]) => {
+        return data.map(row => {
+            return {
+                key: row.date.toString(),
+                date: row.date,
+                components: [...row.components, ...[row.summary]]
+            }
+        })
+    }
     
-    const [data, setData] = useState(dataSource);
+    const [data, setData] = useState(mapData(props.data));
     const [form] = Form.useForm();
     const [editingCell, setEditingCell] = useState<EditableCell>(null);
     
     const save = async () => {
+        if (!props.editable) {
+            throw new Error('No editable props provided');
+        }
+        
         try {
             const values = await form.validateFields();
             if (!editingCell) return;
@@ -63,22 +73,28 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
             const newValue = values['editable'];
             
             const componentId = props.headers[componentIndex].id;
-            props.onUpdate!(componentId, rowKey, newValue);
-
-            const newData = [...data];
-            const rowIndex = newData.findIndex(item => item.key === rowKey);
-            if (rowIndex === -1) return;
-
-            const row = newData[rowIndex];
-            const component = row.components[componentIndex];
-            if (!component) return;
-
-            row.components[componentIndex] = {
-                ...component,
-                [field]: newValue,
-            };
-
+            await props.editable.onUpdate(componentId, rowKey, newValue);
+            
+            console.log('Start refresh')
+            let newData = mapData(await props.editable.refreshData())
+            console.log('End refresh')
+            console.log(newData)
             setData(newData);
+
+            // const newData = [...data];
+            // const rowIndex = newData.findIndex(item => item.key === rowKey);
+            // if (rowIndex === -1) return;
+            //
+            // const row = newData[rowIndex];
+            // const component = row.components[componentIndex];
+            // if (!component) return;
+            //
+            // row.components[componentIndex] = {
+            //     ...component,
+            //     [field]: newValue,
+            // };
+            //
+            // setData(newData);
             setEditingCell(null);
         } catch (err) {
             console.error('Validation failed:', err);
@@ -151,7 +167,7 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
                     title: 'Value',
                     dataIndex: ['components', index, 'value'],
                     key: `${name}-value`,
-                    render: (_: any, record: DataType) => isEditable && props.isEditable
+                    render: (_: any, record: DataType) => isEditable && props.editable
                         ? renderEditableCell(record, index, 'value')
                         : (record.components[index]?.['value'])
                 },

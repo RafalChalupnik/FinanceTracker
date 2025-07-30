@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import SummaryTable, {SummaryTableHeader, SummaryTableRow} from "./SummaryTable";
-import {getDebts} from "../ApiClient";
+import {getAssets, getDebts} from "../ApiClient";
 import {mapData} from "../SummaryTableMapper";
 
 interface DebtsProps {}
@@ -30,9 +30,14 @@ export class Debts extends Component<DebtsProps, DebtsState> {
             : <SummaryTable
                 headers={this.state.headers}
                 data={this.state.data}
-                isEditable={true}
-                onUpdate={this.updateDebt}
-                onDelete={this.deleteEvaluations}
+                editable={{
+                    refreshData: async () => {
+                        const response = await getDebts();
+                        return mapData(response.data)
+                    },
+                    onUpdate: this.updateDebt,
+                    onDelete: this.deleteEvaluations,
+                }}
             />
 
         return (

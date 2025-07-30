@@ -30,7 +30,6 @@ export class WalletsSummary extends Component<WalletsSummaryProps, WalletsSummar
         : <SummaryTable
             headers={this.state.headers}
             data={this.state.data}
-            isEditable={false}
         />
 
       return (

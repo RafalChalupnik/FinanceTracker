@@ -31,9 +31,14 @@ export class Assets extends Component<AssetsProps, AssetsState> {
             : <SummaryTable
                 headers={this.state.headers}
                 data={this.state.data}
-                isEditable={true}
-                onUpdate={this.updateAsset}
-                onDelete={this.deleteEvaluations}
+                editable={{
+                    refreshData: async () => {
+                        const response = await getAssets();
+                        return mapData(response.data)
+                    },
+                    onUpdate: this.updateAsset,
+                    onDelete: this.deleteEvaluations,
+                }}
             />
 
         return (

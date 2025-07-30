@@ -30,7 +30,6 @@ export class PortfolioSummary extends Component<PortfolioSummaryProps, Portfolio
             : <SummaryTable
                 headers={this.state.headers}
                 data={this.state.data}
-                isEditable={false}
             />
 
         return (

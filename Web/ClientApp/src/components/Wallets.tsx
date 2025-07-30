@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import SummaryTable, {SummaryTableHeader, SummaryTableRow} from "./SummaryTable";
-import {getWallets} from "../ApiClient";
+import {getAssets, getWallets} from "../ApiClient";
 import {mapData} from "../SummaryTableMapper";
 import {Space, Typography} from "antd";
 
@@ -44,9 +44,16 @@ export class Wallets extends Component<WalletsProps, WalletsState> {
                                 <SummaryTable
                                     headers={wallet.headers}
                                     data={wallet.data}
-                                    isEditable={true}
-                                    onUpdate={this.updateComponent}
-                                    onDelete={date => this.deleteEvaluations(wallet.id, date)}
+                                    editable={{
+                                        refreshData: async () => {
+                                            const response = await getWallets();
+                                            return mapData(response.wallets
+                                                .find(w => w.id === wallet.id)!
+                                                .data)
+                                        },
+                                        onUpdate: this.updateComponent,
+                                        onDelete: date => this.deleteEvaluations(wallet.id, date),
+                                    }}
                                 />
                             </Space>
                         </div>
