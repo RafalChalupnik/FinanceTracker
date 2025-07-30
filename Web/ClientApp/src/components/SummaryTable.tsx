@@ -3,6 +3,7 @@ import {useState} from "react";
 import {Button, DatePicker, Form, InputNumber, Modal, Popconfirm, Space, Table} from "antd";
 import {type ColumnsType} from "antd/es/table";
 import dayjs from "dayjs";
+import {DeleteOutlined} from "@ant-design/icons";
 
 
 export type SummaryTableHeader = {
@@ -127,7 +128,7 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
 
         return (
             <div
-                style={{ cursor: 'pointer', color }}
+                style={{ cursor: 'pointer', color, textAlign: 'right' }}
                 onDoubleClick={() => {
                     form.setFieldsValue({ editable: value });
                     setEditingCell({
@@ -169,7 +170,7 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
                     key: `${name}-value`,
                     render: (_: any, record: DataType) => isEditable && props.editable
                         ? renderEditableCell(record, index, 'value')
-                        : (record.components[index]?.['value'])
+                        : renderUneditableCell(record, index, 'value', false)
                 },
                 {
                     title: 'Change',
@@ -209,12 +210,21 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
             dataIndex: 'operation',
             render: (_, record) =>
                 data.length >= 1 ? (
-                    <Popconfirm title="Sure to delete?" onConfirm={async () => {
-                        await props.editable!.onDelete(record.date);
-                        let newData = mapData(await props.editable!.refreshData())
-                        setData(newData);
-                    }}>
-                        <a>Delete</a>
+                    <Popconfirm 
+                        title="Sure to delete?" 
+                        okText={'Yes'}
+                        cancelText={'No'}
+                        okButtonProps={{ danger: true }}
+                        onConfirm={async () => {
+                            await props.editable!.onDelete(record.date);
+                            let newData = mapData(await props.editable!.refreshData())
+                            setData(newData);
+                        }}
+                    >
+                        {/*<span style={{ color: '#1890ff', textDecoration: 'underline', cursor: 'pointer' }}>*/}
+                        {/*    Delete*/}
+                        {/*</span>*/}
+                        <DeleteOutlined />
                     </Popconfirm>
                 ) : null,
         })
