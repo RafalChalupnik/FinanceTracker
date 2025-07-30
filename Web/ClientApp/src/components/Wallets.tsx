@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import SummaryTable, {SummaryTableHeader, SummaryTableRow} from "./SummaryTable";
-import {getAssets, getWallets} from "../ApiClient";
+import {getWallets} from "../ApiClient";
 import {mapData} from "../SummaryTableMapper";
 import {Space, Typography} from "antd";
 

@@ -1,7 +1,5 @@
 import React, {ReactNode, useState} from 'react';
 import {Layout, Menu, MenuProps, Space, theme, Typography} from 'antd';
-import {PortfolioSummary} from "./components/PortfolioSummary";
-import { WalletsSummary } from './components/WalletsSummary';
 import {
     EuroCircleOutlined,
     LineChartOutlined,
@@ -9,10 +7,12 @@ import {
     PlusSquareOutlined,
     WalletOutlined
 } from "@ant-design/icons";
+
 import {Wallets} from "./components/Wallets";
-import {Debts} from "./components/Debts";
-import SimpleComponentsTable from "./components/SimpleComponentsTable";
-import {Assets} from "./components/Assets";
+import Assets from "./components/Assets";
+import Debts from "./components/Debts";
+import PortfolioSummary from "./components/PortfolioSummary";
+import WalletsSummary from './components/WalletsSummary';
 
 const { Header, Content } = Layout;
 

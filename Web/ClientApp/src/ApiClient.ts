@@ -37,24 +37,8 @@ export async function getEntities (path: string) {
     return data;
 }
 
-export async function getAssets () {
-    return await getEntities('assets');
-}
-
-export async function getDebts () {
-    return await getEntities('debts');
-}
-
-export async function getPortfolioSummary () {
-    return await getEntities('portfolio/summary');
-}
-
 export async function getWallets () {
     const response = await fetch('wallets');
     const data: WalletsPerDateQueryDto = await response.json();
     return data;
-}
-
-export async function getWalletsSummary () {
-    return await getEntities('portfolio/wallets');   
 }
