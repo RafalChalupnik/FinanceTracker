@@ -8,6 +8,7 @@
     "antd": "^5.26.6",
     "antd-style": "^3.7.1",
     "bootstrap": "^5.2.3",
+    "dayjs": "^1.11.13",
     "http-proxy-middleware": "^2.0.6",
     "jquery": "^3.6.4",
     "merge": "^2.1.1",

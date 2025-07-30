@@ -1,7 +1,8 @@
 import React, { FC } from 'react';
 import {useState} from "react";
-import {Form, InputNumber, Table} from "antd";
+import {Button, DatePicker, Form, InputNumber, Modal, Popconfirm, Space, Table} from "antd";
 import {type ColumnsType} from "antd/es/table";
+import dayjs from "dayjs";
 
 
 export type SummaryTableHeader = {
@@ -24,7 +25,7 @@ export type SummaryTableRow = {
 interface SummaryTableEditableProps {
     refreshData: () => Promise<SummaryTableRow[]>;
     onUpdate: (id: string, date: string, value: number) => Promise<void>;
-    onDelete: (date: Date) => void;
+    onDelete: (date: Date) => Promise<void>;
 }
 
 interface SummaryTableProps {
@@ -59,6 +60,8 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
     const [data, setData] = useState(mapData(props.data));
     const [form] = Form.useForm();
     const [editingCell, setEditingCell] = useState<EditableCell>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     
     const save = async () => {
         if (!props.editable) {
@@ -73,12 +76,9 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
             const newValue = values['editable'];
             
             const componentId = props.headers[componentIndex].id;
-            await props.editable.onUpdate(componentId, rowKey, newValue);
+            await props.editable.onUpdate(componentId, dayjs(new Date(Date.parse(rowKey))).format('YYYY-MM-DD'), newValue);
             
-            console.log('Start refresh')
             let newData = mapData(await props.editable.refreshData())
-            console.log('End refresh')
-            console.log(newData)
             setData(newData);
 
             // const newData = [...data];
@@ -203,16 +203,73 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
         buildComponentColumns('Summary', props.headers.length, false)
     ];
     
+    if (props.editable) {
+        columns.push({
+            title: '',
+            dataIndex: 'operation',
+            render: (_, record) =>
+                data.length >= 1 ? (
+                    <Popconfirm title="Sure to delete?" onConfirm={async () => {
+                        await props.editable!.onDelete(record.date);
+                        let newData = mapData(await props.editable!.refreshData())
+                        setData(newData);
+                    }}>
+                        <a>Delete</a>
+                    </Popconfirm>
+                ) : null,
+        })
+    }
+
+    const handleAdd = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleOk = () => {
+        // console.log('Confirmed date:', selectedDate?.format('YYYY-MM-DD'));
+        console.log('Confirmed date:', selectedDate?.toISOString());
+        
+        let newData = [
+            ...data,
+            {
+                key: selectedDate!.toString(),
+                date: selectedDate!,
+                components: props.headers.map(_ => undefined)
+            }
+        ]
+        setData(newData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
+        
+        setIsModalOpen(false);
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
+    
     return (
         <Form form={form} component={false}>
-            <Table
-                bordered
-                dataSource={data}
-                columns={columns}
-                pagination={false}
-                rowKey="key"
-                scroll={{ x: 'max-content' }}
-            />
+            <Space direction={"vertical"}>
+                <Table
+                    bordered
+                    dataSource={data}
+                    columns={columns}
+                    pagination={false}
+                    rowKey="key"
+                    scroll={{ x: 'max-content' }}
+                />
+                {props.editable && (
+                    <Button onClick={handleAdd} type="primary" style={{ marginBottom: 16 }}>
+                        Add a row
+                    </Button>
+                )}
+            </Space>
+            <Modal
+                title="Pick a date"
+                open={isModalOpen}
+                onOk={handleOk}
+                onCancel={handleCancel}
+            >
+                <DatePicker onChange={setSelectedDate} />
+            </Modal>
         </Form>
     )
 };
