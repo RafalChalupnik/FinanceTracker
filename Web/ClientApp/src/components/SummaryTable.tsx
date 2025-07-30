@@ -45,7 +45,7 @@ export type SummaryTableRow = {
 export interface SummaryTableEditableProps {
     refreshData: () => Promise<SummaryTableRow[]>;
     onUpdate: (id: string, date: string, value: Money) => Promise<void>;
-    onDelete: (date: Date) => Promise<void>;
+    onDelete: (date: string) => Promise<void>;
 }
 
 interface SummaryTableProps {
@@ -295,7 +295,7 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
                         cancelText={'No'}
                         okButtonProps={{ danger: true }}
                         onConfirm={async () => {
-                            await props.editable!.onDelete(record.date);
+                            await props.editable!.onDelete(dayjs(new Date(Date.parse(record.key))).format('YYYY-MM-DD'));
                             let newData = mapData(await props.editable!.refreshData())
                             setData(newData);
                         }}

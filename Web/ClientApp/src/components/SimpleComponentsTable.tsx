@@ -50,7 +50,7 @@ const SimpleComponentsTable: FC<SimpleComponentsTableProps> = (props) => {
         }
     }
 
-    const deleteEvaluations = async (date: Date) => {
+    const deleteEvaluations = async (date: string) => {
         const response = await fetch(`${props.apiPath}/` + date, {
             method: "DELETE",
             headers: {

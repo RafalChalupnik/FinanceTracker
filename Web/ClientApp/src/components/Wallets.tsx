@@ -54,7 +54,7 @@ const Wallets: FC<WalletsProps> = (props) => {
         }
     }
 
-    const deleteEvaluations = async (walletId: string, date: Date) => {
+    const deleteEvaluations = async (walletId: string, date: string) => {
         const response = await fetch("wallets/" + walletId + '/' + date, {
             method: "DELETE",
             headers: {
