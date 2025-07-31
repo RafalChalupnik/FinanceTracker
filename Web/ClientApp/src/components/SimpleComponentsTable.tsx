@@ -1,8 +1,11 @@
 import React, {FC, ReactNode, useEffect, useState} from "react";
 import {getEntities, MoneyDto} from "../ApiClient";
 import {mapData} from "../SummaryTableMapper";
-import SummaryTable, {SummaryTableHeader, SummaryTableRow} from "./SummaryTable";
+import {Money, SummaryTableHeader, SummaryTableRow} from "./SummaryTable";
 import {DataIndexPath, EditableColumn, EditableColumnGroup, EditableTable} from "./EditableTable";
+import {Space, Typography} from "antd";
+
+const { Text } = Typography;
 
 interface SimpleComponentsTableProps {
     apiPath: string,
@@ -82,19 +85,60 @@ const SimpleComponentsTable: FC<SimpleComponentsTableProps> = (props) => {
     const normalizePath = (path: DataIndexPath<SummaryTableRow>): (string | number)[] =>
         Array.isArray(path) ? path : [path as string];
 
-    function renderMoney(record: SummaryTableRow, dataIndex: DataIndexPath<SummaryTableRow>) : ReactNode {
-        let value = getValue(record, normalizePath(dataIndex)) as MoneyDto
-
-        if (value) {
-            return value.amountInMainCurrency !== 0
-                ? new Intl.NumberFormat('pl-PL', {
-                    style: 'currency',
-                    currency: value.currency,
-                }).format(value.amountInMainCurrency)
-                : '-'
+    const formatAmount = (
+        value: Money | undefined,
+        colorCoding: boolean
+    ) => {
+        if (value === undefined) {
+            return (
+                <div style={{ cursor: 'pointer', textAlign: 'right' }}>
+                    -
+                </div>
+            );
         }
 
-        return '???';
+        let amount = new Intl.NumberFormat('pl-PL', {
+            style: 'currency',
+            currency: value.currency,
+        }).format(value.amount)
+
+        const color = value.amountInMainCurrency !== 0 && colorCoding
+            ? (value.amountInMainCurrency > 0 ? 'green' : 'red')
+            : 'black'
+
+        if (value.amountInMainCurrency !== value.amount) {
+            let amountInMainCurrency = new Intl.NumberFormat('pl-PL', {
+                style: 'currency',
+                currency: 'PLN',
+            }).format(value.amountInMainCurrency)
+
+            return (
+                <div style={{ cursor: 'pointer', color, textAlign: 'right' }}>
+                    <Space direction={"vertical"}>
+                        {amount}
+                        <Text disabled>{`(${amountInMainCurrency})`}</Text>
+                    </Space>
+                </div>
+            )
+        }
+        else
+        {
+            return (
+                <div
+                    style={{ cursor: 'pointer', color, textAlign: 'right' }}>
+                    {amount}
+                </div>
+            )
+        }
+    }
+
+    function renderMoney(record: SummaryTableRow, dataIndex: DataIndexPath<SummaryTableRow>, colorCoding: boolean) : ReactNode {
+        let value = getValue(record, normalizePath(dataIndex)) as MoneyDto
+
+        return value 
+            ? formatAmount(value, colorCoding) 
+            : '???';
+
     }
     
     function buildComponentColumns (name: string, index: number) : (EditableColumn<SummaryTableRow> | EditableColumnGroup<SummaryTableRow>) {
@@ -105,19 +149,19 @@ const SimpleComponentsTable: FC<SimpleComponentsTableProps> = (props) => {
                     title: 'Value',
                     dataIndex: ['components', index, 'value'],
                     editable: props.editable,
-                    render: renderMoney
+                    render: (record, path) => renderMoney(record, path, false)
                 },
                 {
                     title: 'Change',
                     dataIndex: ['components', index, 'change'],
                     editable: false,
-                    render: renderMoney
+                    render: (record, path) => renderMoney(record, path, true)
                 },
                 {
                     title: 'Cumulative',
                     dataIndex: ['components', index, 'cumulativeChange'],
                     editable: false,
-                    render: renderMoney
+                    render: (record, path) => renderMoney(record, path, true)
                 }
             ]
         }
@@ -141,19 +185,19 @@ const SimpleComponentsTable: FC<SimpleComponentsTableProps> = (props) => {
                     title: 'Value',
                     dataIndex: ['summary', 'value'],
                     editable: false,
-                    render: renderMoney
+                    render: (record, path) => renderMoney(record, path, false)
                 },
                 {
                     title: 'Change',
                     dataIndex: ['summary', 'change'],
                     editable: false,
-                    render: renderMoney
+                    render: (record, path) => renderMoney(record, path, true)
                 },
                 {
                     title: 'Cumulative',
                     dataIndex: ['summary', 'cumulativeChange'],
                     editable: false,
-                    render: renderMoney
+                    render: (record, path) => renderMoney(record, path, true)
                 }
             ]
         }
