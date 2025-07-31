@@ -1,7 +1,8 @@
-import React, {FC, useEffect, useState} from "react";
+import React, {FC, ReactNode, useEffect, useState} from "react";
 import {getEntities, MoneyDto} from "../ApiClient";
 import {mapData} from "../SummaryTableMapper";
 import SummaryTable, {SummaryTableHeader, SummaryTableRow} from "./SummaryTable";
+import {DataIndexPath, EditableColumn, EditableColumnGroup, EditableTable} from "./EditableTable";
 
 interface SimpleComponentsTableProps {
     apiPath: string,
@@ -73,13 +74,102 @@ const SimpleComponentsTable: FC<SimpleComponentsTableProps> = (props) => {
             onDelete: deleteEvaluations,
         }
         : undefined;
+
+    function getValue(obj: any, path: (string | number)[]): any {
+        return path.reduce((acc, key) => (acc != null ? acc[key] : undefined), obj);
+    }
+
+    const normalizePath = (path: DataIndexPath<SummaryTableRow>): (string | number)[] =>
+        Array.isArray(path) ? path : [path as string];
+
+    function renderMoney(record: SummaryTableRow, dataIndex: DataIndexPath<SummaryTableRow>) : ReactNode {
+        let value = getValue(record, normalizePath(dataIndex)) as MoneyDto
+
+        if (value) {
+            return value.amountInMainCurrency !== 0
+                ? new Intl.NumberFormat('pl-PL', {
+                    style: 'currency',
+                    currency: value.currency,
+                }).format(value.amountInMainCurrency)
+                : '-'
+        }
+
+        return '???';
+    }
+    
+    function buildComponentColumns (name: string, index: number) : (EditableColumn<SummaryTableRow> | EditableColumnGroup<SummaryTableRow>) {
+        return {
+            title: name,
+            children: [
+                {
+                    title: 'Value',
+                    dataIndex: ['components', index, 'value'],
+                    editable: props.editable,
+                    render: renderMoney
+                },
+                {
+                    title: 'Change',
+                    dataIndex: ['components', index, 'change'],
+                    editable: false,
+                    render: renderMoney
+                },
+                {
+                    title: 'Cumulative',
+                    dataIndex: ['components', index, 'cumulativeChange'],
+                    editable: false,
+                    render: renderMoney
+                }
+            ]
+        }
+    }
+    
+    let componentsColumns = data.headers.map((header, index) => {
+        return buildComponentColumns(header.name, index)
+    })
+
+    let columns : (EditableColumn<SummaryTableRow> | EditableColumnGroup<SummaryTableRow>)[] = [
+        {
+            title: 'Date',
+            dataIndex: 'date',
+            editable: false
+        },
+        ...componentsColumns,
+        {
+            title: 'Summary',
+            children: [
+                {
+                    title: 'Value',
+                    dataIndex: ['summary', 'value'],
+                    editable: false,
+                    render: renderMoney
+                },
+                {
+                    title: 'Change',
+                    dataIndex: ['summary', 'change'],
+                    editable: false,
+                    render: renderMoney
+                },
+                {
+                    title: 'Cumulative',
+                    dataIndex: ['summary', 'cumulativeChange'],
+                    editable: false,
+                    render: renderMoney
+                }
+            ]
+        }
+    ];
     
     return isLoading
         ? <p><em>Loading...</em></p>
-        : <SummaryTable
-            headers={data.headers}
-            data={data.rows}
-            editable={editable}
+        : <EditableTable<SummaryTableRow>
+            records={data.rows}
+            columns={columns}
+            onUpdate={(record, path, value) => {
+                console.log('#Update', record, path, value)
+            }}
+            onDelete={record => {
+                console.log('#Delete', record)
+            }}
         />
 }
 

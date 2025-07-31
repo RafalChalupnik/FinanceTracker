@@ -1,50 +1,37 @@
-import React, { useState } from "react";
+import React, {ReactNode, useState} from "react";
 import { Table, Input, Button, Popconfirm } from "antd";
 import type {ColumnGroupType, ColumnsType, ColumnType} from "antd/es/table";
+import {DeleteOutlined} from "@ant-design/icons";
 
 export type DataIndexPath<T> = keyof T | (string | number)[];
 
-export interface EditableColumn<T> {
-    title: string;
-    dataIndex?: DataIndexPath<T>;
-    editable?: boolean;
-    children?: EditableColumn<T>[];
-    render?: (value: any, record: T, index: number) => React.ReactNode;
-}
-
 interface EditableTableProps<T extends { key: React.Key }> {
     records: T[];
-    columns: EditableColumn<T>[];
+    columns: (EditableColumn<T> | EditableColumnGroup<T>)[];
     onUpdate: (record: T, path: DataIndexPath<T>, value: any) => void;
     onDelete: (record: T) => void;
 }
 
-// Helpers to read/write nested paths without lodash
-function getValue(obj: any, path: (string | number)[]): any {
-    return path.reduce((acc, key) => (acc != null ? acc[key] : undefined), obj);
+export interface EditableColumn<T> {
+    title: string;
+    dataIndex: DataIndexPath<T>;
+    editable: boolean;
+    render?: (record: T, dataIndex: DataIndexPath<T>) => React.ReactNode;
 }
 
-function setValue(obj: any, path: (string | number)[], value: any): any {
-    const newObj = { ...obj };
-    let current = newObj;
-    for (let i = 0; i < path.length - 1; i++) {
-        const key = path[i];
-        current[key] = { ...(current[key] || {}) };
-        current = current[key];
-    }
-    current[path[path.length - 1]] = value;
-    return newObj;
+export interface EditableColumnGroup<T> {
+    title: string;
+    children: (EditableColumn<T> | EditableColumnGroup<T>)[];
 }
 
-export function EditableTable<T extends { key: React.Key }>({
-                                                                records,
-                                                                columns,
-                                                                onUpdate,
-                                                                onDelete,
-                                                            }: EditableTableProps<T>) {
+export function EditableTable<T extends { key: React.Key }>(props: EditableTableProps<T>) {
     const [editingKey, setEditingKey] = useState<string | null>(null);
     const [editingValue, setEditingValue] = useState<any>("");
 
+    function getValue(obj: any, path: (string | number)[]): any {
+        return path.reduce((acc, key) => (acc != null ? acc[key] : undefined), obj);
+    }
+    
     const normalizePath = (path: DataIndexPath<T>): (string | number)[] =>
         Array.isArray(path) ? path : [path as string];
 
@@ -61,16 +48,15 @@ export function EditableTable<T extends { key: React.Key }>({
     };
 
     const handleSave = (record: T, path: DataIndexPath<T>) => {
-        onUpdate(record, path, editingValue);
+        props.onUpdate(record, path, editingValue);
         setEditingKey(null);
     };
 
-    const renderEditableCell = (record: T, path: DataIndexPath<T>) => {
+    const renderEditableCell = (record: T, path: DataIndexPath<T>, renderFunc: () => ReactNode) => {
         if (!isEditing(record, path)) {
-            const value = getValue(record, normalizePath(path));
             return (
                 <div onClick={() => handleEdit(record, path)}>
-                    {String(value)}
+                    {renderFunc()}
                 </div>
             );
         }
@@ -87,50 +73,64 @@ export function EditableTable<T extends { key: React.Key }>({
     };
 
     const processColumns = (
-        cols: EditableColumn<T>[]
+        columns: (EditableColumn<T> | EditableColumnGroup<T>)[]
     ) => {
-        return cols.map((col) : (ColumnType<T> | ColumnGroupType<T>) => {
-            if (col.children) {
+        return columns.map((column) : (ColumnType<T> | ColumnGroupType<T>) => {
+            let groupColumn = column as EditableColumnGroup<T>
+            
+            if (groupColumn.children) {
                 return {
-                    ...col,
-                    children: processColumns(col.children),
+                    title: column.title,
+                    children: processColumns(groupColumn.children),
                 };
             }
+            
+            let normalColumn = column as EditableColumn<T>
 
             return {
-                title: col.title,
-                dataIndex: col.dataIndex,
-                render: (value: any, record: T, index: number) => {
-                    return col.editable
-                        ? renderEditableCell(record, col.dataIndex!)
-                        : col.render?.(value, record, index) ?? getValue(record, normalizePath(col.dataIndex!));
+                title: normalColumn.title,
+                dataIndex: normalColumn.dataIndex,
+                fixed: 'left',
+                render: (_: any, record: T, index: number) => {
+                    let renderFunc = () => normalColumn.render?.(record, normalColumn.dataIndex) 
+                        ?? getValue(record, normalizePath(normalColumn.dataIndex));
+                    
+                    return normalColumn.editable
+                        ? renderEditableCell(record, normalColumn.dataIndex, renderFunc)
+                        : renderFunc()
                 },
             } as ColumnType<T>;
         });
     };
 
     const tableColumns: ColumnsType<T> = [
-        ...processColumns(columns),
+        ...processColumns(props.columns),
         {
-            title: "Actions",
-            dataIndex: "actions",
+            title: '',
+            dataIndex: 'operation',
+            fixed: 'left',
             render: (_: any, record: T) => (
                 <Popconfirm
-                    title="Are you sure you want to delete this row?"
-                    onConfirm={() => onDelete(record)}
+                    title='Sure to delete?'
+                    okText={'Yes'}
+                    cancelText={'No'}
+                    okButtonProps={{ danger: true }}
+                    onConfirm={() => props.onDelete(record)}
                 >
-                    <Button danger size="small">Delete</Button>
+                    <DeleteOutlined />
                 </Popconfirm>
             ),
         },
     ];
 
     return (
-        <Table<T>
-            rowKey="key"
+        <Table
+            bordered
+            dataSource={props.records}
             columns={tableColumns}
-            dataSource={records}
             pagination={false}
+            rowKey="key"
+            scroll={{ x: 'max-content' }}
         />
     );
 }

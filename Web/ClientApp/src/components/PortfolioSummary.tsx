@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {EditableTable, EditableColumn, DataIndexPath} from "./EditableTable";
+import {EditableTable, EditableColumn, DataIndexPath, EditableColumnGroup} from "./EditableTable";
 
 interface Person {
     key: string;
@@ -15,7 +15,7 @@ const initialData: Person[] = [
     { key: "2", name: "Bob", details: { age: 25, address: "London" } },
 ];
 
-const columns: EditableColumn<Person>[] = [
+const columns: (EditableColumn<Person> | EditableColumnGroup<Person>)[] = [
     { title: "Name", dataIndex: "name", editable: true },
     {
         title: "Details",
@@ -47,10 +47,6 @@ const PortfolioSummary = () => {
 
 const normalizePath = (path: DataIndexPath<Person>): (string | number)[] =>
     Array.isArray(path) ? path : [path as string];
-
-function getValue(obj: any, path: (string | number)[]): any {
-    return path.reduce((acc, key) => (acc !== undefined ? acc[key] : undefined), obj);
-}
 
 function setValue(obj: any, path: (string | number)[], value: any): any {
     const newObj = { ...obj };

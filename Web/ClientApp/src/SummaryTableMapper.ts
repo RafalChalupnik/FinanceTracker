@@ -1,9 +1,11 @@
 import {EntitiesForDateDto} from "./ApiClient";
 import {SummaryTableRow} from "./components/SummaryTable";
+import dayjs from "dayjs";
 
 export function mapData (data: EntitiesForDateDto[]) : SummaryTableRow[] {
     return data.map(row => {
         return {
+            key: dayjs(row.date).format('YYYY-MM-DD'),
             date: row.date,
             components: row.entities.map(entity => {
                 if (entity === null) {

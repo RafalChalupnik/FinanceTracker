@@ -37,6 +37,7 @@ export type Money = {
 }
 
 export type SummaryTableRow = {
+    key: string;
     date: Date;
     components: Array<SummaryTableComponent | undefined>;
     summary: SummaryTableComponent
