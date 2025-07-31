@@ -1,163 +1,136 @@
-import React, { useState } from 'react';
-import {
-    Button,
-    Form,
-    Input,
-    InputNumber,
-    Popconfirm,
-    Space,
-    Table,
-    TableProps
-} from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import React, { useState } from "react";
+import { Table, Input, Button, Popconfirm } from "antd";
+import type {ColumnGroupType, ColumnsType, ColumnType} from "antd/es/table";
+
+export type DataIndexPath<T> = keyof T | (string | number)[];
 
 export interface EditableColumn<T> {
     title: string;
-    dataIndex: keyof T;
+    dataIndex?: DataIndexPath<T>;
     editable?: boolean;
+    children?: EditableColumn<T>[];
     render?: (value: any, record: T, index: number) => React.ReactNode;
 }
 
-export interface EditableTableProps<T extends { key: string }> {
-    data: T[];
+interface EditableTableProps<T extends { key: React.Key }> {
+    records: T[];
     columns: EditableColumn<T>[];
-    onSave: (key: string, updated: Partial<T>) => Promise<void>;
-    onDelete?: (key: string) => Promise<void>;
-    onAdd?: () => void;
-    addButtonText?: string;
+    onUpdate: (record: T, path: DataIndexPath<T>, value: any) => void;
+    onDelete: (record: T) => void;
 }
 
-const EditableTable = <T extends { key: string }>({
-                                                      data,
-                                                      columns,
-                                                      onSave,
-                                                      onDelete,
-                                                      onAdd,
-                                                      addButtonText = 'Add',
-                                                  }: EditableTableProps<T>) => {
-    const [form] = Form.useForm();
+// Helpers to read/write nested paths without lodash
+function getValue(obj: any, path: (string | number)[]): any {
+    return path.reduce((acc, key) => (acc != null ? acc[key] : undefined), obj);
+}
+
+function setValue(obj: any, path: (string | number)[], value: any): any {
+    const newObj = { ...obj };
+    let current = newObj;
+    for (let i = 0; i < path.length - 1; i++) {
+        const key = path[i];
+        current[key] = { ...(current[key] || {}) };
+        current = current[key];
+    }
+    current[path[path.length - 1]] = value;
+    return newObj;
+}
+
+export function EditableTable<T extends { key: React.Key }>({
+                                                                records,
+                                                                columns,
+                                                                onUpdate,
+                                                                onDelete,
+                                                            }: EditableTableProps<T>) {
     const [editingKey, setEditingKey] = useState<string | null>(null);
+    const [editingValue, setEditingValue] = useState<any>("");
 
-    const isEditing = (record: T) => record.key === editingKey;
+    const normalizePath = (path: DataIndexPath<T>): (string | number)[] =>
+        Array.isArray(path) ? path : [path as string];
 
-    const edit = (record: T) => {
-        form.setFieldsValue({ ...record });
-        setEditingKey(record.key);
+    const getKeyFromPath = (recordKey: React.Key, path: DataIndexPath<T>) =>
+        `${recordKey}-${normalizePath(path).join(".")}`;
+
+    const isEditing = (record: T, path: DataIndexPath<T>) =>
+        editingKey === getKeyFromPath(record.key, path);
+
+    const handleEdit = (record: T, path: DataIndexPath<T>) => {
+        const value = getValue(record, normalizePath(path));
+        setEditingKey(getKeyFromPath(record.key, path));
+        setEditingValue(value);
     };
 
-    const cancel = () => {
+    const handleSave = (record: T, path: DataIndexPath<T>) => {
+        onUpdate(record, path, editingValue);
         setEditingKey(null);
     };
 
-    const save = async (key: string) => {
-        try {
-            const row = await form.validateFields();
-            await onSave(key, row);
-            setEditingKey(null);
-        } catch (err) {
-            console.error('Validation failed:', err);
+    const renderEditableCell = (record: T, path: DataIndexPath<T>) => {
+        if (!isEditing(record, path)) {
+            const value = getValue(record, normalizePath(path));
+            return (
+                <div onClick={() => handleEdit(record, path)}>
+                    {String(value)}
+                </div>
+            );
         }
-    };
 
-    const mergedColumns: ColumnsType<T> = columns.map(col => {
-        if (!col.editable) return col as any;
-
-        return {
-            ...col,
-            onCell: (record: T) => ({
-                record,
-                dataIndex: col.dataIndex,
-                editing: isEditing(record),
-            }),
-        };
-    });
-
-    if (onDelete) {
-        mergedColumns.push({
-            title: 'Action',
-            dataIndex: 'action',
-            render: (_, record: T) => {
-                const editable = isEditing(record);
-                return editable ? (
-                    <Space>
-                        <Button type="link" onClick={() => save(record.key)}>
-                            Save
-                        </Button>
-                        <Button type="link" onClick={cancel}>
-                            Cancel
-                        </Button>
-                    </Space>
-                ) : (
-                    <Space>
-                        <Button type="link" disabled={editingKey !== null} onClick={() => edit(record)}>
-                            Edit
-                        </Button>
-                        <Popconfirm
-                            title="Sure to delete?"
-                            onConfirm={() => onDelete(record.key)}
-                        >
-                            <Button type="link" danger disabled={editingKey !== null}>
-                                Delete
-                            </Button>
-                        </Popconfirm>
-                    </Space>
-                );
-            },
-        });
-    }
-
-    const EditableCell: React.FC<any> = ({
-                                             editing,
-                                             dataIndex,
-                                             record,
-                                             children,
-                                             ...restProps
-                                         }) => {
         return (
-            <td {...restProps}>
-                {editing ? (
-                    <Form.Item
-                        name={dataIndex}
-                        style={{ margin: 0 }}
-                        rules={[{ required: false }]}
-                    >
-                        {typeof record[dataIndex] === 'number' ? (
-                            <InputNumber style={{ width: '100%' }} />
-                        ) : (
-                            <Input />
-                        )}
-                    </Form.Item>
-                ) : (
-                    children
-                )}
-            </td>
+            <Input
+                value={editingValue}
+                onChange={(e) => setEditingValue(e.target.value)}
+                onPressEnter={() => handleSave(record, path)}
+                onBlur={() => handleSave(record, path)}
+                autoFocus
+            />
         );
     };
 
-    return (
-        <Form form={form} component={false}>
-            <Space direction="vertical" style={{ width: '100%' }}>
-                {onAdd && (
-                    <Button onClick={onAdd} type="primary" style={{ marginBottom: 16 }}>
-                        {addButtonText}
-                    </Button>
-                )}
-                <Table
-                    components={{
-                        body: {
-                            cell: EditableCell,
-                        },
-                    }}
-                    bordered
-                    dataSource={data}
-                    columns={mergedColumns as ColumnsType<T>}
-                    rowClassName="editable-row"
-                    pagination={false}
-                    rowKey="key"
-                />
-            </Space>
-        </Form>
-    );
-};
+    const processColumns = (
+        cols: EditableColumn<T>[]
+    ) => {
+        return cols.map((col) : (ColumnType<T> | ColumnGroupType<T>) => {
+            if (col.children) {
+                return {
+                    ...col,
+                    children: processColumns(col.children),
+                };
+            }
 
-export default EditableTable;
+            return {
+                title: col.title,
+                dataIndex: col.dataIndex,
+                render: (value: any, record: T, index: number) => {
+                    return col.editable
+                        ? renderEditableCell(record, col.dataIndex!)
+                        : col.render?.(value, record, index) ?? getValue(record, normalizePath(col.dataIndex!));
+                },
+            } as ColumnType<T>;
+        });
+    };
+
+    const tableColumns: ColumnsType<T> = [
+        ...processColumns(columns),
+        {
+            title: "Actions",
+            dataIndex: "actions",
+            render: (_: any, record: T) => (
+                <Popconfirm
+                    title="Are you sure you want to delete this row?"
+                    onConfirm={() => onDelete(record)}
+                >
+                    <Button danger size="small">Delete</Button>
+                </Popconfirm>
+            ),
+        },
+    ];
+
+    return (
+        <Table<T>
+            rowKey="key"
+            columns={tableColumns}
+            dataSource={records}
+            pagination={false}
+        />
+    );
+}
