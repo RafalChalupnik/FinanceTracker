@@ -4,6 +4,8 @@ import {mapData} from "../SummaryTableMapper";
 import {SummaryTableHeader, SummaryTableRow} from "./SummaryTable";
 import {DataIndexPath, EditableColumn, EditableColumnGroup, EditableTable} from "./EditableTable";
 import Money from "../components/Money";
+import MoneyForm from "../components/MoneyForm";
+import dayjs from "dayjs";
 
 interface SimpleComponentsTableProps {
     apiPath: string,
@@ -92,24 +94,27 @@ const SimpleComponentsTable: FC<SimpleComponentsTableProps> = (props) => {
         );
     }
     
-    function buildComponentColumns (name: string, index: number) : (EditableColumn<SummaryTableRow> | EditableColumnGroup<SummaryTableRow>) {
+    function buildComponentColumns (entityId: string, name: string, index: number) : (EditableColumn<SummaryTableRow> | EditableColumnGroup<SummaryTableRow>) {
         return {
             title: name,
             children: [
                 {
                     title: 'Value',
+                    key: entityId,
                     dataIndex: ['components', index, 'value'],
                     editable: props.editable,
                     render: (record, path) => renderMoney(record, path, false)
                 },
                 {
                     title: 'Change',
+                    key: entityId,
                     dataIndex: ['components', index, 'change'],
                     editable: false,
                     render: (record, path) => renderMoney(record, path, true)
                 },
                 {
                     title: 'Cumulative',
+                    key: entityId,
                     dataIndex: ['components', index, 'cumulativeChange'],
                     editable: false,
                     render: (record, path) => renderMoney(record, path, true)
@@ -119,12 +124,13 @@ const SimpleComponentsTable: FC<SimpleComponentsTableProps> = (props) => {
     }
     
     let componentsColumns = data.headers.map((header, index) => {
-        return buildComponentColumns(header.name, index)
+        return buildComponentColumns(header.id, header.name, index)
     })
 
     let columns : (EditableColumn<SummaryTableRow> | EditableColumnGroup<SummaryTableRow>)[] = [
         {
             title: 'Date',
+            key: 'date',
             dataIndex: 'date',
             editable: false
         },
@@ -134,18 +140,21 @@ const SimpleComponentsTable: FC<SimpleComponentsTableProps> = (props) => {
             children: [
                 {
                     title: 'Value',
+                    key: 'summary',
                     dataIndex: ['summary', 'value'],
                     editable: false,
                     render: (record, path) => renderMoney(record, path, false)
                 },
                 {
                     title: 'Change',
+                    key: 'summary',
                     dataIndex: ['summary', 'change'],
                     editable: false,
                     render: (record, path) => renderMoney(record, path, true)
                 },
                 {
                     title: 'Cumulative',
+                    key: 'summary',
                     dataIndex: ['summary', 'cumulativeChange'],
                     editable: false,
                     render: (record, path) => renderMoney(record, path, true)
@@ -159,6 +168,16 @@ const SimpleComponentsTable: FC<SimpleComponentsTableProps> = (props) => {
         : <EditableTable<SummaryTableRow>
             records={data.rows}
             columns={columns}
+            renderEditableCell={(record, columnKey, initialValue, close) => 
+                <MoneyForm 
+                    initialValue={initialValue} 
+                    onSave={async money => {
+                        await updateEntity(columnKey, dayjs(record.date).format('YYYY-MM-DD'), money);
+                        close();
+                    }}
+                    onCancel={close}
+                />
+            }
             onUpdate={(record, path, value) => {
                 console.log('#Update', record, path, value)
             }}

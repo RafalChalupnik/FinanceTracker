@@ -1,5 +1,5 @@
 import React, {ReactNode, useState} from "react";
-import { Table, Input, Button, Popconfirm } from "antd";
+import {Table, Popconfirm, Input} from "antd";
 import type {ColumnGroupType, ColumnsType, ColumnType} from "antd/es/table";
 import {DeleteOutlined} from "@ant-design/icons";
 
@@ -8,12 +8,14 @@ export type DataIndexPath<T> = keyof T | (string | number)[];
 interface EditableTableProps<T extends { key: React.Key }> {
     records: T[];
     columns: (EditableColumn<T> | EditableColumnGroup<T>)[];
-    onUpdate: (record: T, path: DataIndexPath<T>, value: any) => void;
+    renderEditableCell?: (record: T, columnKey: string, initialValue: any, close: () => void) => ReactNode;
+    onUpdate?: (record: T, path: DataIndexPath<T>, value: any) => void;
     onDelete: (record: T) => void;
 }
 
 export interface EditableColumn<T> {
     title: string;
+    key: string;
     dataIndex: DataIndexPath<T>;
     editable: boolean;
     render?: (record: T, dataIndex: DataIndexPath<T>) => React.ReactNode;
@@ -48,28 +50,35 @@ export function EditableTable<T extends { key: React.Key }>(props: EditableTable
     };
 
     const handleSave = (record: T, path: DataIndexPath<T>) => {
-        props.onUpdate(record, path, editingValue);
+        props.onUpdate!(record, path, editingValue);
         setEditingKey(null);
     };
 
-    const renderEditableCell = (record: T, path: DataIndexPath<T>, renderFunc: () => ReactNode) => {
+    const renderEditableCell = (
+        record: T, 
+        path: DataIndexPath<T>, 
+        columnKey: string,
+        renderFunc: () => ReactNode
+    ) => {
         if (!isEditing(record, path)) {
             return (
-                <div onClick={() => handleEdit(record, path)}>
+                <div onDoubleClick={() => handleEdit(record, path)}>
                     {renderFunc()}
                 </div>
             );
         }
-
-        return (
-            <Input
-                value={editingValue}
-                onChange={(e) => setEditingValue(e.target.value)}
-                onPressEnter={() => handleSave(record, path)}
-                onBlur={() => handleSave(record, path)}
-                autoFocus
-            />
-        );
+        
+        return props.renderEditableCell
+            ? props.renderEditableCell(record, columnKey, editingValue, () => setEditingKey(null))
+            : (
+                <Input
+                    value={editingValue}
+                    onChange={(e) => setEditingValue(e.target.value)}
+                    onPressEnter={() => handleSave(record, path)}
+                    onBlur={() => handleSave(record, path)}
+                    autoFocus
+                />
+            );
     };
 
     const processColumns = (
@@ -96,7 +105,7 @@ export function EditableTable<T extends { key: React.Key }>(props: EditableTable
                         ?? getValue(record, normalizePath(normalColumn.dataIndex));
                     
                     return normalColumn.editable
-                        ? renderEditableCell(record, normalColumn.dataIndex, renderFunc)
+                        ? renderEditableCell(record, normalColumn.dataIndex, normalColumn.key, renderFunc)
                         : renderFunc()
                 },
             } as ColumnType<T>;
