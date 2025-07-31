@@ -16,6 +16,7 @@ import {
 import {type ColumnsType} from "antd/es/table";
 import dayjs from "dayjs";
 import {DeleteOutlined} from "@ant-design/icons";
+import Money from "../components/Money";
 
 const { Text } = Typography;
 
@@ -25,12 +26,12 @@ export type SummaryTableHeader = {
 }
 
 type SummaryTableComponent = {
-    value: Money;
-    change: Money;
-    cumulativeChange: Money;
+    value: MoneyType;
+    change: MoneyType;
+    cumulativeChange: MoneyType;
 }
 
-export type Money = {
+export type MoneyType = {
     amount: number, 
     currency: string,
     amountInMainCurrency: number
@@ -45,7 +46,7 @@ export type SummaryTableRow = {
 
 export interface SummaryTableEditableProps {
     refreshData: () => Promise<SummaryTableRow[]>;
-    onUpdate: (id: string, date: string, value: Money) => Promise<void>;
+    onUpdate: (id: string, date: string, value: MoneyType) => Promise<void>;
     onDelete: (date: string) => Promise<void>;
 }
 
@@ -98,7 +99,7 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
             const newCurrency = values['currency'] as (string | undefined) ?? "PLN";
             const newAmountInMainCurrency = values['amountInMainCurrency'] as (number | undefined) ?? newAmount;
             
-            const newValue : Money = {
+            const newValue : MoneyType = {
                 amount: newAmount,
                 currency: newCurrency,
                 amountInMainCurrency: newAmountInMainCurrency
@@ -119,62 +120,6 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
         setEditingCell(null);
     }
     
-    const formatAmount = (
-        value: Money | undefined, 
-        colorCoding: boolean,
-        onDoubleClick: () => void
-    ) => {
-        if (value === undefined) {
-            return (
-                <div
-                    style={{ cursor: 'pointer', textAlign: 'right' }}
-                    onDoubleClick={onDoubleClick}
-                >
-                    -
-                </div>
-            );
-        }
-
-        let amount = new Intl.NumberFormat('pl-PL', {
-            style: 'currency',
-            currency: value.currency,
-        }).format(value.amount)
-
-        const color = value.amountInMainCurrency !== 0 && colorCoding
-            ? (value.amountInMainCurrency > 0 ? 'green' : 'red')
-            : 'black'
-        
-        if (value.amountInMainCurrency !== value.amount) {
-            let amountInMainCurrency = new Intl.NumberFormat('pl-PL', {
-                style: 'currency',
-                currency: 'PLN',
-            }).format(value.amountInMainCurrency)
-
-            return (
-                <div
-                    style={{ cursor: 'pointer', color, textAlign: 'right' }}
-                    onDoubleClick={onDoubleClick}
-                >
-                    <Space direction={"vertical"}>
-                        {amount}
-                        <Text disabled>{`(${amountInMainCurrency})`}</Text>
-                    </Space>
-                </div>
-            )
-        }
-        else
-        {
-            return (
-                <div
-                    style={{ cursor: 'pointer', color, textAlign: 'right' }}
-                    onDoubleClick={onDoubleClick}
-                >
-                    {amount}
-                </div>
-            )
-        }
-    }
-    
     const renderUneditableCell = (
         record: DataType,
         componentIndex: number,
@@ -182,20 +127,24 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
         colorCoding: boolean
     ) => {
         const component = record.components[componentIndex];
-        const value = component?.[field] as (Money | undefined);
+        const value = component?.[field] as (MoneyType | undefined);
         
-        return formatAmount(value, colorCoding, () => {
-            setEditingCell({
-                rowKey: record.key,
-                componentIndex
-            });
-
-            setTimeout(() => {
-                form.setFieldsValue({
-                    amount: value?.amount,
+        return (
+            <div onDoubleClick={() => {
+                setEditingCell({
+                    rowKey: record.key,
+                    componentIndex
                 });
-            }, 0);
-        })
+
+                setTimeout(() => {
+                    form.setFieldsValue({
+                        amount: value?.amount,
+                    });
+                }, 0);
+            }}>
+                <Money value={value} colorCoding={colorCoding}/>
+            </div>
+        );
     }
 
     const renderEditableCell = (
