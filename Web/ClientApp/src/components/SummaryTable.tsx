@@ -1,10 +1,23 @@
 import React, { FC } from 'react';
 import {useState} from "react";
-import {Button, DatePicker, Form, InputNumber, Modal, Popconfirm, Space, Table} from "antd";
+import {
+    Button,
+    DatePicker,
+    Form,
+    Input,
+    InputNumber,
+    InputNumberProps,
+    Modal,
+    Popconfirm,
+    Space,
+    Table,
+    Typography
+} from "antd";
 import {type ColumnsType} from "antd/es/table";
 import dayjs from "dayjs";
 import {DeleteOutlined} from "@ant-design/icons";
 
+const { Text } = Typography;
 
 export type SummaryTableHeader = {
     name: string;
@@ -12,9 +25,15 @@ export type SummaryTableHeader = {
 }
 
 type SummaryTableComponent = {
-    value: number;
-    change: number;
-    cumulativeChange: number;
+    value: Money;
+    change: Money;
+    cumulativeChange: Money;
+}
+
+export type Money = {
+    amount: number, 
+    currency: string,
+    amountInMainCurrency: number
 }
 
 export type SummaryTableRow = {
@@ -25,8 +44,8 @@ export type SummaryTableRow = {
 
 export interface SummaryTableEditableProps {
     refreshData: () => Promise<SummaryTableRow[]>;
-    onUpdate: (id: string, date: string, value: number) => Promise<void>;
-    onDelete: (date: Date) => Promise<void>;
+    onUpdate: (id: string, date: string, value: Money) => Promise<void>;
+    onDelete: (date: string) => Promise<void>;
 }
 
 interface SummaryTableProps {
@@ -44,7 +63,6 @@ interface DataType {
 type EditableCell = {
     rowKey: string;
     componentIndex: number;
-    field: keyof SummaryTableComponent;
 } | null;
 
 const SummaryTable: FC<SummaryTableProps> = (props) => {
@@ -73,34 +91,88 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
             const values = await form.validateFields();
             if (!editingCell) return;
 
-            const { rowKey, componentIndex, field } = editingCell;
-            const newValue = values['editable'];
+            const { rowKey, componentIndex } = editingCell;
+            
+            const newAmount = values['amount'] as number;
+            const newCurrency = values['currency'] as (string | undefined) ?? "PLN";
+            const newAmountInMainCurrency = values['amountInMainCurrency'] as (number | undefined) ?? newAmount;
+            
+            const newValue : Money = {
+                amount: newAmount,
+                currency: newCurrency,
+                amountInMainCurrency: newAmountInMainCurrency
+            }
             
             const componentId = props.headers[componentIndex].id;
             await props.editable.onUpdate(componentId, dayjs(new Date(Date.parse(rowKey))).format('YYYY-MM-DD'), newValue);
             
             let newData = mapData(await props.editable.refreshData())
             setData(newData);
-
-            // const newData = [...data];
-            // const rowIndex = newData.findIndex(item => item.key === rowKey);
-            // if (rowIndex === -1) return;
-            //
-            // const row = newData[rowIndex];
-            // const component = row.components[componentIndex];
-            // if (!component) return;
-            //
-            // row.components[componentIndex] = {
-            //     ...component,
-            //     [field]: newValue,
-            // };
-            //
-            // setData(newData);
             setEditingCell(null);
         } catch (err) {
             console.error('Validation failed:', err);
         }
     };
+    
+    const cancel = () => {
+        setEditingCell(null);
+    }
+    
+    const formatAmount = (
+        value: Money | undefined, 
+        colorCoding: boolean,
+        onDoubleClick: () => void
+    ) => {
+        if (value === undefined) {
+            return (
+                <div
+                    style={{ cursor: 'pointer', textAlign: 'right' }}
+                    onDoubleClick={onDoubleClick}
+                >
+                    -
+                </div>
+            );
+        }
+
+        let amount = new Intl.NumberFormat('pl-PL', {
+            style: 'currency',
+            currency: value.currency,
+        }).format(value.amount)
+
+        const color = value.amountInMainCurrency !== 0 && colorCoding
+            ? (value.amountInMainCurrency > 0 ? 'green' : 'red')
+            : 'black'
+        
+        if (value.amountInMainCurrency !== value.amount) {
+            let amountInMainCurrency = new Intl.NumberFormat('pl-PL', {
+                style: 'currency',
+                currency: 'PLN',
+            }).format(value.amountInMainCurrency)
+
+            return (
+                <div
+                    style={{ cursor: 'pointer', color, textAlign: 'right' }}
+                    onDoubleClick={onDoubleClick}
+                >
+                    <Space direction={"vertical"}>
+                        {amount}
+                        <Text disabled>{`(${amountInMainCurrency})`}</Text>
+                    </Space>
+                </div>
+            )
+        }
+        else
+        {
+            return (
+                <div
+                    style={{ cursor: 'pointer', color, textAlign: 'right' }}
+                    onDoubleClick={onDoubleClick}
+                >
+                    {amount}
+                </div>
+            )
+        }
+    }
     
     const renderUneditableCell = (
         record: DataType,
@@ -109,38 +181,20 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
         colorCoding: boolean
     ) => {
         const component = record.components[componentIndex];
-        const rawValue = component?.[field];
+        const value = component?.[field] as (Money | undefined);
         
-        const value = typeof rawValue === 'number'
-            ? rawValue as number
-            : undefined;
-        
-        const formattedValue = value !== undefined
-            ? new Intl.NumberFormat('pl-PL', {
-                style: 'currency',
-                currency: 'PLN',
-            }).format(value)
-            : '-';
+        return formatAmount(value, colorCoding, () => {
+            setEditingCell({
+                rowKey: record.key,
+                componentIndex
+            });
 
-        const color = value !== undefined && value !== 0 && colorCoding
-            ? (value > 0 ? 'green' : 'red')
-            : 'black'
-
-        return (
-            <div
-                style={{ cursor: 'pointer', color, textAlign: 'right' }}
-                onDoubleClick={() => {
-                    form.setFieldsValue({ editable: value });
-                    setEditingCell({
-                        rowKey: record.key,
-                        componentIndex,
-                        field,
-                    });
-                }}
-            >
-                {formattedValue}
-            </div>
-        )
+            setTimeout(() => {
+                form.setFieldsValue({
+                    amount: value?.amount,
+                });
+            }, 0);
+        })
     }
 
     const renderEditableCell = (
@@ -150,13 +204,34 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
     ) => {
         const isEditing =
             editingCell?.rowKey === record.key &&
-            editingCell?.componentIndex === componentIndex &&
-            editingCell?.field === field;
+            editingCell?.componentIndex === componentIndex;
 
         return isEditing ? (
-            <Form.Item name="editable" style={{ margin: 0 }}>
-                <InputNumber autoFocus onPressEnter={save} onBlur={save} />
-            </Form.Item>
+            <Space direction={"vertical"}>
+                <Form.Item name="amount" style={{ margin: 0 }}>
+                    <InputNumber
+                        style={{ width: '100%' }}
+                        min={0}
+                        step={0.01}
+                        placeholder="0,00"
+                    />
+                </Form.Item>
+                <Form.Item name="currency" style={{ margin: 0 }}>
+                    <Input placeholder="PLN" minLength={3} maxLength={3} />
+                </Form.Item>
+                <Form.Item name="amountInMainCurrency" style={{ margin: 0 }}>
+                    <InputNumber
+                        style={{ width: '100%' }}
+                        min={0}
+                        step={0.01}
+                        placeholder="0,00"
+                    />
+                </Form.Item>
+                <Space direction={"horizontal"}>
+                    <Button onClick={save}>Save</Button>
+                    <Button onClick={cancel}>Cancel</Button>
+                </Space>
+            </Space>
         ) : renderUneditableCell(record, componentIndex, field, false);
     };
 
@@ -216,7 +291,7 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
                         cancelText={'No'}
                         okButtonProps={{ danger: true }}
                         onConfirm={async () => {
-                            await props.editable!.onDelete(record.date);
+                            await props.editable!.onDelete(dayjs(new Date(Date.parse(record.key))).format('YYYY-MM-DD'));
                             let newData = mapData(await props.editable!.refreshData())
                             setData(newData);
                         }}

@@ -1,5 +1,5 @@
 import React, {FC, useEffect, useState} from "react";
-import {getEntities} from "../ApiClient";
+import {getEntities, MoneyDto} from "../ApiClient";
 import {mapData} from "../SummaryTableMapper";
 import SummaryTable, {SummaryTableHeader, SummaryTableRow} from "./SummaryTable";
 
@@ -33,7 +33,7 @@ const SimpleComponentsTable: FC<SimpleComponentsTableProps> = (props) => {
         populateData()
     })
     
-    const updateEntity = async (id: string, date: string, value: number) => {
+    const updateEntity = async (id: string, date: string, value: MoneyDto) => {
         const response = await fetch(`${props.apiPath}/` + id, {
             method: "PUT",
             headers: {
@@ -50,7 +50,7 @@ const SimpleComponentsTable: FC<SimpleComponentsTableProps> = (props) => {
         }
     }
 
-    const deleteEvaluations = async (date: Date) => {
+    const deleteEvaluations = async (date: string) => {
         const response = await fetch(`${props.apiPath}/` + date, {
             method: "DELETE",
             headers: {

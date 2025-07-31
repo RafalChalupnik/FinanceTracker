@@ -6,7 +6,7 @@ internal interface IEntityWithValueHistory
 {
     IEnumerable<DateOnly> GetEvaluationDates();
     
-    decimal? GetValueFor(DateOnly date);
+    Money? GetValueFor(DateOnly date);
 }
 
 public abstract class EntityWithValueHistory : IEntityWithValueHistory
@@ -52,9 +52,9 @@ public abstract class EntityWithValueHistory : IEntityWithValueHistory
     /// <summary>
     /// Gets value for provided <see cref="DateOnly"/>.
     /// </summary>
-    public decimal? GetValueFor(DateOnly date) =>
+    public Money? GetValueFor(DateOnly date) =>
         ValueHistory
             .OrderByDescending(x => x.Date)
             .FirstOrDefault(x => x.Date <= date)?
-            .Value.AmountInMainCurrency;
+            .Value;
 }

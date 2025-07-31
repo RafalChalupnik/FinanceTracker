@@ -26,11 +26,7 @@ public class DebtsController(
         await evaluateEntityCommand.Evaluate<Debt>(
             entityId: debtId, 
             date: valueUpdate.Date, 
-            new Money(
-                Amount: valueUpdate.Value, 
-                Currency: "PLN", 
-                AmountInMainCurrency: valueUpdate.Value
-            )
+            value: valueUpdate.Value
         );
         
         return NoContent();

@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using FinanceTracker.Core.Exceptions;
+using FinanceTracker.Core.Extensions;
 using FinanceTracker.Core.Interfaces;
+using FinanceTracker.Core.Primitives;
 
 namespace FinanceTracker.Core;
 
@@ -35,8 +37,12 @@ public class Wallet(string name, int displaySequence) : IEntityWithValueHistory,
     /// <summary>
     /// Gets value of the wallet for provided <see cref="DateOnly"/> in main currency.
     /// </summary>
-    public decimal? GetValueFor(DateOnly date) => Components
-        .Sum(component => component.GetValueFor(date) ?? 0);
+    public Money? GetValueFor(DateOnly date) =>
+        Components
+            .Select(component => component.GetValueFor(date))
+            .WhereNotNull()
+            .ToArray()
+            .Sum(mainCurrency: "PLN");
 
     /// <summary>
     /// Adds <see cref="Component"/> to the wallet.

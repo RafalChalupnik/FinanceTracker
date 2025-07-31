@@ -8,11 +8,11 @@ import {
     WalletOutlined
 } from "@ant-design/icons";
 
-import {Wallets} from "./components/Wallets";
 import Assets from "./components/Assets";
 import Debts from "./components/Debts";
 import PortfolioSummary from "./components/PortfolioSummary";
 import WalletsSummary from './components/WalletsSummary';
+import Wallets from "./components/Wallets";
 
 const { Header, Content } = Layout;
 

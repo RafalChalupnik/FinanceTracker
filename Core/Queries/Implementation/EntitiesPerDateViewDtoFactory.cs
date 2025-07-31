@@ -1,5 +1,6 @@
 using FinanceTracker.Core.Extensions;
 using FinanceTracker.Core.Interfaces;
+using FinanceTracker.Core.Primitives;
 using FinanceTracker.Core.Queries.DTOs;
 
 namespace FinanceTracker.Core.Queries.Implementation;
@@ -61,7 +62,11 @@ internal static class EntitiesPerDateViewDtoFactory
             Date: date,
             Entities: entityValues,
             Summary: new ValueSnapshotDto(
-                Value: entityValues.Sum(entity => entity?.Value ?? 0)
+                value: entityValues
+                    .WhereNotNull()
+                    .Select(entity => entity.Value)
+                    .ToArray()
+                    .Sum(mainCurrency: "PLN") ?? Money.Empty
             )
         );
 
@@ -81,7 +86,11 @@ internal static class EntitiesPerDateViewDtoFactory
             .Select(pair => ValueSnapshotDto.CalculateChanges(pair.First, pair.Second))
             .ToArray();
         
-        var changeSum = entities.Sum(x => x?.Change ?? 0);
+        var changeSum = entities
+            .WhereNotNull()
+            .Select(entity => entity.Change)
+            .ToArray()
+            .Sum(mainCurrency: "PLN") ?? Money.Empty;
 
         return current with
         {
@@ -89,7 +98,7 @@ internal static class EntitiesPerDateViewDtoFactory
             Summary = current.Summary with
             {
                 Change = changeSum,
-                CumulativeChange = changeSum + previous.Summary.CumulativeChange
+                CumulativeChange = changeSum.Plus(previous.Summary.CumulativeChange, mainCurrency: "PLN")
             }
         };
     }

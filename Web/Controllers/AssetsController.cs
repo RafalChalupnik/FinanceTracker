@@ -41,11 +41,7 @@ public class AssetsController(
         await evaluateEntityCommand.Evaluate<Asset>(
             entityId: assetId, 
             date: valueUpdate.Date, 
-            new Money(
-                Amount: valueUpdate.Value, 
-                Currency: "PLN", 
-                AmountInMainCurrency: valueUpdate.Value
-            )
+            value: valueUpdate.Value
         );
         
         return NoContent();
