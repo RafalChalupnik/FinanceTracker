@@ -1,5 +1,5 @@
 import React, { FC, useState } from "react";
-import {Alert, Button, Form, Input, InputNumber, Space} from "antd";
+import {Alert, Button, Input, InputNumber, Space} from "antd";
 import {MoneyDto} from "../ApiClient";
 
 interface MoneyFormProps {

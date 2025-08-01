@@ -1,8 +1,9 @@
-import React, {Component, FC, useEffect, useState} from 'react';
-import SummaryTable, {SummaryTableHeader, SummaryTableRow} from "./SummaryTable";
+import React, {FC, useEffect, useState} from 'react';
+import {SummaryTableHeader, SummaryTableRow} from "./SummaryTable";
 import {getWallets, MoneyDto} from "../ApiClient";
 import {mapData} from "../SummaryTableMapper";
 import {Space, Typography} from "antd";
+import EditableMoneyTable from "../components/EditableMoneyTable";
 
 type WalletData = {
     id: string,
@@ -77,18 +78,12 @@ const Wallets: FC<WalletsProps> = (props) => {
                             <Typography.Title level={3} style={{ margin: 0 }}>
                                 {wallet.name}
                             </Typography.Title>
-                            <SummaryTable
-                                headers={wallet.headers}
-                                data={wallet.data}
+                            <EditableMoneyTable
+                                rows={wallet.data}
+                                columns={wallet.headers}
                                 editable={{
-                                    refreshData: async () => {
-                                        const response = await getWallets();
-                                        return mapData(response.wallets
-                                            .find(w => w.id === wallet.id)!
-                                            .data)
-                                    },
                                     onUpdate: updateComponent,
-                                    onDelete: date => deleteEvaluations(wallet.id, date),
+                                    onDelete: date => deleteEvaluations(wallet.id, date),  
                                 }}
                             />
                         </Space>
