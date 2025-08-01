@@ -1,25 +1,25 @@
-import React, {FC, ReactNode, useEffect, useState} from "react";
+import React, {FC, useEffect, useState} from "react";
 import {getEntities, MoneyDto} from "../ApiClient";
 import {mapData} from "../SummaryTableMapper";
-import {SummaryTableHeader, SummaryTableRow} from "./SummaryTable";
+import {SummaryComponent, SummaryRecord} from "../SummaryDataTypes";
 import EditableMoneyTable from "../components/EditableMoneyTable";
 
-interface SimpleComponentsTableProps {
+interface SimpleComponentsPageProps {
     apiPath: string,
     editable: boolean
 }
 
-const SimpleComponentsTable: FC<SimpleComponentsTableProps> = (props) => {
+const SimpleComponentsPage: FC<SimpleComponentsPageProps> = (props) => {
     const [isLoading, setIsLoading] = useState(true)
     const [data, setData] = useState({
-        headers: [] as SummaryTableHeader[],
-        rows: [] as SummaryTableRow[]
+        headers: [] as SummaryComponent[],
+        rows: [] as SummaryRecord[]
     });
 
     const populateData = async () => {
         const response = await getEntities(props.apiPath);
 
-        let headers: SummaryTableHeader[] = response.headers
+        let headers: SummaryComponent[] = response.headers
         let data = mapData(response.data)
         
         setData({
@@ -84,4 +84,4 @@ const SimpleComponentsTable: FC<SimpleComponentsTableProps> = (props) => {
           />
 }
 
-export default SimpleComponentsTable;
+export default SimpleComponentsPage;

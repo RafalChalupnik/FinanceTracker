@@ -1,8 +1,8 @@
 import {EntitiesForDateDto} from "./ApiClient";
-import {SummaryTableRow} from "./pages/SummaryTable";
+import {SummaryRecord} from "./SummaryDataTypes";
 import dayjs from "dayjs";
 
-export function mapData (data: EntitiesForDateDto[]) : SummaryTableRow[] {
+export function mapData (data: EntitiesForDateDto[]) : SummaryRecord[] {
     return data.map(row => {
         let date = dayjs(row.date).format('YYYY-MM-DD')
         

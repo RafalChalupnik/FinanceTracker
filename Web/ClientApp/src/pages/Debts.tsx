@@ -1,7 +1,7 @@
-import SimpleComponentsTable from "./SimpleComponentsTable";
+import SimpleComponentsPage from "./SimpleComponentsPage";
 
 const Debts = () => {
-    return <SimpleComponentsTable
+    return <SimpleComponentsPage
         apiPath={'debts'}
         editable={true}
     />;

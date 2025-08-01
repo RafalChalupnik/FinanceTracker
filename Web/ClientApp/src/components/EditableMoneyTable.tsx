@@ -1,6 +1,6 @@
 import React, {FC, ReactNode, useState} from "react";
 import {DataIndexPath, EditableColumn, EditableColumnGroup, EditableTable} from "./EditableTable";
-import {SummaryTableHeader, SummaryTableRow} from "../pages/SummaryTable";
+import {SummaryComponent, SummaryRecord} from "../SummaryDataTypes";
 import MoneyForm from "./MoneyForm";
 import dayjs from "dayjs";
 import {MoneyDto} from "../ApiClient";
@@ -8,8 +8,8 @@ import {Button, DatePicker, Modal, Space} from "antd";
 import Money from "./Money";
 
 interface MoneyEditableTableProps {
-    rows: SummaryTableRow[]
-    columns: SummaryTableHeader[]
+    rows: SummaryRecord[]
+    columns: SummaryComponent[]
     editable?: EditableProps
 }
 
@@ -27,10 +27,10 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
         return path.reduce((acc, key) => (acc != null ? acc[key] : undefined), obj);
     }
 
-    const normalizePath = (path: DataIndexPath<SummaryTableRow>): (string | number)[] =>
+    const normalizePath = (path: DataIndexPath<SummaryRecord>): (string | number)[] =>
         Array.isArray(path) ? path : [path as string];
     
-    function renderMoney(record: SummaryTableRow, dataIndex: DataIndexPath<SummaryTableRow>, colorCoding: boolean) : ReactNode {
+    function renderMoney(record: SummaryRecord, dataIndex: DataIndexPath<SummaryRecord>, colorCoding: boolean) : ReactNode {
         return (
             <Money
                 value={getValue(record, normalizePath(dataIndex)) as MoneyDto}
@@ -39,7 +39,7 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
         );
     }
     
-    function buildComponentColumns (entityId: string, name: string, index: number) : (EditableColumn<SummaryTableRow> | EditableColumnGroup<SummaryTableRow>) {
+    function buildComponentColumns (entityId: string, name: string, index: number) : (EditableColumn<SummaryRecord> | EditableColumnGroup<SummaryRecord>) {
         return {
             title: name,
             children: [
@@ -72,7 +72,7 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
         return buildComponentColumns(header.id, header.name, index)
     })
     
-    let columns : (EditableColumn<SummaryTableRow> | EditableColumnGroup<SummaryTableRow>)[] = [
+    let columns : (EditableColumn<SummaryRecord> | EditableColumnGroup<SummaryRecord>)[] = [
         {
             title: 'Date',
             key: 'date',
@@ -144,7 +144,7 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
     return (
         <>
             <Space direction={"vertical"}>
-                <EditableTable<SummaryTableRow>
+                <EditableTable<SummaryRecord>
                     records={buildData()}
                     columns={columns}
                     renderEditableCell={(record, columnKey, initialValue, close) =>

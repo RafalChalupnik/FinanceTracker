@@ -1,7 +1,7 @@
-import SimpleComponentsTable from "./SimpleComponentsTable";
+import SimpleComponentsPage from "./SimpleComponentsPage";
 
 const WalletsSummary = () => {
-    return <SimpleComponentsTable
+    return <SimpleComponentsPage
         apiPath={'portfolio/wallets'}
         editable={false}
     />;

@@ -1,5 +1,5 @@
 import React, {FC, useEffect, useState} from 'react';
-import {SummaryTableHeader, SummaryTableRow} from "./SummaryTable";
+import {SummaryComponent, SummaryRecord} from "../SummaryDataTypes";
 import {getWallets, MoneyDto} from "../ApiClient";
 import {mapData} from "../SummaryTableMapper";
 import {Space, Typography} from "antd";
@@ -8,8 +8,8 @@ import EditableMoneyTable from "../components/EditableMoneyTable";
 type WalletData = {
     id: string,
     name: string,
-    headers: SummaryTableHeader[],
-    data: SummaryTableRow[]
+    headers: SummaryComponent[],
+    data: SummaryRecord[]
 }
 
 interface WalletsProps {}
