@@ -2,7 +2,7 @@ import React, {FC, ReactNode, useEffect, useState} from "react";
 import {getEntities, MoneyDto} from "../ApiClient";
 import {mapData} from "../SummaryTableMapper";
 import {SummaryTableHeader, SummaryTableRow} from "./SummaryTable";
-import {DataIndexPath, EditableColumn, EditableColumnGroup, EditableTable} from "./EditableTable";
+import {DataIndexPath, EditableColumn, EditableColumnGroup, EditableTable} from "../components/EditableTable";
 import Money from "../components/Money";
 import MoneyForm from "../components/MoneyForm";
 import dayjs from "dayjs";
