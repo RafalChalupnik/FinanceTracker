@@ -4,9 +4,11 @@ import dayjs from "dayjs";
 
 export function mapData (data: EntitiesForDateDto[]) : SummaryTableRow[] {
     return data.map(row => {
+        let date = dayjs(row.date).format('YYYY-MM-DD')
+        
         return {
-            key: dayjs(row.date).format('YYYY-MM-DD'),
-            date: row.date,
+            key: date,
+            date: date,
             components: row.entities.map(entity => {
                 if (entity === null) {
                     return undefined;

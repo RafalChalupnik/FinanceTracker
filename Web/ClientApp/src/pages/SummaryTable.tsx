@@ -6,19 +6,15 @@ import {
     Form,
     Input,
     InputNumber,
-    InputNumberProps,
     Modal,
     Popconfirm,
     Space,
-    Table,
-    Typography
+    Table
 } from "antd";
 import {type ColumnsType} from "antd/es/table";
 import dayjs from "dayjs";
 import {DeleteOutlined} from "@ant-design/icons";
 import Money from "../components/Money";
-
-const { Text } = Typography;
 
 export type SummaryTableHeader = {
     name: string;
@@ -39,9 +35,9 @@ export type MoneyType = {
 
 export type SummaryTableRow = {
     key: string;
-    date: Date;
+    date: string;
     components: Array<SummaryTableComponent | undefined>;
-    summary: SummaryTableComponent
+    summary: SummaryTableComponent | undefined;
 }
 
 export interface SummaryTableEditableProps {
@@ -58,7 +54,7 @@ interface SummaryTableProps {
 
 interface DataType {
     key: string;
-    date: Date;
+    date: string;
     components: Array<SummaryTableComponent | undefined>;
 }
 
@@ -260,14 +256,13 @@ const SummaryTable: FC<SummaryTableProps> = (props) => {
     };
 
     const handleOk = () => {
-        // console.log('Confirmed date:', selectedDate?.format('YYYY-MM-DD'));
-        console.log('Confirmed date:', selectedDate?.toISOString());
+        let date = dayjs(selectedDate).format('YYYY-MM-DD');
         
         let newData = [
             ...data,
             {
-                key: selectedDate!.toString(),
-                date: selectedDate!,
+                key: date,
+                date: date,
                 components: props.headers.map(_ => undefined)
             }
         ]

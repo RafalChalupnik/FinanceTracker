@@ -6,6 +6,7 @@ import {DataIndexPath, EditableColumn, EditableColumnGroup, EditableTable} from 
 import Money from "../components/Money";
 import MoneyForm from "../components/MoneyForm";
 import dayjs from "dayjs";
+import {Button, DatePicker, Modal, Space} from "antd";
 
 interface SimpleComponentsTableProps {
     apiPath: string,
@@ -14,6 +15,8 @@ interface SimpleComponentsTableProps {
 
 const SimpleComponentsTable: FC<SimpleComponentsTableProps> = (props) => {
     const [isLoading, setIsLoading] = useState(true)
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [data, setData] = useState({
         headers: [] as SummaryTableHeader[],
         rows: [] as SummaryTableRow[]
@@ -35,7 +38,7 @@ const SimpleComponentsTable: FC<SimpleComponentsTableProps> = (props) => {
     
     useEffect(() => {
         populateData()
-    })
+    }, [])
     
     const updateEntity = async (id: string, date: string, value: MoneyDto) => {
         const response = await fetch(`${props.apiPath}/` + id, {
@@ -52,6 +55,8 @@ const SimpleComponentsTable: FC<SimpleComponentsTableProps> = (props) => {
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);
         }
+
+        await populateData()
     }
 
     const deleteEvaluations = async (date: string) => {
@@ -65,19 +70,10 @@ const SimpleComponentsTable: FC<SimpleComponentsTableProps> = (props) => {
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);
         }
+        
+        await populateData()
     }
     
-    let editable = props.editable
-        ? {
-            refreshData: async () => {
-                const response = await getEntities(props.apiPath);
-                return mapData(response.data)
-            },
-            onUpdate: updateEntity,
-            onDelete: deleteEvaluations,
-        }
-        : undefined;
-
     function getValue(obj: any, path: (string | number)[]): any {
         return path.reduce((acc, key) => (acc != null ? acc[key] : undefined), obj);
     }
@@ -162,29 +158,80 @@ const SimpleComponentsTable: FC<SimpleComponentsTableProps> = (props) => {
             ]
         }
     ];
+
+    const handleAdd = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleModalOk = () => {
+        if (!selectedDate) {
+            console.warn("No date selected");
+            return;
+        }
+        
+        let date = dayjs(selectedDate).format('YYYY-MM-DD');
+        
+        let newRows = [
+            ...data.rows,
+            {
+                key: date,
+                date: date,
+                components: data.headers.map(_ => undefined),
+                summary: undefined
+            } as SummaryTableRow
+        ]
+
+        console.log('Rows:', newRows);
+        
+        let newData = {
+            headers: data.headers,
+            rows: newRows.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        }
+        
+        setData(newData);
+        setIsModalOpen(false);
+    };
+
+    const handleModalCancel = () => {
+        setIsModalOpen(false);
+    };
     
     return isLoading
         ? <p><em>Loading...</em></p>
-        : <EditableTable<SummaryTableRow>
-            records={data.rows}
-            columns={columns}
-            renderEditableCell={(record, columnKey, initialValue, close) => 
-                <MoneyForm 
-                    initialValue={initialValue} 
-                    onSave={async money => {
-                        await updateEntity(columnKey, dayjs(record.date).format('YYYY-MM-DD'), money);
-                        close();
+        : <>
+            <Space direction={"vertical"}>
+                <EditableTable<SummaryTableRow>
+                    records={data.rows}
+                    columns={columns}
+                    renderEditableCell={(record, columnKey, initialValue, close) =>
+                        <MoneyForm
+                            initialValue={initialValue}
+                            onSave={async money => {
+                                await updateEntity(columnKey, dayjs(record.date).format('YYYY-MM-DD'), money);
+                                close();
+                            }}
+                            onCancel={close}
+                        />
+                    }
+                    onDelete={async record => {
+                        await deleteEvaluations(dayjs(record.date).format('YYYY-MM-DD'))
                     }}
-                    onCancel={close}
                 />
-            }
-            onUpdate={(record, path, value) => {
-                console.log('#Update', record, path, value)
-            }}
-            onDelete={record => {
-                console.log('#Delete', record)
-            }}
-        />
+                {props.editable && (
+                    <Button onClick={handleAdd} type="primary" style={{ marginBottom: 16 }}>
+                        Add a row
+                    </Button>
+                )}
+            </Space>
+            <Modal
+                title="Pick a date"
+                open={isModalOpen}
+                onOk={handleModalOk}
+                onCancel={handleModalCancel}
+            >
+                <DatePicker onChange={setSelectedDate} />
+            </Modal>
+        </>
 }
 
 export default SimpleComponentsTable;
