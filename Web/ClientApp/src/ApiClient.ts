@@ -37,6 +37,22 @@ export interface MoneyDto {
     amountInMainCurrency: number
 }
 
+export interface OrderableEntityDto {
+    id: string;
+    name: string;
+    displaySequence: number;
+}
+
+export interface WalletDataDto extends OrderableEntityDto {
+    components: OrderableEntityDto[];
+}
+
+export interface ConfigurationDto {
+    assets: OrderableEntityDto[];
+    debts: OrderableEntityDto[];
+    wallets: WalletDataDto[];
+}
+
 export async function getEntities (path: string) {
     const response = await fetch(path);
     const data: EntitiesPerDateQueryDto = await response.json();
@@ -46,5 +62,11 @@ export async function getEntities (path: string) {
 export async function getWallets () {
     const response = await fetch('wallets');
     const data: WalletsPerDateQueryDto = await response.json();
+    return data;
+}
+
+export async function getConfig () {
+    const response = await fetch('config');
+    const data: ConfigurationDto = await response.json();
     return data;
 }

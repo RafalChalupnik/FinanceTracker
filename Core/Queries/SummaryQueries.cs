@@ -21,7 +21,7 @@ public class SummaryQueries(IRepository repository)
     {
         EntitiesPerDateViewDtoFactory.EntityData[] entities =
         [
-            MapEntities(repository.GetWallets().ToArray(), "Wallets"),
+            MapEntities(repository.GetWallets(includeValueHistory: true).ToArray(), "Wallets"),
             MapEntities(repository.GetEntitiesWithValueHistory<Asset>().ToArray(), "Assets"),
             MapEntities(repository.GetEntitiesWithValueHistory<Debt>().ToArray(), "Debts"),
         ];
@@ -32,7 +32,7 @@ public class SummaryQueries(IRepository repository)
     public WalletsPerDateQueryDto GetWallets()
     {
         var wallets = repository
-            .GetWallets()
+            .GetWallets(includeValueHistory: true)
             .ToArray();
 
         return new WalletsPerDateQueryDto(
@@ -60,7 +60,7 @@ public class SummaryQueries(IRepository repository)
     
     public EntitiesPerDateQueryDto GetWalletsSummary() =>
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
-            entities: repository.GetWallets()
+            entities: repository.GetWallets(includeValueHistory: true)
         );
     
     private static EntitiesPerDateViewDtoFactory.EntityData MapEntities<T>(

@@ -13,6 +13,7 @@ public static class Bootstrap
             .AddScoped<DeleteAllEvaluationsForDateCommand>()
             .AddScoped<EvaluateEntityCommand>()
             // Queries
+            .AddScoped<ConfigQueries>()
             .AddScoped<SummaryQueries>();
     }
 }

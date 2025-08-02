@@ -56,19 +56,6 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
     
     public class Repository(FinanceTrackerContext context) : IRepository
     {
-        public IQueryable<T> GetEntitiesWithValueHistory<T>() where T : EntityWithValueHistory
-        {
-            return context.Set<T>()
-                .Include(x => x.ValueHistory);
-        }
-
-        public IQueryable<Wallet> GetWallets()
-        {
-            return context.Wallets
-                .Include(wallet => wallet.Components)
-                .ThenInclude(component => component.ValueHistory);
-        }
-
         public IQueryable<Component> GetComponentsForWallet(Guid walletId)
         {
             return context.Wallets
@@ -83,6 +70,25 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
             return context.Set<T>()
                 .Include(x => x.ValueHistory)
                 .Single(entity => entity.Id == id);
+        }
+        
+        public IQueryable<T> GetEntitiesWithValueHistory<T>() where T : EntityWithValueHistory
+        {
+            return context.Set<T>()
+                .Include(x => x.ValueHistory);
+        }
+
+        public IQueryable<T> GetOrderableEntities<T>() where T : class, IOrderableEntity
+            => context.Set<T>();
+
+        public IQueryable<Wallet> GetWallets(bool includeValueHistory)
+        {
+            var query = context.Wallets
+                .Include(wallet => wallet.Components);
+
+            return includeValueHistory
+                ? query.ThenInclude(component => component.ValueHistory)
+                : query;
         }
 
         public void Add<T>(T entity) where T : class

@@ -11,6 +11,7 @@ const context =  [
   "/wallets",
   "/assets",
   "/debts",
+  "/config",
 ];
 
 module.exports = function(app) {
