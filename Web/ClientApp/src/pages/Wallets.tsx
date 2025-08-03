@@ -1,34 +1,22 @@
 import React, {FC, useEffect, useState} from 'react';
-import {SummaryComponent, SummaryRecord} from "../data-types/SummaryDataTypes";
-import {getWallets, MoneyDto} from "../ApiClient";
-import {mapData} from "../SummaryTableMapper";
 import {Space} from "antd";
 import EditableMoneyTable from "../components/EditableMoneyTable";
-
-type WalletData = {
-    id: string,
-    name: string,
-    headers: SummaryComponent[],
-    data: SummaryRecord[]
-}
+import {
+    deleteWalletValues,
+    getWalletsComponentsValueHistory,
+    MoneyDto,
+    setWalletComponentValue,
+    WalletValueHistory
+} from "../api/ValueHistoryApi";
 
 interface WalletsProps {}
 
 const Wallets: FC<WalletsProps> = (props) => {
     const [isLoading, setIsLoading] = useState(true)
-    const [wallets, setWallets] = useState([] as WalletData[]);
+    const [wallets, setWallets] = useState([] as WalletValueHistory[]);
 
     const populateData = async () => {
-        const response = await getWallets();
-
-        let wallets : WalletData[] = response.wallets.map(wallet => {
-            return {
-                id: wallet.id,
-                name: wallet.name,
-                headers: wallet.headers,
-                data: mapData(wallet.data)
-            }
-        })
+        const wallets = await getWalletsComponentsValueHistory()
         
         setWallets(wallets)
         setIsLoading(false)
@@ -36,36 +24,16 @@ const Wallets: FC<WalletsProps> = (props) => {
 
     useEffect(() => {
         populateData()
-    })
+    }, [])
 
     const updateComponent = async (id: string, date: string, value: MoneyDto) => {
-        const response = await fetch("wallets/components/" + id, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                date: date,
-                value: value
-            }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
-        }
+        await setWalletComponentValue(id, date, value);
+        await populateData();
     }
 
     const deleteEvaluations = async (walletId: string, date: string) => {
-        const response = await fetch("wallets/" + walletId + '/' + date, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
-        }
+        await deleteWalletValues(walletId, date);
+        await populateData();
     }
 
     return isLoading

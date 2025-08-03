@@ -1,10 +1,10 @@
 import SimpleComponentsPage from "./SimpleComponentsPage";
+import {getWalletsValueHistory} from "../api/ValueHistoryApi";
 
 const WalletsSummary = () => {
     return <SimpleComponentsPage
         title='Wallets Summary'
-        apiPath='portfolio/wallets'
-        editable={false}
+        getData={getWalletsValueHistory}
     />;
 };
 

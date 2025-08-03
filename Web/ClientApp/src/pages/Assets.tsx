@@ -1,10 +1,14 @@
 import SimpleComponentsPage from "./SimpleComponentsPage";
+import {deleteAssetsValues, getAssetsValueHistory, setAssetValue} from "../api/ValueHistoryApi";
 
 const Assets = () => {
     return <SimpleComponentsPage
         title='Assets'
-        apiPath='assets'
-        editable={true}
+        getData={getAssetsValueHistory}
+        editable={{
+            setValue: setAssetValue,
+            deleteValues: deleteAssetsValues
+        }}
     />;
 };
 

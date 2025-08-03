@@ -125,6 +125,6 @@ async function deleteEntity(path: string) : Promise<void> {
     });
 
     if (!response.ok) {
-        throw new Error(`Failed to POST to ${path}`);
+        throw new Error(`Failed to DELETE ${path}`);
     }
 }

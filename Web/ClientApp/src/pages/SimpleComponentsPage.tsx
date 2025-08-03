@@ -1,31 +1,30 @@
 import React, {FC, useEffect, useState} from "react";
-import {getEntities, MoneyDto} from "../ApiClient";
-import {mapData} from "../SummaryTableMapper";
-import {SummaryComponent, SummaryRecord} from "../data-types/SummaryDataTypes";
 import EditableMoneyTable from "../components/EditableMoneyTable";
+import {ComponentHeader, EntityValueHistory, MoneyDto, ValueHistoryRecord} from "../api/ValueHistoryApi";
 
 interface SimpleComponentsPageProps {
     title: string;
-    apiPath: string,
-    editable: boolean
+    getData: () => Promise<EntityValueHistory>,
+    editable?: EditableProps
+}
+
+interface EditableProps {
+    setValue: (id: string, date: string, value: MoneyDto) => Promise<void>;
+    deleteValues: (date: string) => void | Promise<void>;   
 }
 
 const SimpleComponentsPage: FC<SimpleComponentsPageProps> = (props) => {
     const [isLoading, setIsLoading] = useState(true)
     const [data, setData] = useState({
-        headers: [] as SummaryComponent[],
-        rows: [] as SummaryRecord[]
+        headers: [] as ComponentHeader[],
+        rows: [] as ValueHistoryRecord[]
     });
 
     const populateData = async () => {
-        const response = await getEntities(props.apiPath);
-
-        let headers: SummaryComponent[] = response.headers
-        let data = mapData(response.data)
-        
+        const response = await props.getData();
         setData({
-            headers: headers,
-            rows: data
+            headers: response.headers,
+            rows: response.data
         });
         
         setIsLoading(false)
@@ -36,36 +35,12 @@ const SimpleComponentsPage: FC<SimpleComponentsPageProps> = (props) => {
     }, [])
     
     const updateEntity = async (id: string, date: string, value: MoneyDto) => {
-        const response = await fetch(`${props.apiPath}/` + id, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                date: date,
-                value: value
-            }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
-        }
-
+        await props.editable!.setValue(id, date, value)
         await populateData()
     }
 
     const deleteEvaluations = async (date: string) => {
-        const response = await fetch(`${props.apiPath}/` + date, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
-        }
-        
+        await props.editable!.deleteValues(date)
         await populateData()
     }
     
