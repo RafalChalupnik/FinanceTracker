@@ -14,7 +14,7 @@ import Debts from "./pages/Debts";
 import PortfolioSummary from "./pages/PortfolioSummary";
 import WalletsSummary from './pages/WalletsSummary';
 import Wallets from "./pages/Wallets";
-import ConfigurationManager from "./pages/ConfigurationManager";
+import Configuration from "./pages/Configuration";
 
 const { Header, Content } = Layout;
 
@@ -53,7 +53,7 @@ const navBar: { [key: string]: NavBarItem} = {
     '/config': {
         label: 'Configuration',
         icon: <SettingOutlined />,
-        component: <ConfigurationManager/>
+        component: <Configuration/>
     },
 }
 

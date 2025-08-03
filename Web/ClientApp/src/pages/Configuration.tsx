@@ -108,7 +108,7 @@ const WalletTable: React.FC<{
     );
 };
 
-const ConfigurationManager: React.FC = () => {
+const Configuration: React.FC = () => {
     const [config, setConfig] = useState<Configuration>({
         assets: [],
         debts: [],
@@ -183,4 +183,4 @@ const ConfigurationManager: React.FC = () => {
     );
 };
 
-export default ConfigurationManager;
+export default Configuration;
