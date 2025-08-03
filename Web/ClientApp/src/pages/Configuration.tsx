@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from "react";
-import { Input, Button, Space, Card } from "antd";
+import {Input, Button, Space, Card, Popconfirm} from "antd";
 import {DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import {EditableColumn, EditableTable} from "../components/EditableTable";
 import {
-    Config, createWallet, deleteAsset, deleteDebt, deleteWalletComponent, getConfiguration,
+    Config, createWallet, deleteAsset, deleteDebt, deleteWallet, deleteWalletComponent, getConfiguration,
     OrderableEntity,
     upsertAsset, upsertDebt,
     upsertWalletComponent,
@@ -83,14 +83,15 @@ const EntityTable: React.FC<EntityTableProps> = (props) => {
 
 interface WalletTableProps {
     wallets: WalletEntity[];
-    onUpdateComponent: (walletId: string, entity: OrderableEntity) => void | Promise<void>;
-    onDeleteComponent: (componentId: string) => void | Promise<void>;
+    onDeleteWallet: (walletId: string) => Promise<void>;
+    onUpdateComponent: (walletId: string, entity: OrderableEntity) => Promise<void>;
+    onDeleteComponent: (componentId: string) => Promise<void>;
 }
 
 const WalletTable: React.FC<WalletTableProps> = (props) => {
     return (
         <>
-            {props.wallets.map((wallet, idx) => (
+            {props.wallets.map(wallet => (
                 <EntityTable
                     title={
                         <Space direction='horizontal'>
@@ -100,10 +101,15 @@ const WalletTable: React.FC<WalletTableProps> = (props) => {
                                     alert('Changed wallet name to ' + e.target.value)
                                 }}
                             />
-                            <Button
-                                icon={<DeleteOutlined />}
-                                onClick={() => alert(`Deleted wallet ${wallet.name}!`)}
-                            />
+                            <Popconfirm
+                                title='Sure to delete?'
+                                okText={'Yes'}
+                                cancelText={'No'}
+                                okButtonProps={{ danger: true }}
+                                onConfirm={async () => await props.onDeleteWallet(wallet.key)}
+                            >
+                                <Button icon={<DeleteOutlined />}/>
+                            </Popconfirm>
                         </Space>
                     }
                     data={wallet.components}
@@ -180,6 +186,10 @@ const Configuration: React.FC = () => {
             >
                 <WalletTable
                     wallets={config.wallets}
+                    onDeleteWallet={async walletId => {
+                        await deleteWallet(walletId);
+                        await populateData();
+                    }}
                     onUpdateComponent={async (walletId, component) => {
                         await upsertWalletComponent(walletId, component);
                         await populateData();

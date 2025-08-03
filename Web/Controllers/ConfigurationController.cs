@@ -52,6 +52,13 @@ public class ConfigurationController(
         await upsertEntityCommand.CreateWallet(wallet);
         return NoContent();
     }
+
+    [HttpDelete("wallets/{walletId:guid}")]
+    public async Task<IActionResult> DeleteWallet(Guid walletId)
+    {
+        await deleteEntityCommand.Delete<Wallet>(walletId);
+        return NoContent();
+    }
     
     [HttpPost("wallets/{walletId:guid}/components")]
     public async Task<IActionResult> UpsertWalletComponent(Guid walletId, [FromBody] OrderableEntityDto component)

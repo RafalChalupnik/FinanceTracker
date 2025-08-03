@@ -39,6 +39,10 @@ export async function createWallet(wallet: OrderableEntity) : Promise<void> {
     await post('api/configuration/wallets', wallet);
 }
 
+export async function deleteWallet(walletId: string) : Promise<void> {
+    await deleteEntity(`api/configuration/wallets/${walletId}`);
+}
+
 export async function upsertWalletComponent(walletId: string, component: OrderableEntity) : Promise<void> {
     await upsertEntity(
         `api/configuration/wallets/${walletId}/components`, 
