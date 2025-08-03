@@ -13,8 +13,10 @@ public interface IRepository
     IQueryable<Wallet> GetWallets(bool includeValueHistory);
 
     void Add<T>(T entity) where T : class;
-
+    
     ValueTask DeleteAsync<T>(IQueryable<T> entities);
+
+    void Update<T>(T entity) where T : class, IEntity;
     
     ValueTask SaveChangesAsync();
 }

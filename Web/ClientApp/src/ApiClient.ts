@@ -37,7 +37,7 @@ export interface MoneyDto {
     amountInMainCurrency: number
 }
 
-export interface OrderableEntityDto {
+export type OrderableEntityDto = {
     id: string;
     name: string;
     displaySequence: number;
@@ -98,4 +98,24 @@ export async function getConfig () : Promise<Configuration> {
             }
         })
     };
+}
+
+export async function upsertAsset(asset: OrderableEntity) : Promise<void> {
+    let dto = {
+        id: asset.key,
+        name: asset.name,
+        displaySequence: asset.displaySequence
+    } as OrderableEntityDto;
+
+    const response = await fetch(`config/assets`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dto),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+    }
 }

@@ -39,10 +39,18 @@ internal static class Seeder
         longTermWallet.Add(bonds);
         longTermWallet.Add(stocks);
         
-        var home = new Asset(name: "Home", displaySequence: 1);
+        var home = new Asset
+        {
+            Name = "Home",
+            DisplaySequence = 1
+        };
         home.Evaluate(today, dummyValue);
-        
-        var car = new Asset(name: "Car", displaySequence: 2);
+
+        var car = new Asset
+        {
+            Name = "Car",
+            DisplaySequence = 2,
+        };
         car.Evaluate(today, dummyValue);
         
         var mortgage = new Debt(name: "Mortgage", displaySequence: 1);

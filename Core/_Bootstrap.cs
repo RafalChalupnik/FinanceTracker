@@ -12,6 +12,7 @@ public static class Bootstrap
             // Commands
             .AddScoped<DeleteAllEvaluationsForDateCommand>()
             .AddScoped<EvaluateEntityCommand>()
+            .AddScoped<UpsertEntityCommand>()
             // Queries
             .AddScoped<ConfigQueries>()
             .AddScoped<SummaryQueries>();

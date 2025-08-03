@@ -93,9 +93,12 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
 
         public void Add<T>(T entity) where T : class
             => context.Set<T>().Add(entity);
-
+        
         public async ValueTask DeleteAsync<T>(IQueryable<T> entities)
             => await entities.ExecuteDeleteAsync();
+        
+        public void Update<T>(T entity) where T : class, IEntity 
+            => context.Set<T>().Update(entity);
 
         public async ValueTask SaveChangesAsync()
             => await context.SaveChangesAsync();

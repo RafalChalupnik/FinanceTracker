@@ -14,10 +14,10 @@ public class Debt(string name, int displaySequence) : EntityWithValueHistory, IO
     /// <summary>
     /// User-friendly name of the debt.
     /// </summary>
-    public string Name => name;
+    public string Name { get; set; } = name;
     
     /// <summary>
     /// Sequence in which debts should be displayed.
     /// </summary>
-    public int DisplaySequence => displaySequence;
+    public int DisplaySequence { get; set; } = displaySequence;
 }

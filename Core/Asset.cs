@@ -6,7 +6,7 @@ namespace FinanceTracker.Core;
 /// <summary>
 /// Represents a physical, non-monetary asset.
 /// </summary>
-public class Asset(string name, int displaySequence) : EntityWithValueHistory, IOrderableEntity
+public class Asset : EntityWithValueHistory, IOrderableEntity
 {
     [Key]
     public Guid Id { get; init; } = Guid.NewGuid();
@@ -14,10 +14,10 @@ public class Asset(string name, int displaySequence) : EntityWithValueHistory, I
     /// <summary>
     /// User-friendly name of the asset.
     /// </summary>
-    public string Name => name;
-    
+    public string Name { get; set; } = string.Empty;
+
     /// <summary>
     /// Sequence in which assets should be displayed.
     /// </summary>
-    public int DisplaySequence => displaySequence;
+    public int DisplaySequence { get; set; }
 }

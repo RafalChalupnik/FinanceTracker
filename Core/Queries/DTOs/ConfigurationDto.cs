@@ -13,10 +13,10 @@ public record WalletDataDto(
     string Name,
     int DisplaySequence,
     IReadOnlyCollection<OrderableEntityDto> Components
-) : IOrderableEntity;
+);
 
 public record OrderableEntityDto(
     Guid Id,
     string Name,
     int DisplaySequence
-) : IOrderableEntity;
+);

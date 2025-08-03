@@ -1,12 +1,13 @@
 import React, {useEffect, useState} from "react";
 import { Input, Button, Space, Card } from "antd";
 import {DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import {ConfigurationDto, getConfig} from "../ApiClient";
+import {getConfig, upsertAsset} from "../ApiClient";
 import {EditableColumn, EditableTable} from "../components/EditableTable";
 
 interface EntityTableProps {
     title: string | React.ReactNode;
     data: OrderableEntity[];
+    onUpdate: (entity: OrderableEntity) => void | Promise<void>;
 }
 
 const EntityTable: React.FC<EntityTableProps> = (props) => {
@@ -42,14 +43,31 @@ const EntityTable: React.FC<EntityTableProps> = (props) => {
         setNewEntry(newItem);
     };
 
+    function setValue(obj: any, path: string | (string | number)[], value: any): void {
+        const keys = Array.isArray(path) ? path : [path];
+
+        let current = obj;
+        for (let i = 0; i < keys.length - 1; i++) {
+            const key = keys[i];
+            if (!(key in current) || typeof current[key] !== 'object') {
+                current[key] = {};
+            }
+            current = current[key];
+        }
+
+        current[keys[keys.length - 1]] = value;
+    }
+
     return (
         <Card title={props.title} extra={<Button icon={<PlusOutlined />} onClick={handleAdd} />}>
             <EditableTable 
                 records={buildData()} 
                 columns={columns} 
-                onUpdate={(record, path, value) => {
-                    alert(`Updated ${record.name} at path ${path} to ${value}!`);}
-                }
+                onUpdate={async (record, path, value) => {
+                    setValue(record, path, value);
+                    await props.onUpdate(record)
+                    setNewEntry(undefined);
+                }}
                 onDelete={record => alert(`Deleted ${record.name}!`)}
             />
         </Card>
@@ -81,6 +99,7 @@ const WalletTable: React.FC<{
                         </Space>
                     }
                     data={wallet.components}
+                    onUpdate={record => alert(`Updated ${record.name}`)}
                 />
             ))}
         </>
@@ -93,6 +112,11 @@ const ConfigurationManager: React.FC = () => {
         debts: [],
         wallets: [],
     });
+    
+    const updateAsset = async (asset: OrderableEntity) => {
+        await upsertAsset(asset);
+        await populateData();
+    }
 
     const populateData = async () => {
         const config = await getConfig()
@@ -108,11 +132,13 @@ const ConfigurationManager: React.FC = () => {
             <EntityTable
                 title="Assets"
                 data={config.assets}
+                onUpdate={updateAsset}
             />
 
             <EntityTable
                 title="Debts"
                 data={config.debts}
+                onUpdate={record => alert(`Updated ${record.name}`)}
             />
 
             <Card

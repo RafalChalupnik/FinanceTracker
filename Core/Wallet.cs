@@ -19,12 +19,12 @@ public class Wallet(string name, int displaySequence) : IEntityWithValueHistory,
     /// <summary>
     /// User-friendly name of the wallet.
     /// </summary>
-    public string Name => name;
+    public string Name { get; set; } = name;
     
     /// <summary>
     /// Sequence in which wallets should be displayed.
     /// </summary>
-    public int DisplaySequence => displaySequence;
+    public int DisplaySequence { get; set; } = displaySequence;
 
     /// <summary>
     /// Components of the wallet.
@@ -67,10 +67,10 @@ public class Component(string name, int displaySequence) : EntityWithValueHistor
     /// <summary>
     /// User-friendly name of the wallet component.
     /// </summary>
-    public string Name => name;
+    public string Name { get; set; } = name;
     
     /// <summary>
     /// Sequence in which wallets should be displayed.
     /// </summary>
-    public int DisplaySequence => displaySequence;
+    public int DisplaySequence { get; set; } = displaySequence;
 }

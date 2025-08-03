@@ -5,13 +5,14 @@ const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_H
     env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'http://localhost:64037';
 
 const context =  [
+  "/assets",
+  "/config",
+  "/config/assets",
+  "/debts",
   "/portfolio/summary",
   "/portfolio/wallets",
-  "/wallets/components",
   "/wallets",
-  "/assets",
-  "/debts",
-  "/config",
+  "/wallets/components",
 ];
 
 module.exports = function(app) {
