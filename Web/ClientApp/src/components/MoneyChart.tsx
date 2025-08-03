@@ -23,19 +23,36 @@ const MoneyChart: FC<MoneyChartProps> = (props) => {
             data: props.data.map(dataPoint => {
                 return {
                     date: dataPoint.date,
-                    value: dataPoint.components[index]?.value.amountInMainCurrency ?? 0
+                    value: dataPoint.components[index]?.cumulativeChange.amountInMainCurrency ?? 0
                 }
             })
         }
     })
     
+    series.push({
+        name: 'Total',
+        data: props.data.map(dataPoint => {
+            return {
+                date: dataPoint.date,
+                value: dataPoint.summary?.cumulativeChange.amountInMainCurrency ?? 0
+            }
+        })
+    })
+
+    let currencyFormatter = new Intl.NumberFormat('pl-PL', {
+        style: 'currency',
+        currency: 'PLN',
+    })
+    
     return (
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={300} style={{padding: '16px'}}>
             <LineChart width={500} height={300}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" type="category" allowDuplicatedCategory={false} />
                 <YAxis dataKey="value" />
-                <Tooltip />
+                <Tooltip
+                    formatter={(value: any, name: string) => [currencyFormatter.format(value), name]}
+                />
                 <Legend />
                 {series.map((s, idx) => (
                     <Line
