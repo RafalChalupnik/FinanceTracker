@@ -1,5 +1,5 @@
 import {EntitiesForDateDto} from "./ApiClient";
-import {SummaryRecord} from "./SummaryDataTypes";
+import {SummaryRecord} from "./data-types/SummaryDataTypes";
 import dayjs from "dayjs";
 
 export function mapData (data: EntitiesForDateDto[]) : SummaryRecord[] {

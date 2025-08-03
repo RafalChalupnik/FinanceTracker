@@ -1,6 +1,6 @@
 import React, {FC, ReactNode, useState} from "react";
 import {DataIndexPath, EditableColumn, EditableColumnGroup, EditableTable} from "./EditableTable";
-import {SummaryComponent, SummaryRecord} from "../SummaryDataTypes";
+import {SummaryComponent, SummaryRecord} from "../data-types/SummaryDataTypes";
 import MoneyForm from "./MoneyForm";
 import dayjs from "dayjs";
 import {MoneyDto} from "../ApiClient";

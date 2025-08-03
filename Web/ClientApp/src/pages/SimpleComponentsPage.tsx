@@ -1,7 +1,7 @@
 import React, {FC, useEffect, useState} from "react";
 import {getEntities, MoneyDto} from "../ApiClient";
 import {mapData} from "../SummaryTableMapper";
-import {SummaryComponent, SummaryRecord} from "../SummaryDataTypes";
+import {SummaryComponent, SummaryRecord} from "../data-types/SummaryDataTypes";
 import EditableMoneyTable from "../components/EditableMoneyTable";
 
 interface SimpleComponentsPageProps {

@@ -65,8 +65,37 @@ export async function getWallets () {
     return data;
 }
 
-export async function getConfig () {
+export async function getConfig () : Promise<Configuration> {
     const response = await fetch('config');
     const data: ConfigurationDto = await response.json();
-    return data;
+    return {
+        assets: data.assets.map(asset => {
+            return {
+                key: asset.id,
+                name: asset.name,
+                displaySequence: asset.displaySequence
+            }
+        }),
+        debts: data.debts.map(debt => {
+            return {
+                key: debt.id,
+                name: debt.name,
+                displaySequence: debt.displaySequence
+            }
+        }),
+        wallets: data.wallets.map(wallet => {
+            return {
+                key: wallet.id,
+                name: wallet.name,
+                displaySequence: wallet.displaySequence,
+                components: wallet.components.map(component => {
+                    return {
+                        key: component.id,
+                        name: component.name,
+                        displaySequence: component.displaySequence
+                    }
+                })
+            }
+        })
+    };
 }

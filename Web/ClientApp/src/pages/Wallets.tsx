@@ -1,8 +1,8 @@
 import React, {FC, useEffect, useState} from 'react';
-import {SummaryComponent, SummaryRecord} from "../SummaryDataTypes";
+import {SummaryComponent, SummaryRecord} from "../data-types/SummaryDataTypes";
 import {getWallets, MoneyDto} from "../ApiClient";
 import {mapData} from "../SummaryTableMapper";
-import {Space, Typography} from "antd";
+import {Space} from "antd";
 import EditableMoneyTable from "../components/EditableMoneyTable";
 
 type WalletData = {

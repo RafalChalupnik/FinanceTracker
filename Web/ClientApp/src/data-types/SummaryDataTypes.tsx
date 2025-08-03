@@ -1,4 +1,4 @@
-import {MoneyDto} from "./ApiClient";
+import {MoneyDto} from "../ApiClient";
 
 export type SummaryComponent = {
     name: string;

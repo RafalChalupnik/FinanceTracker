@@ -1,7 +1,7 @@
 import React, {ReactNode, useState} from "react";
-import {Table, Popconfirm, Input} from "antd";
+import {Table, Popconfirm, Input, Space, Button} from "antd";
 import type {ColumnGroupType, ColumnsType, ColumnType} from "antd/es/table";
-import {DeleteOutlined} from "@ant-design/icons";
+import {CloseOutlined, DeleteOutlined, SaveOutlined} from "@ant-design/icons";
 
 export type DataIndexPath<T> = keyof T | (string | number)[];
 
@@ -71,13 +71,23 @@ export function EditableTable<T extends { key: React.Key }>(props: EditableTable
         return props.renderEditableCell
             ? props.renderEditableCell(record, columnKey, editingValue, () => setEditingKey(null))
             : (
-                <Input
-                    value={editingValue}
-                    onChange={(e) => setEditingValue(e.target.value)}
-                    onPressEnter={() => handleSave(record, path)}
-                    onBlur={() => handleSave(record, path)}
-                    autoFocus
-                />
+                <Space direction='horizontal'>
+                    <Input
+                        value={editingValue}
+                        onChange={(e) => setEditingValue(e.target.value)}
+                        onPressEnter={() => handleSave(record, path)}
+                        onBlur={() => handleSave(record, path)}
+                        // autoFocus
+                    />
+                    <Button 
+                        icon={<SaveOutlined />} 
+                        onClick={() => handleSave(record, path)}
+                    />
+                    <Button 
+                        icon={<CloseOutlined />} 
+                        onClick={() => setEditingKey(null)}
+                    />
+                </Space>
             );
     };
 
