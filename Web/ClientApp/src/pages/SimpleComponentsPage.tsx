@@ -1,6 +1,8 @@
 import React, {FC, useEffect, useState} from "react";
 import EditableMoneyTable from "../components/EditableMoneyTable";
 import {ComponentHeader, EntityValueHistory, MoneyDto, ValueHistoryRecord} from "../api/ValueHistoryApi";
+import {Space} from "antd";
+import EmptyConfig from "../components/EmptyConfig";
 
 interface SimpleComponentsPageProps {
     title: string;
@@ -53,12 +55,14 @@ const SimpleComponentsPage: FC<SimpleComponentsPageProps> = (props) => {
     
     return isLoading
         ? <p><em>Loading...</em></p>
-        : <EditableMoneyTable
-            title={props.title}
-            rows={data.rows}
-            columns={data.headers}
-            editable={editable}
-          />
+        : <EmptyConfig enabled={data.headers.length === 0}>
+            <EditableMoneyTable
+                title={props.title}
+                rows={data.rows}
+                columns={data.headers}
+                editable={editable}
+            />
+        </EmptyConfig>;
 }
 
 export default SimpleComponentsPage;

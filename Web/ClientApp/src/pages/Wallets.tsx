@@ -8,6 +8,7 @@ import {
     setWalletComponentValue,
     WalletValueHistory
 } from "../api/ValueHistoryApi";
+import EmptyConfig from "../components/EmptyConfig";
 
 interface WalletsProps {}
 
@@ -17,7 +18,6 @@ const Wallets: FC<WalletsProps> = (props) => {
 
     const populateData = async () => {
         const wallets = await getWalletsComponentsValueHistory()
-        
         setWallets(wallets)
         setIsLoading(false)
     }
@@ -38,21 +38,22 @@ const Wallets: FC<WalletsProps> = (props) => {
 
     return isLoading
         ? <p><em>Loading...</em></p>
-        : (<div>
-            <Space direction="vertical">
-                {wallets.map(wallet =>
-                    <EditableMoneyTable
-                        title={wallet.name}
-                        rows={wallet.data}
-                        columns={wallet.headers}
-                        editable={{
-                            onUpdate: updateComponent,
-                            onDelete: date => deleteEvaluations(wallet.id, date),
-                        }}
-                    />
-                )}
-            </Space>
-        </div>
+        : (
+            <EmptyConfig enabled={wallets.length === 0}>
+                <Space direction="vertical">
+                    {wallets.map(wallet =>
+                        <EditableMoneyTable
+                            title={wallet.name}
+                            rows={wallet.data}
+                            columns={wallet.headers}
+                            editable={{
+                                onUpdate: updateComponent,
+                                onDelete: date => deleteEvaluations(wallet.id, date),
+                            }}
+                        />
+                    )}
+                </Space>
+            </EmptyConfig>
         );
 }
 
