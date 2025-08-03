@@ -3,6 +3,7 @@ import EditableMoneyTable from "../components/EditableMoneyTable";
 import {ComponentHeader, EntityValueHistory, MoneyDto, ValueHistoryRecord} from "../api/ValueHistoryApi";
 import {Space} from "antd";
 import EmptyConfig from "../components/EmptyConfig";
+import MoneyChart from "../components/MoneyChart";
 
 interface SimpleComponentsPageProps {
     title: string;
@@ -61,6 +62,10 @@ const SimpleComponentsPage: FC<SimpleComponentsPageProps> = (props) => {
                 rows={data.rows}
                 columns={data.headers}
                 editable={editable}
+            />
+            <MoneyChart
+                headers={data.headers}
+                data={data.rows}
             />
         </EmptyConfig>;
 }

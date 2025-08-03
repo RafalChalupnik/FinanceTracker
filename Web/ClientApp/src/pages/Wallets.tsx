@@ -9,7 +9,7 @@ import {
     WalletValueHistory
 } from "../api/ValueHistoryApi";
 import EmptyConfig from "../components/EmptyConfig";
-import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
+import MoneyChart from "../components/MoneyChart";
 
 const chartLineColors = ['#1890ff', '#52c41a', '#f5222d', '#fa8c16', '#722ed1', '#13c2c2'];
 
@@ -70,24 +70,10 @@ const Wallets: FC<WalletsProps> = (props) => {
                                         onDelete: date => deleteEvaluations(wallet.id, date),
                                     }}
                                 />
-                                <ResponsiveContainer width="100%" height={300}>
-                                    <LineChart width={500} height={300}>
-                                        <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey="date" type="category" allowDuplicatedCategory={false} />
-                                        <YAxis dataKey="value" />
-                                        <Tooltip />
-                                        <Legend />
-                                        {series.map((s, idx) => (
-                                            <Line 
-                                                dataKey="value" 
-                                                data={s.data} 
-                                                name={s.name} 
-                                                key={s.name}
-                                                stroke={chartLineColors[idx % chartLineColors.length]}
-                                            />
-                                        ))}
-                                    </LineChart>
-                                </ResponsiveContainer>
+                                <MoneyChart 
+                                    headers={wallet.headers} 
+                                    data={wallet.data}
+                                />
                             </Space>
                         );
                     }
