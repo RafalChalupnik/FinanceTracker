@@ -100,19 +100,32 @@ export async function getConfig () : Promise<Configuration> {
     };
 }
 
-export async function upsertAsset(asset: OrderableEntity) : Promise<void> {
+export async function upsertConfigEntity(path: string, asset: OrderableEntity) : Promise<void> {
     let dto = {
         id: asset.key,
         name: asset.name,
         displaySequence: asset.displaySequence
     } as OrderableEntityDto;
 
-    const response = await fetch(`config/assets`, {
+    const response = await fetch(`config/${path}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify(dto),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+    }
+}
+
+export async function deleteConfigEntity(path: string, entityId: string) : Promise<void> {
+    const response = await fetch(`config/${path}/${entityId}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        }
     });
 
     if (!response.ok) {

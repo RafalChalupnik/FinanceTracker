@@ -1,13 +1,14 @@
 import React, {useEffect, useState} from "react";
 import { Input, Button, Space, Card } from "antd";
 import {DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import {getConfig, upsertAsset} from "../ApiClient";
+import {deleteConfigEntity, getConfig, upsertConfigEntity} from "../ApiClient";
 import {EditableColumn, EditableTable} from "../components/EditableTable";
 
 interface EntityTableProps {
     title: string | React.ReactNode;
     data: OrderableEntity[];
     onUpdate: (entity: OrderableEntity) => void | Promise<void>;
+    onDelete: (entityId: string) => void | Promise<void>;
 }
 
 const EntityTable: React.FC<EntityTableProps> = (props) => {
@@ -68,7 +69,7 @@ const EntityTable: React.FC<EntityTableProps> = (props) => {
                     await props.onUpdate(record)
                     setNewEntry(undefined);
                 }}
-                onDelete={record => alert(`Deleted ${record.name}!`)}
+                onDelete={async record => props.onDelete(record.key)}
             />
         </Card>
     );
@@ -100,6 +101,7 @@ const WalletTable: React.FC<{
                     }
                     data={wallet.components}
                     onUpdate={record => alert(`Updated ${record.name}`)}
+                    onDelete={record => alert(`Deleted ${record}`)}
                 />
             ))}
         </>
@@ -113,8 +115,13 @@ const ConfigurationManager: React.FC = () => {
         wallets: [],
     });
     
-    const updateAsset = async (asset: OrderableEntity) => {
-        await upsertAsset(asset);
+    const updateEntity = async (path: string, entity: OrderableEntity) => {
+        await upsertConfigEntity(path, entity);
+        await populateData();
+    }
+
+    const deleteEntity = async (path: string, entityId: string) => {
+        await deleteConfigEntity(path, entityId);
         await populateData();
     }
 
@@ -132,13 +139,15 @@ const ConfigurationManager: React.FC = () => {
             <EntityTable
                 title="Assets"
                 data={config.assets}
-                onUpdate={updateAsset}
+                onUpdate={async asset => await updateEntity("assets", asset)}
+                onDelete={async assetId => await deleteEntity("assets", assetId)}
             />
 
             <EntityTable
                 title="Debts"
                 data={config.debts}
-                onUpdate={record => alert(`Updated ${record.name}`)}
+                onUpdate={async debt => await updateEntity("debts", debt)}
+                onDelete={async debtId => await deleteEntity("debts", debtId)}
             />
 
             <Card

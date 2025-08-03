@@ -8,6 +8,7 @@ const context =  [
   "/assets",
   "/config",
   "/config/assets",
+  "/config/debts",
   "/debts",
   "/portfolio/summary",
   "/portfolio/wallets",

@@ -52,11 +52,19 @@ internal static class Seeder
             DisplaySequence = 2,
         };
         car.Evaluate(today, dummyValue);
-        
-        var mortgage = new Debt(name: "Mortgage", displaySequence: 1);
+
+        var mortgage = new Debt
+        {
+            Name = "Mortgage",
+            DisplaySequence = 1
+        };
         mortgage.Evaluate(today, dummyValue);
-        
-        var carPayment = new Debt(name: "Car Payment", displaySequence: 2);
+
+        var carPayment = new Debt
+        {
+            Name = "Car Payment",
+            DisplaySequence = 2
+        };
         carPayment.Evaluate(today, dummyValue);
 
         context.Add(emergencyFund);

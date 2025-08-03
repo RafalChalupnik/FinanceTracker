@@ -10,7 +10,8 @@ namespace FinanceTracker.Web.Controllers;
 [Route("config")]
 public class ConfigurationController(
     ConfigQueries query,
-    UpsertEntityCommand upsertEntityCommand
+    UpsertEntityCommand upsertEntityCommand,
+    DeleteEntityCommand deleteEntityCommand
 ) : ControllerBase
 {
     [HttpGet]
@@ -24,10 +25,24 @@ public class ConfigurationController(
         return NoContent();
     }
     
-    // [HttpPost("debts")]
-    // public async Task<IActionResult> UpsertDebt([FromBody] Debt debt)
-    // {
-    //     await upsertEntityCommand.Upsert<Debt>(debt);
-    //     return NoContent();
-    // }
+    [HttpDelete("assets/{debtId:guid}")]
+    public async Task<IActionResult> DeleteAsset(Guid debtId)
+    {
+        await deleteEntityCommand.Delete<Asset>(debtId);
+        return NoContent();
+    }
+    
+    [HttpPost("debts")]
+    public async Task<IActionResult> UpsertDebt([FromBody] OrderableEntityDto debt)
+    {
+        await upsertEntityCommand.Upsert<Debt>(debt);
+        return NoContent();
+    }
+    
+    [HttpDelete("debts/{debtId:guid}")]
+    public async Task<IActionResult> DeleteDebt(Guid debtId)
+    {
+        await deleteEntityCommand.Delete<Debt>(debtId);
+        return NoContent();
+    }
 }

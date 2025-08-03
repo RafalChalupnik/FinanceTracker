@@ -71,7 +71,10 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 .Include(x => x.ValueHistory)
                 .Single(entity => entity.Id == id);
         }
-        
+
+        public IQueryable<T> GetEntities<T>() where T : class, IEntity
+            => context.Set<T>();
+
         public IQueryable<T> GetEntitiesWithValueHistory<T>() where T : EntityWithValueHistory
         {
             return context.Set<T>()

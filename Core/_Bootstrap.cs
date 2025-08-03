@@ -11,6 +11,7 @@ public static class Bootstrap
         return services
             // Commands
             .AddScoped<DeleteAllEvaluationsForDateCommand>()
+            .AddScoped<DeleteEntityCommand>()
             .AddScoped<EvaluateEntityCommand>()
             .AddScoped<UpsertEntityCommand>()
             // Queries
