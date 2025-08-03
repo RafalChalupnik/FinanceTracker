@@ -10,9 +10,12 @@ public static class Bootstrap
     {
         return services
             // Commands
-            .AddScoped<DeleteAllEvaluationsForDateCommand>()
-            .AddScoped<EvaluateEntityCommand>()
+            .AddScoped<DeleteValuesForDate>()
+            .AddScoped<DeleteEntityCommand>()
+            .AddScoped<SetEntityValueCommand>()
+            .AddScoped<UpsertEntityCommand>()
             // Queries
-            .AddScoped<SummaryQueries>();
+            .AddScoped<ConfigQueries>()
+            .AddScoped<ValueHistoryQueries>();
     }
 }

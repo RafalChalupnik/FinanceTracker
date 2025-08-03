@@ -2,9 +2,9 @@ using FinanceTracker.Core.Interfaces;
 
 namespace FinanceTracker.Core.Commands;
 
-public class DeleteAllEvaluationsForDateCommand(IRepository repository)
+public class DeleteValuesForDate(IRepository repository)
 {
-    public async ValueTask DeleteAllEvaluationsForDate<T>(DateOnly date)
+    public async ValueTask DeleteValues<T>(DateOnly date)
         where T : EntityWithValueHistory
     {
         var entitiesToDelete = repository.GetEntitiesWithValueHistory<T>()
@@ -14,7 +14,7 @@ public class DeleteAllEvaluationsForDateCommand(IRepository repository)
         await repository.DeleteAsync(entitiesToDelete);
     }
     
-    public async ValueTask DeleteAllWalletComponentEvaluationsForDate(Guid walletId, DateOnly date)
+    public async ValueTask DeleteWalletValues(Guid walletId, DateOnly date)
     {
         var entitiesToDelete = repository.GetComponentsForWallet(walletId)
             .SelectMany(entity => entity.ValueHistory)

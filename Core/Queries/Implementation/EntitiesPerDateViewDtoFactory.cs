@@ -72,6 +72,11 @@ internal static class EntitiesPerDateViewDtoFactory
 
     private static IEnumerable<EntitiesForDateDto> CalculateChanges(this IReadOnlyList<EntitiesForDateDto> values)
     {
+        if (values.Count < 2)
+        {
+            return values;
+        }
+        
         EntitiesForDateDto[] firstValue = [values[0]];
         return firstValue
             .Concat(values

@@ -18,38 +18,78 @@ internal static class Seeder
     {
         var today = DateOnly.FromDateTime(DateTime.Now);
         var dummyValue = new Money(100, "PLN", 100);
+
+        var bankAccount = new Component
+        {
+            Name = "Bank Account",
+            DisplaySequence = 1,
+        };
+        bankAccount.SetValue(today, dummyValue);
         
-        var bankAccount = new Component(name: "Bank Account", displaySequence: 1);
-        bankAccount.Evaluate(today, dummyValue);
+        var cash = new Component
+        {
+            Name = "Cash",
+            DisplaySequence = 2,
+        };
+        cash.SetValue(today, dummyValue);
         
-        var cash = new Component(name: "Cash", displaySequence: 2);
-        cash.Evaluate(today, dummyValue);
-        
-        var emergencyFund = new Wallet(name: "Emergency Fund", displaySequence: 1);
+        var emergencyFund = new Wallet
+        {
+            Name = "Emergency Fund",
+            DisplaySequence = 1
+        };
         emergencyFund.Add(bankAccount);
         emergencyFund.Add(cash);
         
-        var bonds = new Component(name: "Bonds", displaySequence: 1);
-        bonds.Evaluate(today, dummyValue);
+        var bonds = new Component
+        {
+            Name = "Bonds",
+            DisplaySequence = 1,
+        };
+        bonds.SetValue(today, dummyValue);
         
-        var stocks = new Component(name: "Stocks", displaySequence: 2);
-        stocks.Evaluate(today, dummyValue);
-        
-        var longTermWallet = new Wallet(name: "Long-Term Wallet", displaySequence: 2);
+        var stocks = new Component
+        {
+            Name = "Stocks",
+            DisplaySequence = 2,       
+        };
+        stocks.SetValue(today, dummyValue);
+
+        var longTermWallet = new Wallet
+        {
+            Name = "Long-Term Wallet",
+            DisplaySequence = 2
+        };
         longTermWallet.Add(bonds);
         longTermWallet.Add(stocks);
         
-        var home = new Asset(name: "Home", displaySequence: 1);
-        home.Evaluate(today, dummyValue);
-        
-        var car = new Asset(name: "Car", displaySequence: 2);
-        car.Evaluate(today, dummyValue);
-        
-        var mortgage = new Debt(name: "Mortgage", displaySequence: 1);
-        mortgage.Evaluate(today, dummyValue);
-        
-        var carPayment = new Debt(name: "Car Payment", displaySequence: 2);
-        carPayment.Evaluate(today, dummyValue);
+        var home = new Asset
+        {
+            Name = "Home",
+            DisplaySequence = 1
+        };
+        home.SetValue(today, dummyValue);
+
+        var car = new Asset
+        {
+            Name = "Car",
+            DisplaySequence = 2,
+        };
+        car.SetValue(today, dummyValue);
+
+        var mortgage = new Debt
+        {
+            Name = "Mortgage",
+            DisplaySequence = 1
+        };
+        mortgage.SetValue(today, dummyValue);
+
+        var carPayment = new Debt
+        {
+            Name = "Car Payment",
+            DisplaySequence = 2
+        };
+        carPayment.SetValue(today, dummyValue);
 
         context.Add(emergencyFund);
         context.Add(longTermWallet);

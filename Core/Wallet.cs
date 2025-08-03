@@ -9,7 +9,7 @@ namespace FinanceTracker.Core;
 /// <summary>
 /// Represents a wallet, consisting of <see cref="Component"/>.
 /// </summary>
-public class Wallet(string name, int displaySequence) : IEntityWithValueHistory, IOrderableEntity
+public class Wallet : IEntityWithValueHistory, IOrderableEntity
 {
     private readonly List<Component> _components = [];
     
@@ -19,12 +19,12 @@ public class Wallet(string name, int displaySequence) : IEntityWithValueHistory,
     /// <summary>
     /// User-friendly name of the wallet.
     /// </summary>
-    public string Name => name;
+    public string Name { get; set; } = string.Empty;
     
     /// <summary>
     /// Sequence in which wallets should be displayed.
     /// </summary>
-    public int DisplaySequence => displaySequence;
+    public int DisplaySequence { get; set; }
 
     /// <summary>
     /// Components of the wallet.
@@ -59,7 +59,7 @@ public class Wallet(string name, int displaySequence) : IEntityWithValueHistory,
     }
 }
 
-public class Component(string name, int displaySequence) : EntityWithValueHistory, IOrderableEntity
+public class Component : EntityWithValueHistory, IOrderableEntity
 {
     [Key]
     public Guid Id { get; init; } = Guid.NewGuid();
@@ -67,10 +67,15 @@ public class Component(string name, int displaySequence) : EntityWithValueHistor
     /// <summary>
     /// User-friendly name of the wallet component.
     /// </summary>
-    public string Name => name;
+    public string Name { get; set; } = string.Empty;
     
     /// <summary>
     /// Sequence in which wallets should be displayed.
     /// </summary>
-    public int DisplaySequence => displaySequence;
+    public int DisplaySequence { get; set; }
+    
+    /// <summary>
+    /// ID of the wallet the component is part of.
+    /// </summary>
+    public Guid WalletId { get; init; }
 }

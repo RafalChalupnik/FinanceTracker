@@ -22,53 +22,51 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
             b =>
             {
                 b.HasKey(x => x.Id);
-                b.Property(x => x.Name);
+                b.HasIndex(x => x.Name).IsUnique();
                 b.Property(x => x.DisplaySequence);
-                b.HasMany(x => x.ValueHistory);
+                b.HasMany(x => x.ValueHistory)
+                    .WithOne()
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         
         modelBuilder.Entity<Component>(
             b =>
             {
                 b.HasKey(x => x.Id);
-                b.Property(x => x.Name);
+                b.HasIndex(x => new {x.Id, x.Name}).IsUnique();
                 b.Property(x => x.DisplaySequence);
-                b.HasMany(x => x.ValueHistory);
+                b.HasMany(x => x.ValueHistory)
+                    .WithOne()
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         
         modelBuilder.Entity<Debt>(
             b =>
             {
                 b.HasKey(x => x.Id);
-                b.Property(x => x.Name);
+                b.HasIndex(x => x.Name).IsUnique();
                 b.Property(x => x.DisplaySequence);
-                b.HasMany(x => x.ValueHistory);
+                b.HasMany(x => x.ValueHistory)
+                    .WithOne()
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         
         modelBuilder.Entity<Wallet>(
             b =>
             {
                 b.HasKey(x => x.Id);
-                b.Property(x => x.Name);
+                b.HasIndex(x => x.Name).IsUnique();
                 b.Property(x => x.DisplaySequence);
+                b.HasMany(x => x.Components)
+                    .WithOne()
+                    .HasForeignKey(x => x.WalletId)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Cascade);
             });
     }
     
     public class Repository(FinanceTrackerContext context) : IRepository
     {
-        public IQueryable<T> GetEntitiesWithValueHistory<T>() where T : EntityWithValueHistory
-        {
-            return context.Set<T>()
-                .Include(x => x.ValueHistory);
-        }
-
-        public IQueryable<Wallet> GetWallets()
-        {
-            return context.Wallets
-                .Include(wallet => wallet.Components)
-                .ThenInclude(component => component.ValueHistory);
-        }
-
         public IQueryable<Component> GetComponentsForWallet(Guid walletId)
         {
             return context.Wallets
@@ -85,11 +83,36 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 .Single(entity => entity.Id == id);
         }
 
+        public IQueryable<T> GetEntities<T>() where T : class, IEntity
+            => context.Set<T>();
+
+        public IQueryable<T> GetEntitiesWithValueHistory<T>() where T : EntityWithValueHistory
+        {
+            return context.Set<T>()
+                .Include(x => x.ValueHistory);
+        }
+
+        public IQueryable<T> GetOrderableEntities<T>() where T : class, IOrderableEntity
+            => context.Set<T>();
+
+        public IQueryable<Wallet> GetWallets(bool includeValueHistory)
+        {
+            var query = context.Wallets
+                .Include(wallet => wallet.Components);
+
+            return includeValueHistory
+                ? query.ThenInclude(component => component.ValueHistory)
+                : query;
+        }
+
         public void Add<T>(T entity) where T : class
             => context.Set<T>().Add(entity);
-
+        
         public async ValueTask DeleteAsync<T>(IQueryable<T> entities)
             => await entities.ExecuteDeleteAsync();
+        
+        public void Update<T>(T entity) where T : class, IEntity 
+            => context.Set<T>().Update(entity);
 
         public async ValueTask SaveChangesAsync()
             => await context.SaveChangesAsync();

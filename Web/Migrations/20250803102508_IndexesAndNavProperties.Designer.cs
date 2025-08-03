@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using FinanceTracker.Web;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinanceTracker.Web.Migrations
 {
     [DbContext(typeof(FinanceTrackerContext))]
-    partial class FinanceTrackerContextModelSnapshot : ModelSnapshot
+    [Migration("20250803102508_IndexesAndNavProperties")]
+    partial class IndexesAndNavProperties
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.7");
@@ -164,18 +167,15 @@ namespace FinanceTracker.Web.Migrations
                 {
                     b.HasOne("FinanceTracker.Core.Asset", null)
                         .WithMany("ValueHistory")
-                        .HasForeignKey("AssetId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("AssetId");
 
                     b.HasOne("FinanceTracker.Core.Component", null)
                         .WithMany("ValueHistory")
-                        .HasForeignKey("ComponentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ComponentId");
 
                     b.HasOne("FinanceTracker.Core.Debt", null)
                         .WithMany("ValueHistory")
-                        .HasForeignKey("DebtId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("DebtId");
                 });
 
             modelBuilder.Entity("FinanceTracker.Core.Asset", b =>

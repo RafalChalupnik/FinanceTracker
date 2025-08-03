@@ -4,15 +4,17 @@ import {
     EuroCircleOutlined,
     LineChartOutlined,
     MinusSquareOutlined,
-    PlusSquareOutlined,
+    PlusSquareOutlined, 
+    SettingOutlined,
     WalletOutlined
 } from "@ant-design/icons";
 
-import Assets from "./components/Assets";
-import Debts from "./components/Debts";
-import PortfolioSummary from "./components/PortfolioSummary";
-import WalletsSummary from './components/WalletsSummary';
-import Wallets from "./components/Wallets";
+import Assets from "./pages/Assets";
+import Debts from "./pages/Debts";
+import PortfolioSummary from "./pages/PortfolioSummary";
+import WalletsSummary from './pages/WalletsSummary';
+import Wallets from "./pages/Wallets";
+import Configuration from "./pages/Configuration";
 
 const { Header, Content } = Layout;
 
@@ -47,6 +49,11 @@ const navBar: { [key: string]: NavBarItem} = {
         label: 'Debts',
         icon: <MinusSquareOutlined />,
         component: <Debts/>
+    },
+    '/config': {
+        label: 'Configuration',
+        icon: <SettingOutlined />,
+        component: <Configuration/>
     },
 }
 

@@ -5,23 +5,23 @@ using FinanceTracker.Core.Queries.Implementation;
 
 namespace FinanceTracker.Core.Queries;
 
-public class SummaryQueries(IRepository repository)
+public class ValueHistoryQueries(IRepository repository)
 {
-    public EntitiesPerDateQueryDto GetAssets() =>
+    public EntitiesPerDateQueryDto ForAssets() =>
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
             entities: repository.GetEntitiesWithValueHistory<Asset>()
         );
     
-    public EntitiesPerDateQueryDto GetDebts() =>
+    public EntitiesPerDateQueryDto ForDebts() =>
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
             entities: repository.GetEntitiesWithValueHistory<Debt>()
         );
     
-    public EntitiesPerDateQueryDto GetPortfolioSummary()
+    public EntitiesPerDateQueryDto ForEntirePortfolio()
     {
         EntitiesPerDateViewDtoFactory.EntityData[] entities =
         [
-            MapEntities(repository.GetWallets().ToArray(), "Wallets"),
+            MapEntities(repository.GetWallets(includeValueHistory: true).ToArray(), "Wallets"),
             MapEntities(repository.GetEntitiesWithValueHistory<Asset>().ToArray(), "Assets"),
             MapEntities(repository.GetEntitiesWithValueHistory<Debt>().ToArray(), "Debts"),
         ];
@@ -29,10 +29,10 @@ public class SummaryQueries(IRepository repository)
         return EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(entities);
     }
 
-    public WalletsPerDateQueryDto GetWallets()
+    public WalletsPerDateQueryDto ForWalletsAndComponents()
     {
         var wallets = repository
-            .GetWallets()
+            .GetWallets(includeValueHistory: true)
             .ToArray();
 
         return new WalletsPerDateQueryDto(
@@ -58,9 +58,9 @@ public class SummaryQueries(IRepository repository)
         );
     }
     
-    public EntitiesPerDateQueryDto GetWalletsSummary() =>
+    public EntitiesPerDateQueryDto ForWallets() =>
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
-            entities: repository.GetWallets()
+            entities: repository.GetWallets(includeValueHistory: true)
         );
     
     private static EntitiesPerDateViewDtoFactory.EntityData MapEntities<T>(
