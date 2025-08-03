@@ -37,7 +37,6 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
             <InputNumber
                 value={amount}
                 style={{ width: '100%' }}
-                min={0}
                 step={0.01}
                 placeholder="0,00"
                 onChange={(e) => setAmount( e?.valueOf())}
@@ -52,7 +51,6 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
             <InputNumber
                 value={amountInMainCurrency}
                 style={{ width: '100%' }}
-                min={0}
                 step={0.01}
                 placeholder="0,00"
                 onChange={(e) => setAmountInMainCurrency( e?.valueOf())}
