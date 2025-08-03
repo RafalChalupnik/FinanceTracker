@@ -73,4 +73,9 @@ public class Component(string name, int displaySequence) : EntityWithValueHistor
     /// Sequence in which wallets should be displayed.
     /// </summary>
     public int DisplaySequence { get; set; } = displaySequence;
+    
+    /// <summary>
+    /// ID of the wallet the component is part of.
+    /// </summary>
+    public Guid WalletId { get; init; }
 }

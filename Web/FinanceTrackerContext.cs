@@ -22,7 +22,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
             b =>
             {
                 b.HasKey(x => x.Id);
-                b.Property(x => x.Name);
+                b.HasIndex(x => x.Name).IsUnique();
                 b.Property(x => x.DisplaySequence);
                 b.HasMany(x => x.ValueHistory);
             });
@@ -31,7 +31,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
             b =>
             {
                 b.HasKey(x => x.Id);
-                b.Property(x => x.Name);
+                b.HasIndex(x => new {x.Id, x.Name}).IsUnique();
                 b.Property(x => x.DisplaySequence);
                 b.HasMany(x => x.ValueHistory);
             });
@@ -40,7 +40,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
             b =>
             {
                 b.HasKey(x => x.Id);
-                b.Property(x => x.Name);
+                b.HasIndex(x => x.Name).IsUnique();
                 b.Property(x => x.DisplaySequence);
                 b.HasMany(x => x.ValueHistory);
             });
@@ -49,8 +49,12 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
             b =>
             {
                 b.HasKey(x => x.Id);
-                b.Property(x => x.Name);
+                b.HasIndex(x => x.Name).IsUnique();
                 b.Property(x => x.DisplaySequence);
+                b.HasMany(x => x.Components)
+                    .WithOne()
+                    .HasForeignKey(x => x.WalletId)
+                    .IsRequired();
             });
     }
     
