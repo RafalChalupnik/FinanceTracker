@@ -2,7 +2,8 @@ import SimpleComponentsPage from "./SimpleComponentsPage";
 
 const WalletsSummary = () => {
     return <SimpleComponentsPage
-        apiPath={'portfolio/wallets'}
+        title='Wallets Summary'
+        apiPath='portfolio/wallets'
         editable={false}
     />;
 };

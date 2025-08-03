@@ -2,7 +2,8 @@ import SimpleComponentsPage from "./SimpleComponentsPage";
 
 const Debts = () => {
     return <SimpleComponentsPage
-        apiPath={'debts'}
+        title='Debts'
+        apiPath='debts'
         editable={true}
     />;
 };

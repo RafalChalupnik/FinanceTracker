@@ -5,6 +5,7 @@ import {SummaryComponent, SummaryRecord} from "../SummaryDataTypes";
 import EditableMoneyTable from "../components/EditableMoneyTable";
 
 interface SimpleComponentsPageProps {
+    title: string;
     apiPath: string,
     editable: boolean
 }
@@ -78,6 +79,7 @@ const SimpleComponentsPage: FC<SimpleComponentsPageProps> = (props) => {
     return isLoading
         ? <p><em>Loading...</em></p>
         : <EditableMoneyTable
+            title={props.title}
             rows={data.rows}
             columns={data.headers}
             editable={editable}

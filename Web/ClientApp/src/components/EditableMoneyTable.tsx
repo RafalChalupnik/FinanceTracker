@@ -4,10 +4,12 @@ import {SummaryComponent, SummaryRecord} from "../SummaryDataTypes";
 import MoneyForm from "./MoneyForm";
 import dayjs from "dayjs";
 import {MoneyDto} from "../ApiClient";
-import {Button, DatePicker, Modal, Space} from "antd";
+import {Button, Card, DatePicker, Modal} from "antd";
 import Money from "./Money";
+import {PlusOutlined} from "@ant-design/icons";
 
 interface MoneyEditableTableProps {
+    title: string;
     rows: SummaryRecord[]
     columns: SummaryComponent[]
     editable?: EditableProps
@@ -143,7 +145,15 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
     
     return (
         <>
-            <Space direction={"vertical"}>
+            <Card 
+                title={props.title} 
+                extra={props.editable && 
+                    <Button 
+                        icon={<PlusOutlined />} 
+                        onClick={() => setIsModalOpen(true)}
+                    />
+                }
+            >
                 <EditableTable<SummaryRecord>
                     records={buildData()}
                     columns={columns}
@@ -157,18 +167,13 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
                             }}
                             onCancel={close}
                         />
-                        
+
                     }
                     onDelete={async record => {
                         await props.editable!.onDelete(record.date)
                     }}
                 />
-                {props.editable && (
-                    <Button onClick={() => setIsModalOpen(true)} type="primary" style={{ marginBottom: 16 }}>
-                        Add a row
-                    </Button>
-                )}
-            </Space>
+            </Card>
             <Modal
                 title="Pick a date"
                 open={isModalOpen}

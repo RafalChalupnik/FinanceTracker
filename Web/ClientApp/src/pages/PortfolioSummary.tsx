@@ -2,7 +2,8 @@ import SimpleComponentsPage from "./SimpleComponentsPage";
 
 const PortfolioSummary = () => {
     return <SimpleComponentsPage
-        apiPath={'portfolio/summary'}
+        title='Portfolio Summary'
+        apiPath='portfolio/summary'
         editable={false}
     />;
 };

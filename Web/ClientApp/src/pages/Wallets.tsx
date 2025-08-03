@@ -73,21 +73,15 @@ const Wallets: FC<WalletsProps> = (props) => {
         : (<div>
             <Space direction="vertical">
                 {wallets.map(wallet =>
-                    <div>
-                        <Space direction="vertical">
-                            <Typography.Title level={3} style={{ margin: 0 }}>
-                                {wallet.name}
-                            </Typography.Title>
-                            <EditableMoneyTable
-                                rows={wallet.data}
-                                columns={wallet.headers}
-                                editable={{
-                                    onUpdate: updateComponent,
-                                    onDelete: date => deleteEvaluations(wallet.id, date),  
-                                }}
-                            />
-                        </Space>
-                    </div>
+                    <EditableMoneyTable
+                        title={wallet.name}
+                        rows={wallet.data}
+                        columns={wallet.headers}
+                        editable={{
+                            onUpdate: updateComponent,
+                            onDelete: date => deleteEvaluations(wallet.id, date),
+                        }}
+                    />
                 )}
             </Space>
         </div>
