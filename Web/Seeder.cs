@@ -24,14 +24,14 @@ internal static class Seeder
             Name = "Bank Account",
             DisplaySequence = 1,
         };
-        bankAccount.Evaluate(today, dummyValue);
+        bankAccount.SetValue(today, dummyValue);
         
         var cash = new Component
         {
             Name = "Cash",
             DisplaySequence = 2,
         };
-        cash.Evaluate(today, dummyValue);
+        cash.SetValue(today, dummyValue);
         
         var emergencyFund = new Wallet(name: "Emergency Fund", displaySequence: 1);
         emergencyFund.Add(bankAccount);
@@ -42,14 +42,14 @@ internal static class Seeder
             Name = "Bonds",
             DisplaySequence = 1,
         };
-        bonds.Evaluate(today, dummyValue);
+        bonds.SetValue(today, dummyValue);
         
         var stocks = new Component
         {
             Name = "Stocks",
             DisplaySequence = 2,       
         };
-        stocks.Evaluate(today, dummyValue);
+        stocks.SetValue(today, dummyValue);
         
         var longTermWallet = new Wallet(name: "Long-Term Wallet", displaySequence: 2);
         longTermWallet.Add(bonds);
@@ -60,28 +60,28 @@ internal static class Seeder
             Name = "Home",
             DisplaySequence = 1
         };
-        home.Evaluate(today, dummyValue);
+        home.SetValue(today, dummyValue);
 
         var car = new Asset
         {
             Name = "Car",
             DisplaySequence = 2,
         };
-        car.Evaluate(today, dummyValue);
+        car.SetValue(today, dummyValue);
 
         var mortgage = new Debt
         {
             Name = "Mortgage",
             DisplaySequence = 1
         };
-        mortgage.Evaluate(today, dummyValue);
+        mortgage.SetValue(today, dummyValue);
 
         var carPayment = new Debt
         {
             Name = "Car Payment",
             DisplaySequence = 2
         };
-        carPayment.Evaluate(today, dummyValue);
+        carPayment.SetValue(today, dummyValue);
 
         context.Add(emergencyFund);
         context.Add(longTermWallet);

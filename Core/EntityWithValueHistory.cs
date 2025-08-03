@@ -23,7 +23,7 @@ public abstract class EntityWithValueHistory : IEntityWithValueHistory
     /// <summary>
     /// Sets value for specific date.
     /// </summary>
-    public HistoricValue? Evaluate(DateOnly date, Money value)
+    public HistoricValue? SetValue(DateOnly date, Money value)
     {
         var alreadyExistingEntry = ValueHistory.FirstOrDefault(entry => entry.Date == date);
 

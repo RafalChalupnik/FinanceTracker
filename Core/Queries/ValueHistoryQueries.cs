@@ -5,19 +5,19 @@ using FinanceTracker.Core.Queries.Implementation;
 
 namespace FinanceTracker.Core.Queries;
 
-public class SummaryQueries(IRepository repository)
+public class ValueHistoryQueries(IRepository repository)
 {
-    public EntitiesPerDateQueryDto GetAssets() =>
+    public EntitiesPerDateQueryDto ForAssets() =>
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
             entities: repository.GetEntitiesWithValueHistory<Asset>()
         );
     
-    public EntitiesPerDateQueryDto GetDebts() =>
+    public EntitiesPerDateQueryDto ForDebts() =>
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
             entities: repository.GetEntitiesWithValueHistory<Debt>()
         );
     
-    public EntitiesPerDateQueryDto GetPortfolioSummary()
+    public EntitiesPerDateQueryDto ForEntirePortfolio()
     {
         EntitiesPerDateViewDtoFactory.EntityData[] entities =
         [
@@ -29,7 +29,7 @@ public class SummaryQueries(IRepository repository)
         return EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(entities);
     }
 
-    public WalletsPerDateQueryDto GetWallets()
+    public WalletsPerDateQueryDto ForWalletsAndComponents()
     {
         var wallets = repository
             .GetWallets(includeValueHistory: true)
@@ -58,7 +58,7 @@ public class SummaryQueries(IRepository repository)
         );
     }
     
-    public EntitiesPerDateQueryDto GetWalletsSummary() =>
+    public EntitiesPerDateQueryDto ForWallets() =>
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
             entities: repository.GetWallets(includeValueHistory: true)
         );

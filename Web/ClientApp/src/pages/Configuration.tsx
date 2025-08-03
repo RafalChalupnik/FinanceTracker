@@ -1,8 +1,14 @@
 import React, {useEffect, useState} from "react";
 import { Input, Button, Space, Card } from "antd";
 import {DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import {deleteConfigEntity, getConfig, upsertConfigEntity} from "../ApiClient";
 import {EditableColumn, EditableTable} from "../components/EditableTable";
+import {
+    Config, deleteAsset, deleteDebt, deleteWalletComponent, getConfiguration,
+    OrderableEntity,
+    upsertAsset, upsertDebt,
+    upsertWalletComponent,
+    WalletEntity
+} from "../api/ConfigurationApi";
 
 interface EntityTableProps {
     title: string | React.ReactNode;
@@ -77,8 +83,8 @@ const EntityTable: React.FC<EntityTableProps> = (props) => {
 
 interface WalletTableProps {
     wallets: WalletEntity[];
-    onUpdateComponent: (entity: OrderableEntity) => void | Promise<void>;
-    onDeleteComponent: (entityId: string) => void | Promise<void>;
+    onUpdateComponent: (walletId: string, entity: OrderableEntity) => void | Promise<void>;
+    onDeleteComponent: (componentId: string) => void | Promise<void>;
 }
 
 const WalletTable: React.FC<WalletTableProps> = (props) => {
@@ -101,7 +107,7 @@ const WalletTable: React.FC<WalletTableProps> = (props) => {
                         </Space>
                     }
                     data={wallet.components}
-                    onUpdate={props.onUpdateComponent}
+                    onUpdate={async component => props.onUpdateComponent(wallet.key, component)}
                     onDelete={props.onDeleteComponent}
                 />
             ))}
@@ -110,24 +116,14 @@ const WalletTable: React.FC<WalletTableProps> = (props) => {
 };
 
 const Configuration: React.FC = () => {
-    const [config, setConfig] = useState<Configuration>({
+    const [config, setConfig] = useState<Config>({
         assets: [],
         debts: [],
         wallets: [],
     });
     
-    const updateEntity = async (path: string, entity: OrderableEntity) => {
-        await upsertConfigEntity(path, entity);
-        await populateData();
-    }
-
-    const deleteEntity = async (path: string, entityId: string) => {
-        await deleteConfigEntity(path, entityId);
-        await populateData();
-    }
-
     const populateData = async () => {
-        const config = await getConfig()
+        const config = await getConfiguration()
         setConfig(config)
     }
 
@@ -140,15 +136,27 @@ const Configuration: React.FC = () => {
             <EntityTable
                 title="Assets"
                 data={config.assets}
-                onUpdate={async asset => await updateEntity("assets", asset)}
-                onDelete={async assetId => await deleteEntity("assets", assetId)}
+                onUpdate={async asset => {
+                    await upsertAsset(asset);
+                    await populateData();
+                }}
+                onDelete={async assetId => {
+                    await deleteAsset(assetId);
+                    await populateData();
+                }}
             />
 
             <EntityTable
                 title="Debts"
                 data={config.debts}
-                onUpdate={async debt => await updateEntity("debts", debt)}
-                onDelete={async debtId => await deleteEntity("debts", debtId)}
+                onUpdate={async debt => {
+                    await upsertDebt(debt);
+                    await populateData();
+                }}
+                onDelete={async debtId => {
+                    await deleteDebt(debtId);
+                    await populateData();
+                }}
             />
 
             <Card
@@ -177,8 +185,14 @@ const Configuration: React.FC = () => {
             >
                 <WalletTable
                     wallets={config.wallets}
-                    onUpdateComponent={async component => await updateEntity("wallets/components", component)}
-                    onDeleteComponent={async componentId => await deleteEntity("wallets/components", componentId)}
+                    onUpdateComponent={async (walletId, component) => {
+                        await upsertWalletComponent(walletId, component);
+                        await populateData();
+                    }}
+                    onDeleteComponent={async componentId => {
+                        await deleteWalletComponent(componentId);
+                        await populateData();
+                    }}
                 />
             </Card>
         </Space>

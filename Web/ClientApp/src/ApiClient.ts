@@ -47,12 +47,6 @@ export interface WalletDataDto extends OrderableEntityDto {
     components: OrderableEntityDto[];
 }
 
-export interface ConfigurationDto {
-    assets: OrderableEntityDto[];
-    debts: OrderableEntityDto[];
-    wallets: WalletDataDto[];
-}
-
 export async function getEntities (path: string) {
     const response = await fetch(path);
     const data: EntitiesPerDateQueryDto = await response.json();
@@ -63,89 +57,4 @@ export async function getWallets () {
     const response = await fetch('api/wallets');
     const data: WalletsPerDateQueryDto = await response.json();
     return data;
-}
-
-export async function getConfig () : Promise<Configuration> {
-    const response = await fetch('api/config');
-    const data: ConfigurationDto = await response.json();
-    return {
-        assets: data.assets.map(asset => {
-            return {
-                key: asset.id,
-                name: asset.name,
-                displaySequence: asset.displaySequence
-            }
-        }),
-        debts: data.debts.map(debt => {
-            return {
-                key: debt.id,
-                name: debt.name,
-                displaySequence: debt.displaySequence
-            }
-        }),
-        wallets: data.wallets.map(wallet => {
-            return {
-                key: wallet.id,
-                name: wallet.name,
-                displaySequence: wallet.displaySequence,
-                components: wallet.components.map(component => {
-                    return {
-                        key: component.id,
-                        name: component.name,
-                        displaySequence: component.displaySequence
-                    }
-                })
-            }
-        })
-    };
-}
-
-export async function upsertConfigEntity(path: string, asset: OrderableEntity) : Promise<void> {
-    let dto = {
-        id: asset.key,
-        name: asset.name,
-        displaySequence: asset.displaySequence
-    } as OrderableEntityDto;
-
-    const response = await fetch(`api/config/${path}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dto),
-    });
-
-    if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-    }
-}
-
-export async function deleteConfigEntity(path: string, entityId: string) : Promise<void> {
-    const response = await fetch(`api/config/${path}/${entityId}`, {
-        method: "DELETE",
-        headers: {
-            "Content-Type": "application/json",
-        }
-    });
-
-    if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-    }
-}
-
-const updateEntity = async (apiPath: string, date: string, value: MoneyDto) => {
-    const response = await fetch(apiPath, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            date: date,
-            value: value
-        }),
-    });
-
-    if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-    }
 }

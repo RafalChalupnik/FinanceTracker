@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FinanceTracker.Web.Controllers;
 
 [ApiController]
-[Route("api/config")]
+[Route("api/configuration")]
 public class ConfigurationController(
     ConfigQueries query,
     UpsertEntityCommand upsertEntityCommand,
@@ -25,10 +25,10 @@ public class ConfigurationController(
         return NoContent();
     }
     
-    [HttpDelete("assets/{debtId:guid}")]
-    public async Task<IActionResult> DeleteAsset(Guid debtId)
+    [HttpDelete("assets/{assetId:guid}")]
+    public async Task<IActionResult> DeleteAsset(Guid assetId)
     {
-        await deleteEntityCommand.Delete<Asset>(debtId);
+        await deleteEntityCommand.Delete<Asset>(assetId);
         return NoContent();
     }
     
