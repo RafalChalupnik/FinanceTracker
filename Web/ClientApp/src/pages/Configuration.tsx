@@ -75,22 +75,23 @@ const EntityTable: React.FC<EntityTableProps> = (props) => {
     );
 };
 
-const WalletTable: React.FC<{
+interface WalletTableProps {
     wallets: WalletEntity[];
-    setWallets: (data: WalletEntity[]) => void;
-}> = ({ wallets, setWallets }) => {
+    onUpdateComponent: (entity: OrderableEntity) => void | Promise<void>;
+    onDeleteComponent: (entityId: string) => void | Promise<void>;
+}
+
+const WalletTable: React.FC<WalletTableProps> = (props) => {
     return (
         <>
-            {wallets.map((wallet, idx) => (
+            {props.wallets.map((wallet, idx) => (
                 <EntityTable
                     title={
                         <Space direction='horizontal'>
                             <Input
                                 value={wallet.name}
                                 onChange={(e) => {
-                                    const newWallets = [...wallets];
-                                    newWallets[idx].name = e.target.value;
-                                    setWallets(newWallets);
+                                    alert('Changed wallet name to ' + e.target.value)
                                 }}
                             />
                             <Button
@@ -100,8 +101,8 @@ const WalletTable: React.FC<{
                         </Space>
                     }
                     data={wallet.components}
-                    onUpdate={record => alert(`Updated ${record.name}`)}
-                    onDelete={record => alert(`Deleted ${record}`)}
+                    onUpdate={props.onUpdateComponent}
+                    onDelete={props.onDeleteComponent}
                 />
             ))}
         </>
@@ -176,7 +177,8 @@ const Configuration: React.FC = () => {
             >
                 <WalletTable
                     wallets={config.wallets}
-                    setWallets={(wallets) => setConfig({ ...config, wallets })}
+                    onUpdateComponent={async component => await updateEntity("wallets/components", component)}
+                    onDeleteComponent={async componentId => await deleteEntity("wallets/components", componentId)}
                 />
             </Card>
         </Space>

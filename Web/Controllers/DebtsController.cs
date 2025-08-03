@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FinanceTracker.Web.Controllers;
 
 [ApiController]
-[Route("debts")]
+[Route("api/debts")]
 public class DebtsController(
     SummaryQueries query,
     EvaluateEntityCommand evaluateEntityCommand,

@@ -18,21 +18,37 @@ internal static class Seeder
     {
         var today = DateOnly.FromDateTime(DateTime.Now);
         var dummyValue = new Money(100, "PLN", 100);
-        
-        var bankAccount = new Component(name: "Bank Account", displaySequence: 1);
+
+        var bankAccount = new Component
+        {
+            Name = "Bank Account",
+            DisplaySequence = 1,
+        };
         bankAccount.Evaluate(today, dummyValue);
         
-        var cash = new Component(name: "Cash", displaySequence: 2);
+        var cash = new Component
+        {
+            Name = "Cash",
+            DisplaySequence = 2,
+        };
         cash.Evaluate(today, dummyValue);
         
         var emergencyFund = new Wallet(name: "Emergency Fund", displaySequence: 1);
         emergencyFund.Add(bankAccount);
         emergencyFund.Add(cash);
         
-        var bonds = new Component(name: "Bonds", displaySequence: 1);
+        var bonds = new Component
+        {
+            Name = "Bonds",
+            DisplaySequence = 1,
+        };
         bonds.Evaluate(today, dummyValue);
         
-        var stocks = new Component(name: "Stocks", displaySequence: 2);
+        var stocks = new Component
+        {
+            Name = "Stocks",
+            DisplaySequence = 2,       
+        };
         stocks.Evaluate(today, dummyValue);
         
         var longTermWallet = new Wallet(name: "Long-Term Wallet", displaySequence: 2);

@@ -60,13 +60,13 @@ export async function getEntities (path: string) {
 }
 
 export async function getWallets () {
-    const response = await fetch('wallets');
+    const response = await fetch('api/wallets');
     const data: WalletsPerDateQueryDto = await response.json();
     return data;
 }
 
 export async function getConfig () : Promise<Configuration> {
-    const response = await fetch('config');
+    const response = await fetch('api/config');
     const data: ConfigurationDto = await response.json();
     return {
         assets: data.assets.map(asset => {
@@ -107,7 +107,7 @@ export async function upsertConfigEntity(path: string, asset: OrderableEntity) :
         displaySequence: asset.displaySequence
     } as OrderableEntityDto;
 
-    const response = await fetch(`config/${path}`, {
+    const response = await fetch(`api/config/${path}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -121,11 +121,28 @@ export async function upsertConfigEntity(path: string, asset: OrderableEntity) :
 }
 
 export async function deleteConfigEntity(path: string, entityId: string) : Promise<void> {
-    const response = await fetch(`config/${path}/${entityId}`, {
+    const response = await fetch(`api/config/${path}/${entityId}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
         }
+    });
+
+    if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+    }
+}
+
+const updateEntity = async (apiPath: string, date: string, value: MoneyDto) => {
+    const response = await fetch(apiPath, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            date: date,
+            value: value
+        }),
     });
 
     if (!response.ok) {

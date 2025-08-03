@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FinanceTracker.Web.Controllers;
 
 [ApiController]
-[Route("portfolio")]
+[Route("api/portfolio")]
 public class PortfolioController(
     SummaryQueries query
     ) : ControllerBase

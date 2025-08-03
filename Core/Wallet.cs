@@ -59,7 +59,7 @@ public class Wallet(string name, int displaySequence) : IEntityWithValueHistory,
     }
 }
 
-public class Component(string name, int displaySequence) : EntityWithValueHistory, IOrderableEntity
+public class Component : EntityWithValueHistory, IOrderableEntity
 {
     [Key]
     public Guid Id { get; init; } = Guid.NewGuid();
@@ -67,12 +67,12 @@ public class Component(string name, int displaySequence) : EntityWithValueHistor
     /// <summary>
     /// User-friendly name of the wallet component.
     /// </summary>
-    public string Name { get; set; } = name;
+    public string Name { get; set; } = string.Empty;
     
     /// <summary>
     /// Sequence in which wallets should be displayed.
     /// </summary>
-    public int DisplaySequence { get; set; } = displaySequence;
+    public int DisplaySequence { get; set; }
     
     /// <summary>
     /// ID of the wallet the component is part of.

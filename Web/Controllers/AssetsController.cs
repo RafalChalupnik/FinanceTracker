@@ -24,7 +24,7 @@ namespace FinanceTracker.Web.Controllers;
 // DELETE /wallets/components/evaluations/{date}
 
 [ApiController]
-[Route("assets")]
+[Route("api/assets")]
 public class AssetsController(
     SummaryQueries query,
     EvaluateEntityCommand evaluateEntityCommand,
