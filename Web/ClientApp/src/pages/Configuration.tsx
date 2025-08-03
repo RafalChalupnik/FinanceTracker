@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Input, Button, Space, Card, Popconfirm} from "antd";
+import {Input, Button, Space, Card, Popconfirm, Typography} from "antd";
 import {DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import {EditableColumn, EditableTable} from "../components/EditableTable";
 import {
@@ -9,6 +9,8 @@ import {
     upsertWalletComponent,
     WalletEntity
 } from "../api/ConfigurationApi";
+
+const {Text} = Typography;
 
 interface EntityTableProps {
     title: string | React.ReactNode;
@@ -95,12 +97,12 @@ const WalletTable: React.FC<WalletTableProps> = (props) => {
                 <EntityTable
                     title={
                         <Space direction='horizontal'>
-                            <Input
-                                value={wallet.name}
-                                onChange={(e) => {
-                                    alert('Changed wallet name to ' + e.target.value)
-                                }}
-                            />
+                            <Text>Name:</Text>
+                            <Input value={wallet.name}/>
+
+                            <Text>Sequence:</Text>
+                            <Input value={wallet.displaySequence}/>
+                            
                             <Popconfirm
                                 title='Sure to delete?'
                                 okText={'Yes'}
