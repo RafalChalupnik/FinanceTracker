@@ -49,10 +49,10 @@ const MoneyChart: FC<MoneyChartProps> = (props) => {
     
     return (
         <ResponsiveContainer width="100%" height={300} style={{padding: '16px'}}>
-            <LineChart width={500} height={300}>
+            <LineChart width={500} height={300} margin={{ left: 40, right: 20, top: 20, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" type="category" allowDuplicatedCategory={false} />
-                <YAxis dataKey="value" />
+                <YAxis dataKey="value" tickFormatter={currencyFormatter.format} />
                 <Tooltip
                     formatter={(value: any, name: string) => [currencyFormatter.format(value), name]}
                 />
