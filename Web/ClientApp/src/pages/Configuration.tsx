@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from "react";
-import {Input, Button, Space, Card, Popconfirm, Typography} from "antd";
-import {DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import {Input, Button, Space, Card, Popconfirm, Typography, InputNumber} from "antd";
+import {DeleteOutlined, PlusOutlined, SaveOutlined} from "@ant-design/icons";
 import {EditableColumn, EditableTable} from "../components/EditableTable";
 import {
-    Config, createWallet, deleteAsset, deleteDebt, deleteWallet, deleteWalletComponent, getConfiguration,
+    Config, upsertWallet, deleteAsset, deleteDebt, deleteWallet, deleteWalletComponent, getConfiguration,
     OrderableEntity,
     upsertAsset, upsertDebt,
     upsertWalletComponent,
@@ -123,6 +123,57 @@ const WalletTable: React.FC<WalletTableProps> = (props) => {
     );
 };
 
+interface WalletProps {
+    wallet: WalletEntity;
+    onUpdateWallet: (wallet: OrderableEntity) => Promise<void>;
+    onDeleteWallet: (walletId: string) => Promise<void>;
+    onUpdateComponent: (walletId: string, entity: OrderableEntity) => Promise<void>;
+    onDeleteComponent: (componentId: string) => Promise<void>;
+}
+
+const Wallet: React.FC<WalletProps> = (props) => {
+    let [name, setName] = useState(props.wallet.name);
+    let [sequence, setSequence] = useState(props.wallet.displaySequence);
+    
+    return (
+        <>
+            <EntityTable
+                title={
+                    <Space direction='horizontal'>
+                        <Text>Name:</Text>
+                        <Input value={name} onChange={e => setName(e.target.value)}/>
+
+                        <Text>Sequence:</Text>
+                        <InputNumber value={sequence} onChange={e => setSequence(e?.valueOf() ?? 0)}/>
+
+                        <Button
+                            icon={<SaveOutlined />}
+                            onClick={async () => props.onUpdateWallet({
+                                key: props.wallet.key,
+                                name: name,
+                                displaySequence: sequence
+                            })}
+                        />
+
+                        <Popconfirm
+                            title='Sure to delete?'
+                            okText={'Yes'}
+                            cancelText={'No'}
+                            okButtonProps={{ danger: true }}
+                            onConfirm={async () => await props.onDeleteWallet(props.wallet.key)}
+                        >
+                            <Button icon={<DeleteOutlined />}/>
+                        </Popconfirm>
+                    </Space>
+                }
+                data={props.wallet.components}
+                onUpdate={async component => props.onUpdateComponent(props.wallet.key, component)}
+                onDelete={props.onDeleteComponent}
+            />
+        </>
+    );
+};
+
 const Configuration: React.FC = () => {
     const [config, setConfig] = useState<Config>({
         assets: [],
@@ -173,7 +224,7 @@ const Configuration: React.FC = () => {
                     <Button
                         icon={<PlusOutlined />}
                         onClick={async () => {
-                            await createWallet({
+                            await upsertWallet({
                                     key: crypto.randomUUID(),
                                     name: "New Wallet",
                                     displaySequence: config.wallets.length + 1
@@ -186,21 +237,27 @@ const Configuration: React.FC = () => {
                     </Button>
                 }
             >
-                <WalletTable
-                    wallets={config.wallets}
-                    onDeleteWallet={async walletId => {
-                        await deleteWallet(walletId);
-                        await populateData();
-                    }}
-                    onUpdateComponent={async (walletId, component) => {
-                        await upsertWalletComponent(walletId, component);
-                        await populateData();
-                    }}
-                    onDeleteComponent={async componentId => {
-                        await deleteWalletComponent(componentId);
-                        await populateData();
-                    }}
-                />
+                {config.wallets.map(wallet => (
+                    <Wallet
+                        wallet={wallet}
+                        onUpdateWallet={async wallet => {
+                            await upsertWallet(wallet);
+                            await populateData();
+                        }}
+                        onDeleteWallet={async walletId => {
+                            await deleteWallet(walletId);
+                            await populateData();
+                        }}
+                        onUpdateComponent={async (walletId, component) => {
+                            await upsertWalletComponent(walletId, component);
+                            await populateData();
+                        }}
+                        onDeleteComponent={async componentId => {
+                            await deleteWalletComponent(componentId);
+                            await populateData();
+                        }}
+                    />
+                ))}
             </Card>
         </Space>
     );

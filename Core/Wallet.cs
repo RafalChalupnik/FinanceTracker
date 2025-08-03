@@ -9,7 +9,7 @@ namespace FinanceTracker.Core;
 /// <summary>
 /// Represents a wallet, consisting of <see cref="Component"/>.
 /// </summary>
-public class Wallet(string name, int displaySequence) : IEntityWithValueHistory, IOrderableEntity
+public class Wallet : IEntityWithValueHistory, IOrderableEntity
 {
     private readonly List<Component> _components = [];
     
@@ -19,12 +19,12 @@ public class Wallet(string name, int displaySequence) : IEntityWithValueHistory,
     /// <summary>
     /// User-friendly name of the wallet.
     /// </summary>
-    public string Name { get; set; } = name;
+    public string Name { get; set; } = string.Empty;
     
     /// <summary>
     /// Sequence in which wallets should be displayed.
     /// </summary>
-    public int DisplaySequence { get; set; } = displaySequence;
+    public int DisplaySequence { get; set; }
 
     /// <summary>
     /// Components of the wallet.

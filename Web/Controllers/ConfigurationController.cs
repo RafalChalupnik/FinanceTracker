@@ -47,9 +47,9 @@ public class ConfigurationController(
     }
 
     [HttpPost("wallets")]
-    public async Task<IActionResult> CreateWallet([FromBody] OrderableEntityDto wallet)
+    public async Task<IActionResult> UpsertWallet([FromBody] OrderableEntityDto wallet)
     {
-        await upsertEntityCommand.CreateWallet(wallet);
+        await upsertEntityCommand.Upsert<Wallet>(wallet);
         return NoContent();
     }
 

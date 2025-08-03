@@ -33,7 +33,11 @@ internal static class Seeder
         };
         cash.SetValue(today, dummyValue);
         
-        var emergencyFund = new Wallet(name: "Emergency Fund", displaySequence: 1);
+        var emergencyFund = new Wallet
+        {
+            Name = "Emergency Fund",
+            DisplaySequence = 1
+        };
         emergencyFund.Add(bankAccount);
         emergencyFund.Add(cash);
         
@@ -50,8 +54,12 @@ internal static class Seeder
             DisplaySequence = 2,       
         };
         stocks.SetValue(today, dummyValue);
-        
-        var longTermWallet = new Wallet(name: "Long-Term Wallet", displaySequence: 2);
+
+        var longTermWallet = new Wallet
+        {
+            Name = "Long-Term Wallet",
+            DisplaySequence = 2
+        };
         longTermWallet.Add(bonds);
         longTermWallet.Add(stocks);
         

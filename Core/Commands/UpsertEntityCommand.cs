@@ -27,17 +27,6 @@ public class UpsertEntityCommand(IRepository repository)
         await repository.SaveChangesAsync();
     }
 
-    public async ValueTask CreateWallet(OrderableEntityDto walletData)
-    {
-        var wallet = new Wallet(
-            name: walletData.Name,
-            displaySequence: walletData.DisplaySequence
-        );
-
-        repository.Add(wallet);
-        await repository.SaveChangesAsync();
-    }
-
     public async ValueTask UpsertWalletComponent(Guid walletId, OrderableEntityDto updatedComponent)
     {
         var alreadyExistingComponent = repository.GetOrderableEntities<Component>()
