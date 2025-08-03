@@ -24,7 +24,9 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 b.HasKey(x => x.Id);
                 b.HasIndex(x => x.Name).IsUnique();
                 b.Property(x => x.DisplaySequence);
-                b.HasMany(x => x.ValueHistory);
+                b.HasMany(x => x.ValueHistory)
+                    .WithOne()
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         
         modelBuilder.Entity<Component>(
@@ -33,7 +35,9 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 b.HasKey(x => x.Id);
                 b.HasIndex(x => new {x.Id, x.Name}).IsUnique();
                 b.Property(x => x.DisplaySequence);
-                b.HasMany(x => x.ValueHistory);
+                b.HasMany(x => x.ValueHistory)
+                    .WithOne()
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         
         modelBuilder.Entity<Debt>(
@@ -42,7 +46,9 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 b.HasKey(x => x.Id);
                 b.HasIndex(x => x.Name).IsUnique();
                 b.Property(x => x.DisplaySequence);
-                b.HasMany(x => x.ValueHistory);
+                b.HasMany(x => x.ValueHistory)
+                    .WithOne()
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         
         modelBuilder.Entity<Wallet>(
@@ -54,7 +60,8 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 b.HasMany(x => x.Components)
                     .WithOne()
                     .HasForeignKey(x => x.WalletId)
-                    .IsRequired();
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Cascade);
             });
     }
     
