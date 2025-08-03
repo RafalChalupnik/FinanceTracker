@@ -3,7 +3,7 @@ import { Input, Button, Space, Card } from "antd";
 import {DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import {EditableColumn, EditableTable} from "../components/EditableTable";
 import {
-    Config, deleteAsset, deleteDebt, deleteWalletComponent, getConfiguration,
+    Config, createWallet, deleteAsset, deleteDebt, deleteWalletComponent, getConfiguration,
     OrderableEntity,
     upsertAsset, upsertDebt,
     upsertWalletComponent,
@@ -164,20 +164,15 @@ const Configuration: React.FC = () => {
                 extra={
                     <Button
                         icon={<PlusOutlined />}
-                        onClick={() =>
-                            setConfig({
-                                ...config,
-                                wallets: [
-                                    ...config.wallets,
-                                    {
-                                        key: crypto.randomUUID(),
-                                        name: "New Wallet",
-                                        displaySequence: config.wallets.length + 1,
-                                        components: [],
-                                    },
-                                ],
-                            })
-                        }
+                        onClick={async () => {
+                            await createWallet({
+                                    key: crypto.randomUUID(),
+                                    name: "New Wallet",
+                                    displaySequence: config.wallets.length + 1
+                                }
+                            )
+                            await populateData();
+                        }}
                     >
                         Add Wallet
                     </Button>
