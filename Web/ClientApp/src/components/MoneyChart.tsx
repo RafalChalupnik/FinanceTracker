@@ -20,12 +20,15 @@ const MoneyChart: FC<MoneyChartProps> = (props) => {
     let series = props.headers.map((header, index) => {
         return {
             name: header.name,
-            data: props.data.map(dataPoint => {
-                return {
-                    date: dataPoint.date,
-                    value: dataPoint.components[index]?.cumulativeChange.amountInMainCurrency ?? 0
+            data: props.data
+                .filter(dataPoint => dataPoint.components[index]?.cumulativeChange !== undefined)
+                .map(dataPoint => {
+                    return {
+                        date: dataPoint.date,
+                        value: dataPoint.components[index]?.cumulativeChange.amountInMainCurrency ?? 0
+                    }
                 }
-            })
+            )
         }
     })
     
