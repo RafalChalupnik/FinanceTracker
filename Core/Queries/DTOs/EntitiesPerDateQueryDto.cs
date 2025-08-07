@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using FinanceTracker.Core.Primitives;
 
 namespace FinanceTracker.Core.Queries.DTOs;
@@ -13,7 +14,8 @@ public record EntityHeaderDto(
 );
 
 public record EntitiesForDateDto(
-    string Date,
+    string Key,
+    [property: JsonIgnore] DateOnly Date,
     IReadOnlyCollection<ValueSnapshotDto?> Entities,
     ValueSnapshotDto Summary
 );

@@ -5,7 +5,7 @@ namespace FinanceTracker.Core.Queries.Implementation;
 
 internal static class DateGrouping
 {
-    public static (DateOnly Date, string Representation)[] GroupDates(this IEnumerable<DateOnly> dates, DateGranularity granularity)
+    public static DateRepresentation[] GroupDates(this IEnumerable<DateOnly> dates, DateGranularity granularity)
     {
         Func<DateOnly, string> keySelector = granularity switch
         {
@@ -19,7 +19,7 @@ internal static class DateGrouping
         
         return dates
             .GroupBy(keySelector)
-            .Select(group => (Date: group.Max(), Representation: group.Key))
+            .Select(group => new DateRepresentation(Date: group.Max(), Representation: group.Key))
             .OrderBy(x => x.Date)
             .ToArray();
     }

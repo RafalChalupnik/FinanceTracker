@@ -17,7 +17,20 @@ export type WalletValueHistory = {
     id: string,
     name: string,
     headers: ComponentHeader[],
-    data: ValueHistoryRecord[]
+    data: WalletHistoryRecord[]
+}
+
+export type WalletHistoryRecord = {
+    key: string;
+    date: string;
+    components: Array<ComponentValues | undefined>;
+    summary: ComponentValues | undefined;
+    target: WalletTarget | undefined;
+}
+
+interface WalletTarget {
+    targetInMainCurrency: number,
+    percentage: number
 }
 
 export type ValueHistoryRecord = {
@@ -123,7 +136,7 @@ export async function getWalletsComponentsValueHistory(
             id: wallet.id,
             name: wallet.name,
             headers: wallet.headers,
-            data: mapData(wallet.data)
+            data: mapWalletData(wallet.data)
         }
     })
 }
@@ -147,11 +160,18 @@ interface WalletDto {
     id: string,
     name: string,
     headers: ComponentHeader[],
-    data: EntitiesForDateDto[]
+    data: WalletForDateDto[]
+}
+
+interface WalletForDateDto {
+    key: string,
+    entities: ValueSnapshotDto[],
+    summary: ValueSnapshotDto,
+    target?: WalletTarget
 }
 
 interface EntitiesForDateDto {
-    date: string,
+    key: string,
     entities: ValueSnapshotDto[],
     summary: ValueSnapshotDto
 }
@@ -191,10 +211,34 @@ async function getEntitiesPerDateQueryDto(
     }
 }
 
+function mapWalletData (data: WalletForDateDto[]) : WalletHistoryRecord[] {
+    return data.map(row => ({
+        key: row.key,
+        date: row.key,
+        components: row.entities.map(entity => {
+            if (entity === null) {
+                return undefined;
+            }
+
+            return {
+                value: entity.value,
+                change: entity.change,
+                cumulativeChange: entity.cumulativeChange
+            }
+        }),
+        summary: {
+            value: row.summary.value,
+            change: row.summary.change,
+            cumulativeChange: row.summary.cumulativeChange
+        },
+        target: row.target
+    }))
+}
+
 function mapData (data: EntitiesForDateDto[]) : ValueHistoryRecord[] {
     return data.map(row => ({
-        key: row.date,
-        date: row.date,
+        key: row.key,
+        date: row.key,
         components: row.entities.map(entity => {
             if (entity === null) {
                 return undefined;
