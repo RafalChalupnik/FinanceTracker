@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Input, Button, Space, Card, Popconfirm, Typography, InputNumber} from "antd";
 import {DeleteOutlined, PlusOutlined, SaveOutlined} from "@ant-design/icons";
-import {EditableColumn, EditableTable} from "../components/EditableTable";
+import {DataIndexPath, EditableColumn, EditableTable} from "../components/EditableTable";
 import {
     Config, upsertWallet, deleteAsset, deleteDebt, deleteWallet, deleteWalletComponent, getConfiguration,
     OrderableEntity,
@@ -22,18 +22,28 @@ interface EntityTableProps {
 const EntityTable: React.FC<EntityTableProps> = (props) => {
     let [newEntry, setNewEntry] = useState<OrderableEntity | undefined>(undefined);
     
+    const updateEntity = async (record: OrderableEntity, path: DataIndexPath<OrderableEntity>, value: any) => {
+        setValue(record, path, value);
+        await props.onUpdate(record)
+        setNewEntry(undefined);
+    };
+
     const columns: EditableColumn<OrderableEntity>[] = [
         {
             title: "Name",
             key: 'name',
             dataIndex: "name",
-            editable: true
+            editable: {
+                onUpdate: updateEntity
+            }
         },
         {
             title: "Sequence",
             key: 'displaySequence',
             dataIndex: "displaySequence",
-            editable: true
+            editable: {
+                onUpdate: updateEntity
+            }
         }
     ];
 
@@ -71,12 +81,7 @@ const EntityTable: React.FC<EntityTableProps> = (props) => {
         <Card title={props.title} extra={<Button icon={<PlusOutlined />} onClick={handleAdd} >Add new entry</Button>}>
             <EditableTable 
                 records={buildData()} 
-                columns={columns} 
-                onUpdate={async (record, path, value) => {
-                    setValue(record, path, value);
-                    await props.onUpdate(record)
-                    setNewEntry(undefined);
-                }}
+                columns={columns}
                 onDelete={async record => props.onDelete(record.key)}
             />
         </Card>

@@ -17,20 +17,7 @@ export type WalletValueHistory = {
     id: string,
     name: string,
     headers: ComponentHeader[],
-    data: WalletHistoryRecord[]
-}
-
-export type WalletHistoryRecord = {
-    key: string;
-    date: string;
-    components: Array<ComponentValues | undefined>;
-    summary: ComponentValues | undefined;
-    target: WalletTarget | undefined;
-}
-
-interface WalletTarget {
-    targetInMainCurrency: number,
-    percentage: number
+    data: ValueHistoryRecord[]
 }
 
 export type ValueHistoryRecord = {
@@ -38,6 +25,12 @@ export type ValueHistoryRecord = {
     date: string;
     components: Array<ComponentValues | undefined>;
     summary: ComponentValues | undefined;
+    target: Target | undefined;
+}
+
+interface Target {
+    targetInMainCurrency: number,
+    percentage: number
 }
 
 export type ComponentHeader = {
@@ -167,7 +160,7 @@ interface WalletForDateDto {
     key: string,
     entities: ValueSnapshotDto[],
     summary: ValueSnapshotDto,
-    target?: WalletTarget
+    target?: Target
 }
 
 interface EntitiesForDateDto {
@@ -211,7 +204,7 @@ async function getEntitiesPerDateQueryDto(
     }
 }
 
-function mapWalletData (data: WalletForDateDto[]) : WalletHistoryRecord[] {
+function mapWalletData (data: WalletForDateDto[]) : ValueHistoryRecord[] {
     return data.map(row => ({
         key: row.key,
         date: row.key,
@@ -254,7 +247,8 @@ function mapData (data: EntitiesForDateDto[]) : ValueHistoryRecord[] {
             value: row.summary.value,
             change: row.summary.change,
             cumulativeChange: row.summary.cumulativeChange
-        }
+        },
+        target: undefined
     }))
 }
 

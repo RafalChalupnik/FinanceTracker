@@ -107,6 +107,7 @@ public class ValueHistoryQueries(IRepository repository)
 
     private static WalletTargetDto? BuildTargetData(EntitiesForDateDto data, IReadOnlyCollection<WalletTarget> targets)
     {
+        // TODO: Base on the actual values, not after processing
         var target = targets.FirstOrDefault(target => target.Date <= data.Date);
 
         if (target == null)
