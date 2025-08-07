@@ -41,8 +41,8 @@ internal static class EntitiesPerDateViewDtoFactory
     {
         var dates = orderedEntities
             .SelectMany(entity => entity.Dates)
-            .Where(date => date > (fromDate ?? DateOnly.MinValue))
-            .Where(date => date < (toDate ?? DateOnly.MaxValue))
+            .Where(date => date >= (fromDate ?? DateOnly.MinValue))
+            .Where(date => date <= (toDate ?? DateOnly.MaxValue))
             .GroupDates(dateGranularity ?? DateGranularity.Date);
 
         return new EntitiesPerDateQueryDto(

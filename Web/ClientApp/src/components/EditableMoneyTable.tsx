@@ -156,8 +156,8 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
                 extra={ 
                     <Space direction='horizontal'>
                         <DateGranularityPicker 
-                            minDate={dayjs(props.rows[0].date)}
-                            maxDate={dayjs(props.rows[props.rows.length - 1].date)}
+                            minDate={props.rows.length > 0 ? dayjs(props.rows[0].date) : undefined}
+                            maxDate={props.rows.length > 0 ? dayjs(props.rows[props.rows.length - 1].date) : undefined}
                             onChange={props.refreshData}
                         />
                         {props.editable && <Button
