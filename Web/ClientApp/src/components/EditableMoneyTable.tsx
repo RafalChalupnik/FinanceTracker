@@ -2,11 +2,14 @@ import React, {FC, ReactNode, useState} from "react";
 import {DataIndexPath, EditableColumn, EditableColumnGroup, EditableTable} from "./EditableTable";
 import MoneyForm from "./MoneyForm";
 import dayjs, {Dayjs} from "dayjs";
-import {Button, Card, DatePicker, Modal, Space} from "antd";
+import {Button, Card, DatePicker, Modal, Space, Typography} from "antd";
 import Money from "./Money";
 import {PlusOutlined} from "@ant-design/icons";
 import {ComponentHeader, DateGranularity, MoneyDto, ValueHistoryRecord} from "../api/ValueHistoryApi";
 import DateGranularityPicker from "./DateGranularityPicker";
+import MoneyChart from "./MoneyChart";
+
+const { Title } = Typography;
 
 interface MoneyEditableTableProps {
     title: string;
@@ -170,25 +173,44 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
                 }
                 style={{ width: "100%" }}
             >
-                <EditableTable<ValueHistoryRecord>
-                    records={buildData()}
-                    columns={columns}
-                    renderEditableCell={(record, columnKey, initialValue, close) =>
-                        <MoneyForm
-                            initialValue={initialValue}
-                            onSave={async money => {
-                                await props.editable!.onUpdate(columnKey, dayjs(record.date).format('YYYY-MM-DD'), money);
-                                setNewEntryDate(undefined);
-                                close();
-                            }}
-                            onCancel={close}
-                        />
-
-                    }
-                    onDelete={async record => {
-                        await props.editable!.onDelete(record.date)
-                    }}
-                />
+                <Space direction='vertical'>
+                    <EditableTable<ValueHistoryRecord>
+                        records={buildData()}
+                        columns={columns}
+                        renderEditableCell={(record, columnKey, initialValue, close) =>
+                            <MoneyForm
+                                initialValue={initialValue}
+                                onSave={async money => {
+                                    await props.editable!.onUpdate(columnKey, dayjs(record.date).format('YYYY-MM-DD'), money);
+                                    setNewEntryDate(undefined);
+                                    close();
+                                }}
+                                onCancel={close}
+                            />
+                        }
+                        onDelete={async record => {
+                            await props.editable!.onDelete(record.date)
+                        }}
+                    />
+                    <Title level={5}>Value</Title>
+                    <MoneyChart 
+                        headers={props.columns}
+                        data={props.rows}
+                        dataSelector={component => component.value}
+                    />
+                    <Title level={5}>Change</Title>
+                    <MoneyChart
+                        headers={props.columns}
+                        data={props.rows}
+                        dataSelector={component => component.change}
+                    />
+                    <Title level={5}>Cumulative change</Title>
+                    <MoneyChart
+                        headers={props.columns}
+                        data={props.rows}
+                        dataSelector={component => component.cumulativeChange}
+                    />
+                </Space>
             </Card>
             <Modal
                 title="Pick a date"

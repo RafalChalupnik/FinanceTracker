@@ -47,22 +47,16 @@ const Wallets: FC<WalletsProps> = (props) => {
                 <Space direction="vertical">
                     {wallets.map(wallet => {
                             return (
-                                <Space direction="vertical">
-                                    <EditableMoneyTable
-                                        title={wallet.name}
-                                        rows={wallet.data}
-                                        columns={wallet.headers}
-                                        editable={{
-                                            onUpdate: updateComponent,
-                                            onDelete: date => deleteEvaluations(wallet.id, date),
-                                        }}
-                                        refreshData={populateData}                                
-                                    />
-                                <MoneyChart 
-                                    headers={wallet.headers} 
-                                    data={wallet.data}
+                                <EditableMoneyTable
+                                    title={wallet.name}
+                                    rows={wallet.data}
+                                    columns={wallet.headers}
+                                    editable={{
+                                        onUpdate: updateComponent,
+                                        onDelete: date => deleteEvaluations(wallet.id, date),
+                                    }}
+                                    refreshData={populateData}
                                 />
-                            </Space>
                         );
                     }
                     )}

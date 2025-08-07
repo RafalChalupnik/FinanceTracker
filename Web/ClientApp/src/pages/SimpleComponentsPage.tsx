@@ -71,10 +71,6 @@ const SimpleComponentsPage: FC<SimpleComponentsPageProps> = (props) => {
                 editable={editable}
                 refreshData={populateData}            
             />
-            <MoneyChart
-                headers={data.headers}
-                data={data.rows}
-            />
         </EmptyConfig>;
 }
 
