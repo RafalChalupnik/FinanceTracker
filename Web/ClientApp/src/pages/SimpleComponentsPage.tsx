@@ -14,6 +14,7 @@ import {Dayjs} from "dayjs";
 
 interface SimpleComponentsPageProps {
     title: string;
+    defaultGranularity: DateGranularity;
     getData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<EntityValueHistory>,
     editable?: EditableProps
 }
@@ -41,7 +42,7 @@ const SimpleComponentsPage: FC<SimpleComponentsPageProps> = (props) => {
     }
     
     useEffect(() => {
-        populateData()
+        populateData(props.defaultGranularity, undefined, undefined)
     }, [])
     
     const updateEntity = async (id: string, date: string, value: MoneyDto) => {
