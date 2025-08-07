@@ -10,7 +10,7 @@ interface EditableTableProps<T extends { key: React.Key }> {
     columns: (EditableColumn<T> | EditableColumnGroup<T>)[];
     renderEditableCell?: (record: T, columnKey: string, initialValue: any, close: () => void) => ReactNode;
     onUpdate?: (record: T, path: DataIndexPath<T>, value: any) => void;
-    onDelete: (record: T) => void;
+    onDelete?: (record: T) => void;
 }
 
 export interface EditableColumn<T> {
@@ -122,10 +122,11 @@ export function EditableTable<T extends { key: React.Key }>(props: EditableTable
             } as ColumnType<T>;
         });
     };
-
-    const tableColumns: ColumnsType<T> = [
-        ...processColumns(props.columns),
-        {
+    
+    const tableColumns = processColumns(props.columns);
+    
+    if (props.onDelete !== undefined) {
+        tableColumns.push({
             title: '',
             dataIndex: 'operation',
             fixed: 'right',
@@ -135,13 +136,13 @@ export function EditableTable<T extends { key: React.Key }>(props: EditableTable
                     okText={'Yes'}
                     cancelText={'No'}
                     okButtonProps={{ danger: true }}
-                    onConfirm={() => props.onDelete(record)}
+                    onConfirm={() => props.onDelete!(record)}
                 >
                     <DeleteOutlined />
                 </Popconfirm>
             ),
-        },
-    ];
+        });
+    }
 
     return (
         <Table

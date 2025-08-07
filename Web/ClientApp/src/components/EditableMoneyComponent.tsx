@@ -191,9 +191,9 @@ const EditableMoneyComponent: FC<MoneyEditableTableProps> = (props) => {
                                 onCancel={close}
                             />
                         }
-                        onDelete={async record => {
+                        onDelete={props.editable ? (async record => {
                             await props.editable!.onDelete(record.date)
-                        }}
+                        }) : undefined}
                     />
                     <Title level={5}>Value</Title>
                     <MoneyChart 
