@@ -1,6 +1,6 @@
 import React, {ReactNode, useState} from "react";
 import {Table, Popconfirm, Input, Space, Button} from "antd";
-import type {ColumnGroupType, ColumnsType, ColumnType} from "antd/es/table";
+import type {ColumnGroupType, ColumnType} from "antd/es/table";
 import {CloseOutlined, DeleteOutlined, SaveOutlined} from "@ant-design/icons";
 
 export type DataIndexPath<T> = keyof T | (string | number)[];
@@ -8,8 +8,6 @@ export type DataIndexPath<T> = keyof T | (string | number)[];
 interface EditableTableProps<T extends { key: React.Key }> {
     records: T[];
     columns: (EditableColumn<T> | EditableColumnGroup<T>)[];
-    renderEditableCell?: (record: T, columnKey: string, initialValue: any, close: () => void) => ReactNode;
-    onUpdate?: (record: T, path: DataIndexPath<T>, value: any) => void;
     onDelete?: (record: T) => void;
 }
 
@@ -17,9 +15,14 @@ export interface EditableColumn<T> {
     title: string;
     key: string;
     dataIndex: DataIndexPath<T>;
-    editable: boolean;
     fixed?: 'left' | 'right';
-    render?: (record: T, dataIndex: DataIndexPath<T>) => React.ReactNode;
+    render?: (record: T) => React.ReactNode;
+    editable?: EditableColumnProps<T>;
+}
+
+export interface EditableColumnProps<T> {
+    renderEditableCell?: (record: T, initialValue: any, close: () => void) => ReactNode;
+    onUpdate?: (record: T, path: DataIndexPath<T>, value: any) => void | Promise<void>;
 }
 
 export interface EditableColumnGroup<T> {
@@ -50,15 +53,19 @@ export function EditableTable<T extends { key: React.Key }>(props: EditableTable
         setEditingValue(value);
     };
 
-    const handleSave = (record: T, path: DataIndexPath<T>) => {
-        props.onUpdate!(record, path, editingValue);
+    const handleSave = async (
+        onUpdate: (record: T, path: DataIndexPath<T>, value: any) => void | Promise<void>, 
+        record: T,
+        path: DataIndexPath<T>
+    ) => {
+        await onUpdate!(record, path, editingValue);
         setEditingKey(null);
     };
 
     const renderEditableCell = (
+        column: EditableColumn<T>,
         record: T, 
         path: DataIndexPath<T>, 
-        columnKey: string,
         renderFunc: () => ReactNode
     ) => {
         if (!isEditing(record, path)) {
@@ -69,20 +76,20 @@ export function EditableTable<T extends { key: React.Key }>(props: EditableTable
             );
         }
         
-        return props.renderEditableCell
-            ? props.renderEditableCell(record, columnKey, editingValue, () => setEditingKey(null))
+        return column.editable?.renderEditableCell
+            ? column.editable?.renderEditableCell(record, editingValue, () => setEditingKey(null))
             : (
                 <Space direction='horizontal'>
                     <Input
                         value={editingValue}
                         onChange={(e) => setEditingValue(e.target.value)}
-                        onPressEnter={() => handleSave(record, path)}
-                        onBlur={() => handleSave(record, path)}
+                        onPressEnter={() => handleSave(column.editable!.onUpdate!, record, path)}
+                        onBlur={() => handleSave(column.editable!.onUpdate!, record, path)}
                         // autoFocus
                     />
                     <Button 
                         icon={<SaveOutlined />} 
-                        onClick={() => handleSave(record, path)}
+                        onClick={() => handleSave(column.editable!.onUpdate!, record, path)}
                     />
                     <Button 
                         icon={<CloseOutlined />} 
@@ -112,11 +119,11 @@ export function EditableTable<T extends { key: React.Key }>(props: EditableTable
                 dataIndex: normalColumn.dataIndex,
                 fixed: normalColumn.fixed,
                 render: (_: any, record: T, index: number) => {
-                    let renderFunc = () => normalColumn.render?.(record, normalColumn.dataIndex) 
+                    let renderFunc = () => normalColumn.render?.(record) 
                         ?? getValue(record, normalizePath(normalColumn.dataIndex));
                     
                     return normalColumn.editable
-                        ? renderEditableCell(record, normalColumn.dataIndex, normalColumn.key, renderFunc)
+                        ? renderEditableCell(normalColumn, record, normalColumn.dataIndex, renderFunc)
                         : renderFunc()
                 },
             } as ColumnType<T>;

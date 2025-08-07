@@ -11,9 +11,9 @@ public interface IRepository
     IQueryable<T> GetEntitiesWithValueHistory<T>() where T : EntityWithValueHistory;
     
     IQueryable<T> GetOrderableEntities<T>() where T : class, IOrderableEntity;
-    
-    IQueryable<Wallet> GetWallets(bool includeValueHistory);
 
+    IQueryable<Wallet> GetWallets(bool includeValueHistory, bool includeTargets);
+    
     void Add<T>(T entity) where T : class;
     
     ValueTask DeleteAsync<T>(IQueryable<T> entities);

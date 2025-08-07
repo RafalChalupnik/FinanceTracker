@@ -21,7 +21,7 @@ public class ConfigQueries(IRepository repository)
 
     private WalletDataDto[] GetWallets()
     {
-        return repository.GetWallets(includeValueHistory: false)
+        return repository.GetWallets(includeValueHistory: false, includeTargets: false)
             .AsEnumerable()
             .Select(wallet => new WalletDataDto(
                     Id: wallet.Id,

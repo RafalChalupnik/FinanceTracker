@@ -27,7 +27,7 @@ public class ValueHistoryQueries(IRepository repository)
     {
         EntitiesPerDateViewDtoFactory.EntityData[] entities =
         [
-            MapEntities(repository.GetWallets(includeValueHistory: true).ToArray(), "Wallets"),
+            MapEntities(repository.GetWallets(includeValueHistory: true, includeTargets: false).ToArray(), "Wallets"),
             MapEntities(repository.GetEntitiesWithValueHistory<Asset>().ToArray(), "Assets"),
             MapEntities(repository.GetEntitiesWithValueHistory<Debt>().ToArray(), "Debts"),
         ];
@@ -43,7 +43,7 @@ public class ValueHistoryQueries(IRepository repository)
     public WalletsPerDateQueryDto ForWalletsAndComponents(DateGranularity? granularity, DateOnly? from, DateOnly? to)
     {
         var wallets = repository
-            .GetWallets(includeValueHistory: true)
+            .GetWallets(includeValueHistory: true, includeTargets: true)
             .ToArray();
 
         return new WalletsPerDateQueryDto(
@@ -60,14 +60,7 @@ public class ValueHistoryQueries(IRepository repository)
                                 )
                             )
                             .ToArray(),
-                        Data: EntitiesPerDateViewDtoFactory
-                            .BuildEntitiesPerDateViewDto(
-                                wallet.Components,
-                                granularity,
-                                fromDate: from,
-                                toDate: to
-                            )
-                            .Data
+                        Data: BuildWalletForDates(wallet, granularity, from, to)
                     )
                 )
                 .ToArray()
@@ -76,12 +69,59 @@ public class ValueHistoryQueries(IRepository repository)
     
     public EntitiesPerDateQueryDto ForWallets(DateGranularity? granularity, DateOnly? from, DateOnly? to) =>
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
-            entities: repository.GetWallets(includeValueHistory: true),
+            entities: repository.GetWallets(includeValueHistory: true, includeTargets: false),
             granularity,
             fromDate: from,
             toDate: to
         );
-    
+
+    private IReadOnlyCollection<WalletForDateDto> BuildWalletForDates(
+        Wallet wallet,
+        DateGranularity? granularity, 
+        DateOnly? from, 
+        DateOnly? to)
+    {
+        var data = EntitiesPerDateViewDtoFactory
+            .BuildEntitiesPerDateViewDto(
+                wallet.Components,
+                granularity,
+                fromDate: from,
+                toDate: to
+            )
+            .Data;
+
+        var targets = wallet.Targets
+            .OrderByDescending(x => x.Date)
+            .ToArray();
+
+        return data
+            .Select(dataForDate => new WalletForDateDto(
+                    Key: dataForDate.Key,
+                    Entities: dataForDate.Entities,
+                    Summary: dataForDate.Summary,
+                    Target: BuildTargetData(dataForDate, targets)
+                )
+            )
+            .ToArray();
+    }
+
+    private static WalletTargetDto? BuildTargetData(EntitiesForDateDto data, IReadOnlyCollection<WalletTarget> targets)
+    {
+        var target = targets.FirstOrDefault(target => target.Date <= data.Date);
+
+        if (target == null || target.ValueInMainCurrency == 0)
+        {
+            return null;
+        }
+        
+        var percentage = data.Summary.Value.AmountInMainCurrency / target.ValueInMainCurrency;
+        
+        return new WalletTargetDto(
+            TargetInMainCurrency: target.ValueInMainCurrency,
+            Percentage: decimal.Round(percentage * 100, decimals: 2)
+        );
+    }
+
     private static EntitiesPerDateViewDtoFactory.EntityData MapEntities<T>(
         IReadOnlyCollection<T> entities, 
         string name

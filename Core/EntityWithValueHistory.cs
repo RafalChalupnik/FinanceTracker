@@ -32,18 +32,16 @@ public abstract class EntityWithValueHistory : IEntityWithValueHistory
             alreadyExistingEntry.Value = value;
             return null;
         }
-        else
+
+        var newValue = new HistoricValue
         {
-            var newValue = new HistoricValue
-            {
-                Id = Guid.NewGuid(),
-                Date = date,
-                Value = value
-            };
+            Id = Guid.NewGuid(),
+            Date = date,
+            Value = value
+        };
             
-            _valueHistory.Add(newValue);
-            return newValue;
-        }
+        _valueHistory.Add(newValue);
+        return newValue;
     }
 
     public IEnumerable<DateOnly> GetEvaluationDates()

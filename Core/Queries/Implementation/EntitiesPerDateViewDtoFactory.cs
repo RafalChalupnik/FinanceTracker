@@ -55,7 +55,7 @@ internal static class EntitiesPerDateViewDtoFactory
                 .ToArray(),
             Data: dates
                 .Select(date => BuildEntitiesForDateDto(
-                        dateRepresentation: date.Representation,
+                        date: date,
                         entityValues: orderedEntities
                             .Select(entity => entity.GetValueForDate(date.Date))
                             .ToArray()
@@ -68,10 +68,11 @@ internal static class EntitiesPerDateViewDtoFactory
     }
 
     private static EntitiesForDateDto BuildEntitiesForDateDto(
-        string dateRepresentation,
+        DateRepresentation date,
         IReadOnlyCollection<ValueSnapshotDto?> entityValues) =>
         new(
-            Date: dateRepresentation,
+            Key: date.Representation,
+            Date: date.Date,
             Entities: entityValues,
             Summary: new ValueSnapshotDto(
                 value: entityValues

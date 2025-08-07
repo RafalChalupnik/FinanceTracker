@@ -25,6 +25,12 @@ export type ValueHistoryRecord = {
     date: string;
     components: Array<ComponentValues | undefined>;
     summary: ComponentValues | undefined;
+    target: Target | undefined;
+}
+
+interface Target {
+    targetInMainCurrency: number,
+    percentage: number
 }
 
 export type ComponentHeader = {
@@ -92,6 +98,14 @@ export async function getWalletsValueHistory(
     return await getEntitiesPerDateQueryDto('api/value-history/wallets', granularity, from, to);
 }
 
+export async function setWalletTarget(id: string, date: string, value: number) : Promise<void> {
+    console.log('#Set', id, date, value)
+    await put(`api/value-history/wallets/${id}/target`, {
+        date: date,
+        targetInMainCurrency: value
+    });
+}
+
 export async function deleteWalletValues(walletId: string, date: string) : Promise<void> {
     return await deleteValue(`api/value-history/wallets/${walletId}/${date}`);
 }
@@ -123,7 +137,7 @@ export async function getWalletsComponentsValueHistory(
             id: wallet.id,
             name: wallet.name,
             headers: wallet.headers,
-            data: mapData(wallet.data)
+            data: mapWalletData(wallet.data)
         }
     })
 }
@@ -147,11 +161,18 @@ interface WalletDto {
     id: string,
     name: string,
     headers: ComponentHeader[],
-    data: EntitiesForDateDto[]
+    data: WalletForDateDto[]
+}
+
+interface WalletForDateDto {
+    key: string,
+    entities: ValueSnapshotDto[],
+    summary: ValueSnapshotDto,
+    target?: Target
 }
 
 interface EntitiesForDateDto {
-    date: string,
+    key: string,
     entities: ValueSnapshotDto[],
     summary: ValueSnapshotDto
 }
@@ -191,10 +212,10 @@ async function getEntitiesPerDateQueryDto(
     }
 }
 
-function mapData (data: EntitiesForDateDto[]) : ValueHistoryRecord[] {
+function mapWalletData (data: WalletForDateDto[]) : ValueHistoryRecord[] {
     return data.map(row => ({
-        key: row.date,
-        date: row.date,
+        key: row.key,
+        date: row.key,
         components: row.entities.map(entity => {
             if (entity === null) {
                 return undefined;
@@ -210,7 +231,32 @@ function mapData (data: EntitiesForDateDto[]) : ValueHistoryRecord[] {
             value: row.summary.value,
             change: row.summary.change,
             cumulativeChange: row.summary.cumulativeChange
-        }
+        },
+        target: row.target
+    }))
+}
+
+function mapData (data: EntitiesForDateDto[]) : ValueHistoryRecord[] {
+    return data.map(row => ({
+        key: row.key,
+        date: row.key,
+        components: row.entities.map(entity => {
+            if (entity === null) {
+                return undefined;
+            }
+
+            return {
+                value: entity.value,
+                change: entity.change,
+                cumulativeChange: entity.cumulativeChange
+            }
+        }),
+        summary: {
+            value: row.summary.value,
+            change: row.summary.change,
+            cumulativeChange: row.summary.cumulativeChange
+        },
+        target: undefined
     }))
 }
 

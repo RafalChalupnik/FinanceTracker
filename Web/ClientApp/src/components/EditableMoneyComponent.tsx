@@ -1,5 +1,5 @@
-import React, {FC, ReactNode, useState} from "react";
-import {DataIndexPath, EditableColumn, EditableColumnGroup, EditableTable} from "./EditableTable";
+import React, {FC, useState} from "react";
+import {EditableColumn, EditableColumnGroup, EditableTable} from "./EditableTable";
 import MoneyForm from "./MoneyForm";
 import dayjs, {Dayjs} from "dayjs";
 import {Button, Card, DatePicker, Modal, Space, Typography} from "antd";
@@ -11,11 +11,12 @@ import MoneyChart from "./MoneyChart";
 
 const { Title } = Typography;
 
-interface MoneyEditableTableProps {
+interface EditableMoneyComponentProps {
     title: string;
     rows: ValueHistoryRecord[]
     columns: ComponentHeader[],
     refreshData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<void>,
+    extraColumns?: (EditableColumn<ValueHistoryRecord> | EditableColumnGroup<ValueHistoryRecord>)[];
     editable?: EditableProps
 }
 
@@ -24,27 +25,11 @@ interface EditableProps {
     onDelete: (date: string) => Promise<void>
 } 
 
-const EditableMoneyComponent: FC<MoneyEditableTableProps> = (props) => {
+const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-    const [newEntryDate, setNewEntryDate] = useState<string | undefined>(undefined);
+    const [selectedDate, setSelectedDate] = useState<Dayjs | undefined>(undefined);
+    const [newEntryDate, setNewEntryDate] = useState<Dayjs | undefined>(undefined);
 
-    function getValue(obj: any, path: (string | number)[]): any {
-        return path.reduce((acc, key) => (acc != null ? acc[key] : undefined), obj);
-    }
-
-    const normalizePath = (path: DataIndexPath<ValueHistoryRecord>): (string | number)[] =>
-        Array.isArray(path) ? path : [path as string];
-    
-    function renderMoney(record: ValueHistoryRecord, dataIndex: DataIndexPath<ValueHistoryRecord>, colorCoding: boolean) : ReactNode {
-        return (
-            <Money
-                value={getValue(record, normalizePath(dataIndex)) as MoneyDto}
-                colorCoding={colorCoding}
-            />
-        );
-    }
-    
     function buildComponentColumns (entityId: string, name: string, index: number) : (EditableColumn<ValueHistoryRecord> | EditableColumnGroup<ValueHistoryRecord>) {
         return {
             title: name,
@@ -53,22 +38,31 @@ const EditableMoneyComponent: FC<MoneyEditableTableProps> = (props) => {
                     title: 'Value',
                     key: entityId,
                     dataIndex: ['components', index, 'value'],
-                    editable: props.editable !== undefined,
-                    render: (record, path) => renderMoney(record, path, false)
+                    render: record => <Money value={record.components[index]?.value} colorCoding={false}/>,
+                    editable: {
+                        renderEditableCell:(record, initialValue, close) =>
+                            <MoneyForm
+                                initialValue={initialValue}
+                                onSave={async money => {
+                                    await props.editable!.onUpdate(entityId, dayjs(record.date).format('YYYY-MM-DD'), money);
+                                    setNewEntryDate(undefined);
+                                    close();
+                                }}
+                                onCancel={close}
+                            />
+                    }
                 },
                 {
                     title: 'Change',
                     key: entityId,
                     dataIndex: ['components', index, 'change'],
-                    editable: false,
-                    render: (record, path) => renderMoney(record, path, true)
+                    render: record => <Money value={record.components[index]?.change} colorCoding={true}/>,
                 },
                 {
                     title: 'Cumulative',
                     key: entityId,
                     dataIndex: ['components', index, 'cumulativeChange'],
-                    editable: false,
-                    render: (record, path) => renderMoney(record, path, true)
+                    render: record => <Money value={record.components[index]?.cumulativeChange} colorCoding={true}/>,
                 }
             ]
         }
@@ -83,9 +77,8 @@ const EditableMoneyComponent: FC<MoneyEditableTableProps> = (props) => {
             title: 'Date',
             key: 'date',
             dataIndex: 'date',
-            editable: false,
             fixed: 'left',
-            render: (record, _) => record.key
+            render: record => record.key
         },
         ...componentsColumns,
         {
@@ -95,28 +88,26 @@ const EditableMoneyComponent: FC<MoneyEditableTableProps> = (props) => {
                     title: 'Value',
                     key: 'summary',
                     dataIndex: ['summary', 'value'],
-                    editable: false,
                     fixed: 'right',
-                    render: (record, path) => renderMoney(record, path, false)
+                    render: record => <Money value={record.summary?.value} colorCoding={false}/>
                 },
                 {
                     title: 'Change',
                     key: 'summary',
                     dataIndex: ['summary', 'change'],
-                    editable: false,
                     fixed: 'right',
-                    render: (record, path) => renderMoney(record, path, true)
+                    render: record => <Money value={record.summary?.change} colorCoding={true}/>
                 },
                 {
                     title: 'Cumulative',
                     key: 'summary',
                     dataIndex: ['summary', 'cumulativeChange'],
-                    editable: false,
                     fixed: 'right',
-                    render: (record, path) => renderMoney(record, path, true)
+                    render: record => <Money value={record.summary?.cumulativeChange} colorCoding={true}/>
                 }
             ]
-        }
+        },
+        ...(props.extraColumns ?? [])
     ];
     
     const handleModalOk = () => {
@@ -125,8 +116,7 @@ const EditableMoneyComponent: FC<MoneyEditableTableProps> = (props) => {
             return;
         }
 
-        let date = dayjs(selectedDate).format('YYYY-MM-DD');
-        setNewEntryDate(date)
+        setNewEntryDate(dayjs(selectedDate))
         setIsModalOpen(false);
     };
 
@@ -142,14 +132,15 @@ const EditableMoneyComponent: FC<MoneyEditableTableProps> = (props) => {
         let newData = [
             ...props.rows,
             {
-                key: newEntryDate,
-                date: newEntryDate,
+                key: newEntryDate.format("YYYY-MM-DD"),
+                date: newEntryDate.format("YYYY-MM-DD"),
                 components: props.columns.map(_ => undefined),
-                summary: undefined
+                summary: undefined,
+                target: undefined
             }
         ]
 
-        return newData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        return newData.sort((a, b) => dayjs(a.date).unix() - dayjs(b.date).unix());
     }
     
     return (
@@ -180,17 +171,6 @@ const EditableMoneyComponent: FC<MoneyEditableTableProps> = (props) => {
                     <EditableTable<ValueHistoryRecord>
                         records={buildData()}
                         columns={columns}
-                        renderEditableCell={(record, columnKey, initialValue, close) =>
-                            <MoneyForm
-                                initialValue={initialValue}
-                                onSave={async money => {
-                                    await props.editable!.onUpdate(columnKey, dayjs(record.date).format('YYYY-MM-DD'), money);
-                                    setNewEntryDate(undefined);
-                                    close();
-                                }}
-                                onCancel={close}
-                            />
-                        }
                         onDelete={props.editable ? (async record => {
                             await props.editable!.onDelete(record.date)
                         }) : undefined}

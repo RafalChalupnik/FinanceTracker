@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using FinanceTracker.Core.Exceptions;
 using FinanceTracker.Core.Extensions;
 using FinanceTracker.Core.Interfaces;
@@ -12,6 +13,7 @@ namespace FinanceTracker.Core;
 public class Wallet : IEntityWithValueHistory, IOrderableEntity
 {
     private readonly List<Component> _components = [];
+    private readonly List<WalletTarget> _targets = [];
     
     [Key]
     public Guid Id { get; init; } = Guid.NewGuid();
@@ -30,6 +32,11 @@ public class Wallet : IEntityWithValueHistory, IOrderableEntity
     /// Components of the wallet.
     /// </summary>
     public IReadOnlyList<Component> Components => _components;
+
+    /// <summary>
+    /// Historic targets of the wallet.
+    /// </summary>
+    public IReadOnlyList<WalletTarget> Targets => _targets;
 
     public IEnumerable<DateOnly> GetEvaluationDates() => Components
         .SelectMany(component => component.GetEvaluationDates());
@@ -57,6 +64,50 @@ public class Wallet : IEntityWithValueHistory, IOrderableEntity
 
         _components.Add(component);
     }
+    
+    /// <summary>
+    /// Adds <see cref="WalletTarget"/> to the wallet.
+    /// </summary>
+    /// <exception cref="DuplicateException"/>
+    public WalletTarget? SetTarget(DateOnly date, decimal valueInMainCurrency)
+    {
+        var alreadyExistingTarget = Targets.FirstOrDefault(x => x.Date == date);
+        
+        if (alreadyExistingTarget != null)
+        {
+            alreadyExistingTarget.ValueInMainCurrency = valueInMainCurrency;
+            return null;
+        }
+
+        var newTarget = new WalletTarget
+        {
+            Id = Guid.NewGuid(),
+            Date = date,
+            ValueInMainCurrency = valueInMainCurrency
+        };
+        
+        _targets.Add(newTarget);
+        return newTarget;
+    }
+}
+
+/// <summary>
+/// Historic target value of the wallet.
+/// </summary>
+[ComplexType]
+public class WalletTarget
+{
+    public Guid Id { get; init; } = Guid.NewGuid();
+    
+    /// <summary>
+    /// Date the target value has been set.
+    /// </summary>
+    public DateOnly Date { get; init; }
+    
+    /// <summary>
+    /// Target value of the wallet in main currency.
+    /// </summary>
+    public decimal ValueInMainCurrency { get; set; }
 }
 
 public class Component : EntityWithValueHistory, IOrderableEntity
