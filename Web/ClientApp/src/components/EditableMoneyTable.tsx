@@ -78,7 +78,8 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
             title: 'Date',
             key: 'date',
             dataIndex: 'date',
-            editable: false
+            editable: false,
+            fixed: 'left'
         },
         ...componentsColumns,
         {
@@ -89,6 +90,7 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
                     key: 'summary',
                     dataIndex: ['summary', 'value'],
                     editable: false,
+                    fixed: 'right',
                     render: (record, path) => renderMoney(record, path, false)
                 },
                 {
@@ -96,6 +98,7 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
                     key: 'summary',
                     dataIndex: ['summary', 'change'],
                     editable: false,
+                    fixed: 'right',
                     render: (record, path) => renderMoney(record, path, true)
                 },
                 {
@@ -103,6 +106,7 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
                     key: 'summary',
                     dataIndex: ['summary', 'cumulativeChange'],
                     editable: false,
+                    fixed: 'right',
                     render: (record, path) => renderMoney(record, path, true)
                 }
             ]
@@ -143,7 +147,7 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
     }
     
     return (
-        <>
+        <div style={{ maxWidth: '95vw' }}>
             <Card 
                 title={props.title} 
                 extra={props.editable && 
@@ -152,6 +156,7 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
                         onClick={() => setIsModalOpen(true)}
                     />
                 }
+                style={{ width: "100%" }}
             >
                 <EditableTable<ValueHistoryRecord>
                     records={buildData()}
@@ -181,7 +186,7 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
             >
                 <DatePicker onChange={setSelectedDate} />
             </Modal>
-        </>
+        </div>
     );
 }
 

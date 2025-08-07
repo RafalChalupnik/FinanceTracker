@@ -18,6 +18,7 @@ export interface EditableColumn<T> {
     key: string;
     dataIndex: DataIndexPath<T>;
     editable: boolean;
+    fixed?: 'left' | 'right';
     render?: (record: T, dataIndex: DataIndexPath<T>) => React.ReactNode;
 }
 
@@ -109,7 +110,7 @@ export function EditableTable<T extends { key: React.Key }>(props: EditableTable
             return {
                 title: normalColumn.title,
                 dataIndex: normalColumn.dataIndex,
-                fixed: 'left',
+                fixed: normalColumn.fixed,
                 render: (_: any, record: T, index: number) => {
                     let renderFunc = () => normalColumn.render?.(record, normalColumn.dataIndex) 
                         ?? getValue(record, normalizePath(normalColumn.dataIndex));
@@ -127,7 +128,7 @@ export function EditableTable<T extends { key: React.Key }>(props: EditableTable
         {
             title: '',
             dataIndex: 'operation',
-            fixed: 'left',
+            fixed: 'right',
             render: (_: any, record: T) => (
                 <Popconfirm
                     title='Sure to delete?'
