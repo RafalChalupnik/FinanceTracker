@@ -171,7 +171,10 @@ const EditableMoneyComponent: FC<MoneyEditableTableProps> = (props) => {
                         </Button>}
                     </Space>
                 }
-                style={{ width: "100%" }}
+                style={{
+                    width: '100%',
+                    overflowX: 'auto',
+                }}
             >
                 <Space direction='vertical'>
                     <EditableTable<ValueHistoryRecord>
