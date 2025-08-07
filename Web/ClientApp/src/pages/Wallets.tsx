@@ -1,17 +1,18 @@
 import React, {FC, useEffect, useState} from 'react';
-import {Space, Typography} from "antd";
+import {Button, Input, InputNumber, Space, Typography} from "antd";
 import EditableMoneyComponent from "../components/EditableMoneyComponent";
 import {
     DateGranularity,
     deleteWalletValues,
     getWalletsComponentsValueHistory,
     MoneyDto,
-    setWalletComponentValue, setWalletValue, ValueHistoryRecord,
+    setWalletComponentValue, setWalletTarget, ValueHistoryRecord,
     WalletValueHistory
 } from "../api/ValueHistoryApi";
 import EmptyConfig from "../components/EmptyConfig";
 import {Dayjs} from 'dayjs';
 import {EditableColumn} from "../components/EditableTable";
+import {CloseOutlined, SaveOutlined} from "@ant-design/icons";
 
 const { Text } = Typography;
 
@@ -21,6 +22,7 @@ interface WalletsProps {
 const Wallets: FC<WalletsProps> = (props) => {
     const [isLoading, setIsLoading] = useState(true)
     const [wallets, setWallets] = useState([] as WalletValueHistory[]);
+    const [editingTargetValue, setEditingTargetValue] = useState(0);
 
     const populateData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => {
         const wallets = await getWalletsComponentsValueHistory(granularity, from, to)
@@ -63,7 +65,34 @@ const Wallets: FC<WalletsProps> = (props) => {
                 </Space>
             ),
             editable: {
-                onUpdate: (record, _, value) => setWalletValue(walletId, record.date, value)
+                renderEditableCell: (record, initialValue, close) => {
+                    const handleSave = async () => {
+                        await setWalletTarget(walletId, record.date, editingTargetValue)
+                        await populateData()
+                        close();
+                    }
+
+                    return (
+                        <Space direction='horizontal'>
+                            <InputNumber
+                                value={record.target?.targetInMainCurrency ?? 0}
+                                onChange={(e) => setEditingTargetValue(e?.valueOf() ?? 0)}
+                                onPressEnter={handleSave}
+                                onBlur={handleSave}
+                                // autoFocus
+                            />
+                            <Button
+                                icon={<SaveOutlined/>}
+                                onClick={handleSave}
+                            />
+                            <Button
+                                icon={<CloseOutlined/>}
+                                onClick={close}
+                            />
+                        </Space>
+                    );
+                },
+                onUpdate: (record, _, value) => setWalletTarget(walletId, record.date, value)
             }
         },
     ]

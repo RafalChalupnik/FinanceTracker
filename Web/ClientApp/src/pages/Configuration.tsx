@@ -88,46 +88,6 @@ const EntityTable: React.FC<EntityTableProps> = (props) => {
     );
 };
 
-interface WalletTableProps {
-    wallets: WalletEntity[];
-    onDeleteWallet: (walletId: string) => Promise<void>;
-    onUpdateComponent: (walletId: string, entity: OrderableEntity) => Promise<void>;
-    onDeleteComponent: (componentId: string) => Promise<void>;
-}
-
-const WalletTable: React.FC<WalletTableProps> = (props) => {
-    return (
-        <>
-            {props.wallets.map(wallet => (
-                <EntityTable
-                    title={
-                        <Space direction='horizontal'>
-                            <Text>Name:</Text>
-                            <Input value={wallet.name}/>
-
-                            <Text>Sequence:</Text>
-                            <Input value={wallet.displaySequence}/>
-                            
-                            <Popconfirm
-                                title='Sure to delete?'
-                                okText={'Yes'}
-                                cancelText={'No'}
-                                okButtonProps={{ danger: true }}
-                                onConfirm={async () => await props.onDeleteWallet(wallet.key)}
-                            >
-                                <Button icon={<DeleteOutlined />}/>
-                            </Popconfirm>
-                        </Space>
-                    }
-                    data={wallet.components}
-                    onUpdate={async component => props.onUpdateComponent(wallet.key, component)}
-                    onDelete={props.onDeleteComponent}
-                />
-            ))}
-        </>
-    );
-};
-
 interface WalletProps {
     wallet: WalletEntity;
     onUpdateWallet: (wallet: OrderableEntity) => Promise<void>;
