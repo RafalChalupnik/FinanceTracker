@@ -13,7 +13,17 @@ interface DateRangePickerWithTypeProps {
 }
 
 const DateRangePickerWithType: React.FC<DateRangePickerWithTypeProps> = (props) => {
+    const [minDate, setMinDate] = useState<Dayjs | undefined>(undefined);
+    const [maxDate, setMaxDate] = useState<Dayjs | undefined>(undefined);
     const [mode, setMode] = useState<PickerMode>('date');
+    
+    if (minDate === undefined) {
+        setMinDate(props.minDate);
+    }
+
+    if (maxDate === undefined) {
+        setMaxDate(props.maxDate);
+    }
     
     const mapMode = (mode: PickerMode): DateGranularity => {
         switch (mode) {
@@ -41,8 +51,8 @@ const DateRangePickerWithType: React.FC<DateRangePickerWithTypeProps> = (props) 
                 <Option value="year">Year</Option>
             </Select>
             <DatePicker.RangePicker 
-                minDate={props.minDate}
-                maxDate={props.maxDate}
+                minDate={minDate}
+                maxDate={maxDate}
                 picker={mode}
                 onChange={async (dates, dateStrings) => {
                     await props.onChange(mapMode(mode), dates![0]!, dates![1]!);
