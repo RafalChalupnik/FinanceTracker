@@ -6,7 +6,7 @@ import {
     deleteWalletValues,
     getWalletsComponentsValueHistory,
     MoneyDto,
-    setWalletComponentValue, ValueHistoryRecord,
+    setWalletComponentValue, setWalletValue, ValueHistoryRecord,
     WalletValueHistory
 } from "../api/ValueHistoryApi";
 import EmptyConfig from "../components/EmptyConfig";
@@ -48,7 +48,7 @@ const Wallets: FC<WalletsProps> = (props) => {
             currency: 'PLN',
         }).format(amount)
     
-    const targetColumns: EditableColumn<ValueHistoryRecord>[] = [
+    const buildTargetColumns = (walletId: string): EditableColumn<ValueHistoryRecord>[] => [
         {
             title: 'Target',
             key: 'target',
@@ -57,13 +57,13 @@ const Wallets: FC<WalletsProps> = (props) => {
             render: record => record.target === null ? '-' : (
                 <Space direction='vertical'>
                     <Space direction={"vertical"}>
-                        {record.target?.percentage}
+                        {`${record.target?.percentage}%`}
                         <Text disabled>{formatAmount(record.target?.targetInMainCurrency ?? 0)}</Text>
                     </Space>
                 </Space>
             ),
             editable: {
-                onUpdate: (record, path, value) => console.log(`Updated target for date: ${record.date} to ${value}`)
+                onUpdate: (record, _, value) => setWalletValue(walletId, record.date, value)
             }
         },
     ]
@@ -84,7 +84,7 @@ const Wallets: FC<WalletsProps> = (props) => {
                                         onDelete: date => deleteEvaluations(wallet.id, date),
                                     }}
                                     refreshData={populateData}
-                                    extraColumns={targetColumns}
+                                    extraColumns={buildTargetColumns(wallet.id)}
                                 />
                         );
                     }

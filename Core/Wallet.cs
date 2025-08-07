@@ -69,14 +69,25 @@ public class Wallet : IEntityWithValueHistory, IOrderableEntity
     /// Adds <see cref="WalletTarget"/> to the wallet.
     /// </summary>
     /// <exception cref="DuplicateException"/>
-    public void Add(WalletTarget target)
+    public WalletTarget? SetTarget(DateOnly date, decimal valueInMainCurrency)
     {
-        if (Targets.Any(x => x.Date == target.Date))
+        var alreadyExistingTarget = Targets.FirstOrDefault(x => x.Date == date);
+        
+        if (alreadyExistingTarget != null)
         {
-            throw new DuplicateException(entityType: nameof(WalletTarget), duplicatedValue: target.Date);
+            alreadyExistingTarget.ValueInMainCurrency = valueInMainCurrency;
+            return null;
         }
 
-        _targets.Add(target);
+        var newTarget = new WalletTarget
+        {
+            Id = Guid.NewGuid(),
+            Date = date,
+            ValueInMainCurrency = valueInMainCurrency
+        };
+        
+        _targets.Add(newTarget);
+        return newTarget;
     }
 }
 
@@ -96,7 +107,7 @@ public class WalletTarget
     /// <summary>
     /// Target value of the wallet in main currency.
     /// </summary>
-    public decimal ValueInMainCurrency { get; init; }
+    public decimal ValueInMainCurrency { get; set; }
 }
 
 public class Component : EntityWithValueHistory, IOrderableEntity

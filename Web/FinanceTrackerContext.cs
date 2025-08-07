@@ -15,6 +15,8 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
     public DbSet<HistoricValue> HistoricValues { get; set; }
     
     public DbSet<Wallet> Wallets { get; set; }
+    
+    public DbSet<WalletTarget> WalletTargets { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) 
     { 
@@ -98,14 +100,19 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
         public IQueryable<T> GetOrderableEntities<T>() where T : class, IOrderableEntity
             => context.Set<T>();
 
-        public IQueryable<Wallet> GetWallets(bool includeValueHistory)
+        public IQueryable<Wallet> GetWallets(bool includeValueHistory, bool includeTargets)
         {
-            var query = context.Wallets
-                .Include(wallet => wallet.Components);
-
-            return includeValueHistory
-                ? query.ThenInclude(component => component.ValueHistory)
+            IQueryable<Wallet> query = context.Wallets;
+                
+            query = includeTargets 
+                ? query.Include(wallet => wallet.Targets)
                 : query;
+                
+            query = includeValueHistory
+                ? query.Include(wallet => wallet.Components).ThenInclude(component => component.ValueHistory)
+                : query.Include(wallet => wallet.Components);
+
+            return query;
         }
 
         public void Add<T>(T entity) where T : class

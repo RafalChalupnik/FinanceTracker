@@ -27,7 +27,7 @@ public class ValueHistoryQueries(IRepository repository)
     {
         EntitiesPerDateViewDtoFactory.EntityData[] entities =
         [
-            MapEntities(repository.GetWallets(includeValueHistory: true).ToArray(), "Wallets"),
+            MapEntities(repository.GetWallets(includeValueHistory: true, includeTargets: false).ToArray(), "Wallets"),
             MapEntities(repository.GetEntitiesWithValueHistory<Asset>().ToArray(), "Assets"),
             MapEntities(repository.GetEntitiesWithValueHistory<Debt>().ToArray(), "Debts"),
         ];
@@ -43,7 +43,7 @@ public class ValueHistoryQueries(IRepository repository)
     public WalletsPerDateQueryDto ForWalletsAndComponents(DateGranularity? granularity, DateOnly? from, DateOnly? to)
     {
         var wallets = repository
-            .GetWallets(includeValueHistory: true)
+            .GetWallets(includeValueHistory: true, includeTargets: true)
             .ToArray();
 
         return new WalletsPerDateQueryDto(
@@ -69,7 +69,7 @@ public class ValueHistoryQueries(IRepository repository)
     
     public EntitiesPerDateQueryDto ForWallets(DateGranularity? granularity, DateOnly? from, DateOnly? to) =>
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
-            entities: repository.GetWallets(includeValueHistory: true),
+            entities: repository.GetWallets(includeValueHistory: true, includeTargets: false),
             granularity,
             fromDate: from,
             toDate: to
@@ -110,7 +110,7 @@ public class ValueHistoryQueries(IRepository repository)
         // TODO: Base on the actual values, not after processing
         var target = targets.FirstOrDefault(target => target.Date <= data.Date);
 
-        if (target == null)
+        if (target == null || target.ValueInMainCurrency == 0)
         {
             return null;
         }
@@ -119,7 +119,7 @@ public class ValueHistoryQueries(IRepository repository)
         
         return new WalletTargetDto(
             TargetInMainCurrency: target.ValueInMainCurrency,
-            Percentage: decimal.Round(percentage, decimals: 2)
+            Percentage: decimal.Round(percentage * 100, decimals: 2)
         );
     }
 

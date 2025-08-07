@@ -3,6 +3,7 @@ using FinanceTracker.Core.Commands;
 using FinanceTracker.Core.Primitives;
 using FinanceTracker.Core.Queries;
 using FinanceTracker.Core.Queries.DTOs;
+using FinanceTracker.Web.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceTracker.Web.Controllers;
@@ -12,6 +13,7 @@ namespace FinanceTracker.Web.Controllers;
 public class ValueHistoryController(
     ValueHistoryQueries query,
     SetEntityValueCommand setEntityValueCommand,
+    SetTargetCommand setTargetCommand,
     DeleteValuesForDate deleteValuesForDate
     ) : ControllerBase
 {
@@ -84,6 +86,13 @@ public class ValueHistoryController(
         [FromQuery] DateOnly? to
         ) 
         => query.ForWallets(granularity, from: from, to: to);
+
+    [HttpPut("wallets/{walletId:guid}/target")]
+    public async Task<IActionResult> SetWalletTarget(Guid walletId, [FromBody] TargetUpdateDto update)
+    {
+        await setTargetCommand.SetTarget(walletId, update.Date, update.TargetInMainCurrency);
+        return NoContent();
+    }
     
     [HttpDelete("wallets/{walletId:guid}/{date}")]
     public async Task<IActionResult> DeleteWalletValues(Guid walletId, DateOnly date)

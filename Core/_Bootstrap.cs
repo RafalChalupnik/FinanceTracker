@@ -13,6 +13,7 @@ public static class Bootstrap
             .AddScoped<DeleteValuesForDate>()
             .AddScoped<DeleteEntityCommand>()
             .AddScoped<SetEntityValueCommand>()
+            .AddScoped<SetTargetCommand>()
             .AddScoped<UpsertEntityCommand>()
             // Queries
             .AddScoped<ConfigQueries>()

@@ -98,6 +98,14 @@ export async function getWalletsValueHistory(
     return await getEntitiesPerDateQueryDto('api/value-history/wallets', granularity, from, to);
 }
 
+export async function setWalletValue(id: string, date: string, value: MoneyDto) : Promise<void> {
+    console.log('#Set', id, date, value)
+    await put(`api/value-history/wallets/${id}/target`, {
+        date: date,
+        targetInMainCurrency: value
+    });
+}
+
 export async function deleteWalletValues(walletId: string, date: string) : Promise<void> {
     return await deleteValue(`api/value-history/wallets/${walletId}/${date}`);
 }
