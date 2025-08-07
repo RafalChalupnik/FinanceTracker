@@ -1,5 +1,5 @@
 import React, {FC, useEffect, useState} from "react";
-import EditableMoneyTable from "../components/EditableMoneyTable";
+import EditableMoneyComponent from "../components/EditableMoneyComponent";
 import {
     ComponentHeader,
     DateGranularity,
@@ -64,7 +64,7 @@ const SimpleComponentsPage: FC<SimpleComponentsPageProps> = (props) => {
     return isLoading
         ? <p><em>Loading...</em></p>
         : <EmptyConfig enabled={data.headers.length === 0}>
-            <EditableMoneyTable
+            <EditableMoneyComponent
                 title={props.title}
                 rows={data.rows}
                 columns={data.headers}

@@ -24,7 +24,7 @@ interface EditableProps {
     onDelete: (date: string) => Promise<void>
 } 
 
-const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
+const EditableMoneyComponent: FC<MoneyEditableTableProps> = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [newEntryDate, setNewEntryDate] = useState<string | undefined>(undefined);
@@ -224,4 +224,4 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
     );
 }
 
-export default EditableMoneyTable;
+export default EditableMoneyComponent;

@@ -1,6 +1,6 @@
 import React, {FC, useEffect, useState} from 'react';
 import {Space} from "antd";
-import EditableMoneyTable from "../components/EditableMoneyTable";
+import EditableMoneyComponent from "../components/EditableMoneyComponent";
 import {
     DateGranularity,
     deleteWalletValues,
@@ -47,7 +47,7 @@ const Wallets: FC<WalletsProps> = (props) => {
                 <Space direction="vertical">
                     {wallets.map(wallet => {
                             return (
-                                <EditableMoneyTable
+                                <EditableMoneyComponent
                                     title={wallet.name}
                                     rows={wallet.data}
                                     columns={wallet.headers}
