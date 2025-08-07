@@ -1,9 +1,10 @@
 import SimpleComponentsPage from "./SimpleComponentsPage";
-import {getWalletsValueHistory} from "../api/ValueHistoryApi";
+import {DateGranularity, getWalletsValueHistory} from "../api/ValueHistoryApi";
 
 const WalletsSummary = () => {
     return <SimpleComponentsPage
         title='Wallets Summary'
+        defaultGranularity={DateGranularity.Month}
         getData={getWalletsValueHistory}
     />;
 };

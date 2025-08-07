@@ -7,17 +7,23 @@ namespace FinanceTracker.Core.Queries;
 
 public class ValueHistoryQueries(IRepository repository)
 {
-    public EntitiesPerDateQueryDto ForAssets() =>
+    public EntitiesPerDateQueryDto ForAssets(DateGranularity? granularity, DateOnly? from, DateOnly? to) =>
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
-            entities: repository.GetEntitiesWithValueHistory<Asset>()
+            entities: repository.GetEntitiesWithValueHistory<Asset>(),
+            granularity,
+            fromDate: from,
+            toDate: to
         );
     
-    public EntitiesPerDateQueryDto ForDebts() =>
+    public EntitiesPerDateQueryDto ForDebts(DateGranularity? granularity, DateOnly? from, DateOnly? to) =>
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
-            entities: repository.GetEntitiesWithValueHistory<Debt>()
+            entities: repository.GetEntitiesWithValueHistory<Debt>(),
+            granularity,
+            fromDate: from,
+            toDate: to
         );
     
-    public EntitiesPerDateQueryDto ForEntirePortfolio()
+    public EntitiesPerDateQueryDto ForEntirePortfolio(DateGranularity? granularity, DateOnly? from, DateOnly? to)
     {
         EntitiesPerDateViewDtoFactory.EntityData[] entities =
         [
@@ -26,10 +32,15 @@ public class ValueHistoryQueries(IRepository repository)
             MapEntities(repository.GetEntitiesWithValueHistory<Debt>().ToArray(), "Debts"),
         ];
 
-        return EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(entities);
+        return EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
+            entities,
+            granularity,
+            fromDate: from,
+            toDate: to
+        );
     }
 
-    public WalletsPerDateQueryDto ForWalletsAndComponents()
+    public WalletsPerDateQueryDto ForWalletsAndComponents(DateGranularity? granularity, DateOnly? from, DateOnly? to)
     {
         var wallets = repository
             .GetWallets(includeValueHistory: true)
@@ -50,7 +61,12 @@ public class ValueHistoryQueries(IRepository repository)
                             )
                             .ToArray(),
                         Data: EntitiesPerDateViewDtoFactory
-                            .BuildEntitiesPerDateViewDto(wallet.Components)
+                            .BuildEntitiesPerDateViewDto(
+                                wallet.Components,
+                                granularity,
+                                fromDate: from,
+                                toDate: to
+                            )
                             .Data
                     )
                 )
@@ -58,9 +74,12 @@ public class ValueHistoryQueries(IRepository repository)
         );
     }
     
-    public EntitiesPerDateQueryDto ForWallets() =>
+    public EntitiesPerDateQueryDto ForWallets(DateGranularity? granularity, DateOnly? from, DateOnly? to) =>
         EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
-            entities: repository.GetWallets(includeValueHistory: true)
+            entities: repository.GetWallets(includeValueHistory: true),
+            granularity,
+            fromDate: from,
+            toDate: to
         );
     
     private static EntitiesPerDateViewDtoFactory.EntityData MapEntities<T>(

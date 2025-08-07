@@ -1,16 +1,21 @@
 import React, {FC, ReactNode, useState} from "react";
 import {DataIndexPath, EditableColumn, EditableColumnGroup, EditableTable} from "./EditableTable";
 import MoneyForm from "./MoneyForm";
-import dayjs from "dayjs";
-import {Button, Card, DatePicker, Modal} from "antd";
+import dayjs, {Dayjs} from "dayjs";
+import {Button, Card, DatePicker, Modal, Space, Typography} from "antd";
 import Money from "./Money";
 import {PlusOutlined} from "@ant-design/icons";
-import {ComponentHeader, MoneyDto, ValueHistoryRecord} from "../api/ValueHistoryApi";
+import {ComponentHeader, DateGranularity, MoneyDto, ValueHistoryRecord} from "../api/ValueHistoryApi";
+import DateGranularityPicker from "./DateGranularityPicker";
+import MoneyChart from "./MoneyChart";
+
+const { Title } = Typography;
 
 interface MoneyEditableTableProps {
     title: string;
     rows: ValueHistoryRecord[]
-    columns: ComponentHeader[]
+    columns: ComponentHeader[],
+    refreshData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<void>,
     editable?: EditableProps
 }
 
@@ -19,7 +24,7 @@ interface EditableProps {
     onDelete: (date: string) => Promise<void>
 } 
 
-const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
+const EditableMoneyComponent: FC<MoneyEditableTableProps> = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [newEntryDate, setNewEntryDate] = useState<string | undefined>(undefined);
@@ -79,7 +84,8 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
             key: 'date',
             dataIndex: 'date',
             editable: false,
-            fixed: 'left'
+            fixed: 'left',
+            render: (record, _) => record.key
         },
         ...componentsColumns,
         {
@@ -150,33 +156,64 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
         <div style={{ maxWidth: '95vw' }}>
             <Card 
                 title={props.title} 
-                extra={props.editable && 
-                    <Button 
-                        icon={<PlusOutlined />} 
-                        onClick={() => setIsModalOpen(true)}
-                    />
-                }
-                style={{ width: "100%" }}
-            >
-                <EditableTable<ValueHistoryRecord>
-                    records={buildData()}
-                    columns={columns}
-                    renderEditableCell={(record, columnKey, initialValue, close) =>
-                        <MoneyForm
-                            initialValue={initialValue}
-                            onSave={async money => {
-                                await props.editable!.onUpdate(columnKey, dayjs(record.date).format('YYYY-MM-DD'), money);
-                                setNewEntryDate(undefined);
-                                close();
-                            }}
-                            onCancel={close}
+                extra={ 
+                    <Space direction='horizontal'>
+                        <DateGranularityPicker 
+                            minDate={props.rows.length > 0 ? dayjs(props.rows[0].date) : undefined}
+                            maxDate={props.rows.length > 0 ? dayjs(props.rows[props.rows.length - 1].date) : undefined}
+                            onChange={props.refreshData}
                         />
-
-                    }
-                    onDelete={async record => {
-                        await props.editable!.onDelete(record.date)
-                    }}
-                />
+                        {props.editable && <Button
+                            icon={<PlusOutlined />}
+                            onClick={() => setIsModalOpen(true)}
+                        >
+                            Add new entry
+                        </Button>}
+                    </Space>
+                }
+                style={{
+                    width: '100%',
+                    overflowX: 'auto',
+                }}
+            >
+                <Space direction='vertical'>
+                    <EditableTable<ValueHistoryRecord>
+                        records={buildData()}
+                        columns={columns}
+                        renderEditableCell={(record, columnKey, initialValue, close) =>
+                            <MoneyForm
+                                initialValue={initialValue}
+                                onSave={async money => {
+                                    await props.editable!.onUpdate(columnKey, dayjs(record.date).format('YYYY-MM-DD'), money);
+                                    setNewEntryDate(undefined);
+                                    close();
+                                }}
+                                onCancel={close}
+                            />
+                        }
+                        onDelete={props.editable ? (async record => {
+                            await props.editable!.onDelete(record.date)
+                        }) : undefined}
+                    />
+                    <Title level={5}>Value</Title>
+                    <MoneyChart 
+                        headers={props.columns}
+                        data={props.rows}
+                        dataSelector={component => component.value}
+                    />
+                    <Title level={5}>Change</Title>
+                    <MoneyChart
+                        headers={props.columns}
+                        data={props.rows}
+                        dataSelector={component => component.change}
+                    />
+                    <Title level={5}>Cumulative change</Title>
+                    <MoneyChart
+                        headers={props.columns}
+                        data={props.rows}
+                        dataSelector={component => component.cumulativeChange}
+                    />
+                </Space>
             </Card>
             <Modal
                 title="Pick a date"
@@ -190,4 +227,4 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
     );
 }
 
-export default EditableMoneyTable;
+export default EditableMoneyComponent;

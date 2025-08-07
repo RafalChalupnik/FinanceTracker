@@ -1,10 +1,11 @@
 import React, {FC} from "react";
-import {ComponentHeader, ValueHistoryRecord} from "../api/ValueHistoryApi";
+import {ComponentHeader, ComponentValues, MoneyDto, ValueHistoryRecord} from "../api/ValueHistoryApi";
 import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
 
 interface MoneyChartProps {
     headers: ComponentHeader[],
-    data: ValueHistoryRecord[]
+    data: ValueHistoryRecord[],
+    dataSelector: (record: ComponentValues) => MoneyDto,
 }
 
 const MoneyChart: FC<MoneyChartProps> = (props) => {
@@ -21,11 +22,11 @@ const MoneyChart: FC<MoneyChartProps> = (props) => {
         return {
             name: header.name,
             data: props.data
-                .filter(dataPoint => dataPoint.components[index]?.cumulativeChange !== undefined)
+                .filter(dataPoint => dataPoint.components[index] !== undefined)
                 .map(dataPoint => {
                     return {
                         date: dataPoint.date,
-                        value: dataPoint.components[index]?.cumulativeChange.amountInMainCurrency ?? 0
+                        value: props.dataSelector(dataPoint.components[index]!).amountInMainCurrency
                     }
                 }
             )
@@ -37,7 +38,7 @@ const MoneyChart: FC<MoneyChartProps> = (props) => {
         data: props.data.map(dataPoint => {
             return {
                 date: dataPoint.date,
-                value: dataPoint.summary?.cumulativeChange.amountInMainCurrency ?? 0
+                value: props.dataSelector(dataPoint.summary!).amountInMainCurrency
             }
         })
     })

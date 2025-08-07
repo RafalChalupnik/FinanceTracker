@@ -1,4 +1,12 @@
-import dayjs from "dayjs";
+import { Dayjs } from "dayjs";
+
+export enum DateGranularity {
+    Day,
+    Week,
+    Month,
+    Quarter,
+    Year
+}
 
 export type EntityValueHistory = {
     headers: ComponentHeader[],
@@ -36,8 +44,12 @@ export interface MoneyDto {
     amountInMainCurrency: number
 }
 
-export async function getAssetsValueHistory() : Promise<EntityValueHistory> {
-    return await getEntitiesPerDateQueryDto('api/value-history/assets');
+export async function getAssetsValueHistory(
+    granularity?: DateGranularity,
+    from?: Dayjs,
+    to?: Dayjs
+) : Promise<EntityValueHistory> {
+    return await getEntitiesPerDateQueryDto('api/value-history/assets', granularity, from, to);
 }
 
 export async function setAssetValue(id: string, date: string, value: MoneyDto) : Promise<void> {
@@ -48,8 +60,12 @@ export async function deleteAssetsValues(date: string) : Promise<void> {
     await deleteValue(`api/value-history/assets/${date}`);
 }
 
-export async function getDebtsValueHistory() : Promise<EntityValueHistory> {
-    return await getEntitiesPerDateQueryDto('api/value-history/debts');
+export async function getDebtsValueHistory(
+    granularity?: DateGranularity,
+    from?: Dayjs,
+    to?: Dayjs
+) : Promise<EntityValueHistory> {
+    return await getEntitiesPerDateQueryDto('api/value-history/debts', granularity, from, to);
 }
 
 export async function setDebtValue(id: string, date: string, value: MoneyDto) : Promise<void> {
@@ -60,20 +76,46 @@ export async function deleteDebtsValues(date: string) : Promise<void> {
     await deleteValue(`api/value-history/debts/${date}`);
 }
 
-export async function getPortfolioValueHistory() : Promise<EntityValueHistory> {
-    return await getEntitiesPerDateQueryDto('api/value-history/portfolio');
+export async function getPortfolioValueHistory(
+    granularity?: DateGranularity,
+    from?: Dayjs,
+    to?: Dayjs
+) : Promise<EntityValueHistory> {
+    return await getEntitiesPerDateQueryDto('api/value-history/portfolio', granularity, from, to);
 }
 
-export async function getWalletsValueHistory() : Promise<EntityValueHistory> {
-    return await getEntitiesPerDateQueryDto('api/value-history/wallets');
+export async function getWalletsValueHistory(
+    granularity?: DateGranularity,
+    from?: Dayjs,
+    to?: Dayjs
+) : Promise<EntityValueHistory> {
+    return await getEntitiesPerDateQueryDto('api/value-history/wallets', granularity, from, to);
 }
 
 export async function deleteWalletValues(walletId: string, date: string) : Promise<void> {
     return await deleteValue(`api/value-history/wallets/${walletId}/${date}`);
 }
 
-export async function getWalletsComponentsValueHistory() : Promise<WalletValueHistory[]> {
-    const response = await fetch('api/value-history/wallets/components');
+export async function getWalletsComponentsValueHistory(
+    granularity?: DateGranularity,
+    from?: Dayjs,
+    to?: Dayjs
+) : Promise<WalletValueHistory[]> {
+    let queryParams = new URLSearchParams();
+
+    if (granularity !== undefined) {
+        queryParams.append('granularity', granularity.toString());
+    }
+
+    if (from !== undefined) {
+        queryParams.append('from', from.format('YYYY-MM-DD'));
+    }
+
+    if (to !== undefined) {
+        queryParams.append('to', to.format('YYYY-MM-DD'));
+    }
+    
+    const response = await fetch('api/value-history/wallets/components?' + queryParams);
     let data: WalletsPerDateQueryDto = await response.json();
     
     return data.wallets.map(wallet => {
@@ -109,7 +151,7 @@ interface WalletDto {
 }
 
 interface EntitiesForDateDto {
-    date: Date,
+    date: string,
     entities: ValueSnapshotDto[],
     summary: ValueSnapshotDto
 }
@@ -120,8 +162,27 @@ interface ValueSnapshotDto {
     cumulativeChange: MoneyDto
 }
 
-async function getEntitiesPerDateQueryDto(path: string) : Promise<EntityValueHistory> {
-    const response = await fetch(path);
+async function getEntitiesPerDateQueryDto(
+    path: string, 
+    granularity?: DateGranularity, 
+    from?: Dayjs,
+    to?: Dayjs
+) : Promise<EntityValueHistory> {
+    let queryParams = new URLSearchParams();
+    
+    if (granularity !== undefined) {
+        queryParams.append('granularity', granularity.toString());
+    }
+    
+    if (from !== undefined) {
+        queryParams.append('from', from.format('YYYY-MM-DD'));
+    }
+    
+    if (to !== undefined) {
+        queryParams.append('to', to.format('YYYY-MM-DD'));
+    }
+    
+    const response = await fetch(`${path}?` + queryParams);
     let body: EntitiesPerDateQueryDto = await response.json();
     
     return {
@@ -131,30 +192,26 @@ async function getEntitiesPerDateQueryDto(path: string) : Promise<EntityValueHis
 }
 
 function mapData (data: EntitiesForDateDto[]) : ValueHistoryRecord[] {
-    return data.map(row => {
-        let date = dayjs(row.date).format('YYYY-MM-DD')
-
-        return {
-            key: date,
-            date: date,
-            components: row.entities.map(entity => {
-                if (entity === null) {
-                    return undefined;
-                }
-
-                return {
-                    value: entity.value,
-                    change: entity.change,
-                    cumulativeChange: entity.cumulativeChange
-                }
-            }),
-            summary: {
-                value: row.summary.value,
-                change: row.summary.change,
-                cumulativeChange: row.summary.cumulativeChange
+    return data.map(row => ({
+        key: row.date,
+        date: row.date,
+        components: row.entities.map(entity => {
+            if (entity === null) {
+                return undefined;
             }
+
+            return {
+                value: entity.value,
+                change: entity.change,
+                cumulativeChange: entity.cumulativeChange
+            }
+        }),
+        summary: {
+            value: row.summary.value,
+            change: row.summary.change,
+            cumulativeChange: row.summary.cumulativeChange
         }
-    })
+    }))
 }
 
 async function put(path: string, body: any) : Promise<void> {

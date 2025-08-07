@@ -1,9 +1,10 @@
 import SimpleComponentsPage from "./SimpleComponentsPage";
-import {getPortfolioValueHistory} from "../api/ValueHistoryApi";
+import {DateGranularity, getPortfolioValueHistory} from "../api/ValueHistoryApi";
 
 const PortfolioSummary = () => {
     return <SimpleComponentsPage
         title='Portfolio Summary'
+        defaultGranularity={DateGranularity.Month}
         getData={getPortfolioValueHistory}
     />;
 };
