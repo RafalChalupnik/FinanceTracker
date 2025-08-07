@@ -1,6 +1,6 @@
 import React, {ReactNode, useState} from "react";
 import {Table, Popconfirm, Input, Space, Button} from "antd";
-import type {ColumnGroupType, ColumnsType, ColumnType} from "antd/es/table";
+import type {ColumnGroupType, ColumnType} from "antd/es/table";
 import {CloseOutlined, DeleteOutlined, SaveOutlined} from "@ant-design/icons";
 
 export type DataIndexPath<T> = keyof T | (string | number)[];
