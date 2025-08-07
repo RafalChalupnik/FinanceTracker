@@ -1,17 +1,18 @@
 import React, {FC, ReactNode, useState} from "react";
 import {DataIndexPath, EditableColumn, EditableColumnGroup, EditableTable} from "./EditableTable";
 import MoneyForm from "./MoneyForm";
-import dayjs from "dayjs";
+import dayjs, {Dayjs} from "dayjs";
 import {Button, Card, DatePicker, Modal, Space} from "antd";
 import Money from "./Money";
 import {PlusOutlined} from "@ant-design/icons";
-import {ComponentHeader, MoneyDto, ValueHistoryRecord} from "../api/ValueHistoryApi";
+import {ComponentHeader, DateGranularity, MoneyDto, ValueHistoryRecord} from "../api/ValueHistoryApi";
 import DateGranularityPicker from "./DateGranularityPicker";
 
 interface MoneyEditableTableProps {
     title: string;
     rows: ValueHistoryRecord[]
-    columns: ComponentHeader[]
+    columns: ComponentHeader[],
+    refreshData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<void>,
     editable?: EditableProps
 }
 
@@ -80,7 +81,8 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
             key: 'date',
             dataIndex: 'date',
             editable: false,
-            fixed: 'left'
+            fixed: 'left',
+            render: (record, _) => record.key
         },
         ...componentsColumns,
         {
@@ -156,6 +158,7 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
                         <DateGranularityPicker 
                             minDate={dayjs(props.rows[0].date)}
                             maxDate={dayjs(props.rows[props.rows.length - 1].date)}
+                            onChange={props.refreshData}
                         />
                         {props.editable && <Button
                             icon={<PlusOutlined />}

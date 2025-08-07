@@ -2,6 +2,7 @@ import React, {FC, useEffect, useState} from 'react';
 import {Space} from "antd";
 import EditableMoneyTable from "../components/EditableMoneyTable";
 import {
+    DateGranularity,
     deleteWalletValues,
     getWalletsComponentsValueHistory,
     MoneyDto,
@@ -10,18 +11,17 @@ import {
 } from "../api/ValueHistoryApi";
 import EmptyConfig from "../components/EmptyConfig";
 import MoneyChart from "../components/MoneyChart";
+import {Dayjs} from 'dayjs';
 
-const chartLineColors = ['#1890ff', '#52c41a', '#f5222d', '#fa8c16', '#722ed1', '#13c2c2'];
-
-
-interface WalletsProps {}
+interface WalletsProps {
+}
 
 const Wallets: FC<WalletsProps> = (props) => {
     const [isLoading, setIsLoading] = useState(true)
     const [wallets, setWallets] = useState([] as WalletValueHistory[]);
 
-    const populateData = async () => {
-        const wallets = await getWalletsComponentsValueHistory()
+    const populateData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => {
+        const wallets = await getWalletsComponentsValueHistory(granularity, from, to)
         setWallets(wallets)
         setIsLoading(false)
     }
@@ -45,31 +45,19 @@ const Wallets: FC<WalletsProps> = (props) => {
         : (
             <EmptyConfig enabled={wallets.length === 0}>
                 <Space direction="vertical">
-                    {wallets.map(wallet =>
-                    {
-                        let series = wallet.headers.map((header, index) => {
-                            return {
-                                name: header.name,
-                                data: wallet.data.map(dataPoint => {
-                                    return {
-                                        date: dataPoint.date,
-                                        value: dataPoint.components[index]?.value.amountInMainCurrency ?? 0
-                                    }
-                                })
-                            }
-                        })
-                        
-                        return (
-                            <Space direction="vertical">
-                                <EditableMoneyTable
-                                    title={wallet.name}
-                                    rows={wallet.data}
-                                    columns={wallet.headers}
-                                    editable={{
-                                        onUpdate: updateComponent,
-                                        onDelete: date => deleteEvaluations(wallet.id, date),
-                                    }}
-                                />
+                    {wallets.map(wallet => {
+                            return (
+                                <Space direction="vertical">
+                                    <EditableMoneyTable
+                                        title={wallet.name}
+                                        rows={wallet.data}
+                                        columns={wallet.headers}
+                                        editable={{
+                                            onUpdate: updateComponent,
+                                            onDelete: date => deleteEvaluations(wallet.id, date),
+                                        }}
+                                        refreshData={populateData}                                
+                                    />
                                 <MoneyChart 
                                     headers={wallet.headers} 
                                     data={wallet.data}

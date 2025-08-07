@@ -16,8 +16,12 @@ public class ValueHistoryController(
     ) : ControllerBase
 {
     [HttpGet("assets")]
-    public EntitiesPerDateQueryDto GetAssetsValueHistory() 
-        => query.ForAssets();
+    public EntitiesPerDateQueryDto GetAssetsValueHistory(
+        [FromQuery] DateGranularity? granularity, 
+        [FromQuery] DateOnly? from, 
+        [FromQuery] DateOnly? to
+        ) 
+        => query.ForAssets(granularity, from: from, to: to);
     
     [HttpPut("assets/{assetId:guid}/{date}")]
     public async Task<IActionResult> SetAssetValue(Guid assetId, DateOnly date, [FromBody] Money value)
@@ -39,8 +43,12 @@ public class ValueHistoryController(
     }
     
     [HttpGet("debts")]
-    public EntitiesPerDateQueryDto GetDebtsValueHistory() 
-        => query.ForDebts();
+    public EntitiesPerDateQueryDto GetDebtsValueHistory(
+        [FromQuery] DateGranularity? granularity, 
+        [FromQuery] DateOnly? from, 
+        [FromQuery] DateOnly? to
+        ) 
+        => query.ForDebts(granularity, from: from, to: to);
     
     [HttpPut("debts/{debtId:guid}/{date}")]
     public async Task<IActionResult> SetDebtValue(Guid debtId, DateOnly date, [FromBody] Money value)
@@ -62,12 +70,20 @@ public class ValueHistoryController(
     }
     
     [HttpGet("portfolio")]
-    public EntitiesPerDateQueryDto GetPortfolioValueHistory() 
-        => query.ForEntirePortfolio();
+    public EntitiesPerDateQueryDto GetPortfolioValueHistory(
+        [FromQuery] DateGranularity? granularity, 
+        [FromQuery] DateOnly? from, 
+        [FromQuery] DateOnly? to
+        ) 
+        => query.ForEntirePortfolio(granularity, from: from, to: to);
     
     [HttpGet("wallets")]
-    public EntitiesPerDateQueryDto GetWalletsValueHistory() 
-        => query.ForWallets();
+    public EntitiesPerDateQueryDto GetWalletsValueHistory(
+        [FromQuery] DateGranularity? granularity, 
+        [FromQuery] DateOnly? from, 
+        [FromQuery] DateOnly? to
+        ) 
+        => query.ForWallets(granularity, from: from, to: to);
     
     [HttpDelete("wallets/{walletId:guid}/{date}")]
     public async Task<IActionResult> DeleteWalletValues(Guid walletId, DateOnly date)
@@ -77,8 +93,12 @@ public class ValueHistoryController(
     }
     
     [HttpGet("wallets/components")]
-    public WalletsPerDateQueryDto GetWalletsComponentsValueHistory() 
-        => query.ForWalletsAndComponents();
+    public WalletsPerDateQueryDto GetWalletsComponentsValueHistory(
+        [FromQuery] DateGranularity? granularity, 
+        [FromQuery] DateOnly? from, 
+        [FromQuery] DateOnly? to
+        ) 
+        => query.ForWalletsAndComponents(granularity, from: from, to: to);
     
     [HttpPut("wallets/components/{componentId:guid}/{date}")]
     public async Task<IActionResult> SetWalletComponentValue(Guid componentId, DateOnly date, [FromBody] Money value)

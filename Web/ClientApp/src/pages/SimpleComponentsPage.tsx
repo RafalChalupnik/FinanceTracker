@@ -1,13 +1,20 @@
 import React, {FC, useEffect, useState} from "react";
 import EditableMoneyTable from "../components/EditableMoneyTable";
-import {ComponentHeader, EntityValueHistory, MoneyDto, ValueHistoryRecord} from "../api/ValueHistoryApi";
+import {
+    ComponentHeader,
+    DateGranularity,
+    EntityValueHistory,
+    MoneyDto,
+    ValueHistoryRecord
+} from "../api/ValueHistoryApi";
 import {Space} from "antd";
 import EmptyConfig from "../components/EmptyConfig";
 import MoneyChart from "../components/MoneyChart";
+import {Dayjs} from "dayjs";
 
 interface SimpleComponentsPageProps {
     title: string;
-    getData: () => Promise<EntityValueHistory>,
+    getData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<EntityValueHistory>,
     editable?: EditableProps
 }
 
@@ -23,8 +30,8 @@ const SimpleComponentsPage: FC<SimpleComponentsPageProps> = (props) => {
         rows: [] as ValueHistoryRecord[]
     });
 
-    const populateData = async () => {
-        const response = await props.getData();
+    const populateData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => {
+        const response = await props.getData(granularity, from, to);
         setData({
             headers: response.headers,
             rows: response.data
@@ -62,6 +69,7 @@ const SimpleComponentsPage: FC<SimpleComponentsPageProps> = (props) => {
                 rows={data.rows}
                 columns={data.headers}
                 editable={editable}
+                refreshData={populateData}            
             />
             <MoneyChart
                 headers={data.headers}

@@ -8,7 +8,10 @@ namespace FinanceTracker.Core.Queries.Implementation;
 internal static class EntitiesPerDateViewDtoFactory
 {
     public static EntitiesPerDateQueryDto BuildEntitiesPerDateViewDto<T>(
-        IEnumerable<T> entities
+        IEnumerable<T> entities,
+        DateGranularity? dateGranularity,
+        DateOnly? fromDate = null,
+        DateOnly? toDate = null
     ) where T : IEntityWithValueHistory, IOrderableEntity
     {
         var mappedEntities = entities
@@ -22,16 +25,25 @@ internal static class EntitiesPerDateViewDtoFactory
             )
             .ToArray();
         
-        return BuildEntitiesPerDateViewDto(mappedEntities);
+        return BuildEntitiesPerDateViewDto(
+            mappedEntities, 
+            dateGranularity, 
+            fromDate: fromDate, 
+            toDate: toDate
+        );
     }
     
-    public static EntitiesPerDateQueryDto BuildEntitiesPerDateViewDto(IReadOnlyList<EntityData> orderedEntities)
+    public static EntitiesPerDateQueryDto BuildEntitiesPerDateViewDto(
+        IReadOnlyList<EntityData> orderedEntities, 
+        DateGranularity? dateGranularity,
+        DateOnly? fromDate = null,
+        DateOnly? toDate = null)
     {
         var dates = orderedEntities
             .SelectMany(entity => entity.Dates)
-            .Distinct()
-            .OrderBy(date => date)
-            .ToArray();
+            .Where(date => date > (fromDate ?? DateOnly.MinValue))
+            .Where(date => date < (toDate ?? DateOnly.MaxValue))
+            .GroupDates(dateGranularity ?? DateGranularity.Date);
 
         return new EntitiesPerDateQueryDto(
             Headers: orderedEntities
@@ -43,9 +55,9 @@ internal static class EntitiesPerDateViewDtoFactory
                 .ToArray(),
             Data: dates
                 .Select(date => BuildEntitiesForDateDto(
-                        date: date,
+                        dateRepresentation: date.Representation,
                         entityValues: orderedEntities
-                            .Select(entity => entity.GetValueForDate(date))
+                            .Select(entity => entity.GetValueForDate(date.Date))
                             .ToArray()
                     )
                 )
@@ -54,12 +66,12 @@ internal static class EntitiesPerDateViewDtoFactory
                 .ToArray()
         );
     }
-    
+
     private static EntitiesForDateDto BuildEntitiesForDateDto(
-        DateOnly date,
+        string dateRepresentation,
         IReadOnlyCollection<ValueSnapshotDto?> entityValues) =>
         new(
-            Date: date.ToString("yyyy-MM-dd"),
+            Date: dateRepresentation,
             Entities: entityValues,
             Summary: new ValueSnapshotDto(
                 value: entityValues
