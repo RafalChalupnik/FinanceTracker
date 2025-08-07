@@ -76,7 +76,7 @@ const DateRangePickerWithType: React.FC<DateRangePickerWithTypeProps> = (props) 
 
     return (
         <Space direction='horizontal'>
-            <Select aria-label="Picker Type" value={mode} onChange={setMode}>
+            <Select aria-label="Picker Type" value={mode} onChange={setMode} style={{width: 100}}>
                 <Option value="date">Date</Option>
                 <Option value="month">Month</Option>
                 <Option value="quarter">Quarter</Option>
