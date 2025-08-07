@@ -68,7 +68,7 @@ const EntityTable: React.FC<EntityTableProps> = (props) => {
     }
 
     return (
-        <Card title={props.title} extra={<Button icon={<PlusOutlined />} onClick={handleAdd} />}>
+        <Card title={props.title} extra={<Button icon={<PlusOutlined />} onClick={handleAdd} >Add new entry</Button>}>
             <EditableTable 
                 records={buildData()} 
                 columns={columns} 

@@ -2,10 +2,11 @@ import React, {FC, ReactNode, useState} from "react";
 import {DataIndexPath, EditableColumn, EditableColumnGroup, EditableTable} from "./EditableTable";
 import MoneyForm from "./MoneyForm";
 import dayjs from "dayjs";
-import {Button, Card, DatePicker, Modal} from "antd";
+import {Button, Card, DatePicker, Modal, Space} from "antd";
 import Money from "./Money";
 import {PlusOutlined} from "@ant-design/icons";
 import {ComponentHeader, MoneyDto, ValueHistoryRecord} from "../api/ValueHistoryApi";
+import DateGranularityPicker from "./DateGranularityPicker";
 
 interface MoneyEditableTableProps {
     title: string;
@@ -150,11 +151,19 @@ const EditableMoneyTable: FC<MoneyEditableTableProps> = (props) => {
         <div style={{ maxWidth: '95vw' }}>
             <Card 
                 title={props.title} 
-                extra={props.editable && 
-                    <Button 
-                        icon={<PlusOutlined />} 
-                        onClick={() => setIsModalOpen(true)}
-                    />
+                extra={ 
+                    <Space direction='horizontal'>
+                        <DateGranularityPicker 
+                            minDate={dayjs(props.rows[0].date)}
+                            maxDate={dayjs(props.rows[props.rows.length - 1].date)}
+                        />
+                        {props.editable && <Button
+                            icon={<PlusOutlined />}
+                            onClick={() => setIsModalOpen(true)}
+                        >
+                            Add new entry
+                        </Button>}
+                    </Space>
                 }
                 style={{ width: "100%" }}
             >
