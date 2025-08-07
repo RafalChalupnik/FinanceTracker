@@ -59,7 +59,7 @@ internal static class EntitiesPerDateViewDtoFactory
         DateOnly date,
         IReadOnlyCollection<ValueSnapshotDto?> entityValues) =>
         new(
-            Date: date,
+            Date: date.ToString("yyyy-MM-dd"),
             Entities: entityValues,
             Summary: new ValueSnapshotDto(
                 value: entityValues

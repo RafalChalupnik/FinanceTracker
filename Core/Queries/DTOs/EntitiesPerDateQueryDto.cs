@@ -13,7 +13,7 @@ public record EntityHeaderDto(
 );
 
 public record EntitiesForDateDto(
-    DateOnly Date,
+    string Date,
     IReadOnlyCollection<ValueSnapshotDto?> Entities,
     ValueSnapshotDto Summary
 );
