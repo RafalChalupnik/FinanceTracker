@@ -12,7 +12,7 @@ namespace FinanceTracker.Web.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "WalletTarget",
+                name: "WalletTargets",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
@@ -22,9 +22,9 @@ namespace FinanceTracker.Web.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_WalletTarget", x => x.Id);
+                    table.PrimaryKey("PK_WalletTargets", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_WalletTarget_Wallets_WalletId",
+                        name: "FK_WalletTargets_Wallets_WalletId",
                         column: x => x.WalletId,
                         principalTable: "Wallets",
                         principalColumn: "Id",
@@ -32,8 +32,8 @@ namespace FinanceTracker.Web.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_WalletTarget_WalletId",
-                table: "WalletTarget",
+                name: "IX_WalletTargets_WalletId",
+                table: "WalletTargets",
                 column: "WalletId");
         }
 
@@ -41,7 +41,7 @@ namespace FinanceTracker.Web.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "WalletTarget");
+                name: "WalletTargets");
         }
     }
 }

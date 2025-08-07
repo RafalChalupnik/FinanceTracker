@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinanceTracker.Web.Migrations
 {
     [DbContext(typeof(FinanceTrackerContext))]
-    [Migration("20250807152209_WalletTarget")]
+    [Migration("20250807172648_WalletTarget")]
     partial class WalletTarget
     {
         /// <inheritdoc />
@@ -173,7 +173,7 @@ namespace FinanceTracker.Web.Migrations
 
                     b.HasIndex("WalletId");
 
-                    b.ToTable("WalletTarget");
+                    b.ToTable("WalletTargets");
                 });
 
             modelBuilder.Entity("FinanceTracker.Core.Component", b =>
