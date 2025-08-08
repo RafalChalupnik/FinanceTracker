@@ -40,16 +40,16 @@ public class ValueHistoryQueries(IRepository repository)
         );
     }
 
-    public WalletsPerDateQueryDto ForWalletsAndComponents(DateGranularity? granularity, DateOnly? from, DateOnly? to)
+    public WalletsComponentsPerDateQueryDto ForWalletsAndComponents(DateGranularity? granularity, DateOnly? from, DateOnly? to)
     {
         var wallets = repository
             .GetWallets(includeValueHistory: true, includeTargets: true)
             .ToArray();
 
-        return new WalletsPerDateQueryDto(
+        return new WalletsComponentsPerDateQueryDto(
             Wallets: wallets
                 .OrderBy(wallet => wallet.DisplaySequence)
-                .Select(wallet => new WalletDto(
+                .Select(wallet => new WalletComponentsDto(
                         Id: wallet.Id,
                         Name: wallet.Name,
                         Headers: wallet.Components
@@ -75,7 +75,7 @@ public class ValueHistoryQueries(IRepository repository)
             toDate: to
         );
 
-    private IReadOnlyCollection<WalletForDateDto> BuildWalletForDates(
+    private static IReadOnlyCollection<WalletComponentsForDateDto> BuildWalletForDates(
         Wallet wallet,
         DateGranularity? granularity, 
         DateOnly? from, 
@@ -95,7 +95,7 @@ public class ValueHistoryQueries(IRepository repository)
             .ToArray();
 
         return data
-            .Select(dataForDate => new WalletForDateDto(
+            .Select(dataForDate => new WalletComponentsForDateDto(
                     Key: dataForDate.Key,
                     Entities: dataForDate.Entities,
                     Summary: dataForDate.Summary,

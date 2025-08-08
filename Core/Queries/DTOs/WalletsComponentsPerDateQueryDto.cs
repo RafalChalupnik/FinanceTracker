@@ -1,17 +1,17 @@
 namespace FinanceTracker.Core.Queries.DTOs;
 
-public record WalletsPerDateQueryDto(
-    IReadOnlyCollection<WalletDto> Wallets
+public record WalletsComponentsPerDateQueryDto(
+    IReadOnlyCollection<WalletComponentsDto> Wallets
 );
     
-public record WalletDto(
+public record WalletComponentsDto(
     Guid Id,
     string Name,
     IReadOnlyCollection<EntityHeaderDto> Headers,
-    IReadOnlyCollection<WalletForDateDto> Data
+    IReadOnlyCollection<WalletComponentsForDateDto> Data
 );
 
-public record WalletForDateDto(
+public record WalletComponentsForDateDto(
     string Key,
     IReadOnlyCollection<ValueSnapshotDto?> Entities,
     ValueSnapshotDto Summary,

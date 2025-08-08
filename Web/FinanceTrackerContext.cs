@@ -14,6 +14,8 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
     
     public DbSet<HistoricValue> HistoricValues { get; set; }
     
+    public DbSet<InflationHistoricValue> InflationValues { get; set; }
+    
     public DbSet<Wallet> Wallets { get; set; }
     
     public DbSet<WalletTarget> WalletTargets { get; set; }
@@ -52,6 +54,13 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                     .WithOne()
                     .OnDelete(DeleteBehavior.Cascade);
             });
+
+        modelBuilder.Entity<InflationHistoricValue>(b =>
+            {
+                b.HasKey(x => x.Id);
+                b.HasIndex(x => x.Date).IsUnique();
+            }
+            );
         
         modelBuilder.Entity<Wallet>(
             b =>

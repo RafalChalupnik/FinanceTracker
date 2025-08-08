@@ -102,7 +102,7 @@ public class ValueHistoryController(
     }
     
     [HttpGet("wallets/components")]
-    public WalletsPerDateQueryDto GetWalletsComponentsValueHistory(
+    public WalletsComponentsPerDateQueryDto GetWalletsComponentsValueHistory(
         [FromQuery] DateGranularity? granularity, 
         [FromQuery] DateOnly? from, 
         [FromQuery] DateOnly? to
