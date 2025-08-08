@@ -4,12 +4,13 @@ import type {ColumnGroupType, ColumnType} from "antd/es/table";
 import {CloseOutlined, DeleteOutlined, SaveOutlined} from "@ant-design/icons";
 
 interface DefaultEditableCellProps {
+    initialValue: any | undefined;
     onSave: (value: any) => void | Promise<void>;
     onCancel: () => void;
 }
 
 const DefaultEditableCell : FC<DefaultEditableCellProps> = (props) => {
-    let [currentValue, setCurrentValue] = React.useState<any>(undefined);
+    let [currentValue, setCurrentValue] = React.useState<any>(props.initialValue);
     
     return (
         <Space direction='horizontal'>
@@ -52,11 +53,12 @@ export interface ColumnGroup<T> {
 }
 
 export interface EditableColumn<T> {
-    onSave?: (rowKey: React.Key, columnKey: string, value: any) => void | Promise<void>;
+    initialValueSelector: (row: T) => any;
+    onSave: (rowKey: React.Key, value: any) => void | Promise<void>;
 }
 
 export interface CustomEditableColumn<T> {
-    renderEditable?: (row: T, close: () => void) => React.ReactNode;
+    renderEditable: (row: T, closeCallback: () => void) => React.ReactNode;
 }
 
 export function ExtendableTable<T extends {key: React.Key}>(props: ExtendableTableProps<T>) {
@@ -96,7 +98,8 @@ export function ExtendableTable<T extends {key: React.Key}>(props: ExtendableTab
         return customEditableColumn.renderEditable
             ? customEditableColumn.renderEditable(row, clearCurrentlyEditedCell)
             : <DefaultEditableCell 
-                onSave={value => editableColumn!.onSave!(row.key, columnKey, value)} 
+                initialValue={editableColumn!.initialValueSelector(row)}
+                onSave={value => editableColumn!.onSave!(row.key, value)} 
                 onCancel={clearCurrentlyEditedCell}
             />
     }

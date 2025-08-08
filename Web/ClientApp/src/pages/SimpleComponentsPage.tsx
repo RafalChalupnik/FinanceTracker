@@ -7,9 +7,7 @@ import {
     MoneyDto,
     ValueHistoryRecord
 } from "../api/ValueHistoryApi";
-import {Space} from "antd";
 import EmptyConfig from "../components/EmptyConfig";
-import MoneyChart from "../components/MoneyChart";
 import {Dayjs} from "dayjs";
 
 interface SimpleComponentsPageProps {
