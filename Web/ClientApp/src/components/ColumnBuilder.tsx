@@ -56,7 +56,7 @@ export function buildTargetColumn<T extends ValueHistoryRecord>(
         ),
         editable: {
             initialValueSelector: record => record.target,
-            onSave: (date, value) => onUpdate(date as string, value)
+            onSave: (row, value) => onUpdate(row.date, value)
         }
     }
 }

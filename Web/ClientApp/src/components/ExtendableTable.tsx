@@ -54,7 +54,7 @@ export interface ColumnGroup<T> {
 
 export interface EditableColumn<T> {
     initialValueSelector: (row: T) => any;
-    onSave: (rowKey: React.Key, value: any) => void | Promise<void>;
+    onSave: (row: T, value: any) => void | Promise<void>;
 }
 
 export interface CustomEditableColumn<T> {
@@ -95,11 +95,16 @@ export function ExtendableTable<T extends {key: React.Key}>(props: ExtendableTab
         let editableColumn = column as EditableColumn<T>;
         let customEditableColumn = column as CustomEditableColumn<T>;
         
+        console.log('#Editable', editableColumn)
+        
         return customEditableColumn.renderEditable
             ? customEditableColumn.renderEditable(row, clearCurrentlyEditedCell)
             : <DefaultEditableCell 
                 initialValue={editableColumn!.initialValueSelector(row)}
-                onSave={value => editableColumn!.onSave!(row.key, value)} 
+                onSave={async value => {
+                    await editableColumn!.onSave!(row, value);
+                    clearCurrentlyEditedCell();
+                }} 
                 onCancel={clearCurrentlyEditedCell}
             />
     }
