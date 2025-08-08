@@ -8,5 +8,5 @@ public class InflationHistoricValue : IEntity
     
     public DateOnly Date { get; init; }
     
-    public decimal Value { get; init; }
+    public decimal Value { get; set; }
 }

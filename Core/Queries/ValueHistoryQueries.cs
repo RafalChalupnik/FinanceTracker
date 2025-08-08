@@ -132,7 +132,9 @@ public class ValueHistoryQueries(IRepository repository)
 
     private WalletsForDateDto[] BuildWalletsForDateDto(IEnumerable<EntitiesForDateDto> rows)
     {
-        var inflationValues = repository.GetEntities<InflationHistoricValue>();
+        var inflationValues = repository.GetEntities<InflationHistoricValue>()
+            .OrderByDescending(x => x.Date)
+            .ToArray();
         
         return rows
             .Select(dataForDate => new WalletsForDateDto(

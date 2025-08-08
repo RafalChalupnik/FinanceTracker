@@ -14,7 +14,8 @@ public class ValueHistoryController(
     ValueHistoryQueries query,
     SetEntityValueCommand setEntityValueCommand,
     SetTargetCommand setTargetCommand,
-    DeleteValuesForDate deleteValuesForDate
+    DeleteValuesForDate deleteValuesForDate,
+    SetInflationValueCommand setInflationValueCommand
     ) : ControllerBase
 {
     [HttpGet("assets")]
@@ -88,9 +89,9 @@ public class ValueHistoryController(
         => query.ForWallets(granularity, from: from, to: to);
 
     [HttpPut("wallets/{walletId:guid}/target")]
-    public async Task<IActionResult> SetWalletTarget(Guid walletId, [FromBody] TargetUpdateDto update)
+    public async Task<IActionResult> SetWalletTarget(Guid walletId, [FromBody] ValueUpdateDto update)
     {
-        await setTargetCommand.SetTarget(walletId, update.Date, update.TargetInMainCurrency);
+        await setTargetCommand.SetTarget(walletId, update.Date, update.Value);
         return NoContent();
     }
     
@@ -118,6 +119,13 @@ public class ValueHistoryController(
             value: value
         );
         
+        return NoContent();
+    }
+    
+    [HttpPut("inflation")]
+    public async Task<IActionResult> SetInflation([FromBody] ValueUpdateDto update)
+    {
+        await setInflationValueCommand.SetInflationValue(update.Date, update.Value);
         return NoContent();
     }
 }

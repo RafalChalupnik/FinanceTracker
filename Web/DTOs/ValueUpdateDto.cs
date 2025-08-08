@@ -2,7 +2,7 @@ using FinanceTracker.Core.Primitives;
 
 namespace FinanceTracker.Web.DTOs;
 
-public record ValueUpdateDto(
+public record MoneyUpdateDto(
     DateOnly Date,
     Money Value
 );

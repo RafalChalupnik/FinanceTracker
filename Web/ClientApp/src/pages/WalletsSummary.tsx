@@ -1,14 +1,16 @@
 import SimpleComponentsPage from "./SimpleComponentsPage";
-import {DateGranularity, getWalletsValueHistory} from "../api/ValueHistoryApi";
+import {DateGranularity, getWalletsValueHistory, setInflation} from "../api/ValueHistoryApi";
 import {buildInflationColumn} from "../components/ColumnBuilder";
+import dayjs from "dayjs";
 
 const WalletsSummary = () => {
-    const update = async (date: string, value: any) => {
-        alert(`Updated inflation on ${date} to ${value}`)
+    const updateInflation = async (date: string, value: number) => {
+        let updatedDate = dayjs(date).endOf('month')
+        await setInflation(updatedDate.format("YYYY-MM-DD"), value);
     }
     
     let extraColumns = [
-        buildInflationColumn(update)
+        buildInflationColumn(updateInflation)
     ]
     
     return <SimpleComponentsPage

@@ -83,13 +83,13 @@ export function buildInflationColumn<T extends WalletHistoryRecord>(
                 key: 'change-percent',
                 title: 'Change (%)',
                 fixed: 'right',
-                render: record => renderPercent(record.yield.changePercent)
+                render: record => renderPercent(record.yield.changePercent, true)
             },
             {
                 key: 'inflation',
                 title: 'Inflation (%)',
                 fixed: 'right',
-                render: record => renderPercent(record.yield.inflation),
+                render: record => renderPercent(record.yield.inflation, false),
                 editable: {
                     initialValueSelector: record => record.yield.inflation,
                     onSave: (row, value) => onUpdate(row.date, value)
@@ -99,14 +99,14 @@ export function buildInflationColumn<T extends WalletHistoryRecord>(
                 key: 'total-score',
                 title: 'Total score (%)',
                 fixed: 'right',
-                render: record => renderPercent(record.yield.totalChangePercent)
+                render: record => renderPercent(record.yield.totalChangePercent, true)
             }
         ]
     }
 }
 
-function renderPercent(value: number) {
-    const color = value !== 0
+function renderPercent(value: number, colorCoding: boolean) {
+    const color = colorCoding && value !== 0
         ? (value > 0 ? 'green' : 'red')
         : 'black'
     

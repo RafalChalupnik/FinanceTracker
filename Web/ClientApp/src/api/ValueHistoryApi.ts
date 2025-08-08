@@ -132,7 +132,7 @@ export async function getWalletsValueHistory(
 export async function setWalletTarget(id: string, date: string, value: number) : Promise<void> {
     await put(`api/value-history/wallets/${id}/target`, {
         date: date,
-        targetInMainCurrency: value
+        value: value
     });
 }
 
@@ -174,6 +174,13 @@ export async function getWalletsComponentsValueHistory(
 
 export async function setWalletComponentValue(id: string, date: string, value: MoneyDto) : Promise<void> {
     await put(`api/value-history/wallets/components/${id}/${date}`, value);
+}
+
+export async function setInflation(date: string, value: number) : Promise<void> {
+    await put(`api/value-history/inflation`, {
+        date: date,
+        value: value
+    });
 }
 
 // Implementation
