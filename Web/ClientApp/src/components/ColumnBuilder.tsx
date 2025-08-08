@@ -1,4 +1,10 @@
-import {ComponentHeader, ComponentValues, MoneyDto, ValueHistoryRecord} from "../api/ValueHistoryApi";
+import {
+    ComponentHeader,
+    ComponentValues,
+    MoneyDto,
+    ValueHistoryRecord,
+    WalletComponentHistoryRecord
+} from "../api/ValueHistoryApi";
 import {Column, ColumnGroup, CustomEditableColumn} from "./ExtendableTable";
 import Money from "./Money";
 import React from "react";
@@ -37,7 +43,7 @@ export function buildSummaryColumn<T extends ValueHistoryRecord>(): ColumnGroup<
     return buildComponentColumns('Summary', record => record.summary);
 }
 
-export function buildTargetColumn<T extends ValueHistoryRecord>(
+export function buildTargetColumn<T extends WalletComponentHistoryRecord>(
     onUpdate: (date: string, value: number) => Promise<void>
 ): Column<T> {
     const formatter = (amount: number) =>

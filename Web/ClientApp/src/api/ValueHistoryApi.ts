@@ -8,21 +8,12 @@ export enum DateGranularity {
     Year
 }
 
-export type EntityValueHistory = {
+export type EntityValueHistory<T extends ValueHistoryRecord> = {
     headers: ComponentHeader[],
-    data: ValueHistoryRecord[]
+    data: T[]
 }
 
-export type WalletValueHistory = {
-    headers: ComponentHeader[],
-    data: WalletHistoryRecord[]
-}
-
-export type WalletHistoryRecord = {
-    key: string,
-    date: string,
-    components: Array<ComponentValues | undefined>,
-    summary: ComponentValues | undefined,
+export type WalletHistoryRecord = ValueHistoryRecord & {
     yield: Yield
 }
 
@@ -32,11 +23,13 @@ export type Yield = {
     totalChangePercent: number
 }
 
-export type WalletComponentsValueHistory = {
+export type WalletComponentsValueHistory = EntityValueHistory<WalletComponentHistoryRecord> & {
     id: string,
-    name: string,
-    headers: ComponentHeader[],
-    data: ValueHistoryRecord[]
+    name: string
+}
+
+export type WalletComponentHistoryRecord = ValueHistoryRecord & {
+    target: Target | undefined;
 }
 
 export type ValueHistoryRecord = {
@@ -44,7 +37,6 @@ export type ValueHistoryRecord = {
     date: string;
     components: Array<ComponentValues | undefined>;
     summary: ComponentValues | undefined;
-    target: Target | undefined;
 }
 
 interface Target {
@@ -73,7 +65,7 @@ export async function getAssetsValueHistory(
     granularity?: DateGranularity,
     from?: Dayjs,
     to?: Dayjs
-) : Promise<EntityValueHistory> {
+) : Promise<EntityValueHistory<ValueHistoryRecord>> {
     return await getEntitiesPerDateQueryDto('api/value-history/assets', granularity, from, to);
 }
 
@@ -89,7 +81,7 @@ export async function getDebtsValueHistory(
     granularity?: DateGranularity,
     from?: Dayjs,
     to?: Dayjs
-) : Promise<EntityValueHistory> {
+) : Promise<EntityValueHistory<ValueHistoryRecord>> {
     return await getEntitiesPerDateQueryDto('api/value-history/debts', granularity, from, to);
 }
 
@@ -105,7 +97,7 @@ export async function getPortfolioValueHistory(
     granularity?: DateGranularity,
     from?: Dayjs,
     to?: Dayjs
-) : Promise<EntityValueHistory> {
+) : Promise<EntityValueHistory<ValueHistoryRecord>> {
     return await getEntitiesPerDateQueryDto('api/value-history/portfolio', granularity, from, to);
 }
 
@@ -113,7 +105,7 @@ export async function getWalletsValueHistory(
     granularity?: DateGranularity,
     from?: Dayjs,
     to?: Dayjs
-) : Promise<WalletValueHistory> {
+) : Promise<EntityValueHistory<WalletHistoryRecord>> {
     let queryParams = new URLSearchParams();
     
     if (granularity !== undefined) {
@@ -238,7 +230,7 @@ async function getEntitiesPerDateQueryDto(
     granularity?: DateGranularity, 
     from?: Dayjs,
     to?: Dayjs
-) : Promise<EntityValueHistory> {
+) : Promise<EntityValueHistory<ValueHistoryRecord>> {
     let queryParams = new URLSearchParams();
     
     if (granularity !== undefined) {
@@ -286,7 +278,7 @@ function mapWalletData (data: WalletsForDateDto[]) : WalletHistoryRecord[] {
     }))
 }
 
-function mapWalletComponentsData (data: WalletComponentsForDateDto[]) : ValueHistoryRecord[] {
+function mapWalletComponentsData (data: WalletComponentsForDateDto[]) : WalletComponentHistoryRecord[] {
     return data.map(row => ({
         key: row.key,
         date: row.key,

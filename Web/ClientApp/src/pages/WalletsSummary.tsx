@@ -5,8 +5,7 @@ const WalletsSummary = () => {
     return <SimpleComponentsPage
         title='Wallets Summary'
         defaultGranularity={DateGranularity.Month}
-        // getData={getWalletsValueHistory}
-        getData={(a, b, c) => new Promise(() => [])}
+        getData={getWalletsValueHistory}
     />;
 };
 

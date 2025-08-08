@@ -10,10 +10,10 @@ import {
 import EmptyConfig from "../components/EmptyConfig";
 import {Dayjs} from "dayjs";
 
-interface SimpleComponentsPageProps {
+interface SimpleComponentsPageProps<T extends ValueHistoryRecord> {
     title: string;
     defaultGranularity: DateGranularity;
-    getData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<EntityValueHistory>,
+    getData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<EntityValueHistory<T>>,
     editable?: EditableProps
 }
 
@@ -22,11 +22,11 @@ interface EditableProps {
     deleteValues: (date: string) => void | Promise<void>;   
 }
 
-const SimpleComponentsPage: FC<SimpleComponentsPageProps> = (props) => {
+export function SimpleComponentsPage<T extends ValueHistoryRecord>(props: SimpleComponentsPageProps<T>) {
     const [isLoading, setIsLoading] = useState(true)
     const [data, setData] = useState({
         headers: [] as ComponentHeader[],
-        rows: [] as ValueHistoryRecord[]
+        rows: [] as T[]
     });
 
     const populateData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => {

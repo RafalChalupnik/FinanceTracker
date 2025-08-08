@@ -61,8 +61,7 @@ export function EditableMoneyComponent<T extends ValueHistoryRecord>(props: Edit
                 key: newEntryDate.format("YYYY-MM-DD"),
                 date: newEntryDate.format("YYYY-MM-DD"),
                 components: props.columns.map(_ => undefined),
-                summary: undefined,
-                target: undefined
+                summary: undefined
             } as T
         ]
 
