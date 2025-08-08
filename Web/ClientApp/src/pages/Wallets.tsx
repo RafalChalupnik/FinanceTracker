@@ -1,6 +1,6 @@
 import React, {FC, useEffect, useState} from 'react';
 import {Space} from "antd";
-import EditableMoneyComponent from "../components/EditableMoneyComponent";
+import {EditableMoneyComponent} from "../components/EditableMoneyComponent";
 import {
     DateGranularity,
     deleteWalletValues,

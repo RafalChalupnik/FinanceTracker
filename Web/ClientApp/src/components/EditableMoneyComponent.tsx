@@ -1,4 +1,4 @@
-import React, {FC, useState} from "react";
+import React, {useState} from "react";
 import dayjs, {Dayjs} from "dayjs";
 import {Button, Card, DatePicker, Modal, Space, Typography} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
@@ -10,12 +10,12 @@ import {buildComponentsColumns, buildDateColumn, buildSummaryColumn} from "./Col
 
 const { Title } = Typography;
 
-interface EditableMoneyComponentProps {
+interface EditableMoneyComponentProps<T> {
     title: string;
-    rows: ValueHistoryRecord[]
+    rows: T[]
     columns: ComponentHeader[],
     refreshData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<void>,
-    extraColumns?: (Column<ValueHistoryRecord> | ColumnGroup<ValueHistoryRecord>)[];
+    extraColumns?: (Column<T> | ColumnGroup<T>)[];
     editable?: EditableProps
 }
 
@@ -24,7 +24,7 @@ interface EditableProps {
     onDelete: (date: string) => Promise<void>
 } 
 
-const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props) => {
+export function EditableMoneyComponent<T extends ValueHistoryRecord>(props: EditableMoneyComponentProps<T>) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Dayjs | undefined>(undefined);
     const [newEntryDate, setNewEntryDate] = useState<Dayjs | undefined>(undefined);
@@ -63,7 +63,7 @@ const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props) => {
                 components: props.columns.map(_ => undefined),
                 summary: undefined,
                 target: undefined
-            }
+            } as T
         ]
 
         return newData.sort((a, b) => dayjs(a.date).unix() - dayjs(b.date).unix());
@@ -94,7 +94,7 @@ const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props) => {
                 }}
             >
                 <Space direction='vertical'>
-                    <ExtendableTable 
+                    <ExtendableTable
                         rows={buildData()} 
                         columns={columns}
                         onDeleteRow={props.editable 
@@ -132,5 +132,3 @@ const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props) => {
         </div>
     );
 }
-
-export default EditableMoneyComponent;

@@ -1,5 +1,5 @@
 import React, {FC, useEffect, useState} from "react";
-import EditableMoneyComponent from "../components/EditableMoneyComponent";
+import {EditableMoneyComponent} from "../components/EditableMoneyComponent";
 import {
     ComponentHeader,
     DateGranularity,
