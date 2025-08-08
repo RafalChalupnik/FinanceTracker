@@ -151,10 +151,10 @@ public class ValueHistoryQueries(IRepository repository)
     {
         var inflation = inflationValues.FirstOrDefault(value => value.Date <= row.Date)?.Value?? 0;
 
-        var previousValue = row.Summary.Change.AmountInMainCurrency - row.Summary.Value.AmountInMainCurrency;
+        var previousValue = row.Summary.Value.AmountInMainCurrency - row.Summary.Change.AmountInMainCurrency;
         var currentValue = row.Summary.Value.AmountInMainCurrency;
 
-        var changePercent = 100 - decimal.Round(currentValue * 100 / previousValue, decimals: 2);
+        var changePercent = decimal.Round(currentValue * 100 / previousValue, decimals: 2) - 100;
         
         return new YieldDto(
             ChangePercent: changePercent,

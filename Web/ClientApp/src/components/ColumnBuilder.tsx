@@ -3,7 +3,7 @@ import {
     ComponentValues,
     MoneyDto,
     ValueHistoryRecord,
-    WalletComponentHistoryRecord
+    WalletComponentHistoryRecord, WalletHistoryRecord
 } from "../api/ValueHistoryApi";
 import {Column, ColumnGroup, CustomEditableColumn} from "./ExtendableTable";
 import Money from "./Money";
@@ -71,6 +71,50 @@ export function buildTargetColumn<T extends WalletComponentHistoryRecord>(
             onSave: (row, value) => onUpdate(row.date, value)
         }
     }
+}
+
+export function buildInflationColumn<T extends WalletHistoryRecord>(
+    onUpdate: (date: string, value: number) => Promise<void>
+): ColumnGroup<T> {
+    return {
+        title: 'Score',
+        children: [
+            {
+                key: 'change-percent',
+                title: 'Change (%)',
+                fixed: 'right',
+                render: record => renderPercent(record.yield.changePercent)
+            },
+            {
+                key: 'inflation',
+                title: 'Inflation (%)',
+                fixed: 'right',
+                render: record => renderPercent(record.yield.inflation),
+                editable: {
+                    initialValueSelector: record => record.yield.inflation,
+                    onSave: (row, value) => onUpdate(row.date, value)
+                }
+            },
+            {
+                key: 'total-score',
+                title: 'Total score (%)',
+                fixed: 'right',
+                render: record => renderPercent(record.yield.totalChangePercent)
+            }
+        ]
+    }
+}
+
+function renderPercent(value: number) {
+    const color = value !== 0
+        ? (value > 0 ? 'green' : 'red')
+        : 'black'
+    
+    return (
+        <div style={{ cursor: 'pointer', color, textAlign: 'right' }}>
+            {`${value.toFixed(2)}%`}
+        </div>
+    );
 }
 
 function buildComponentColumns<T extends ValueHistoryRecord>(

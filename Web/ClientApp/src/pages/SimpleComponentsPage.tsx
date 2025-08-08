@@ -9,12 +9,14 @@ import {
 } from "../api/ValueHistoryApi";
 import EmptyConfig from "../components/EmptyConfig";
 import {Dayjs} from "dayjs";
+import {Column, ColumnGroup} from "../components/ExtendableTable";
 
 interface SimpleComponentsPageProps<T extends ValueHistoryRecord> {
     title: string;
     defaultGranularity: DateGranularity;
     getData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<EntityValueHistory<T>>,
-    editable?: EditableProps
+    editable?: EditableProps,
+    extraColumns?: (Column<T> | ColumnGroup<T>)[];
 }
 
 interface EditableProps {
@@ -68,7 +70,8 @@ export function SimpleComponentsPage<T extends ValueHistoryRecord>(props: Simple
                 rows={data.rows}
                 columns={data.headers}
                 editable={editable}
-                refreshData={populateData}            
+                refreshData={populateData}     
+                extraColumns={props.extraColumns}
             />
         </EmptyConfig>;
 }
