@@ -14,6 +14,25 @@ export type EntityValueHistory = {
 }
 
 export type WalletValueHistory = {
+    headers: ComponentHeader[],
+    data: WalletHistoryRecord[]
+}
+
+export type WalletHistoryRecord = {
+    key: string,
+    date: string,
+    components: Array<ComponentValues | undefined>,
+    summary: ComponentValues | undefined,
+    yield: Yield
+}
+
+export type Yield = {
+    changePercent: number,
+    inflation: number,
+    totalChangePercent: number
+}
+
+export type WalletComponentsValueHistory = {
     id: string,
     name: string,
     headers: ComponentHeader[],
@@ -94,12 +113,31 @@ export async function getWalletsValueHistory(
     granularity?: DateGranularity,
     from?: Dayjs,
     to?: Dayjs
-) : Promise<EntityValueHistory> {
-    return await getEntitiesPerDateQueryDto('api/value-history/wallets', granularity, from, to);
+) : Promise<WalletValueHistory> {
+    let queryParams = new URLSearchParams();
+    
+    if (granularity !== undefined) {
+        queryParams.append('granularity', granularity.toString());
+    }
+
+    if (from !== undefined) {
+        queryParams.append('from', from.format('YYYY-MM-DD'));
+    }
+
+    if (to !== undefined) {
+        queryParams.append('to', to.format('YYYY-MM-DD'));
+    }
+    
+    const response = await fetch('api/value-history/wallets?' + queryParams);
+    let data: WalletsPerDateQueryDto = await response.json();
+    
+    return {
+        headers: data.headers,
+        data: mapWalletData(data.data)
+    }
 }
 
 export async function setWalletTarget(id: string, date: string, value: number) : Promise<void> {
-    console.log('#Set', id, date, value)
     await put(`api/value-history/wallets/${id}/target`, {
         date: date,
         targetInMainCurrency: value
@@ -114,7 +152,7 @@ export async function getWalletsComponentsValueHistory(
     granularity?: DateGranularity,
     from?: Dayjs,
     to?: Dayjs
-) : Promise<WalletValueHistory[]> {
+) : Promise<WalletComponentsValueHistory[]> {
     let queryParams = new URLSearchParams();
 
     if (granularity !== undefined) {
@@ -130,14 +168,14 @@ export async function getWalletsComponentsValueHistory(
     }
     
     const response = await fetch('api/value-history/wallets/components?' + queryParams);
-    let data: WalletsPerDateQueryDto = await response.json();
+    let data: WalletsComponentsPerDateQueryDto = await response.json();
     
     return data.wallets.map(wallet => {
         return {
             id: wallet.id,
             name: wallet.name,
             headers: wallet.headers,
-            data: mapWalletData(wallet.data)
+            data: mapWalletComponentsData(wallet.data)
         }
     })
 }
@@ -154,17 +192,29 @@ interface EntitiesPerDateQueryDto {
 }
 
 interface WalletsPerDateQueryDto {
-    wallets: WalletDto[]
+    headers: ComponentHeader[],
+    data: WalletsForDateDto[]
 }
 
-interface WalletDto {
+interface WalletsForDateDto {
+    key: string,
+    entities: ValueSnapshotDto[],
+    summary: ValueSnapshotDto,
+    yield: Yield
+}
+
+interface WalletsComponentsPerDateQueryDto {
+    wallets: WalletComponentsDto[]
+}
+
+interface WalletComponentsDto {
     id: string,
     name: string,
     headers: ComponentHeader[],
-    data: WalletForDateDto[]
+    data: WalletComponentsForDateDto[]
 }
 
-interface WalletForDateDto {
+interface WalletComponentsForDateDto {
     key: string,
     entities: ValueSnapshotDto[],
     summary: ValueSnapshotDto,
@@ -212,7 +262,31 @@ async function getEntitiesPerDateQueryDto(
     }
 }
 
-function mapWalletData (data: WalletForDateDto[]) : ValueHistoryRecord[] {
+function mapWalletData (data: WalletsForDateDto[]) : WalletHistoryRecord[] {
+    return data.map(row => ({
+        key: row.key,
+        date: row.key,
+        components: row.entities.map(entity => {
+            if (entity === null) {
+                return undefined;
+            }
+
+            return {
+                value: entity.value,
+                change: entity.change,
+                cumulativeChange: entity.cumulativeChange
+            }
+        }),
+        summary: {
+            value: row.summary.value,
+            change: row.summary.change,
+            cumulativeChange: row.summary.cumulativeChange
+        },
+        yield: row.yield
+    }))
+}
+
+function mapWalletComponentsData (data: WalletComponentsForDateDto[]) : ValueHistoryRecord[] {
     return data.map(row => ({
         key: row.key,
         date: row.key,

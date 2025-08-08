@@ -7,7 +7,7 @@ import {
     getWalletsComponentsValueHistory,
     MoneyDto,
     setWalletComponentValue, setWalletTarget, ValueHistoryRecord,
-    WalletValueHistory
+    WalletComponentsValueHistory
 } from "../api/ValueHistoryApi";
 import EmptyConfig from "../components/EmptyConfig";
 import {Dayjs} from 'dayjs';
@@ -21,7 +21,7 @@ interface WalletsProps {
 
 const Wallets: FC<WalletsProps> = (props) => {
     const [isLoading, setIsLoading] = useState(true)
-    const [wallets, setWallets] = useState([] as WalletValueHistory[]);
+    const [wallets, setWallets] = useState([] as WalletComponentsValueHistory[]);
     const [editingTargetValue, setEditingTargetValue] = useState(0);
 
     const populateData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => {
