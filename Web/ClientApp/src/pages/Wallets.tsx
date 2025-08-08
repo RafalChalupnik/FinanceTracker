@@ -58,7 +58,10 @@ const Wallets: FC<WalletsProps> = (props) => {
                                     }}
                                     refreshData={populateData}
                                     extraColumns={[
-                                        buildTargetColumn((date, value) => setWalletTarget(wallet.id, date, value))
+                                        buildTargetColumn(async (date, value) => {
+                                            await setWalletTarget(wallet.id, date, value);
+                                            await populateData();
+                                        })
                                     ]}
                                 />
                         );

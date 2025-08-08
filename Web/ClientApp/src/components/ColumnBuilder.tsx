@@ -40,22 +40,28 @@ export function buildSummaryColumn<T extends ValueHistoryRecord>(): ColumnGroup<
 export function buildTargetColumn<T extends ValueHistoryRecord>(
     onUpdate: (date: string, value: number) => Promise<void>
 ): Column<T> {
+    const formatter = (amount: number) =>
+        new Intl.NumberFormat('pl-PL', {
+            style: 'currency',
+            currency: 'PLN',
+        }).format(amount)
+    
     return {
         key: 'target',
         title: 'Target',
         fixed: 'right',
-        render: record => record.target === null 
+        render: record => record.target?.targetInMainCurrency === undefined 
             ? '-' 
             : (
             <Space direction='vertical'>
                 <Space direction={"vertical"}>
                     {`${record.target?.percentage}%`}
-                    <Text disabled>{record.target?.targetInMainCurrency}</Text>
+                    <Text disabled>{formatter(record.target!.targetInMainCurrency)}</Text>
                 </Space>
             </Space>
         ),
         editable: {
-            initialValueSelector: record => record.target,
+            initialValueSelector: record => record.target?.targetInMainCurrency,
             onSave: (row, value) => onUpdate(row.date, value)
         }
     }
