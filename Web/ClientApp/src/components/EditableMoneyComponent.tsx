@@ -16,7 +16,8 @@ interface EditableMoneyComponentProps<T> {
     columns: ComponentHeader[],
     refreshData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<void>,
     extraColumns?: (Column<T> | ColumnGroup<T>)[];
-    editable?: EditableProps
+    editable?: EditableProps;
+    extra?: React.ReactNode;
 }
 
 interface EditableProps {
@@ -118,6 +119,7 @@ export function EditableMoneyComponent<T extends ValueHistoryRecord>(props: Edit
                         data={props.rows}
                         dataSelector={component => component.cumulativeChange}
                     />
+                    {props.extra}
                 </Space>
             </Card>
             <Modal

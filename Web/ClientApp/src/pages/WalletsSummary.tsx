@@ -9,7 +9,77 @@ import {buildInflationColumn} from "../components/ColumnBuilder";
 import dayjs, {Dayjs} from "dayjs";
 import EmptyConfig from "../components/EmptyConfig";
 import {EditableMoneyComponent} from "../components/EditableMoneyComponent";
-import React, {useEffect, useState} from "react";
+import React, {FC, useEffect, useState} from "react";
+import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
+import {Space, Typography} from "antd";
+
+const {Title} = Typography;
+
+interface ScoreChartProps {
+    data: WalletHistoryRecord[],
+}
+
+const ScoreChart: FC<ScoreChartProps> = (props) => {
+    const chartLineColors = [
+        '#1890ff',
+        '#52c41a',
+        '#f5222d'
+    ];
+    
+    let series = [
+        {
+            name: 'Change (%)',
+            data: props.data
+                .map(dataPoint => {
+                    return {
+                        date: dataPoint.date,
+                        value: dataPoint.yield.changePercent
+                    }
+                })
+        },
+        {
+            name: 'Inflation (%)',
+            data: props.data
+                .map(dataPoint => {
+                    return {
+                        date: dataPoint.date,
+                        value: dataPoint.yield.inflation
+                    }
+                })
+        },
+        {
+            name: 'Total score (%)',
+            data: props.data
+                .map(dataPoint => {
+                    return {
+                        date: dataPoint.date,
+                        value: dataPoint.yield.totalChangePercent
+                    }
+                })
+        }
+    ]
+
+    return (
+        <ResponsiveContainer width="100%" height={300} style={{padding: '16px'}}>
+            <LineChart width={500} height={300} margin={{ left: 40, right: 20, top: 20, bottom: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" type="category" allowDuplicatedCategory={false} />
+                <YAxis dataKey="value" />
+                <Tooltip/>
+                <Legend />
+                {series.map((s, idx) => (
+                    <Line
+                        dataKey="value"
+                        data={s.data}
+                        name={s.name}
+                        key={s.name}
+                        stroke={chartLineColors[idx % chartLineColors.length]}
+                    />
+                ))}
+            </LineChart>
+        </ResponsiveContainer>
+    );
+}
 
 const WalletsSummary = () => {
     const [isLoading, setIsLoading] = useState(true)
@@ -51,6 +121,12 @@ const WalletsSummary = () => {
                 columns={data.headers}
                 refreshData={populateData}
                 extraColumns={extraColumns}
+                extra={
+                    <>
+                        <Title level={5}>Total score</Title>
+                        <ScoreChart data={data.rows}/>
+                    </>
+                }
             />
         </EmptyConfig>;
 };
