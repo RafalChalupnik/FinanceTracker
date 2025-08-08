@@ -1,6 +1,8 @@
+using FinanceTracker.Core.Interfaces;
+
 namespace FinanceTracker.Core;
 
-public class InflationHistoricValue
+public class InflationHistoricValue : IEntity
 {
     public Guid Id { get; init; }
     

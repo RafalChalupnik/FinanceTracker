@@ -4,7 +4,7 @@ public interface IRepository
 {
     IQueryable<Component> GetComponentsForWallet(Guid walletId);
     
-    T GetEntityWithValueHistory<T>(Guid id) where T : EntityWithValueHistory, IEntity;
+    T GetEntityWithValueHistory<T>(Guid id) where T : EntityWithValueHistory, INamedEntity;
 
     IQueryable<T> GetEntities<T>() where T : class, IEntity;
     
@@ -18,7 +18,7 @@ public interface IRepository
     
     ValueTask DeleteAsync<T>(IQueryable<T> entities);
 
-    void Update<T>(T entity) where T : class, IEntity;
+    void Update<T>(T entity) where T : class, INamedEntity;
     
     ValueTask SaveChangesAsync();
 }

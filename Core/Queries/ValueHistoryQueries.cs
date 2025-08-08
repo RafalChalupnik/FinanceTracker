@@ -1,5 +1,6 @@
 using FinanceTracker.Core.Extensions;
 using FinanceTracker.Core.Interfaces;
+using FinanceTracker.Core.Primitives;
 using FinanceTracker.Core.Queries.DTOs;
 using FinanceTracker.Core.Queries.Implementation;
 
@@ -67,13 +68,20 @@ public class ValueHistoryQueries(IRepository repository)
         );
     }
     
-    public EntitiesPerDateQueryDto ForWallets(DateGranularity? granularity, DateOnly? from, DateOnly? to) =>
-        EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
+    public WalletsPerDateQueryDto ForWallets(DateGranularity? granularity, DateOnly? from, DateOnly? to)
+    {
+        var data = EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
             entities: repository.GetWallets(includeValueHistory: true, includeTargets: false),
             granularity,
             fromDate: from,
             toDate: to
         );
+
+        return new WalletsPerDateQueryDto(
+            Headers: data.Headers,
+            Data: BuildWalletsForDateDto(data.Data)
+        );
+    }
 
     private static IReadOnlyCollection<WalletComponentsForDateDto> BuildWalletForDates(
         Wallet wallet,
@@ -119,6 +127,39 @@ public class ValueHistoryQueries(IRepository repository)
         return new WalletTargetDto(
             TargetInMainCurrency: target.ValueInMainCurrency,
             Percentage: decimal.Round(percentage * 100, decimals: 2)
+        );
+    }
+
+    private WalletsForDateDto[] BuildWalletsForDateDto(IEnumerable<EntitiesForDateDto> rows)
+    {
+        var inflationValues = repository.GetEntities<InflationHistoricValue>();
+        
+        return rows
+            .Select(dataForDate => new WalletsForDateDto(
+                    Key: dataForDate.Key,
+                    Entities: dataForDate.Entities,
+                    Summary: dataForDate.Summary,
+                    Yield: BuildYieldDto(dataForDate, inflationValues)
+                )
+            )
+            .ToArray();
+    }
+
+    private static YieldDto BuildYieldDto(
+        EntitiesForDateDto row,
+        IEnumerable<InflationHistoricValue> inflationValues)
+    {
+        var inflation = inflationValues.FirstOrDefault(value => value.Date <= row.Date)?.Value?? 0;
+
+        var previousValue = row.Summary.Change.AmountInMainCurrency - row.Summary.Value.AmountInMainCurrency;
+        var currentValue = row.Summary.Value.AmountInMainCurrency;
+
+        var changePercent = 100 - decimal.Round(currentValue * 100 / previousValue, decimals: 2);
+        
+        return new YieldDto(
+            ChangePercent: changePercent,
+            Inflation: inflation,
+            TotalChangePercent: changePercent - inflation
         );
     }
 

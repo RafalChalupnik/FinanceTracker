@@ -80,7 +80,7 @@ public class ValueHistoryController(
         => query.ForEntirePortfolio(granularity, from: from, to: to);
     
     [HttpGet("wallets")]
-    public EntitiesPerDateQueryDto GetWalletsValueHistory(
+    public WalletsPerDateQueryDto GetWalletsValueHistory(
         [FromQuery] DateGranularity? granularity, 
         [FromQuery] DateOnly? from, 
         [FromQuery] DateOnly? to

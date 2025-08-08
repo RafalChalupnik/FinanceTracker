@@ -90,7 +90,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 .Include(component => component.ValueHistory);
         }
 
-        public T GetEntityWithValueHistory<T>(Guid id) where T : EntityWithValueHistory, IEntity
+        public T GetEntityWithValueHistory<T>(Guid id) where T : EntityWithValueHistory, INamedEntity
         {
             return context.Set<T>()
                 .Include(x => x.ValueHistory)
@@ -130,7 +130,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
         public async ValueTask DeleteAsync<T>(IQueryable<T> entities)
             => await entities.ExecuteDeleteAsync();
         
-        public void Update<T>(T entity) where T : class, IEntity 
+        public void Update<T>(T entity) where T : class, INamedEntity 
             => context.Set<T>().Update(entity);
 
         public async ValueTask SaveChangesAsync()
