@@ -9,9 +9,13 @@ interface MoneyFormProps {
 }
 
 const MoneyForm: FC<MoneyFormProps> = (props) => {
+    const MAIN_CURRENCY = 'PLN';
+    
     const [amount, setAmount] = useState(props?.initialValue?.amount);
     const [currency, setCurrency] = useState(props?.initialValue?.currency);
-    const [amountInMainCurrency, setAmountInMainCurrency] = useState(props?.initialValue?.amountInMainCurrency);
+    const [amountInMainCurrency, setAmountInMainCurrency] = useState<number | undefined>(currency !== MAIN_CURRENCY
+        ? props?.initialValue?.amountInMainCurrency
+        : undefined);
     const [alertVisible, setAlertVisible] = useState(false);
     
     const save = () => {
@@ -24,8 +28,10 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
         
         let money = {
             amount: amount,
-            currency: currency ?? 'PLN',
-            amountInMainCurrency: amountInMainCurrency ?? amount
+            currency: currency ?? MAIN_CURRENCY,
+            amountInMainCurrency: currency != MAIN_CURRENCY
+                ? amountInMainCurrency ?? amount
+                : amount,
         }
         
         props.onSave(money);
@@ -41,9 +47,6 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
                 placeholder="0,00"
                 onChange={(e) => {
                     setAmount(e?.valueOf());
-                    if (amountInMainCurrency !== undefined) {
-                        setAmountInMainCurrency( e?.valueOf())
-                    }
                 }}
             />
             <Input 
@@ -53,13 +56,13 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
                 maxLength={3}
                 onChange={(e) => setCurrency(e.target.value)}
             />
-            <InputNumber
+            {currency != MAIN_CURRENCY && <InputNumber
                 value={amountInMainCurrency}
                 style={{ width: '100%' }}
                 step={0.01}
                 placeholder="0,00"
                 onChange={(e) => setAmountInMainCurrency( e?.valueOf())}
-            />
+            />}
             <Space direction={"horizontal"}>
                 <Button onClick={save}>Save</Button>
                 <Button onClick={props.onCancel}>Cancel</Button>
