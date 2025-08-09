@@ -13,6 +13,8 @@ import {MoneyDto} from "../api/value-history/DTOs/Money";
 import {ValueSnapshotDto} from "../api/value-history/DTOs/ValueSnapshotDto";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 import {DeleteOutlined} from "@ant-design/icons";
+import InflationForm from "./InflationForm";
+import dayjs from "dayjs";
 
 const {Text} = Typography;
 
@@ -102,7 +104,7 @@ export function buildTargetColumn<T extends WalletComponentsValueHistoryRecordDt
 
 export function buildInflationColumn<T extends WalletValueHistoryRecordDto>(
     granularity: DateGranularity,
-    onUpdate: (date: string, value: number) => Promise<void>
+    onUpdate: (year: number, month: number, value: number) => Promise<void>
 ): ColumnGroup<T> {
     return {
         title: 'Score',
@@ -120,8 +122,19 @@ export function buildInflationColumn<T extends WalletValueHistoryRecordDto>(
                 render: record => renderPercent(record.yield.inflation, false),
                 editable: {
                     isEditable: granularity == DateGranularity.Month,
-                    initialValueSelector: record => record.yield.inflation,
-                    onSave: (row, value) => onUpdate(row.key, value)
+                    renderEditable: (row, closeCallback) => {
+                        let date = dayjs(row.key);
+                        
+                        return (
+                            <InflationForm
+                                year={date.year()}
+                                month={date.month() + 1}
+                                initialValue={row.yield.inflation}
+                                onUpdate={onUpdate}
+                                closeCallback={closeCallback}
+                            />
+                        );
+                    }
                 }
             },
             {
