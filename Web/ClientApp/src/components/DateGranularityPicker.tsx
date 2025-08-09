@@ -13,7 +13,7 @@ const { Option } = Select;
 interface DateRangePickerWithTypeProps {
     minDate: Dayjs | undefined;
     maxDate: Dayjs | undefined;
-    onChange: (type: DateGranularity, start: Dayjs, end: Dayjs) => Promise<void>;
+    onChange: (type: DateGranularity, start?: Dayjs, end?: Dayjs) => Promise<void>;
     allowedOptions?: DateGranularity[];
 }
 
@@ -28,6 +28,8 @@ const DateRangePickerWithType: React.FC<DateRangePickerWithTypeProps> = (props) 
     
     const [minDate, setMinDate] = useState<Dayjs | undefined>(undefined);
     const [maxDate, setMaxDate] = useState<Dayjs | undefined>(undefined);
+    const [startDate, setStartDate] = useState<Dayjs | undefined>(undefined);
+    const [endDate, setEndDate] = useState<Dayjs | undefined>(undefined);
     const [mode, setMode] = useState<PickerMode>(props.allowedOptions
         ? allOptions.filter(opt => props.allowedOptions!.includes(opt.value))[0].picker
         : allOptions[0].picker
@@ -61,12 +63,17 @@ const DateRangePickerWithType: React.FC<DateRangePickerWithTypeProps> = (props) 
                 throw new Error(`Unknown mode: ${mode}`);
         }
     }
+    
+    const onModeChange = async (mode: PickerMode) => {
+        setMode(mode);
+        await props.onChange(mapToDateGranularity(mode), startDate, endDate);
+    }
 
-    const onChange = async (start: Dayjs, end: Dayjs) => {
+    const onDatesChange = async (start: Dayjs, end: Dayjs) => {
         const unitType = mapToOpUnitType(mode)
 
-        const startDate = start.startOf(unitType);
-        const endDate = end.endOf(unitType);
+        setStartDate(start.startOf(unitType));
+        setEndDate(end.endOf(unitType));
         
         await props.onChange(mapToDateGranularity(mode), startDate, endDate);
     }
@@ -77,7 +84,12 @@ const DateRangePickerWithType: React.FC<DateRangePickerWithTypeProps> = (props) 
 
     return (
         <Space direction='horizontal'>
-            <Select aria-label="Picker Type" value={mode} onChange={setMode} style={{width: 100}}>
+            <Select 
+                aria-label="Picker Type" 
+                value={mode} 
+                onChange={onModeChange} 
+                style={{width: 100}}
+            >
                 {optionsToRender.map(({ picker, label }) => (
                     <Option value={picker}>
                         {label}
@@ -89,7 +101,7 @@ const DateRangePickerWithType: React.FC<DateRangePickerWithTypeProps> = (props) 
                 maxDate={maxDate}
                 picker={mode}
                 onChange={async (dates, dateStrings) => {
-                    await onChange(dates![0]!, dates![1]!);
+                    await onDatesChange(dates![0]!, dates![1]!);
                 }} 
             />
         </Space>
