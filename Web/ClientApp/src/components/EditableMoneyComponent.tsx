@@ -102,36 +102,31 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
                         </Button>}
                     </Space>
                 }
-                style={{
-                    width: '100%',
-                    overflowX: 'auto',
-                }}
+                style={{ width: '100%' }}
             >
-                <Space direction='vertical'>
-                    <ExtendableTable
-                        rows={buildData()} 
-                        columns={columns}
-                    />
-                    <Title level={5}>Value</Title>
-                    <MoneyChart 
-                        headers={props.columns}
-                        data={props.rows}
-                        dataSelector={component => component.value}
-                    />
-                    <Title level={5}>Change</Title>
-                    <MoneyChart
-                        headers={props.columns}
-                        data={props.rows}
-                        dataSelector={component => component.change}
-                    />
-                    <Title level={5}>Cumulative change</Title>
-                    <MoneyChart
-                        headers={props.columns}
-                        data={props.rows}
-                        dataSelector={component => component.cumulativeChange}
-                    />
-                    {props.extra}
-                </Space>
+                <ExtendableTable
+                    rows={buildData()} 
+                    columns={columns}
+                />
+                <Title level={5}>Value</Title>
+                <MoneyChart 
+                    headers={props.columns}
+                    data={props.rows}
+                    dataSelector={component => component.value}
+                />
+                <Title level={5}>Change</Title>
+                <MoneyChart
+                    headers={props.columns}
+                    data={props.rows}
+                    dataSelector={component => component.change}
+                />
+                <Title level={5}>Cumulative change</Title>
+                <MoneyChart
+                    headers={props.columns}
+                    data={props.rows}
+                    dataSelector={component => component.cumulativeChange}
+                />
+                {props.extra}
             </Card>
             <Modal
                 title="Pick a date"

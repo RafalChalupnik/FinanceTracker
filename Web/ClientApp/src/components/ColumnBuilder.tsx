@@ -46,7 +46,7 @@ export function buildComponentsColumns<T extends ValueHistoryRecordDto>(
 }
 
 export function buildSummaryColumn<T extends ValueHistoryRecordDto>(): ColumnGroup<T> {
-    return buildComponentColumns('Summary', record => record.summary);
+    return buildComponentColumns('Summary', record => record.summary, undefined, 'right');
 }
 
 export function buildDeleteColumn<T>(
@@ -170,7 +170,8 @@ function renderPercent(value: number | undefined | null, colorCoding: boolean) {
 function buildComponentColumns<T extends ValueHistoryRecordDto>(
     title: string,
     selector: (record: T) => ValueSnapshotDto | undefined,
-    editableValue?: CustomEditableColumn<T>
+    editableValue?: CustomEditableColumn<T>,
+    fixed?: 'right' | undefined,
 ): ColumnGroup<T> {
     return {
         title: title,
@@ -180,19 +181,22 @@ function buildComponentColumns<T extends ValueHistoryRecordDto>(
                 'Value',
                 record => selector(record)?.value,
                 false,
+                fixed,
                 editableValue
             ),
             buildMoneyColumn(
                 `${title}-change`,
                 'Change',
                 record => selector(record)?.change,
-                true
+                true,
+                fixed
             ),
             buildMoneyColumn(
                 `${title}-cumulative`,
                 'Cumulative',
                 record => selector(record)?.cumulativeChange,
-                true
+                true,
+                fixed
             )
         ]
     }
@@ -203,11 +207,13 @@ function buildMoneyColumn<T extends ValueHistoryRecordDto>(
     title: string,
     selector: (record: T) => MoneyDto | undefined,
     colorCoding: boolean,
+    fixed: 'right' | undefined,
     editable?: CustomEditableColumn<T>
 ): Column<T> {
     return {
         key: key,
         title: title,
+        fixed: fixed,
         render: (record: T) => (
             <Money
                 value={selector(record)}
