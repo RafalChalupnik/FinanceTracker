@@ -1,10 +1,3 @@
-import {
-    ComponentHeader,
-    DateGranularity,
-    getWalletsValueHistory,
-    setInflation,
-    WalletHistoryRecord
-} from "../api/ValueHistoryApi";
 import {buildInflationColumn} from "../components/ColumnBuilder";
 import dayjs, {Dayjs} from "dayjs";
 import EmptyConfig from "../components/EmptyConfig";
@@ -12,11 +5,18 @@ import {EditableMoneyComponent} from "../components/EditableMoneyComponent";
 import React, {FC, useEffect, useState} from "react";
 import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
 import {Space, Typography} from "antd";
+import {
+    EntityColumnDto,
+    WalletComponentsValueHistoryRecordDto,
+    WalletValueHistoryRecordDto
+} from "../api/value-history/DTOs/EntityTableDto";
+import {getWalletsValueHistory, setInflation} from "../api/value-history/Client";
+import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 
 const {Title} = Typography;
 
 interface ScoreChartProps {
-    data: WalletHistoryRecord[],
+    data: WalletValueHistoryRecordDto[],
 }
 
 const ScoreChart: FC<ScoreChartProps> = (props) => {
@@ -32,7 +32,7 @@ const ScoreChart: FC<ScoreChartProps> = (props) => {
             data: props.data
                 .map(dataPoint => {
                     return {
-                        date: dataPoint.date,
+                        date: dataPoint.key,
                         value: dataPoint.yield.changePercent
                     }
                 })
@@ -42,7 +42,7 @@ const ScoreChart: FC<ScoreChartProps> = (props) => {
             data: props.data
                 .map(dataPoint => {
                     return {
-                        date: dataPoint.date,
+                        date: dataPoint.key,
                         value: dataPoint.yield.inflation
                     }
                 })
@@ -52,7 +52,7 @@ const ScoreChart: FC<ScoreChartProps> = (props) => {
             data: props.data
                 .map(dataPoint => {
                     return {
-                        date: dataPoint.date,
+                        date: dataPoint.key,
                         value: dataPoint.yield.totalChangePercent
                     }
                 })
@@ -84,15 +84,15 @@ const ScoreChart: FC<ScoreChartProps> = (props) => {
 const WalletsSummary = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [data, setData] = useState({
-        headers: [] as ComponentHeader[],
-        rows: [] as WalletHistoryRecord[]
+        headers: [] as EntityColumnDto[],
+        rows: [] as WalletValueHistoryRecordDto[]
     });
 
     const populateData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => {
         const response = await getWalletsValueHistory(granularity, from, to)
         setData({
-            headers: response.headers,
-            rows: response.data
+            headers: response.columns,
+            rows: response.rows
         });
 
         setIsLoading(false)

@@ -2,30 +2,33 @@ import React, {useState} from "react";
 import dayjs, {Dayjs} from "dayjs";
 import {Button, Card, DatePicker, Modal, Space, Typography} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
-import {ComponentHeader, DateGranularity, MoneyDto, ValueHistoryRecord} from "../api/ValueHistoryApi";
 import DateGranularityPicker from "./DateGranularityPicker";
 import MoneyChart from "./MoneyChart";
 import {Column, ColumnGroup, ExtendableTable} from "./ExtendableTable";
 import {buildComponentsColumns, buildDateColumn, buildSummaryColumn} from "./ColumnBuilder";
+import {EntityColumnDto, ValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
+import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
+import {MoneyDto} from "../api/value-history/DTOs/Money";
 
 const { Title } = Typography;
 
 interface EditableMoneyComponentProps<T> {
     title: string;
     rows: T[]
-    columns: ComponentHeader[],
-    refreshData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<void>,
+    columns: EntityColumnDto[],
+    refreshData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<void>;
     extraColumns?: (Column<T> | ColumnGroup<T>)[];
-    editable?: EditableProps;
+    editable?: EditableProps<T>;
     extra?: React.ReactNode;
 }
 
-interface EditableProps {
-    onUpdate: (id: string, date: string, value: MoneyDto) => Promise<void>
-    onDelete: (date: string) => Promise<void>
+interface EditableProps<T> {
+    createEmptyRow: (date: Dayjs, columns: EntityColumnDto[]) => T;
+    onUpdate: (id: string, date: string, value: MoneyDto) => Promise<void>;
+    onDelete: (date: string) => Promise<void>;
 } 
 
-export function EditableMoneyComponent<T extends ValueHistoryRecord>(props: EditableMoneyComponentProps<T>) {
+export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: EditableMoneyComponentProps<T>) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Dayjs | undefined>(undefined);
     const [newEntryDate, setNewEntryDate] = useState<Dayjs | undefined>(undefined);
@@ -58,15 +61,10 @@ export function EditableMoneyComponent<T extends ValueHistoryRecord>(props: Edit
 
         let newData = [
             ...props.rows,
-            {
-                key: newEntryDate.format("YYYY-MM-DD"),
-                date: newEntryDate.format("YYYY-MM-DD"),
-                components: props.columns.map(_ => undefined),
-                summary: undefined
-            } as T
+            props.editable!.createEmptyRow(newEntryDate, props.columns)
         ]
 
-        return newData.sort((a, b) => dayjs(a.date).unix() - dayjs(b.date).unix());
+        return newData.sort((a, b) => dayjs(a.key).unix() - dayjs(b.key).unix());
     }
     
     return (
@@ -76,8 +74,8 @@ export function EditableMoneyComponent<T extends ValueHistoryRecord>(props: Edit
                 extra={ 
                     <Space direction='horizontal'>
                         <DateGranularityPicker 
-                            minDate={props.rows.length > 0 ? dayjs(props.rows[0].date) : undefined}
-                            maxDate={props.rows.length > 0 ? dayjs(props.rows[props.rows.length - 1].date) : undefined}
+                            minDate={props.rows.length > 0 ? dayjs(props.rows[0].key) : undefined}
+                            maxDate={props.rows.length > 0 ? dayjs(props.rows[props.rows.length - 1].key) : undefined}
                             onChange={props.refreshData}
                         />
                         {props.editable && <Button

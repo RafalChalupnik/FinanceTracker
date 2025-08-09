@@ -1,29 +1,30 @@
 import React, {FC, useEffect, useState} from 'react';
 import {Space} from "antd";
 import {EditableMoneyComponent} from "../components/EditableMoneyComponent";
-import {
-    DateGranularity,
-    deleteWalletValues,
-    getWalletsComponentsValueHistory,
-    MoneyDto,
-    setWalletComponentValue, 
-    setWalletTarget, 
-    WalletComponentsValueHistory
-} from "../api/ValueHistoryApi";
 import EmptyConfig from "../components/EmptyConfig";
 import {Dayjs} from 'dayjs';
 import {buildTargetColumn} from "../components/ColumnBuilder";
+import {
+    WalletComponentsTableDto,
+} from "../api/value-history/DTOs/EntityTableDto";
+import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
+import {
+    deleteWalletValues,
+    getWalletsComponentsValueHistory,
+    setWalletComponentValue, setWalletTarget
+} from "../api/value-history/Client";
+import {MoneyDto} from "../api/value-history/DTOs/Money";
 
 interface WalletsProps {
 }
 
 const Wallets: FC<WalletsProps> = (props) => {
     const [isLoading, setIsLoading] = useState(true)
-    const [wallets, setWallets] = useState([] as WalletComponentsValueHistory[]);
+    const [wallets, setWallets] = useState([] as WalletComponentsTableDto[]);
 
     const populateData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => {
-        const wallets = await getWalletsComponentsValueHistory(granularity, from, to)
-        setWallets(wallets)
+        const response = await getWalletsComponentsValueHistory(granularity, from, to)
+        setWallets(response.wallets)
         setIsLoading(false)
     }
 
@@ -50,9 +51,17 @@ const Wallets: FC<WalletsProps> = (props) => {
                             return (
                                 <EditableMoneyComponent
                                     title={wallet.name}
-                                    rows={wallet.data}
-                                    columns={wallet.headers}
+                                    rows={wallet.rows}
+                                    columns={wallet.columns}
                                     editable={{
+                                        createEmptyRow: (date, columns) => {
+                                            return {
+                                                key: date.format("YYYY-MM-DD"),
+                                                entities: columns.map(_ => undefined),
+                                                summary: undefined,
+                                                target: undefined,
+                                            }
+                                        },
                                         onUpdate: updateComponent,
                                         onDelete: date => deleteEvaluations(wallet.id, date),
                                     }}

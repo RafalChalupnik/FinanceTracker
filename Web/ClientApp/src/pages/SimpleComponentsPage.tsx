@@ -1,41 +1,38 @@
 import React, {FC, useEffect, useState} from "react";
 import {EditableMoneyComponent} from "../components/EditableMoneyComponent";
-import {
-    ComponentHeader,
-    DateGranularity,
-    EntityValueHistory,
-    MoneyDto,
-    ValueHistoryRecord
-} from "../api/ValueHistoryApi";
 import EmptyConfig from "../components/EmptyConfig";
 import {Dayjs} from "dayjs";
 import {Column, ColumnGroup} from "../components/ExtendableTable";
+import { DateGranularity } from "../api/value-history/DTOs/DateGranularity";
+import {EntityColumnDto, EntityTableDto, ValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
+import {MoneyDto} from "../api/value-history/DTOs/Money";
 
-interface SimpleComponentsPageProps<T extends ValueHistoryRecord> {
+interface SimpleComponentsPageProps<T extends ValueHistoryRecordDto> {
     title: string;
     defaultGranularity: DateGranularity;
-    getData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<EntityValueHistory<T>>,
-    editable?: EditableProps,
+    getData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<EntityTableDto<T>>,
+    editable?: EditableProps<T>,
     extraColumns?: (Column<T> | ColumnGroup<T>)[];
 }
 
-interface EditableProps {
+interface EditableProps<T> {
+    createEmptyRow: (date: Dayjs, columns: EntityColumnDto[]) => T;
     setValue: (id: string, date: string, value: MoneyDto) => Promise<void>;
     deleteValues: (date: string) => void | Promise<void>;   
 }
 
-export function SimpleComponentsPage<T extends ValueHistoryRecord>(props: SimpleComponentsPageProps<T>) {
+export function SimpleComponentsPage<T extends ValueHistoryRecordDto>(props: SimpleComponentsPageProps<T>) {
     const [isLoading, setIsLoading] = useState(true)
     const [data, setData] = useState({
-        headers: [] as ComponentHeader[],
+        headers: [] as EntityColumnDto[],
         rows: [] as T[]
     });
 
     const populateData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => {
         const response = await props.getData(granularity, from, to);
         setData({
-            headers: response.headers,
-            rows: response.data
+            headers: response.columns,
+            rows: response.rows
         });
         
         setIsLoading(false)
@@ -57,6 +54,7 @@ export function SimpleComponentsPage<T extends ValueHistoryRecord>(props: Simple
     
     let editable = props.editable
         ? {
+            createEmptyRow: props.editable!.createEmptyRow,
             onUpdate: updateEntity,
             onDelete: deleteEvaluations
         }

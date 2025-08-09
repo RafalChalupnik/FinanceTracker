@@ -86,6 +86,7 @@ public class ValueHistoryQueries(IRepository repository)
 
         return new WalletsComponentsDto(
             Wallets: wallets
+                .OrderBy(wallet => wallet.DisplaySequence)
                 .Select(wallet => EntityTableDtoBuilder.BuildWalletComponentsTableDto(
                         wallet: wallet,
                         rows: BuildWalletComponentsRows(wallet, granularity, from, to)

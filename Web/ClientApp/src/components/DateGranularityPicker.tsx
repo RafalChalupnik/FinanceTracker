@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { DatePicker, Select, Space } from 'antd';
 import {PickerMode} from "rc-picker/lib/interface";
 import dayjs, {Dayjs, OpUnitType, QUnitType} from "dayjs";
-import {DateGranularity} from "../api/ValueHistoryApi";
 
 import quarterOfYear from 'dayjs/plugin/quarterOfYear';
+import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 dayjs.extend(quarterOfYear);
 
 const { Option } = Select;

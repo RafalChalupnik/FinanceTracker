@@ -1,49 +1,49 @@
-import {
-    ComponentHeader,
-    ComponentValues,
-    MoneyDto,
-    ValueHistoryRecord,
-    WalletComponentHistoryRecord, WalletHistoryRecord
-} from "../api/ValueHistoryApi";
 import {Column, ColumnGroup, CustomEditableColumn} from "./ExtendableTable";
 import Money from "./Money";
 import React from "react";
 import MoneyForm from "./MoneyForm";
 import {Space, Typography} from "antd";
+import {
+    EntityColumnDto,
+    ValueHistoryRecordDto,
+    WalletComponentsValueHistoryRecordDto, WalletValueHistoryRecordDto
+} from "../api/value-history/DTOs/EntityTableDto";
+import {MoneyDto} from "../api/value-history/DTOs/Money";
+import {ValueSnapshotDto} from "../api/value-history/DTOs/ValueSnapshotDto";
 
 const {Text} = Typography;
 
-export function buildDateColumn<T extends ValueHistoryRecord>(): Column<T> {
+export function buildDateColumn<T extends ValueHistoryRecordDto>(): Column<T> {
     return {
         key: 'date',
         title: 'Date',
         fixed: 'left',
-        render: record => record.date
+        render: record => record.key
     }
 }
 
-export function buildComponentsColumns<T extends ValueHistoryRecord>(
-    components: ComponentHeader[],
+export function buildComponentsColumns<T extends ValueHistoryRecordDto>(
+    components: EntityColumnDto[],
     onUpdate?: (entityId: string, date: string, value: MoneyDto) => Promise<void>,
 ): ColumnGroup<T>[] {
     return components.map((component, index) => {
         let editable = onUpdate !== undefined
-            ? buildEditableValue(component.id, index, onUpdate)
+            ? buildEditableValue(component!.id!, index, onUpdate)
             : undefined;
         
         return buildComponentColumns(
             component.name, 
-            record => record.components[index],
+            record => record.entities[index],
             editable
         );
     })
 }
 
-export function buildSummaryColumn<T extends ValueHistoryRecord>(): ColumnGroup<T> {
+export function buildSummaryColumn<T extends ValueHistoryRecordDto>(): ColumnGroup<T> {
     return buildComponentColumns('Summary', record => record.summary);
 }
 
-export function buildTargetColumn<T extends WalletComponentHistoryRecord>(
+export function buildTargetColumn<T extends WalletComponentsValueHistoryRecordDto>(
     onUpdate: (date: string, value: number) => Promise<void>
 ): Column<T> {
     const formatter = (amount: number) =>
@@ -68,12 +68,12 @@ export function buildTargetColumn<T extends WalletComponentHistoryRecord>(
         ),
         editable: {
             initialValueSelector: record => record.target?.targetInMainCurrency,
-            onSave: (row, value) => onUpdate(row.date, value)
+            onSave: (row, value) => onUpdate(row.key, value)
         }
     }
 }
 
-export function buildInflationColumn<T extends WalletHistoryRecord>(
+export function buildInflationColumn<T extends WalletValueHistoryRecordDto>(
     onUpdate: (date: string, value: number) => Promise<void>
 ): ColumnGroup<T> {
     return {
@@ -92,7 +92,7 @@ export function buildInflationColumn<T extends WalletHistoryRecord>(
                 render: record => renderPercent(record.yield.inflation, false),
                 editable: {
                     initialValueSelector: record => record.yield.inflation,
-                    onSave: (row, value) => onUpdate(row.date, value)
+                    onSave: (row, value) => onUpdate(row.key, value)
                 }
             },
             {
@@ -105,7 +105,15 @@ export function buildInflationColumn<T extends WalletHistoryRecord>(
     }
 }
 
-function renderPercent(value: number, colorCoding: boolean) {
+function renderPercent(value: number | undefined, colorCoding: boolean) {
+    if (value === undefined) {
+        return (
+            <div style={{ cursor: 'pointer', textAlign: 'right' }}>
+                -
+            </div>
+        );
+    }
+    
     const color = colorCoding && value !== 0
         ? (value > 0 ? 'green' : 'red')
         : 'black'
@@ -117,9 +125,9 @@ function renderPercent(value: number, colorCoding: boolean) {
     );
 }
 
-function buildComponentColumns<T extends ValueHistoryRecord>(
+function buildComponentColumns<T extends ValueHistoryRecordDto>(
     title: string,
-    selector: (record: T) => ComponentValues | undefined,
+    selector: (record: T) => ValueSnapshotDto | undefined,
     editableValue?: CustomEditableColumn<T>
 ): ColumnGroup<T> {
     return {
@@ -145,7 +153,7 @@ function buildComponentColumns<T extends ValueHistoryRecord>(
     }
 }
 
-function buildMoneyColumn<T extends ValueHistoryRecord>(
+function buildMoneyColumn<T extends ValueHistoryRecordDto>(
     title: string,
     selector: (record: T) => MoneyDto | undefined,
     colorCoding: boolean,
@@ -164,7 +172,7 @@ function buildMoneyColumn<T extends ValueHistoryRecord>(
     }
 }
 
-function buildEditableValue<T extends ValueHistoryRecord>(
+function buildEditableValue<T extends ValueHistoryRecordDto>(
     componentId: string,
     index: number,
     onUpdate: (entityId: string, date: string, value: MoneyDto) => Promise<void>
@@ -172,9 +180,9 @@ function buildEditableValue<T extends ValueHistoryRecord>(
     return {
         renderEditable: (record, closeCallback) => (
             <MoneyForm
-                initialValue={record.components[index]?.value}
+                initialValue={record.entities[index]?.value}
                 onSave={async money => {
-                    await onUpdate(componentId, record.date, money);
+                    await onUpdate(componentId, record.key, money);
                     closeCallback();
                 }}
                 onCancel={closeCallback}

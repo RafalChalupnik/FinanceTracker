@@ -1,11 +1,13 @@
 import React, {FC} from "react";
-import {ComponentHeader, ComponentValues, MoneyDto, ValueHistoryRecord} from "../api/ValueHistoryApi";
 import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
+import {EntityColumnDto, ValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
+import {ValueSnapshotDto} from "../api/value-history/DTOs/ValueSnapshotDto";
+import {MoneyDto} from "../api/value-history/DTOs/Money";
 
 interface MoneyChartProps {
-    headers: ComponentHeader[],
-    data: ValueHistoryRecord[],
-    dataSelector: (record: ComponentValues) => MoneyDto,
+    headers: EntityColumnDto[],
+    data: ValueHistoryRecordDto[],
+    dataSelector: (record: ValueSnapshotDto) => MoneyDto,
 }
 
 const MoneyChart: FC<MoneyChartProps> = (props) => {
@@ -22,11 +24,11 @@ const MoneyChart: FC<MoneyChartProps> = (props) => {
         return {
             name: header.name,
             data: props.data
-                .filter(dataPoint => dataPoint.components[index] !== undefined)
+                .filter(dataPoint => dataPoint.entities[index] !== null)
                 .map(dataPoint => {
                     return {
-                        date: dataPoint.date,
-                        value: props.dataSelector(dataPoint.components[index]!).amountInMainCurrency
+                        date: dataPoint.key,
+                        value: props.dataSelector(dataPoint.entities[index]!).amountInMainCurrency
                     }
                 }
             )
@@ -37,7 +39,7 @@ const MoneyChart: FC<MoneyChartProps> = (props) => {
         name: 'Total',
         data: props.data.map(dataPoint => {
             return {
-                date: dataPoint.date,
+                date: dataPoint.key,
                 value: props.dataSelector(dataPoint.summary!).amountInMainCurrency
             }
         })

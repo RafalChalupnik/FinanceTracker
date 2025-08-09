@@ -1,5 +1,6 @@
 import SimpleComponentsPage from "./SimpleComponentsPage";
-import {DateGranularity, getPortfolioValueHistory} from "../api/ValueHistoryApi";
+import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
+import {getPortfolioValueHistory} from "../api/value-history/Client";
 
 const PortfolioSummary = () => {
     return <SimpleComponentsPage
