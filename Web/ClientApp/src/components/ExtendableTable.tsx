@@ -2,7 +2,6 @@ import React, {FC} from "react";
 import {Button, Input, Popconfirm, Space, Table} from "antd";
 import type {ColumnGroupType, ColumnType} from "antd/es/table";
 import {CloseOutlined, DeleteOutlined, EditOutlined, SaveOutlined} from "@ant-design/icons";
-import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 
 interface DefaultEditableCellProps {
     initialValue: any | undefined;
@@ -37,7 +36,6 @@ const DefaultEditableCell : FC<DefaultEditableCellProps> = (props) => {
 interface ExtendableTableProps<T> {
     rows: T[];
     columns: (Column<T> | ColumnGroup<T>)[];
-    onDeleteRow?: (rowKey: React.Key) => void | Promise<void>;
 }
 
 export interface Column<T> {
@@ -146,24 +144,6 @@ export function ExtendableTable<T extends {key: React.Key}>(props: ExtendableTab
     }
     
     let columns = buildColumns(props.columns);
-    
-    if (props.onDeleteRow !== undefined) {
-        columns.push({
-            title: '',
-            fixed: 'right',
-            render: (_: any, row: T) => (
-                <Popconfirm
-                    title='Sure to delete?'
-                    okText={'Yes'}
-                    cancelText={'No'}
-                    okButtonProps={{ danger: true }}
-                    onConfirm={() => props.onDeleteRow!(row.key)}
-                >
-                    <DeleteOutlined />
-                </Popconfirm>
-            ),
-        });
-    }
     
     return (
         <Table

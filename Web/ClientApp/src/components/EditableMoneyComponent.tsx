@@ -5,7 +5,7 @@ import {PlusOutlined} from "@ant-design/icons";
 import DateGranularityPicker from "./DateGranularityPicker";
 import MoneyChart from "./MoneyChart";
 import {Column, ColumnGroup, ExtendableTable} from "./ExtendableTable";
-import {buildComponentsColumns, buildDateColumn, buildSummaryColumn} from "./ColumnBuilder";
+import {buildComponentsColumns, buildDateColumn, buildDeleteColumn, buildSummaryColumn} from "./ColumnBuilder";
 import {EntityColumnDto, ValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 import {MoneyDto} from "../api/value-history/DTOs/Money";
@@ -45,6 +45,12 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
             : []
         )
     ]
+    
+    if (props.editable && granularity == DateGranularity.Day) {
+        columns.push(
+            buildDeleteColumn(async row => await props.editable!.onDelete(row.key))  
+        );
+    }
     
     const handleModalOk = () => {
         if (!selectedDate) {
@@ -105,9 +111,6 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
                     <ExtendableTable
                         rows={buildData()} 
                         columns={columns}
-                        onDeleteRow={props.editable 
-                            ? (async date => {await props.editable!.onDelete(date.toString())}) 
-                            : undefined}
                     />
                     <Title level={5}>Value</Title>
                     <MoneyChart 

@@ -9,6 +9,7 @@ import {
     WalletEntity
 } from "../api/ConfigurationApi";
 import {Column, ExtendableTable} from "../components/ExtendableTable";
+import {buildDeleteColumn} from "../components/ColumnBuilder";
 
 const {Text} = Typography;
 
@@ -51,7 +52,8 @@ const EntityTable: React.FC<EntityTableProps> = (props) => {
                     await updateEntity(row)
                 }
             }
-        }
+        },
+        buildDeleteColumn(async row => await props.onDelete(row.key))
     ]
 
     const buildData = () => {
@@ -74,7 +76,6 @@ const EntityTable: React.FC<EntityTableProps> = (props) => {
             <ExtendableTable 
                 rows={buildData()} 
                 columns={columns}
-                onDeleteRow={async recordKey => props.onDelete(recordKey.toString())}
             />
         </Card>
     );

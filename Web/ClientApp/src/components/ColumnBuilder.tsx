@@ -2,7 +2,7 @@ import {Column, ColumnGroup, CustomEditableColumn} from "./ExtendableTable";
 import Money from "./Money";
 import React from "react";
 import MoneyForm from "./MoneyForm";
-import {Space, Typography} from "antd";
+import {Popconfirm, Space, Typography} from "antd";
 import {
     EntityColumnDto,
     ValueHistoryRecordDto,
@@ -12,6 +12,7 @@ import {
 import {MoneyDto} from "../api/value-history/DTOs/Money";
 import {ValueSnapshotDto} from "../api/value-history/DTOs/ValueSnapshotDto";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
+import {DeleteOutlined} from "@ant-design/icons";
 
 const {Text} = Typography;
 
@@ -44,6 +45,27 @@ export function buildComponentsColumns<T extends ValueHistoryRecordDto>(
 
 export function buildSummaryColumn<T extends ValueHistoryRecordDto>(): ColumnGroup<T> {
     return buildComponentColumns('Summary', record => record.summary);
+}
+
+export function buildDeleteColumn<T>(
+    onDeleteRow: (row: T) => Promise<void>
+): Column<T> {
+    return {
+        key: 'delete',
+        title: '',
+        fixed: 'right',
+        render: (row: T) => (
+            <Popconfirm
+                title='Sure to delete?'
+                okText={'Yes'}
+                cancelText={'No'}
+                okButtonProps={{ danger: true }}
+                onConfirm={async () => await onDeleteRow(row)}
+            >
+                <DeleteOutlined />
+            </Popconfirm>
+        )
+    }
 }
 
 export function buildTargetColumn<T extends WalletComponentsValueHistoryRecordDto>(
