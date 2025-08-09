@@ -66,11 +66,14 @@ const Wallets: FC<WalletsProps> = (props) => {
                                         onDelete: date => deleteEvaluations(wallet.id, date),
                                     }}
                                     refreshData={populateData}
-                                    extraColumns={[
-                                        buildTargetColumn(async (date, value) => {
-                                            await setWalletTarget(wallet.id, date, value);
-                                            await populateData();
-                                        })
+                                    buildExtraColumns={granularity => [
+                                        buildTargetColumn(
+                                            granularity,
+                                            async (date, value) => {
+                                                await setWalletTarget(wallet.id, date, value);
+                                                await populateData();
+                                            }
+                                        )
                                     ]}
                                 />
                         );

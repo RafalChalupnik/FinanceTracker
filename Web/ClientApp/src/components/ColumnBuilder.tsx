@@ -6,10 +6,12 @@ import {Space, Typography} from "antd";
 import {
     EntityColumnDto,
     ValueHistoryRecordDto,
-    WalletComponentsValueHistoryRecordDto, WalletValueHistoryRecordDto
+    WalletComponentsValueHistoryRecordDto,
+    WalletValueHistoryRecordDto
 } from "../api/value-history/DTOs/EntityTableDto";
 import {MoneyDto} from "../api/value-history/DTOs/Money";
 import {ValueSnapshotDto} from "../api/value-history/DTOs/ValueSnapshotDto";
+import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 
 const {Text} = Typography;
 
@@ -24,11 +26,12 @@ export function buildDateColumn<T extends ValueHistoryRecordDto>(): Column<T> {
 
 export function buildComponentsColumns<T extends ValueHistoryRecordDto>(
     components: EntityColumnDto[],
+    granularity: DateGranularity,
     onUpdate?: (entityId: string, date: string, value: MoneyDto) => Promise<void>,
 ): ColumnGroup<T>[] {
     return components.map((component, index) => {
         let editable = onUpdate !== undefined
-            ? buildEditableValue(component!.id!, index, onUpdate)
+            ? buildEditableValue(component!.id!, index, granularity == DateGranularity.Day, onUpdate)
             : undefined;
         
         return buildComponentColumns(
@@ -44,6 +47,7 @@ export function buildSummaryColumn<T extends ValueHistoryRecordDto>(): ColumnGro
 }
 
 export function buildTargetColumn<T extends WalletComponentsValueHistoryRecordDto>(
+    granularity: DateGranularity,
     onUpdate: (date: string, value: number) => Promise<void>
 ): Column<T> {
     const formatter = (amount: number) =>
@@ -67,6 +71,7 @@ export function buildTargetColumn<T extends WalletComponentsValueHistoryRecordDt
             </Space>
         ),
         editable: {
+            isEditable: granularity == DateGranularity.Day,
             initialValueSelector: record => record.target?.targetInMainCurrency,
             onSave: (row, value) => onUpdate(row.key, value)
         }
@@ -74,6 +79,7 @@ export function buildTargetColumn<T extends WalletComponentsValueHistoryRecordDt
 }
 
 export function buildInflationColumn<T extends WalletValueHistoryRecordDto>(
+    granularity: DateGranularity,
     onUpdate: (date: string, value: number) => Promise<void>
 ): ColumnGroup<T> {
     return {
@@ -91,6 +97,7 @@ export function buildInflationColumn<T extends WalletValueHistoryRecordDto>(
                 fixed: 'right',
                 render: record => renderPercent(record.yield.inflation, false),
                 editable: {
+                    isEditable: granularity == DateGranularity.Month,
                     initialValueSelector: record => record.yield.inflation,
                     onSave: (row, value) => onUpdate(row.key, value)
                 }
@@ -175,9 +182,11 @@ function buildMoneyColumn<T extends ValueHistoryRecordDto>(
 function buildEditableValue<T extends ValueHistoryRecordDto>(
     componentId: string,
     index: number,
+    isEditable: boolean,
     onUpdate: (entityId: string, date: string, value: MoneyDto) => Promise<void>
 ): CustomEditableColumn<T> {
     return {
+        isEditable: isEditable,
         renderEditable: (record, closeCallback) => (
             <MoneyForm
                 initialValue={record.entities[index]?.value}

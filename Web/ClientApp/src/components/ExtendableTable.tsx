@@ -2,6 +2,7 @@ import React, {FC} from "react";
 import {Button, Input, Popconfirm, Space, Table} from "antd";
 import type {ColumnGroupType, ColumnType} from "antd/es/table";
 import {CloseOutlined, DeleteOutlined, SaveOutlined} from "@ant-design/icons";
+import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 
 interface DefaultEditableCellProps {
     initialValue: any | undefined;
@@ -52,12 +53,16 @@ export interface ColumnGroup<T> {
     children: (Column<T> | ColumnGroup<T>)[];
 }
 
-export interface EditableColumn<T> {
+export interface BaseEditableColumn {
+    isEditable?: boolean;
+}
+
+export interface EditableColumn<T> extends BaseEditableColumn {
     initialValueSelector: (row: T) => any;
     onSave: (row: T, value: any) => void | Promise<void>;
 }
 
-export interface CustomEditableColumn<T> {
+export interface CustomEditableColumn<T> extends BaseEditableColumn {
     renderEditable: (row: T, closeCallback: () => void) => React.ReactNode;
 }
 
@@ -85,8 +90,12 @@ export function ExtendableTable<T extends {key: React.Key}>(props: ExtendableTab
         renderFunc: () => any
     ) => {
         if (!isCellBeingEdited(row.key, columnKey)) {
+            let doubleClick = (column.isEditable ?? true)
+                ? () => setCurrentlyEditedCell(row.key, columnKey)
+                : () => { }
+            
             return (
-                <div onDoubleClick={() => setCurrentlyEditedCell(row.key, columnKey)}>
+                <div onDoubleClick={doubleClick}>
                     {renderFunc()}
                 </div>
             );

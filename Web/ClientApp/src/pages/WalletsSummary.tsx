@@ -104,8 +104,8 @@ const WalletsSummary = () => {
         await populateData(DateGranularity.Month);
     }
     
-    let extraColumns = [
-        buildInflationColumn(updateInflation)
+    let buildExtraColumns = (granularity: DateGranularity) => [
+        buildInflationColumn(granularity, updateInflation)
     ]
     
     return isLoading
@@ -116,18 +116,19 @@ const WalletsSummary = () => {
                 rows={data.rows}
                 columns={data.headers}
                 refreshData={populateData}
-                extraColumns={extraColumns}
+                buildExtraColumns={buildExtraColumns}
                 extra={
                     <>
                         <Title level={5}>Total score</Title>
                         <ScoreChart data={data.rows}/>
                     </>
                 }
-                allowedDatePickerOptions={[
+                allowedGranularities={[
                     DateGranularity.Month,
                     DateGranularity.Quarter,
                     DateGranularity.Year
                 ]}
+                defaultGranularity={DateGranularity.Month}
             />
         </EmptyConfig>;
 };

@@ -17,10 +17,11 @@ interface EditableMoneyComponentProps<T> {
     rows: T[]
     columns: EntityColumnDto[],
     refreshData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<void>;
-    extraColumns?: (Column<T> | ColumnGroup<T>)[];
+    buildExtraColumns?: (granularity: DateGranularity) => (Column<T> | ColumnGroup<T>)[];
     editable?: EditableProps<T>;
     extra?: React.ReactNode;
-    allowedDatePickerOptions?: DateGranularity[];
+    allowedGranularities?: DateGranularity[];
+    defaultGranularity?: DateGranularity;
 }
 
 interface EditableProps<T> {
@@ -33,12 +34,16 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Dayjs | undefined>(undefined);
     const [newEntryDate, setNewEntryDate] = useState<Dayjs | undefined>(undefined);
+    const [granularity, setGranularity] = useState<DateGranularity>(props.defaultGranularity ?? DateGranularity.Day);
 
     let columns = [
         buildDateColumn(),
-        ...buildComponentsColumns(props.columns, props.editable?.onUpdate),
+        ...buildComponentsColumns(props.columns, granularity, props.editable?.onUpdate),
         buildSummaryColumn(),
-        ...(props.extraColumns ?? [])
+        ...(props.buildExtraColumns
+            ? props.buildExtraColumns!(granularity) 
+            : []
+        )
     ]
     
     const handleModalOk = () => {
@@ -77,8 +82,11 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
                         <DateGranularityPicker 
                             minDate={props.rows.length > 0 ? dayjs(props.rows[0].key) : undefined}
                             maxDate={props.rows.length > 0 ? dayjs(props.rows[props.rows.length - 1].key) : undefined}
-                            onChange={props.refreshData}
-                            allowedOptions={props.allowedDatePickerOptions}
+                            onChange={async (granularity, start, end) => {
+                                setGranularity(granularity)
+                                await props.refreshData(granularity, start, end);
+                            }}
+                            allowedOptions={props.allowedGranularities}
                         />
                         {props.editable && <Button
                             icon={<PlusOutlined />}
