@@ -141,17 +141,20 @@ function buildComponentColumns<T extends ValueHistoryRecordDto>(
         title: title,
         children: [
             buildMoneyColumn(
+                `${title}-value`,
                 'Value',
                 record => selector(record)?.value,
                 false,
                 editableValue
             ),
             buildMoneyColumn(
+                `${title}-change`,
                 'Change',
                 record => selector(record)?.change,
                 true
             ),
             buildMoneyColumn(
+                `${title}-cumulative`,
                 'Cumulative',
                 record => selector(record)?.cumulativeChange,
                 true
@@ -161,13 +164,14 @@ function buildComponentColumns<T extends ValueHistoryRecordDto>(
 }
 
 function buildMoneyColumn<T extends ValueHistoryRecordDto>(
+    key: string,
     title: string,
     selector: (record: T) => MoneyDto | undefined,
     colorCoding: boolean,
     editable?: CustomEditableColumn<T>
 ): Column<T> {
     return {
-        key: title,
+        key: key,
         title: title,
         render: (record: T) => (
             <Money

@@ -95,7 +95,7 @@ export function ExtendableTable<T extends {key: React.Key}>(props: ExtendableTab
                     <div style={{ flexGrow: 1, textAlign: 'inherit' }}>
                         {renderFunc()}
                     </div>
-                    {column.isEditable && <Button icon={<EditOutlined />} style={{marginLeft: '5px'}} onClick={() => setCurrentlyEditedCell(row.key, columnKey)} />}
+                    {(column.isEditable ?? true) && <Button icon={<EditOutlined />} style={{marginLeft: '5px'}} onClick={() => setCurrentlyEditedCell(row.key, columnKey)} />}
                 </div>
             );
         }
