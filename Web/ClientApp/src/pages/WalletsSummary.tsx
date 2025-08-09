@@ -4,12 +4,8 @@ import EmptyConfig from "../components/EmptyConfig";
 import {EditableMoneyComponent} from "../components/EditableMoneyComponent";
 import React, {FC, useEffect, useState} from "react";
 import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
-import {Space, Typography} from "antd";
-import {
-    EntityColumnDto,
-    WalletComponentsValueHistoryRecordDto,
-    WalletValueHistoryRecordDto
-} from "../api/value-history/DTOs/EntityTableDto";
+import {Typography} from "antd";
+import {EntityColumnDto, WalletValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
 import {getWalletsValueHistory, setInflation} from "../api/value-history/Client";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 
@@ -127,6 +123,11 @@ const WalletsSummary = () => {
                         <ScoreChart data={data.rows}/>
                     </>
                 }
+                allowedDatePickerOptions={[
+                    DateGranularity.Month,
+                    DateGranularity.Quarter,
+                    DateGranularity.Year
+                ]}
             />
         </EmptyConfig>;
 };

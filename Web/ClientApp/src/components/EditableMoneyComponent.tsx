@@ -20,6 +20,7 @@ interface EditableMoneyComponentProps<T> {
     extraColumns?: (Column<T> | ColumnGroup<T>)[];
     editable?: EditableProps<T>;
     extra?: React.ReactNode;
+    allowedDatePickerOptions?: DateGranularity[];
 }
 
 interface EditableProps<T> {
@@ -77,6 +78,7 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
                             minDate={props.rows.length > 0 ? dayjs(props.rows[0].key) : undefined}
                             maxDate={props.rows.length > 0 ? dayjs(props.rows[props.rows.length - 1].key) : undefined}
                             onChange={props.refreshData}
+                            allowedOptions={props.allowedDatePickerOptions}
                         />
                         {props.editable && <Button
                             icon={<PlusOutlined />}

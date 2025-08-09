@@ -203,18 +203,17 @@ public class ValueHistoryQueries(IRepository repository)
         var inflationPoints = inflationValues
             .Where(dataPoint => dataPoint.Date >= dateRange.From && dataPoint.Date <= dateRange.To)
             .OrderBy(dataPoint => dataPoint.Date)
-            .Select(dataPoint => dataPoint.Value)
+            .Select(dataPoint => dataPoint.Value / 100)
             .ToArray();
-
+        
         if (inflationPoints.Length == 0)
         {
             return null;
         }
         
-        return inflationPoints
-            .Scan((a, b) => a * (100 + b) / 100)
-            .Concat([inflationPoints.First()])
-            .Sum();
+        var inflation = inflationPoints.Aggregate(1m, (a, b) => a * (1 + b));
+        
+        return decimal.Round((inflation - 1) * 100, decimals: 2);
     }
 
     private static EntityData MapEntities<T>(
