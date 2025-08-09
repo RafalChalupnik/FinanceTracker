@@ -1,7 +1,7 @@
 import React, {FC} from "react";
 import {Button, Input, Popconfirm, Space, Table} from "antd";
 import type {ColumnGroupType, ColumnType} from "antd/es/table";
-import {CloseOutlined, DeleteOutlined, SaveOutlined} from "@ant-design/icons";
+import {CloseOutlined, DeleteOutlined, EditOutlined, SaveOutlined} from "@ant-design/icons";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 
 interface DefaultEditableCellProps {
@@ -90,13 +90,12 @@ export function ExtendableTable<T extends {key: React.Key}>(props: ExtendableTab
         renderFunc: () => any
     ) => {
         if (!isCellBeingEdited(row.key, columnKey)) {
-            let doubleClick = (column.isEditable ?? true)
-                ? () => setCurrentlyEditedCell(row.key, columnKey)
-                : () => { }
-            
             return (
-                <div onDoubleClick={doubleClick}>
-                    {renderFunc()}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                    <div style={{ flexGrow: 1, textAlign: 'inherit' }}>
+                        {renderFunc()}
+                    </div>
+                    {column.isEditable && <Button icon={<EditOutlined />} style={{marginLeft: '5px'}} onClick={() => setCurrentlyEditedCell(row.key, columnKey)} />}
                 </div>
             );
         }
