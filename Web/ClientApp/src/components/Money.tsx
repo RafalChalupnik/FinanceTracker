@@ -25,11 +25,11 @@ const Money: FC<MoneyProps> = (props) => {
     
     const buildFormattedAmountInMainCurrency = (amount: number, amountInMainCurrency: number) =>
         amountInMainCurrency !== amount
-            ? (<Text disabled>{formatAmount(amountInMainCurrency, MAIN_CURRENCY)}</Text>)
+            ? (<Text style={{ color: 'rgba(0, 0, 0, 0.25)' }}>{formatAmount(amountInMainCurrency, MAIN_CURRENCY)}</Text>)
             : (<></>)
 
     const wrapInDiv = (element: ReactNode, color: string) => (
-        <div style={{ cursor: 'pointer', color, textAlign: 'right' }}>
+        <div style={{ color, textAlign: 'right' }}>
             {element}
         </div>
     );
