@@ -80,7 +80,7 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
     }
     
     return (
-        <div style={{ maxWidth: '95vw' }}>
+        <div style={{ width: '95vw' }}>
             <Card 
                 title={props.title} 
                 extra={ 

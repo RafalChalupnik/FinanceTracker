@@ -60,20 +60,14 @@ const navBarTemplate: { [key: string]: NavBarItem} = {
 
 type MenuItem = Required<MenuProps>['items'][number];
 
-const mapMenuItems = (items: { [key: string]: NavBarItem}): MenuItem[] => {
-    console.log(items);
-    
-    return Object.keys(items).map(key => {
-        console.log('Key', key);
-        
-        return ({
+const mapMenuItems = (items: { [key: string]: NavBarItem}): MenuItem[] =>
+    Object.keys(items).map(key =>
+        ({
             key,
             label: items[key].label,
             icon: items[key].icon,
             children: items[key].children !== undefined ? mapMenuItems(items[key].children!) : undefined
-        });
-    });
-};
+        }));
 
 
 
@@ -90,14 +84,12 @@ const App: React.FC = () => {
         const response = await getConfiguration(); // TODO: Make dedicated endpoint
 
         navBarTemplate['/wallets'].children = response.wallets.reduce((acc, wallet) => {
-            acc[wallet.key] = {
+            acc[`/wallets:${wallet.key}`] = {
                 label: wallet.name,
-                component: <Wallets walletId={wallet.key} />
+                component: <Wallets key={wallet.key} walletId={wallet.key} />
             };
             return acc;
         }, {} as Record<string, NavBarItem>);
-        
-        console.log('NavBar', navBarTemplate)
         
         setNavBar(navBarTemplate);
         setCurrentKey(Object.keys(navBarTemplate)[0])
@@ -109,7 +101,7 @@ const App: React.FC = () => {
     }, [])
     
     const onClick: MenuProps['onClick'] = (e) => {
-        setCurrentKey(e.keyPath[e.keyPath.length - 1]);
+        setCurrentKey(e.key);
         
         let currentItem = navBar!;
         

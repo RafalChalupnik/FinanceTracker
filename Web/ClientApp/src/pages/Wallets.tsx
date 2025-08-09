@@ -25,6 +25,7 @@ const Wallets: FC<WalletsProps> = (props) => {
 
     const populateData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => {
         const response = await getWalletsComponentsValueHistory(granularity, from, to)
+        // TODO: Pull only one wallet
         setWallets([response.wallets.find(wallet => wallet.id === props.walletId)!])
         setIsLoading(false)
     }
