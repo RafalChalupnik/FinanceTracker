@@ -14,7 +14,7 @@ public class InflationHistoricValue : IEntity
 
     public bool FitsInRange(DateOnly from, DateOnly to)
     {
-        var date = new DateOnly(Year, Month, 31);
+        var date = new DateOnly(Year, Month, 1).AddMonths(1).AddDays(-1);
         return date >= from && date <= to;
     }
 }
