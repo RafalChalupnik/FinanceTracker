@@ -111,7 +111,7 @@ public class ValueHistoryQueries(IRepository repository)
         
         var records = RecordsBuilder.BuildValueRecords(
             orderedEntities, 
-            granularity, 
+            granularity ?? DateGranularity.Month, 
             fromDate: from, 
             toDate: to
         );
@@ -192,11 +192,11 @@ public class ValueHistoryQueries(IRepository repository)
         return new YieldDto(
             ChangePercent: changePercent,
             Inflation: inflation,
-            TotalChangePercent: changePercent - inflation
+            TotalChangePercent: changePercent - (inflation ?? 0)
         );
     }
 
-    private static decimal AggregateInflation(
+    private static decimal? AggregateInflation(
         IEnumerable<InflationHistoricValue> inflationValues,
         DateRange dateRange)
     {
@@ -206,8 +206,13 @@ public class ValueHistoryQueries(IRepository repository)
             .Select(dataPoint => dataPoint.Value)
             .ToArray();
 
+        if (inflationPoints.Length == 0)
+        {
+            return null;
+        }
+        
         return inflationPoints
-            .Scan((a, b) => a * (1 + b))
+            .Scan((a, b) => a * (100 + b) / 100)
             .Concat([inflationPoints.First()])
             .Sum();
     }

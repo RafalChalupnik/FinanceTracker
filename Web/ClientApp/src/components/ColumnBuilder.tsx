@@ -105,8 +105,8 @@ export function buildInflationColumn<T extends WalletValueHistoryRecordDto>(
     }
 }
 
-function renderPercent(value: number | undefined, colorCoding: boolean) {
-    if (value === undefined) {
+function renderPercent(value: number | undefined | null, colorCoding: boolean) {
+    if (value === undefined || value === null) {
         return (
             <div style={{ cursor: 'pointer', textAlign: 'right' }}>
                 -
