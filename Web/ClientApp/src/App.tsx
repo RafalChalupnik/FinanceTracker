@@ -1,10 +1,10 @@
-import React, {ReactNode, useState} from 'react';
+import React, {ReactNode, useEffect, useState} from 'react';
 import {Layout, Menu, MenuProps, Space, theme, Typography} from 'antd';
 import {
     EuroCircleOutlined,
     LineChartOutlined,
     MinusSquareOutlined,
-    PlusSquareOutlined, 
+    PlusSquareOutlined,
     SettingOutlined,
     WalletOutlined
 } from "@ant-design/icons";
@@ -15,16 +15,18 @@ import PortfolioSummary from "./pages/PortfolioSummary";
 import WalletsSummary from './pages/WalletsSummary';
 import Wallets from "./pages/Wallets";
 import Configuration from "./pages/Configuration";
+import {getConfiguration} from "./api/ConfigurationApi";
 
 const { Header, Content } = Layout;
 
 interface NavBarItem {
     label: string,
-    icon: ReactNode,
-    component: ReactNode
+    icon?: ReactNode,
+    component?: ReactNode,
+    children?: { [key: string]: NavBarItem}
 }
 
-const navBar: { [key: string]: NavBarItem} = {
+const navBarTemplate: { [key: string]: NavBarItem} = {
     '/': {
         label: 'Portfolio Summary',
         icon: <LineChartOutlined />,
@@ -38,7 +40,6 @@ const navBar: { [key: string]: NavBarItem} = {
     '/wallets': {
         label: 'Wallets',
         icon: <WalletOutlined />,
-        component: <Wallets/>
     },
     '/assets': {
         label: 'Assets',
@@ -59,25 +60,73 @@ const navBar: { [key: string]: NavBarItem} = {
 
 type MenuItem = Required<MenuProps>['items'][number];
 
-const items : MenuItem[] = Object.keys(navBar).map(key => ({
-    key,
-    label: navBar[key].label,
-    icon: navBar[key].icon,
-}));
+const mapMenuItems = (items: { [key: string]: NavBarItem}): MenuItem[] => {
+    console.log(items);
+    
+    return Object.keys(items).map(key => {
+        console.log('Key', key);
+        
+        return ({
+            key,
+            label: items[key].label,
+            icon: items[key].icon,
+            children: items[key].children !== undefined ? mapMenuItems(items[key].children!) : undefined
+        });
+    });
+};
+
+
 
 const App: React.FC = () => {
     const {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
 
-    const [current, setCurrent] = useState(Object.keys(navBar)[0]);
+    const [navBar, setNavBar] = useState<{ [key: string]: NavBarItem} | undefined>(undefined);
+    const [currentKey, setCurrentKey] = useState<string | undefined>(undefined);
+    const [currentComponent, setCurrentComponent] = useState<ReactNode | undefined>();
 
+    const populateData = async () => {
+        const response = await getConfiguration(); // TODO: Make dedicated endpoint
+
+        navBarTemplate['/wallets'].children = response.wallets.reduce((acc, wallet) => {
+            acc[wallet.key] = {
+                label: wallet.name,
+                component: <Wallets walletId={wallet.key} />
+            };
+            return acc;
+        }, {} as Record<string, NavBarItem>);
+        
+        console.log('NavBar', navBarTemplate)
+        
+        setNavBar(navBarTemplate);
+        setCurrentKey(Object.keys(navBarTemplate)[0])
+        setCurrentComponent(navBarTemplate[Object.keys(navBarTemplate)[0]].component)
+    }
+
+    useEffect(() => {
+        populateData()
+    }, [])
+    
     const onClick: MenuProps['onClick'] = (e) => {
-        console.log('click ', e);
-        setCurrent(e.key);
+        setCurrentKey(e.keyPath[e.keyPath.length - 1]);
+        
+        let currentItem = navBar!;
+        
+        for (let i = e.keyPath.length - 1; i >= 1; i--) {
+            currentItem = currentItem[e.keyPath[i]].children!;
+        }
+        
+        setCurrentComponent(currentItem[e.key].component);
     };
 
-    return (
+    const items : MenuItem[] = navBar !== undefined
+        ? mapMenuItems(navBar)
+        : [];
+    
+    return navBar === undefined
+        ? (<>Loading...</>)
+        : (
         <Layout style={{ minHeight: '100vh' }}>
             <Header style={{ display: 'flex', alignItems: 'center' }}>
                 <Space>
@@ -89,7 +138,7 @@ const App: React.FC = () => {
                 <Menu
                     theme="dark"
                     onClick={onClick} 
-                    selectedKeys={[current]} 
+                    selectedKeys={[currentKey!]} 
                     mode="horizontal"
                     items={items}
                     style={{ flex: 1, minWidth: 0, justifyContent: 'flex-end' }}
@@ -97,7 +146,7 @@ const App: React.FC = () => {
             </Header>
             <Content style={{ padding: '24px 48px', flex: 1, minWidth: 0 }}>
                 <div style={{ minWidth: 0, overflowX: 'auto' }}>
-                    {navBar[current].component}
+                    {currentComponent}
                 </div>
             </Content>
         </Layout>

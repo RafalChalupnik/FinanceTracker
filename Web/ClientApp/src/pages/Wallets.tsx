@@ -16,6 +16,7 @@ import {
 import {MoneyDto} from "../api/value-history/DTOs/Money";
 
 interface WalletsProps {
+    walletId: string
 }
 
 const Wallets: FC<WalletsProps> = (props) => {
@@ -24,7 +25,7 @@ const Wallets: FC<WalletsProps> = (props) => {
 
     const populateData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => {
         const response = await getWalletsComponentsValueHistory(granularity, from, to)
-        setWallets(response.wallets)
+        setWallets([response.wallets.find(wallet => wallet.id === props.walletId)!])
         setIsLoading(false)
     }
 
