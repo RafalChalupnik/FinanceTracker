@@ -115,10 +115,8 @@ public class ValueHistoryQueries(IRepository repository)
             fromDate: from, 
             toDate: to
         );
-        
-        var inflationValues = repository.GetEntities<InflationHistoricValue>()
-            .OrderByDescending(x => x.Date)
-            .ToArray();
+
+        var inflationValues = repository.GetEntities<InflationHistoricValue>().ToArray();
 
         var rows = records
             .Select(record => record.ToWalletValueHistoryRecord(
@@ -201,8 +199,9 @@ public class ValueHistoryQueries(IRepository repository)
         DateRange dateRange)
     {
         var inflationPoints = inflationValues
-            .Where(dataPoint => dataPoint.Date >= dateRange.From && dataPoint.Date <= dateRange.To)
-            .OrderBy(dataPoint => dataPoint.Date)
+            .Where(dataPoint => dataPoint.FitsInRange(dateRange.From, dateRange.To))
+            .OrderBy(dataPoint => dataPoint.Year)
+            .ThenBy(dataPoint => dataPoint.Month)
             .Select(dataPoint => dataPoint.Value / 100)
             .ToArray();
         

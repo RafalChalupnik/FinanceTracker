@@ -16,7 +16,8 @@ namespace FinanceTracker.Web.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Date = table.Column<DateOnly>(type: "TEXT", nullable: false),
+                    Year = table.Column<int>(type: "INTEGER", nullable: false),
+                    Month = table.Column<int>(type: "INTEGER", nullable: false),
                     Value = table.Column<decimal>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -25,9 +26,9 @@ namespace FinanceTracker.Web.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_InflationValues_Date",
+                name: "IX_InflationValues_Year_Month",
                 table: "InflationValues",
-                column: "Date",
+                columns: new[] { "Year", "Month" },
                 unique: true);
         }
 

@@ -79,9 +79,10 @@ export async function setWalletComponentValue(id: string, date: string, value: M
     await sendPut(`api/value-history/wallets/components/${id}/${date}`, value);
 }
 
-export async function setInflation(date: string, value: number) : Promise<void> {
+export async function setInflation(year: number, month: number, value: number) : Promise<void> {
     await sendPut(`api/value-history/inflation`, {
-        date: date,
+        year: year,
+        month: month,
         value: value
     });
 }

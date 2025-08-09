@@ -136,15 +136,18 @@ namespace FinanceTracker.Web.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateOnly>("Date")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Month")
+                        .HasColumnType("INTEGER");
 
                     b.Property<decimal>("Value")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Year")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("Date")
+                    b.HasIndex("Year", "Month")
                         .IsUnique();
 
                     b.ToTable("InflationValues");

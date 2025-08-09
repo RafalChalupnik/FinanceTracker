@@ -58,7 +58,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
         modelBuilder.Entity<InflationHistoricValue>(b =>
             {
                 b.HasKey(x => x.Id);
-                b.HasIndex(x => x.Date).IsUnique();
+                b.HasIndex(x => new {x.Year, x.Month}).IsUnique();
             }
             );
         

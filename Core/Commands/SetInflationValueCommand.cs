@@ -4,10 +4,15 @@ namespace FinanceTracker.Core.Commands;
 
 public class SetInflationValueCommand(IRepository repository)
 {
-    public async ValueTask SetInflationValue(DateOnly date, decimal value)
+    public async ValueTask SetInflationValue(int year, int month, decimal value)
     {
+        if (month is < 1 or > 12)
+        {
+            throw new ArgumentException("Invalid month", nameof(month));
+        }
+        
         var alreadyExistingValue = repository.GetEntities<InflationHistoricValue>()
-            .FirstOrDefault(historicValue => historicValue.Date == date);
+            .FirstOrDefault(historicValue => historicValue.Year == year && historicValue.Month == month);
 
         if (alreadyExistingValue != null)
         {
@@ -17,7 +22,8 @@ public class SetInflationValueCommand(IRepository repository)
         {
             repository.Add(new InflationHistoricValue
             {
-                Date = date,
+                Year = year,
+                Month = month,
                 Value = value
             });
         }

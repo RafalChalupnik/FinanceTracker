@@ -123,9 +123,9 @@ public class ValueHistoryController(
     }
     
     [HttpPut("inflation")]
-    public async Task<IActionResult> SetInflation([FromBody] ValueUpdateDto update)
+    public async Task<IActionResult> SetInflation([FromBody] InflationUpdateDto update)
     {
-        await setInflationValueCommand.SetInflationValue(update.Date, update.Value);
+        await setInflationValueCommand.SetInflationValue(update.Year, update.Month, update.Value);
         return NoContent();
     }
 }
