@@ -19,7 +19,7 @@ public class ValueHistoryController(
     ) : ControllerBase
 {
     [HttpGet("assets")]
-    public EntitiesPerDateQueryDto GetAssetsValueHistory(
+    public EntityTableDto<ValueHistoryRecordDto> GetAssetsValueHistory(
         [FromQuery] DateGranularity? granularity, 
         [FromQuery] DateOnly? from, 
         [FromQuery] DateOnly? to
@@ -46,7 +46,7 @@ public class ValueHistoryController(
     }
     
     [HttpGet("debts")]
-    public EntitiesPerDateQueryDto GetDebtsValueHistory(
+    public EntityTableDto<ValueHistoryRecordDto> GetDebtsValueHistory(
         [FromQuery] DateGranularity? granularity, 
         [FromQuery] DateOnly? from, 
         [FromQuery] DateOnly? to
@@ -73,7 +73,7 @@ public class ValueHistoryController(
     }
     
     [HttpGet("portfolio")]
-    public EntitiesPerDateQueryDto GetPortfolioValueHistory(
+    public EntityTableDto<ValueHistoryRecordDto> GetPortfolioValueHistory(
         [FromQuery] DateGranularity? granularity, 
         [FromQuery] DateOnly? from, 
         [FromQuery] DateOnly? to
@@ -81,7 +81,7 @@ public class ValueHistoryController(
         => query.ForEntirePortfolio(granularity, from: from, to: to);
     
     [HttpGet("wallets")]
-    public WalletsPerDateQueryDto GetWalletsValueHistory(
+    public EntityTableDto<WalletValueHistoryRecordDto> GetWalletsValueHistory(
         [FromQuery] DateGranularity? granularity, 
         [FromQuery] DateOnly? from, 
         [FromQuery] DateOnly? to
@@ -103,7 +103,7 @@ public class ValueHistoryController(
     }
     
     [HttpGet("wallets/components")]
-    public WalletsComponentsPerDateQueryDto GetWalletsComponentsValueHistory(
+    public WalletsComponentsDto GetWalletsComponentsValueHistory(
         [FromQuery] DateGranularity? granularity, 
         [FromQuery] DateOnly? from, 
         [FromQuery] DateOnly? to

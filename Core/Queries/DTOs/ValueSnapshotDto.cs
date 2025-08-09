@@ -3,23 +3,6 @@ using FinanceTracker.Core.Primitives;
 
 namespace FinanceTracker.Core.Queries.DTOs;
 
-public record EntitiesPerDateQueryDto(
-    IReadOnlyCollection<EntityHeaderDto> Headers,
-    IReadOnlyCollection<EntitiesForDateDto> Data
-);
-
-public record EntityHeaderDto(
-    string Name,
-    Guid? Id
-);
-
-public record EntitiesForDateDto(
-    string Key,
-    [property: JsonIgnore] DateOnly Date,
-    IReadOnlyCollection<ValueSnapshotDto?> Entities,
-    ValueSnapshotDto Summary
-);
-
 public record ValueSnapshotDto
 {
     public Money Value { get; init; }

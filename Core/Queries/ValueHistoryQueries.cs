@@ -1,128 +1,175 @@
 using FinanceTracker.Core.Extensions;
 using FinanceTracker.Core.Interfaces;
-using FinanceTracker.Core.Primitives;
 using FinanceTracker.Core.Queries.DTOs;
 using FinanceTracker.Core.Queries.Implementation;
+using FinanceTracker.Core.Queries.Implementation.DTOs;
 
 namespace FinanceTracker.Core.Queries;
 
 public class ValueHistoryQueries(IRepository repository)
 {
-    public EntitiesPerDateQueryDto ForAssets(DateGranularity? granularity, DateOnly? from, DateOnly? to) =>
-        EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
-            entities: repository.GetEntitiesWithValueHistory<Asset>(),
-            granularity,
-            fromDate: from,
-            toDate: to
-        );
-    
-    public EntitiesPerDateQueryDto ForDebts(DateGranularity? granularity, DateOnly? from, DateOnly? to) =>
-        EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
-            entities: repository.GetEntitiesWithValueHistory<Debt>(),
-            granularity,
-            fromDate: from,
-            toDate: to
-        );
-    
-    public EntitiesPerDateQueryDto ForEntirePortfolio(DateGranularity? granularity, DateOnly? from, DateOnly? to)
+    public EntityTableDto<ValueHistoryRecordDto> ForAssets(DateGranularity? granularity, DateOnly? from, DateOnly? to)
     {
-        EntitiesPerDateViewDtoFactory.EntityData[] entities =
+        var orderedEntities = repository.GetEntitiesWithValueHistory<Asset>()
+            .OrderBy(x => x.DisplaySequence)
+            .AsEnumerable()
+            .Select(BuildEntityData)
+            .ToArray();
+        
+        var records = RecordsBuilder.BuildValueRecords(
+            orderedEntities: orderedEntities,
+            granularity,
+            fromDate: from,
+            toDate: to
+        );
+
+        return EntityTableDtoBuilder.BuildEntityTableDto(
+            orderedEntities: orderedEntities,
+            rows: records
+                .Select(record => record.ToValueHistoryRecord())
+                .ToArray()
+        );
+    }
+
+    public EntityTableDto<ValueHistoryRecordDto> ForDebts(DateGranularity? granularity, DateOnly? from, DateOnly? to)
+    {
+        var orderedEntities = repository.GetEntitiesWithValueHistory<Debt>()
+            .OrderBy(x => x.DisplaySequence)
+            .AsEnumerable()
+            .Select(BuildEntityData)
+            .ToArray();
+        
+        var records = RecordsBuilder.BuildValueRecords(
+            orderedEntities: orderedEntities,
+            granularity,
+            fromDate: from,
+            toDate: to
+        );
+
+        return EntityTableDtoBuilder.BuildEntityTableDto(
+            orderedEntities: orderedEntities,
+            rows: records
+                .Select(record => record.ToValueHistoryRecord())
+                .ToArray()
+        );
+    }
+    
+    public EntityTableDto<ValueHistoryRecordDto> ForEntirePortfolio(DateGranularity? granularity, DateOnly? from, DateOnly? to)
+    {
+        EntityData[] entities =
         [
             MapEntities(repository.GetWallets(includeValueHistory: true, includeTargets: false).ToArray(), "Wallets"),
             MapEntities(repository.GetEntitiesWithValueHistory<Asset>().ToArray(), "Assets"),
             MapEntities(repository.GetEntitiesWithValueHistory<Debt>().ToArray(), "Debts"),
         ];
 
-        return EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
-            entities,
+        var records = RecordsBuilder.BuildValueRecords(
+            orderedEntities: entities,
             granularity,
             fromDate: from,
             toDate: to
         );
+
+        return EntityTableDtoBuilder.BuildEntityTableDto(
+            orderedEntities: entities,
+            rows: records
+                .Select(record => record.ToValueHistoryRecord())
+                .ToArray()
+        );
     }
 
-    public WalletsComponentsPerDateQueryDto ForWalletsAndComponents(DateGranularity? granularity, DateOnly? from, DateOnly? to)
+    public WalletsComponentsDto ForWalletsAndComponents(DateGranularity? granularity, DateOnly? from, DateOnly? to)
     {
         var wallets = repository
             .GetWallets(includeValueHistory: true, includeTargets: true)
             .ToArray();
 
-        return new WalletsComponentsPerDateQueryDto(
+        return new WalletsComponentsDto(
             Wallets: wallets
-                .OrderBy(wallet => wallet.DisplaySequence)
-                .Select(wallet => new WalletComponentsDto(
-                        Id: wallet.Id,
-                        Name: wallet.Name,
-                        Headers: wallet.Components
-                            .OrderBy(x => x.DisplaySequence)
-                            .Select(entity => new EntityHeaderDto(
-                                    Name: entity.Name,
-                                    Id: entity.Id
-                                )
-                            )
-                            .ToArray(),
-                        Data: BuildWalletForDates(wallet, granularity, from, to)
+                .Select(wallet => EntityTableDtoBuilder.BuildWalletComponentsTableDto(
+                        wallet: wallet,
+                        rows: BuildWalletComponentsRows(wallet, granularity, from, to)
                     )
                 )
                 .ToArray()
         );
     }
     
-    public WalletsPerDateQueryDto ForWallets(DateGranularity? granularity, DateOnly? from, DateOnly? to)
+    public EntityTableDto<WalletValueHistoryRecordDto> ForWallets(DateGranularity? granularity, DateOnly? from, DateOnly? to)
     {
-        var data = EntitiesPerDateViewDtoFactory.BuildEntitiesPerDateViewDto(
-            entities: repository.GetWallets(includeValueHistory: true, includeTargets: false),
-            granularity,
-            fromDate: from,
+        if (granularity is DateGranularity.Date or DateGranularity.Week)
+        {
+            throw new ArgumentException("Granularity must be greater or equal to month.", nameof(granularity));
+        }
+
+        var orderedEntities = repository.GetWallets(includeValueHistory: true, includeTargets: false)
+            .OrderBy(wallet => wallet.DisplaySequence)
+            .AsEnumerable()
+            .Select(BuildEntityData)
+            .ToArray();
+        
+        var records = RecordsBuilder.BuildValueRecords(
+            orderedEntities, 
+            granularity, 
+            fromDate: from, 
             toDate: to
         );
+        
+        var inflationValues = repository.GetEntities<InflationHistoricValue>()
+            .OrderByDescending(x => x.Date)
+            .ToArray();
 
-        return new WalletsPerDateQueryDto(
-            Headers: data.Headers,
-            Data: BuildWalletsForDateDto(data.Data)
+        var rows = records
+            .Select(record => record.ToWalletValueHistoryRecord(
+                BuildYieldDto(record, inflationValues)
+            ))
+            .ToArray();
+
+        return EntityTableDtoBuilder.BuildEntityTableDto(
+            orderedEntities,
+            rows
         );
     }
 
-    private static IReadOnlyCollection<WalletComponentsForDateDto> BuildWalletForDates(
+    private static WalletComponentsValueHistoryRecordDto[] BuildWalletComponentsRows(
         Wallet wallet,
         DateGranularity? granularity, 
         DateOnly? from, 
         DateOnly? to)
     {
-        var data = EntitiesPerDateViewDtoFactory
-            .BuildEntitiesPerDateViewDto(
-                wallet.Components,
-                granularity,
-                fromDate: from,
-                toDate: to
-            )
-            .Data;
+        var orderedComponents = wallet.Components
+            .OrderBy(component => component.DisplaySequence)
+            .Select(BuildEntityData)
+            .ToArray();
+        
+        var records = RecordsBuilder.BuildValueRecords(
+            orderedComponents, 
+            granularity, 
+            fromDate: from, 
+            toDate: to
+        );
 
         var targets = wallet.Targets
             .OrderByDescending(x => x.Date)
             .ToArray();
 
-        return data
-            .Select(dataForDate => new WalletComponentsForDateDto(
-                    Key: dataForDate.Key,
-                    Entities: dataForDate.Entities,
-                    Summary: dataForDate.Summary,
-                    Target: BuildTargetData(dataForDate, targets)
-                )
-            )
+        return records
+            .Select(record => record.ToWalletComponentsValueHistoryRecord(
+                target: BuildTargetData(record, targets)
+            ))
             .ToArray();
     }
 
-    private static WalletTargetDto? BuildTargetData(EntitiesForDateDto data, IReadOnlyCollection<WalletTarget> targets)
+    private static WalletTargetDto? BuildTargetData(ValueRecord record, IReadOnlyCollection<WalletTarget> targets)
     {
-        var target = targets.FirstOrDefault(target => target.Date <= data.Date);
+        var target = targets.FirstOrDefault(target => target.Date <= record.DateRange.To);
 
         if (target == null || target.ValueInMainCurrency == 0)
         {
             return null;
         }
         
-        var percentage = data.Summary.Value.AmountInMainCurrency / target.ValueInMainCurrency;
+        var percentage = record.Summary.Value.AmountInMainCurrency / target.ValueInMainCurrency;
         
         return new WalletTargetDto(
             TargetInMainCurrency: target.ValueInMainCurrency,
@@ -130,31 +177,14 @@ public class ValueHistoryQueries(IRepository repository)
         );
     }
 
-    private WalletsForDateDto[] BuildWalletsForDateDto(IEnumerable<EntitiesForDateDto> rows)
-    {
-        var inflationValues = repository.GetEntities<InflationHistoricValue>()
-            .OrderByDescending(x => x.Date)
-            .ToArray();
-        
-        return rows
-            .Select(dataForDate => new WalletsForDateDto(
-                    Key: dataForDate.Key,
-                    Entities: dataForDate.Entities,
-                    Summary: dataForDate.Summary,
-                    Yield: BuildYieldDto(dataForDate, inflationValues)
-                )
-            )
-            .ToArray();
-    }
-
     private static YieldDto BuildYieldDto(
-        EntitiesForDateDto row,
+        ValueRecord record,
         IEnumerable<InflationHistoricValue> inflationValues)
     {
-        var inflation = inflationValues.FirstOrDefault(value => value.Date <= row.Date)?.Value?? 0;
+        var inflation = AggregateInflation(inflationValues, record.DateRange);
 
-        var previousValue = row.Summary.Value.AmountInMainCurrency - row.Summary.Change.AmountInMainCurrency;
-        var currentValue = row.Summary.Value.AmountInMainCurrency;
+        var previousValue = record.Summary.Value.AmountInMainCurrency - record.Summary.Change.AmountInMainCurrency;
+        var currentValue = record.Summary.Value.AmountInMainCurrency;
 
         var changePercent = decimal.Round(currentValue * 100 / previousValue, decimals: 2) - 100;
         
@@ -165,7 +195,23 @@ public class ValueHistoryQueries(IRepository repository)
         );
     }
 
-    private static EntitiesPerDateViewDtoFactory.EntityData MapEntities<T>(
+    private static decimal AggregateInflation(
+        IEnumerable<InflationHistoricValue> inflationValues,
+        DateRange dateRange)
+    {
+        var inflationPoints = inflationValues
+            .Where(dataPoint => dataPoint.Date >= dateRange.From && dataPoint.Date <= dateRange.To)
+            .OrderBy(dataPoint => dataPoint.Date)
+            .Select(dataPoint => dataPoint.Value)
+            .ToArray();
+
+        return inflationPoints
+            .Scan((a, b) => a * (1 + b))
+            .Concat([inflationPoints.First()])
+            .Sum();
+    }
+
+    private static EntityData MapEntities<T>(
         IReadOnlyCollection<T> entities, 
         string name
     ) where T : IEntityWithValueHistory, IOrderableEntity
@@ -174,7 +220,8 @@ public class ValueHistoryQueries(IRepository repository)
             .SelectMany(date => date.GetEvaluationDates())
             .ToArray();
         
-        return new EntitiesPerDateViewDtoFactory.EntityData(
+        return new EntityData(
+            Id: null,
             Name: name,
             Dates: dates,
             GetValueForDate: date => entities
@@ -182,8 +229,15 @@ public class ValueHistoryQueries(IRepository repository)
                 .WhereNotNull()
                 .ToArray()
                 .Sum(mainCurrency: "PLN")
-                .ToValueSnapshotDto(),
-            Id: null
+                .ToValueSnapshotDto()
         );
     }
+    
+    private static EntityData BuildEntityData<T>(T entity) where T : IEntityWithValueHistory, IOrderableEntity =>
+        new EntityData(
+            Name: entity.Name,
+            Dates: entity.GetEvaluationDates().ToArray(),
+            GetValueForDate: date => entity.GetValueFor(date).ToValueSnapshotDto(),
+            Id: entity.Id
+        );
 }
