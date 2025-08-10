@@ -10,43 +10,7 @@ import {
 } from "../api/value-history/Client";
 import {MoneyDto} from "../api/value-history/DTOs/Money";
 import {EntityTableDto, WalletComponentsValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
-import {Typography} from "antd";
-import Chart from "../components/Chart";
-
-const {Title} = Typography;
-
-interface TargetChartProps {
-    data: WalletComponentsValueHistoryRecordDto[]
-}
-
-const TargetChart: FC<TargetChartProps> = (props) => {
-    let series = [
-        {
-            name: 'Target',
-            data: props.data
-                .filter(dataPoint => dataPoint.target?.percentage !== undefined)
-                .map(dataPoint => {
-                    return {
-                        date: dataPoint.key,
-                        value: dataPoint.target?.percentage
-                    }
-                })
-        }
-    ]
-
-    return (
-        <>
-            <Title level={5}>Target</Title>
-            <Chart 
-                series={series} 
-                xDataKey='date' 
-                yDataKey='value'
-                yAxisFormatter={value => `${value.toFixed(2)}%`}
-                tooltipFormatter={(value: any, name: string) => [`${value.toFixed(2)}%`, name]}
-            />
-        </>
-    );
-}
+import WalletTargetChart from "../components/charts/custom/WalletTargetChart";
 
 interface WalletProps {
     walletId: string,
@@ -77,8 +41,8 @@ const Wallet: FC<WalletProps> = (props) => {
         await populateData();
     }
     
-    let extra = wallet?.rows !== undefined && !wallet.rows.every(row => row.target === undefined)
-        ? <TargetChart data={wallet.rows}/>
+    let extra = wallet?.rows !== undefined && !wallet.rows.every(row => row.target === null)
+        ? <WalletTargetChart data={wallet.rows}/>
         : undefined;
 
     return isLoading

@@ -1,8 +1,8 @@
 import React, {FC} from "react";
-import {EntityColumnDto, ValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
-import {ValueSnapshotDto} from "../api/value-history/DTOs/ValueSnapshotDto";
-import {MoneyDto} from "../api/value-history/DTOs/Money";
-import Chart from "./Chart";
+import {EntityColumnDto, ValueHistoryRecordDto} from "../../../api/value-history/DTOs/EntityTableDto";
+import {ValueSnapshotDto} from "../../../api/value-history/DTOs/ValueSnapshotDto";
+import {MoneyDto} from "../../../api/value-history/DTOs/Money";
+import Chart from "../Chart";
 
 interface MoneyChartProps {
     headers: EntityColumnDto[],
