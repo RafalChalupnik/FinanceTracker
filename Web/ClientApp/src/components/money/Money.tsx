@@ -1,5 +1,6 @@
 import React, {FC, ReactNode} from "react";
-import {Space, Typography} from "antd";
+import {Space, Tooltip, Typography} from "antd";
+import {ExclamationCircleOutlined, InfoCircleOutlined} from "@ant-design/icons";
 
 const { Text } = Typography;
 
@@ -29,9 +30,14 @@ const Money: FC<MoneyProps> = (props) => {
             ? (<Text style={{ color: 'rgba(0, 0, 0, 0.25)' }}>{formatAmount(amountInMainCurrency, MAIN_CURRENCY)}</Text>)
             : (<></>)
 
-    const wrapInDiv = (element: ReactNode, color: string) => (
-        <div style={{ color, textAlign: 'right' }}>
-            {element}
+    const wrapInDiv = (element: ReactNode, color: string, extra?: ReactNode) => (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+            <div style={{ flexGrow: 1, textAlign: 'inherit' }}>
+                {extra}
+            </div>
+            <div style={{ color, textAlign: 'right' }}>
+                {element}
+            </div>
         </div>
     );
     
@@ -52,7 +58,15 @@ const Money: FC<MoneyProps> = (props) => {
         ? (amountInMainCurrency > 0 ? 'green' : 'red')
         : (props.isInferred ? 'rgba(0, 0, 0, 0.25)' : 'black')
     
-    return wrapInDiv(content, color);
+    let extra = props.isInferred 
+        ? (
+            <Tooltip title='This value is inferred'>
+                <InfoCircleOutlined style={{ fontSize: '16px' }}/>
+            </Tooltip>
+        )
+        : undefined;
+    
+    return wrapInDiv(content, color, extra);
 }
 
 export default Money;
