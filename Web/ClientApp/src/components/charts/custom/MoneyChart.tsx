@@ -2,7 +2,7 @@ import React, {FC} from "react";
 import {EntityColumnDto, ValueHistoryRecordDto} from "../../../api/value-history/DTOs/EntityTableDto";
 import {ValueSnapshotDto} from "../../../api/value-history/DTOs/ValueSnapshotDto";
 import {MoneyDto} from "../../../api/value-history/DTOs/Money";
-import Chart from "../Chart";
+import CustomLineChart from "../CustomLineChart";
 
 interface MoneyChartProps {
     headers: EntityColumnDto[],
@@ -42,7 +42,7 @@ const MoneyChart: FC<MoneyChartProps> = (props) => {
     })
     
     return (
-        <Chart 
+        <CustomLineChart 
             series={series} 
             xDataKey='date' 
             yDataKey='value' 

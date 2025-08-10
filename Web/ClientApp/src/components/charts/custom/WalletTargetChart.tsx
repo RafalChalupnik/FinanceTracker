@@ -1,7 +1,7 @@
 import {Typography} from "antd";
 import {WalletComponentsValueHistoryRecordDto} from "../../../api/value-history/DTOs/EntityTableDto";
 import React, {FC} from "react";
-import Chart from "../Chart";
+import CustomLineChart from "../CustomLineChart";
 
 const {Title} = Typography;
 
@@ -38,7 +38,7 @@ const WalletTargetChart: FC<WalletTargetChartProps> = (props) => {
     return (
         <>
             <Title level={5}>Target</Title>
-            <Chart
+            <CustomLineChart
                 series={series}
                 xDataKey='date'
                 yDataKey='value'
