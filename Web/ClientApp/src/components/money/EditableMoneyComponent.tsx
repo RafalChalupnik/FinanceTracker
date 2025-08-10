@@ -36,6 +36,13 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
     const [selectedDate, setSelectedDate] = useState<Dayjs | undefined>(undefined);
     const [newEntryDate, setNewEntryDate] = useState<Dayjs | undefined>(undefined);
     const [granularity, setGranularity] = useState<DateGranularity>(props.defaultGranularity ?? DateGranularity.Day);
+    
+    let onUpdate = props.editable !== undefined
+        ? async (id: string, date: string, value: MoneyDto) => {
+            setNewEntryDate(undefined);
+            await props.editable?.onUpdate(id, date, value);
+        }
+        : undefined;
 
     let columns = [
         buildDateColumn(),
@@ -43,10 +50,7 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
             props.columns, 
             granularity,
             props.showInferredValues ?? true,
-            async (id, date, value) => {
-                setNewEntryDate(undefined);
-                await props.editable?.onUpdate(id, date, value);
-            }
+            onUpdate
         ),
         buildSummaryColumn(),
         ...(props.buildExtraColumns
