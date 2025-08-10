@@ -18,7 +18,8 @@ namespace FinanceTracker.Web.Migrations
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Year = table.Column<int>(type: "INTEGER", nullable: false),
                     Month = table.Column<int>(type: "INTEGER", nullable: false),
-                    Value = table.Column<decimal>(type: "TEXT", nullable: false)
+                    Value = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Confirmed = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {

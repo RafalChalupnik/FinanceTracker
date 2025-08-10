@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinanceTracker.Web.Migrations
 {
     [DbContext(typeof(FinanceTrackerContext))]
-    [Migration("20250809180617_Inflation")]
+    [Migration("20250810072256_Inflation")]
     partial class Inflation
     {
         /// <inheritdoc />
@@ -138,6 +138,9 @@ namespace FinanceTracker.Web.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("Confirmed")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Month")
                         .HasColumnType("INTEGER");

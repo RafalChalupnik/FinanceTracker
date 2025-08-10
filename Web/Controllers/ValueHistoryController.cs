@@ -1,5 +1,6 @@
 using FinanceTracker.Core;
 using FinanceTracker.Core.Commands;
+using FinanceTracker.Core.Commands.DTOs;
 using FinanceTracker.Core.Primitives;
 using FinanceTracker.Core.Queries;
 using FinanceTracker.Core.Queries.DTOs;
@@ -125,7 +126,7 @@ public class ValueHistoryController(
     [HttpPut("inflation")]
     public async Task<IActionResult> SetInflation([FromBody] InflationUpdateDto update)
     {
-        await setInflationValueCommand.SetInflationValue(update.Year, update.Month, update.Value);
+        await setInflationValueCommand.SetInflationValue(update);
         return NoContent();
     }
 }

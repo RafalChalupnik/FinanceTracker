@@ -136,6 +136,9 @@ namespace FinanceTracker.Web.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("Confirmed")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("Month")
                         .HasColumnType("INTEGER");
 

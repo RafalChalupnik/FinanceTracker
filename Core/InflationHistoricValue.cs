@@ -11,6 +11,8 @@ public class InflationHistoricValue : IEntity
     public int Month { get; init; }
     
     public decimal Value { get; set; }
+    
+    public bool Confirmed { get; set; }
 
     public bool FitsInRange(DateOnly from, DateOnly to)
     {
