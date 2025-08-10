@@ -1,8 +1,9 @@
 import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
 import React from "react";
 import {Formatter} from "recharts/types/component/DefaultTooltipContent";
+import {getChartColor} from "./ChartColors";
 
-interface ChartProps {
+interface CustomLineChartProps {
     series: Series[],
     xDataKey: string,
     yDataKey: string,
@@ -15,16 +16,7 @@ interface Series {
     data: any
 }
 
-const Chart: React.FC<ChartProps> = (props) => {
-    const chartLineColors = [
-        '#1890ff',
-        '#52c41a',
-        '#f5222d',
-        '#fa8c16',
-        '#722ed1',
-        '#13c2c2'
-    ];
-
+const CustomLineChart: React.FC<CustomLineChartProps> = (props) => {
     return (
         <ResponsiveContainer width="100%" height={300} style={{padding: '16px'}}>
             <LineChart width={500} height={300} margin={{ left: 40, right: 20, top: 20, bottom: 20 }}>
@@ -39,7 +31,7 @@ const Chart: React.FC<ChartProps> = (props) => {
                         data={s.data}
                         name={s.name}
                         key={s.name}
-                        stroke={chartLineColors[idx % chartLineColors.length]}
+                        stroke={getChartColor(idx)}
                     />
                 ))}
             </LineChart>
@@ -47,4 +39,4 @@ const Chart: React.FC<ChartProps> = (props) => {
     );
 }
 
-export default Chart;
+export default CustomLineChart;

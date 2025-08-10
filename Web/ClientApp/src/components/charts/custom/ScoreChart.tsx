@@ -1,7 +1,7 @@
 import {WalletValueHistoryRecordDto} from "../../../api/value-history/DTOs/EntityTableDto";
 import React, {FC} from "react";
 import {Typography} from "antd";
-import Chart from "../Chart";
+import CustomLineChart from "../CustomLineChart";
 
 const {Title} = Typography;
 
@@ -46,7 +46,7 @@ const ScoreChart: FC<ScoreChartProps> = (props) => {
     return (
         <>
             <Title level={5}>Total score</Title>
-            <Chart
+            <CustomLineChart
                 series={series}
                 xDataKey='date'
                 yDataKey='value'
