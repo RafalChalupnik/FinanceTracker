@@ -13,6 +13,7 @@ interface SimpleComponentsPageProps<T extends ValueHistoryRecordDto> {
     getData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<EntityTableDto<T>>,
     editable?: EditableProps<T>,
     buildExtraColumns?: (granularity: DateGranularity) => (Column<T> | ColumnGroup<T>)[];
+    showInferredValues?: boolean
 }
 
 interface EditableProps<T> {
@@ -69,6 +70,7 @@ export function SimpleComponentsPage<T extends ValueHistoryRecordDto>(props: Sim
                 columns={data.headers}
                 editable={editable}
                 refreshData={populateData}
+                showInferredValues={props.showInferredValues ?? true}
                 buildExtraColumns={props.buildExtraColumns}
             />
         </EmptyConfig>;

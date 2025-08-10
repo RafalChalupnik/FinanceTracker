@@ -1,6 +1,7 @@
 import React, { FC, useState } from "react";
 import {Alert, Button, Input, InputNumber, Space} from "antd";
 import {MoneyDto} from "../../api/value-history/DTOs/Money";
+import {CloseOutlined, SaveOutlined} from "@ant-design/icons";
 
 interface MoneyFormProps {
     initialValue: MoneyDto | undefined;
@@ -63,8 +64,8 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
                 onChange={(e) => setAmountInMainCurrency( e?.valueOf())}
             />}
             <Space direction={"horizontal"}>
-                <Button onClick={save}>Save</Button>
-                <Button onClick={props.onCancel}>Cancel</Button>
+                <Button icon={<SaveOutlined/>} onClick={save}/>
+                <Button icon={<CloseOutlined/>} onClick={props.onCancel}/>
             </Space>
         </Space>
     );

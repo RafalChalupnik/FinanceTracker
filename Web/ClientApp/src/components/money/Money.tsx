@@ -1,11 +1,13 @@
 import React, {FC, ReactNode} from "react";
-import {Space, Typography} from "antd";
+import {Space, Tooltip, Typography} from "antd";
+import {ExclamationCircleOutlined, InfoCircleOutlined} from "@ant-design/icons";
 
 const { Text } = Typography;
 
 interface MoneyProps {
     value: Value | undefined,
-    colorCoding: boolean
+    colorCoding: boolean,
+    isInferred: boolean
 }
 
 interface Value {
@@ -49,9 +51,17 @@ const Money: FC<MoneyProps> = (props) => {
 
     const color = amountInMainCurrency !== 0 && props.colorCoding
         ? (amountInMainCurrency > 0 ? 'green' : 'red')
-        : 'black'
+        : (props.isInferred ? 'rgba(0, 0, 0, 0.25)' : 'black')
     
-    return wrapInDiv(content, color);
+    let finalContent = props.isInferred
+        ? (
+            <Tooltip title='This value is inferred'>
+                {content}
+            </Tooltip>
+        )
+        : content;
+    
+    return wrapInDiv(finalContent, color);
 }
 
 export default Money;

@@ -228,9 +228,10 @@ public class ValueHistoryQueries(IRepository repository)
             GetValueForDate: date => entities
                 .Select(entity => entity.GetValueFor(date))
                 .WhereNotNull()
+                .Select(moneyValue => moneyValue.Value)
                 .ToArray()
                 .Sum(mainCurrency: "PLN")
-                .ToValueSnapshotDto()
+                .ToEntityValueSnapshotDto()
         );
     }
     
@@ -238,7 +239,7 @@ public class ValueHistoryQueries(IRepository repository)
         new EntityData(
             Name: entity.Name,
             Dates: entity.GetEvaluationDates().ToArray(),
-            GetValueForDate: date => entity.GetValueFor(date).ToValueSnapshotDto(),
+            GetValueForDate: date => entity.GetValueFor(date).ToEntityValueSnapshotDto(),
             Id: entity.Id
         );
 }

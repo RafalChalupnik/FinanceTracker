@@ -4,7 +4,7 @@ namespace FinanceTracker.Core.Queries.Implementation.DTOs;
 
 internal record ValueRecord(
     DateRange DateRange,
-    IReadOnlyList<ValueSnapshotDto?> Entities,
+    IReadOnlyList<EntityValueSnapshotDto?> Entities,
     ValueSnapshotDto Summary
 )
 {

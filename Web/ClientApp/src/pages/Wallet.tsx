@@ -66,6 +66,7 @@ const Wallet: FC<WalletProps> = (props) => {
                         onDelete: date => deleteEvaluations(props.walletId, date),
                     }}
                     refreshData={populateData}
+                    showInferredValues={true}
                     buildExtraColumns={granularity => [
                         buildTargetColumn(
                             granularity,

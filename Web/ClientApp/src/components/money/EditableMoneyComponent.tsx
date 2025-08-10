@@ -17,6 +17,7 @@ interface EditableMoneyComponentProps<T> {
     rows: T[]
     columns: EntityColumnDto[],
     refreshData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<void>;
+    showInferredValues: boolean;
     buildExtraColumns?: (granularity: DateGranularity) => (Column<T> | ColumnGroup<T>)[];
     editable?: EditableProps<T>;
     extra?: React.ReactNode;
@@ -35,13 +36,22 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
     const [selectedDate, setSelectedDate] = useState<Dayjs | undefined>(undefined);
     const [newEntryDate, setNewEntryDate] = useState<Dayjs | undefined>(undefined);
     const [granularity, setGranularity] = useState<DateGranularity>(props.defaultGranularity ?? DateGranularity.Day);
+    
+    let onUpdate = props.editable !== undefined
+        ? async (id: string, date: string, value: MoneyDto) => {
+            setNewEntryDate(undefined);
+            await props.editable?.onUpdate(id, date, value);
+        }
+        : undefined;
 
     let columns = [
         buildDateColumn(),
-        ...buildComponentsColumns(props.columns, granularity, async (id, date, value) => {
-            setNewEntryDate(undefined);
-            await props.editable?.onUpdate(id, date, value);
-        }),
+        ...buildComponentsColumns(
+            props.columns, 
+            granularity,
+            props.showInferredValues ?? true,
+            onUpdate
+        ),
         buildSummaryColumn(),
         ...(props.buildExtraColumns
             ? props.buildExtraColumns!(granularity) 
