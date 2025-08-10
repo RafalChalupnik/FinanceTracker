@@ -1,7 +1,5 @@
 import {Column, ColumnGroup, CustomEditableColumn} from "./ExtendableTable";
-import Money from "./Money";
 import React from "react";
-import MoneyForm from "./MoneyForm";
 import {Popconfirm, Space, Tooltip, Typography} from "antd";
 import {
     EntityColumnDto,
@@ -16,6 +14,8 @@ import {DeleteOutlined, ExclamationCircleOutlined} from "@ant-design/icons";
 import InflationForm from "./InflationForm";
 import dayjs from "dayjs";
 import ColoredPercent from "./ColoredPercent";
+import MoneyForm from "./money/MoneyForm";
+import Money from "./money/Money";
 
 const {Text} = Typography;
 

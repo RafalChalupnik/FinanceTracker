@@ -1,6 +1,6 @@
 import React, { FC, useState } from "react";
 import {Alert, Button, Input, InputNumber, Space} from "antd";
-import {MoneyDto} from "../api/value-history/DTOs/Money";
+import {MoneyDto} from "../../api/value-history/DTOs/Money";
 
 interface MoneyFormProps {
     initialValue: MoneyDto | undefined;

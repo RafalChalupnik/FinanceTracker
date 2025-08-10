@@ -1,7 +1,7 @@
 import {buildInflationColumn} from "../components/ColumnBuilder";
 import {Dayjs} from "dayjs";
 import EmptyConfig from "../components/EmptyConfig";
-import {EditableMoneyComponent} from "../components/EditableMoneyComponent";
+import {EditableMoneyComponent} from "../components/money/EditableMoneyComponent";
 import React, {FC, useEffect, useState} from "react";
 import {Typography} from "antd";
 import {EntityColumnDto, WalletValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";

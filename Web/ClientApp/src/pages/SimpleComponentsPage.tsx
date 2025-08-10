@@ -1,11 +1,11 @@
-import React, {FC, useEffect, useState} from "react";
-import {EditableMoneyComponent} from "../components/EditableMoneyComponent";
+import React, {useEffect, useState} from "react";
 import EmptyConfig from "../components/EmptyConfig";
 import {Dayjs} from "dayjs";
 import {Column, ColumnGroup} from "../components/ExtendableTable";
 import { DateGranularity } from "../api/value-history/DTOs/DateGranularity";
 import {EntityColumnDto, EntityTableDto, ValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
 import {MoneyDto} from "../api/value-history/DTOs/Money";
+import {EditableMoneyComponent} from "../components/money/EditableMoneyComponent";
 
 interface SimpleComponentsPageProps<T extends ValueHistoryRecordDto> {
     title: string;

@@ -1,5 +1,4 @@
 import React, {FC, useEffect, useState} from 'react';
-import {EditableMoneyComponent} from "../components/EditableMoneyComponent";
 import EmptyConfig from "../components/EmptyConfig";
 import {Dayjs} from 'dayjs';
 import {buildTargetColumn} from "../components/ColumnBuilder";
@@ -11,6 +10,7 @@ import {
 import {MoneyDto} from "../api/value-history/DTOs/Money";
 import {EntityTableDto, WalletComponentsValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
 import WalletTargetChart from "../components/charts/custom/WalletTargetChart";
+import {EditableMoneyComponent} from "../components/money/EditableMoneyComponent";
 
 interface WalletProps {
     walletId: string,
