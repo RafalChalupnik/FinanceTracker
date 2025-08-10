@@ -11,12 +11,12 @@ import {
 import {MoneyDto} from "../api/value-history/DTOs/Money";
 import {EntityTableDto, WalletComponentsValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
 
-interface WalletsProps {
+interface WalletProps {
     walletId: string,
     name: string
 }
 
-const Wallets: FC<WalletsProps> = (props) => {
+const Wallet: FC<WalletProps> = (props) => {
     const [isLoading, setIsLoading] = useState(true)
     const [wallet, setWallet] = useState<EntityTableDto<WalletComponentsValueHistoryRecordDto> | undefined>(undefined);
 
@@ -75,4 +75,4 @@ const Wallets: FC<WalletsProps> = (props) => {
         );
 }
 
-export default Wallets;
+export default Wallet;

@@ -13,7 +13,7 @@ import Assets from "./pages/Assets";
 import Debts from "./pages/Debts";
 import PortfolioSummary from "./pages/PortfolioSummary";
 import WalletsSummary from './pages/WalletsSummary';
-import Wallets from "./pages/Wallets";
+import Wallet from "./pages/Wallet";
 import Configuration from "./pages/Configuration";
 import {getWallets} from "./api/configuration/Client";
 
@@ -83,7 +83,7 @@ const App: React.FC = () => {
             acc[`/wallets:${wallet.key}`] = {
                 label: wallet.name,
                 component: (
-                    <Wallets 
+                    <Wallet 
                         key={wallet.key} 
                         walletId={wallet.key}
                         name={wallet.name}
