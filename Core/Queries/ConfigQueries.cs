@@ -10,21 +10,24 @@ public class ConfigQueries(IRepository repository)
         return new ConfigurationDto(
             Assets: GetOrderableEntities<Asset>(),
             Debts: GetOrderableEntities<Debt>(),
-            Wallets: GetWallets()
+            Wallets: GetWalletsWithComponents()
         );
     }
+
+    public OrderableEntityDto[] GetWallets()
+        => GetOrderableEntities<Wallet>();
 
     private OrderableEntityDto[] GetOrderableEntities<T>() where T : class, IOrderableEntity =>
         BuildOrderableEntityDtos(
             repository.GetOrderableEntities<T>()
         );
 
-    private WalletDataDto[] GetWallets()
+    private WalletDataDto[] GetWalletsWithComponents()
     {
         return repository.GetWallets(includeValueHistory: false, includeTargets: false)
             .AsEnumerable()
             .Select(wallet => new WalletDataDto(
-                    Id: wallet.Id,
+                    Key: wallet.Id,
                     Name: wallet.Name,
                     DisplaySequence: wallet.DisplaySequence,
                     Components: BuildOrderableEntityDtos(wallet.Components)
@@ -39,7 +42,7 @@ public class ConfigQueries(IRepository repository)
     {
         return entities
             .Select(entity => new OrderableEntityDto(
-                    Id: entity.Id, 
+                    Key: entity.Id, 
                     Name: entity.Name, 
                     DisplaySequence: entity.DisplaySequence
                 )

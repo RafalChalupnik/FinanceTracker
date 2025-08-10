@@ -1,7 +1,7 @@
 import {Alert, Button, Checkbox, InputNumber, Space} from "antd";
 import React, {FC, useState} from "react";
 import {CloseOutlined, SaveOutlined} from "@ant-design/icons";
-import {InflationDto} from "../api/value-history/DTOs/EntityTableDto";
+import {InflationDto} from "../../api/value-history/DTOs/EntityTableDto";
 
 interface InflationFormProps {
     year: number,

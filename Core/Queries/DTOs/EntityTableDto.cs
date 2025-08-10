@@ -1,16 +1,5 @@
 namespace FinanceTracker.Core.Queries.DTOs;
 
-public record WalletsComponentsDto(
-    IReadOnlyCollection<WalletComponentsTableDto> Wallets
-);
-
-public record WalletComponentsTableDto(
-    Guid Id,
-    string Name,
-    IReadOnlyCollection<EntityColumnDto> Columns,
-    IReadOnlyCollection<WalletComponentsValueHistoryRecordDto> Rows
-) : EntityTableDto<WalletComponentsValueHistoryRecordDto>(Columns, Rows);
-
 public record EntityTableDto<T>(
     IReadOnlyCollection<EntityColumnDto> Columns,
     IReadOnlyCollection<T> Rows

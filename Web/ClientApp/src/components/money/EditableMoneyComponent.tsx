@@ -2,13 +2,13 @@ import React, {useState} from "react";
 import dayjs, {Dayjs} from "dayjs";
 import {Button, Card, DatePicker, Modal, Space, Typography} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
-import DateGranularityPicker from "./DateGranularityPicker";
-import MoneyChart from "./MoneyChart";
-import {Column, ColumnGroup, ExtendableTable} from "./ExtendableTable";
-import {buildComponentsColumns, buildDateColumn, buildDeleteColumn, buildSummaryColumn} from "./ColumnBuilder";
-import {EntityColumnDto, ValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
-import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
-import {MoneyDto} from "../api/value-history/DTOs/Money";
+import { DateGranularity } from "../../api/value-history/DTOs/DateGranularity";
+import { EntityColumnDto, ValueHistoryRecordDto } from "../../api/value-history/DTOs/EntityTableDto";
+import {Column, ColumnGroup, ExtendableTable} from "../table/ExtendableTable";
+import { MoneyDto } from "../../api/value-history/DTOs/Money";
+import {buildComponentsColumns, buildDateColumn, buildDeleteColumn, buildSummaryColumn} from "../table/ColumnBuilder";
+import DateGranularityPicker from "../DateGranularityPicker";
+import MoneyChart from "../charts/custom/MoneyChart";
 
 const { Title } = Typography;
 
@@ -80,7 +80,7 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
     }
     
     return (
-        <div style={{ maxWidth: '95vw' }}>
+        <div style={{ width: '95vw' }}>
             <Card 
                 title={props.title} 
                 extra={ 

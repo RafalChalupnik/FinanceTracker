@@ -1,14 +1,5 @@
 import {ValueSnapshotDto} from "./ValueSnapshotDto";
 
-export type WalletsComponentsDto = {
-    wallets: WalletComponentsTableDto[]
-}
-
-export type WalletComponentsTableDto = EntityTableDto<WalletComponentsValueHistoryRecordDto> & {
-    id: string,
-    name: string
-}
-
 export type EntityTableDto<T extends ValueHistoryRecordDto> = {
     columns: EntityColumnDto[],
     rows: T[]

@@ -2,8 +2,7 @@ import {Dayjs} from "dayjs";
 import {DateGranularity} from "./DTOs/DateGranularity";
 import {
     EntityTableDto,
-    ValueHistoryRecordDto,
-    WalletsComponentsDto,
+    ValueHistoryRecordDto, WalletComponentsValueHistoryRecordDto,
     WalletValueHistoryRecordDto
 } from "./DTOs/EntityTableDto";
 import {MoneyDto} from "./DTOs/Money";
@@ -67,12 +66,13 @@ export async function deleteWalletValues(walletId: string, date: string) : Promi
     return await sendDelete(`api/value-history/wallets/${walletId}/${date}`);
 }
 
-export async function getWalletsComponentsValueHistory(
+export async function getWalletComponentsValueHistory(
+    walletId: string,
     granularity?: DateGranularity,
     from?: Dayjs,
     to?: Dayjs
-) : Promise<WalletsComponentsDto> {
-    return await sendGet('api/value-history/wallets/components', granularity, from, to);
+) : Promise<EntityTableDto<WalletComponentsValueHistoryRecordDto>> {
+    return await sendGet(`api/value-history/wallets/${walletId}/components`, granularity, from, to);
 }
 
 export async function setWalletComponentValue(id: string, date: string, value: MoneyDto) : Promise<void> {

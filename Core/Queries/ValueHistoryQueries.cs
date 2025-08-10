@@ -78,21 +78,24 @@ public class ValueHistoryQueries(IRepository repository)
         );
     }
 
-    public WalletsComponentsDto ForWalletsAndComponents(DateGranularity? granularity, DateOnly? from, DateOnly? to)
+    public EntityTableDto<WalletComponentsValueHistoryRecordDto> ForWallet(Guid walletId, DateGranularity? granularity, DateOnly? from, DateOnly? to)
     {
-        var wallets = repository
+        var wallet = repository
             .GetWallets(includeValueHistory: true, includeTargets: true)
+            .First(wallet => wallet.Id == walletId);
+        
+        var orderedComponents = wallet.Components
+            .OrderBy(component => component.DisplaySequence)
+            .Select(BuildEntityData)
+            .ToArray();
+        
+        var targets = wallet.Targets
+            .OrderByDescending(x => x.Date)
             .ToArray();
 
-        return new WalletsComponentsDto(
-            Wallets: wallets
-                .OrderBy(wallet => wallet.DisplaySequence)
-                .Select(wallet => EntityTableDtoBuilder.BuildWalletComponentsTableDto(
-                        wallet: wallet,
-                        rows: BuildWalletComponentsRows(wallet, granularity, from, to)
-                    )
-                )
-                .ToArray()
+        return EntityTableDtoBuilder.BuildEntityTableDto(
+            orderedEntities: orderedComponents,
+            rows: BuildWalletComponentsRows(orderedComponents, targets, granularity, from, to)
         );
     }
     
@@ -131,26 +134,18 @@ public class ValueHistoryQueries(IRepository repository)
     }
 
     private static WalletComponentsValueHistoryRecordDto[] BuildWalletComponentsRows(
-        Wallet wallet,
+        IReadOnlyList<EntityData> orderedComponents,
+        IReadOnlyList<WalletTarget> targets,
         DateGranularity? granularity, 
         DateOnly? from, 
         DateOnly? to)
     {
-        var orderedComponents = wallet.Components
-            .OrderBy(component => component.DisplaySequence)
-            .Select(BuildEntityData)
-            .ToArray();
-        
         var records = RecordsBuilder.BuildValueRecords(
             orderedComponents, 
             granularity, 
             fromDate: from, 
             toDate: to
         );
-
-        var targets = wallet.Targets
-            .OrderByDescending(x => x.Date)
-            .ToArray();
 
         return records
             .Select(record => record.ToWalletComponentsValueHistoryRecord(

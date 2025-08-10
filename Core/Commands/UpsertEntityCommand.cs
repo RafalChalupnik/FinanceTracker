@@ -8,7 +8,7 @@ public class UpsertEntityCommand(IRepository repository)
     public async ValueTask Upsert<T>(OrderableEntityDto updatedEntity) where T : class, IOrderableEntity, new()
     {
         var alreadyExistingEntity = repository.GetOrderableEntities<T>()
-            .SingleOrDefault(entity => entity.Id == updatedEntity.Id);
+            .SingleOrDefault(entity => entity.Id == updatedEntity.Key);
 
         if (alreadyExistingEntity != null)
         {
@@ -30,7 +30,7 @@ public class UpsertEntityCommand(IRepository repository)
     public async ValueTask UpsertWalletComponent(Guid walletId, OrderableEntityDto updatedComponent)
     {
         var alreadyExistingComponent = repository.GetOrderableEntities<Component>()
-            .SingleOrDefault(component => component.Id == updatedComponent.Id);
+            .SingleOrDefault(component => component.Id == updatedComponent.Key);
         
         if (alreadyExistingComponent != null)
         {
