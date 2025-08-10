@@ -71,20 +71,10 @@ internal static class RecordsBuilder
             .Select(pair => ValueSnapshotDto.CalculateChanges(pair.First, pair.Second))
             .ToArray();
         
-        var changeSum = entities
-            .WhereNotNull()
-            .Select(entity => entity.Change)
-            .ToArray()
-            .Sum(mainCurrency: "PLN") ?? Money.Empty;
-
         return current with
         {
             Entities = entities,
-            Summary = current.Summary with
-            {
-                Change = changeSum,
-                CumulativeChange = changeSum.Plus(previous.Summary.CumulativeChange, mainCurrency: "PLN")
-            }
+            Summary = ValueSnapshotDto.CalculateChanges(previous.Summary, current.Summary)!
         };
     }
 }
