@@ -7,6 +7,7 @@ const PortfolioSummary = () => {
         title='Portfolio Summary'
         defaultGranularity={DateGranularity.Month}
         getData={getPortfolioValueHistory}
+        showInferredValues={false}
     />;
 };
 

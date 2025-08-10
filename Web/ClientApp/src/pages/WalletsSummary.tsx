@@ -46,6 +46,7 @@ const WalletsSummary = () => {
                 rows={data.rows}
                 columns={data.headers}
                 refreshData={populateData}
+                showInferredValues={true}
                 buildExtraColumns={buildExtraColumns}
                 extra={<ScoreChart data={data.rows}/>}
                 allowedGranularities={[

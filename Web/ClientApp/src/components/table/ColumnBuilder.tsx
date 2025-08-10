@@ -31,6 +31,7 @@ export function buildDateColumn<T extends ValueHistoryRecordDto>(): Column<T> {
 export function buildComponentsColumns<T extends ValueHistoryRecordDto>(
     components: EntityColumnDto[],
     granularity: DateGranularity,
+    showInferredValues: boolean,
     onUpdate?: (entityId: string, date: string, value: MoneyDto) => Promise<void>,
 ): ColumnGroup<T>[] {
     return components.map((component, index) => {
@@ -41,13 +42,14 @@ export function buildComponentsColumns<T extends ValueHistoryRecordDto>(
         return buildComponentColumns(
             component.name, 
             record => record.entities[index],
+            showInferredValues,
             editable
         );
     })
 }
 
 export function buildSummaryColumn<T extends ValueHistoryRecordDto>(): ColumnGroup<T> {
-    return buildComponentColumns('Summary', record => record.summary, undefined, 'right');
+    return buildComponentColumns('Summary', record => record.summary, false, undefined, 'right');
 }
 
 export function buildDeleteColumn<T>(
@@ -181,6 +183,7 @@ function renderPercent(value: number | undefined | null, colorCoding: boolean) {
 function buildComponentColumns<T extends ValueHistoryRecordDto>(
     title: string,
     selector: (record: T) => ValueSnapshotDto | undefined,
+    showInferredValues: boolean,
     editableValue?: CustomEditableColumn<T>,
     fixed?: 'right' | undefined,
 ): ColumnGroup<T> {
@@ -194,7 +197,7 @@ function buildComponentColumns<T extends ValueHistoryRecordDto>(
                 'Value',
                 record => selector(record)?.value,
                 false,
-                record => (selector(record) as EntityValueSnapshotDto)?.inferred ?? false,
+                record => showInferredValues && ((selector(record) as EntityValueSnapshotDto)?.inferred ?? false),
                 fixed,
                 editableValue
             ),
