@@ -31,8 +31,13 @@ export type WalletValueHistoryRecordDto = ValueHistoryRecordDto & {
 
 export type YieldDto = {
     changePercent: number,
-    inflation: number | undefined,
+    inflation: InflationDto | undefined,
     totalChangePercent: number
+}
+
+export type InflationDto = {
+    value: number,
+    confirmed: boolean
 }
 
 export type WalletComponentsValueHistoryRecordDto = ValueHistoryRecordDto & {

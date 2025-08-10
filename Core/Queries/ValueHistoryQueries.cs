@@ -190,11 +190,11 @@ public class ValueHistoryQueries(IRepository repository)
         return new YieldDto(
             ChangePercent: changePercent,
             Inflation: inflation,
-            TotalChangePercent: changePercent - (inflation ?? 0)
+            TotalChangePercent: changePercent - (inflation?.Value ?? 0)
         );
     }
 
-    private static decimal? AggregateInflation(
+    private static InflationDto? AggregateInflation(
         IEnumerable<InflationHistoricValue> inflationValues,
         DateRange dateRange)
     {
@@ -202,7 +202,6 @@ public class ValueHistoryQueries(IRepository repository)
             .Where(dataPoint => dataPoint.FitsInRange(dateRange.From, dateRange.To))
             .OrderBy(dataPoint => dataPoint.Year)
             .ThenBy(dataPoint => dataPoint.Month)
-            .Select(dataPoint => dataPoint.Value / 100)
             .ToArray();
         
         if (inflationPoints.Length == 0)
@@ -210,9 +209,12 @@ public class ValueHistoryQueries(IRepository repository)
             return null;
         }
         
-        var inflation = inflationPoints.Aggregate(1m, (a, b) => a * (1 + b));
-        
-        return decimal.Round((inflation - 1) * 100, decimals: 2);
+        var inflation = inflationPoints.Aggregate(1m, (a, b) => a * (1 + b.Value));
+
+        return new InflationDto(
+            Value: decimal.Round((inflation - 1) * 100, decimals: 2),
+            Confirmed: inflationPoints.All(dataPoint => dataPoint.Confirmed)
+        );
     }
 
     private static EntityData MapEntities<T>(

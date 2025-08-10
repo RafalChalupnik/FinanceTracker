@@ -36,8 +36,13 @@ public record WalletValueHistoryRecordDto(
 
 public record YieldDto(
     decimal ChangePercent,
-    decimal? Inflation,
+    InflationDto? Inflation,
     decimal TotalChangePercent
+);
+
+public record InflationDto(
+    decimal Value,
+    bool Confirmed
 );
 
 public record WalletComponentsValueHistoryRecordDto(

@@ -98,8 +98,8 @@ const WalletsSummary = () => {
         populateData(DateGranularity.Month)
     }, [])
     
-    const updateInflation = async (year: number, month: number, value: number) => {
-        await setInflation(year, month, value);
+    const updateInflation = async (year: number, month: number, value: number, confirmed: boolean) => {
+        await setInflation(year, month, value, confirmed);
         await populateData(DateGranularity.Month);
     }
     

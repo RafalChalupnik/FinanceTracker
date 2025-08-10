@@ -2,7 +2,7 @@ import {Column, ColumnGroup, CustomEditableColumn} from "./ExtendableTable";
 import Money from "./Money";
 import React from "react";
 import MoneyForm from "./MoneyForm";
-import {Popconfirm, Space, Typography} from "antd";
+import {Popconfirm, Space, Tooltip, Typography} from "antd";
 import {
     EntityColumnDto,
     ValueHistoryRecordDto,
@@ -12,9 +12,10 @@ import {
 import {MoneyDto} from "../api/value-history/DTOs/Money";
 import {ValueSnapshotDto} from "../api/value-history/DTOs/ValueSnapshotDto";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
-import {DeleteOutlined} from "@ant-design/icons";
+import {DeleteOutlined, ExclamationCircleOutlined} from "@ant-design/icons";
 import InflationForm from "./InflationForm";
 import dayjs from "dayjs";
+import ColoredPercent from "./ColoredPercent";
 
 const {Text} = Typography;
 
@@ -104,7 +105,7 @@ export function buildTargetColumn<T extends WalletComponentsValueHistoryRecordDt
 
 export function buildInflationColumn<T extends WalletValueHistoryRecordDto>(
     granularity: DateGranularity,
-    onUpdate: (year: number, month: number, value: number) => Promise<void>
+    onUpdate: (year: number, month: number, value: number, confirmed: boolean) => Promise<void>
 ): ColumnGroup<T> {
     return {
         title: 'Score',
@@ -113,13 +114,23 @@ export function buildInflationColumn<T extends WalletValueHistoryRecordDto>(
                 key: 'change-percent',
                 title: 'Change (%)',
                 fixed: 'right',
-                render: record => renderPercent(record.yield.changePercent, true)
+                render: record => <ColoredPercent value={record.yield.changePercent} colorCoding={true}/>
             },
             {
                 key: 'inflation',
                 title: 'Inflation (%)',
                 fixed: 'right',
-                render: record => renderPercent(record.yield.inflation, false),
+                render: record => (
+                    <ColoredPercent 
+                        value={record.yield.inflation?.value} 
+                        colorCoding={false} 
+                        extra={record.yield.inflation?.confirmed == false && (
+                            <Tooltip title='Inflation value not yet confirmed'>
+                                <ExclamationCircleOutlined style={{ color: '#faad14', fontSize: '16px' }}/>
+                            </Tooltip>
+                        )}
+                    />
+                ),
                 editable: {
                     isEditable: granularity == DateGranularity.Month,
                     renderEditable: (row, closeCallback) => {
@@ -141,7 +152,7 @@ export function buildInflationColumn<T extends WalletValueHistoryRecordDto>(
                 key: 'total-score',
                 title: 'Total score (%)',
                 fixed: 'right',
-                render: record => renderPercent(record.yield.totalChangePercent, true)
+                render: record => <ColoredPercent value={record.yield.totalChangePercent} colorCoding={true}/>
             }
         ]
     }
