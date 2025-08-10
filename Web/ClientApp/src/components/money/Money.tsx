@@ -30,14 +30,9 @@ const Money: FC<MoneyProps> = (props) => {
             ? (<Text style={{ color: 'rgba(0, 0, 0, 0.25)' }}>{formatAmount(amountInMainCurrency, MAIN_CURRENCY)}</Text>)
             : (<></>)
 
-    const wrapInDiv = (element: ReactNode, color: string, extra?: ReactNode) => (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-            <div style={{ flexGrow: 1, textAlign: 'inherit' }}>
-                {extra}
-            </div>
-            <div style={{ color, textAlign: 'right' }}>
-                {element}
-            </div>
+    const wrapInDiv = (element: ReactNode, color: string) => (
+        <div style={{ color, textAlign: 'right' }}>
+            {element}
         </div>
     );
     
@@ -58,15 +53,15 @@ const Money: FC<MoneyProps> = (props) => {
         ? (amountInMainCurrency > 0 ? 'green' : 'red')
         : (props.isInferred ? 'rgba(0, 0, 0, 0.25)' : 'black')
     
-    let extra = props.isInferred 
+    let finalContent = props.isInferred
         ? (
             <Tooltip title='This value is inferred'>
-                <InfoCircleOutlined style={{ fontSize: '16px' }}/>
+                {content}
             </Tooltip>
         )
-        : undefined;
+        : content;
     
-    return wrapInDiv(content, color, extra);
+    return wrapInDiv(finalContent, color);
 }
 
 export default Money;
