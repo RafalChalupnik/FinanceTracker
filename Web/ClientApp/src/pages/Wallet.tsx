@@ -10,6 +10,59 @@ import {
 } from "../api/value-history/Client";
 import {MoneyDto} from "../api/value-history/DTOs/Money";
 import {EntityTableDto, WalletComponentsValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
+import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
+import {Typography} from "antd";
+
+const {Title} = Typography;
+
+interface TargetChartProps {
+    data: WalletComponentsValueHistoryRecordDto[]
+}
+
+const TargetChart: FC<TargetChartProps> = (props) => {
+    const chartLineColors = [
+        '#1890ff',
+        '#52c41a'
+    ];
+    
+    let series = [
+        {
+            name: 'Target (%)',
+            data: props.data
+                .filter(dataPoint => dataPoint.target?.percentage !== undefined)
+                .map(dataPoint => {
+                    return {
+                        date: dataPoint.key,
+                        value: dataPoint.target?.percentage
+                    }
+                })
+        }
+    ]
+
+    return (
+        <>
+            <Title level={5}>Target %</Title>
+            <ResponsiveContainer width="100%" height={300} style={{padding: '16px'}}>
+                <LineChart width={500} height={300} margin={{ left: 40, right: 20, top: 20, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" type="category" allowDuplicatedCategory={false} />
+                    <YAxis dataKey="value" />
+                    <Tooltip/>
+                    <Legend />
+                    {series.map((s, idx) => (
+                        <Line
+                            dataKey="value"
+                            data={s.data}
+                            name={s.name}
+                            key={s.name}
+                            stroke={chartLineColors[idx % chartLineColors.length]}
+                        />
+                    ))}
+                </LineChart>
+            </ResponsiveContainer>
+        </>
+    );
+}
 
 interface WalletProps {
     walletId: string,
@@ -39,6 +92,10 @@ const Wallet: FC<WalletProps> = (props) => {
         await deleteWalletValues(walletId, date);
         await populateData();
     }
+    
+    let extra = wallet?.rows !== undefined && !wallet.rows.every(row => row.target === undefined)
+        ? <TargetChart data={wallet.rows}/>
+        : undefined;
 
     return isLoading
         ? <p><em>Loading...</em></p>
@@ -70,6 +127,7 @@ const Wallet: FC<WalletProps> = (props) => {
                             }
                         )
                     ]}
+                    extra={extra}
                 />
             </EmptyConfig>
         );
