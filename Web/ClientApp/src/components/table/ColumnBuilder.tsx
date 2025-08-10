@@ -11,7 +11,7 @@ import {MoneyDto} from "../../api/value-history/DTOs/Money";
 import {ValueSnapshotDto} from "../../api/value-history/DTOs/ValueSnapshotDto";
 import {DateGranularity} from "../../api/value-history/DTOs/DateGranularity";
 import {DeleteOutlined, ExclamationCircleOutlined} from "@ant-design/icons";
-import InflationForm from "../InflationForm";
+import InflationForm from "../money/InflationForm";
 import dayjs from "dayjs";
 import ColoredPercent from "../ColoredPercent";
 import MoneyForm from "../money/MoneyForm";
