@@ -10,13 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddDbContext<FinanceTrackerContext>(options => options.UseSqlite(
-    builder.Configuration.GetConnectionString("FinanceTracker")
-));
-
-builder.Services
-    .AddScoped<IRepository, FinanceTrackerContext.Repository>()
-    .AddCoreCommandsAndQueries();
+builder.Services.AddCoreServices(builder.Configuration);
 
 var app = builder.Build();
 

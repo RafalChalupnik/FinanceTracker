@@ -3,7 +3,7 @@ using FinanceTracker.Core.Queries.DTOs;
 
 namespace FinanceTracker.Core.Queries;
 
-public class ConfigQueries(IRepository repository)
+public class ConfigQueries(FinanceTrackerContext dbContext)
 {
     public ConfigurationDto GetConfiguration()
     {
@@ -19,18 +19,17 @@ public class ConfigQueries(IRepository repository)
 
     private OrderableEntityDto[] GetOrderableEntities<T>() where T : class, IOrderableEntity =>
         BuildOrderableEntityDtos(
-            repository.GetOrderableEntities<T>()
+            dbContext.Set<T>()
         );
 
     private WalletDataDto[] GetWalletsWithComponents()
     {
-        return repository.GetWallets(includeValueHistory: false, includeTargets: false)
-            .AsEnumerable()
+        return dbContext.Wallets
             .Select(wallet => new WalletDataDto(
-                    Key: wallet.Id,
-                    Name: wallet.Name,
-                    DisplaySequence: wallet.DisplaySequence,
-                    Components: BuildOrderableEntityDtos(wallet.Components)
+                    wallet.Id,
+                    wallet.Name,
+                    wallet.DisplaySequence,
+                    BuildOrderableEntityDtos(wallet.Components)
                 )
             )
             .OrderBy(x => x.DisplaySequence)

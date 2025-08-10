@@ -3,14 +3,15 @@ using FinanceTracker.Core.Interfaces;
 using FinanceTracker.Core.Queries.DTOs;
 using FinanceTracker.Core.Queries.Implementation;
 using FinanceTracker.Core.Queries.Implementation.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.Core.Queries;
 
-public class ValueHistoryQueries(IRepository repository)
+public class ValueHistoryQueries(FinanceTrackerContext dbContext)
 {
     public EntityTableDto<ValueHistoryRecordDto> ForAssets(DateGranularity? granularity, DateOnly? from, DateOnly? to)
     {
-        var orderedEntities = repository.GetEntitiesWithValueHistory<Asset>()
+        var orderedEntities = GetEntitiesWithValueHistory<Asset>()
             .OrderBy(x => x.DisplaySequence)
             .AsEnumerable()
             .Select(BuildEntityData)
@@ -33,7 +34,7 @@ public class ValueHistoryQueries(IRepository repository)
 
     public EntityTableDto<ValueHistoryRecordDto> ForDebts(DateGranularity? granularity, DateOnly? from, DateOnly? to)
     {
-        var orderedEntities = repository.GetEntitiesWithValueHistory<Debt>()
+        var orderedEntities = GetEntitiesWithValueHistory<Debt>()
             .OrderBy(x => x.DisplaySequence)
             .AsEnumerable()
             .Select(BuildEntityData)
@@ -58,9 +59,9 @@ public class ValueHistoryQueries(IRepository repository)
     {
         EntityData[] entities =
         [
-            MapEntities(repository.GetWallets(includeValueHistory: true, includeTargets: false).ToArray(), "Wallets"),
-            MapEntities(repository.GetEntitiesWithValueHistory<Asset>().ToArray(), "Assets"),
-            MapEntities(repository.GetEntitiesWithValueHistory<Debt>().ToArray(), "Debts"),
+            MapEntities(GetWallets(includeTargets: false).ToArray(), "Wallets"),
+            MapEntities(GetEntitiesWithValueHistory<Asset>().ToArray(), "Assets"),
+            MapEntities(GetEntitiesWithValueHistory<Debt>().ToArray(), "Debts"),
         ];
 
         var records = RecordsBuilder.BuildValueRecords(
@@ -80,8 +81,7 @@ public class ValueHistoryQueries(IRepository repository)
 
     public EntityTableDto<WalletComponentsValueHistoryRecordDto> ForWallet(Guid walletId, DateGranularity? granularity, DateOnly? from, DateOnly? to)
     {
-        var wallet = repository
-            .GetWallets(includeValueHistory: true, includeTargets: true)
+        var wallet = GetWallets(includeTargets: true)
             .First(wallet => wallet.Id == walletId);
         
         var orderedComponents = wallet.Components
@@ -106,7 +106,7 @@ public class ValueHistoryQueries(IRepository repository)
             throw new ArgumentException("Granularity must be greater or equal to month.", nameof(granularity));
         }
 
-        var orderedEntities = repository.GetWallets(includeValueHistory: true, includeTargets: false)
+        var orderedEntities = GetWallets(includeTargets: false)
             .OrderBy(wallet => wallet.DisplaySequence)
             .AsEnumerable()
             .Select(BuildEntityData)
@@ -119,7 +119,7 @@ public class ValueHistoryQueries(IRepository repository)
             toDate: to
         );
 
-        var inflationValues = repository.GetEntities<InflationHistoricValue>().ToArray();
+        var inflationValues = dbContext.InflationValues;
 
         var rows = records
             .Select(record => record.ToWalletValueHistoryRecord(
@@ -242,4 +242,19 @@ public class ValueHistoryQueries(IRepository repository)
             GetValueForDate: date => entity.GetValueFor(date).ToEntityValueSnapshotDto(),
             Id: entity.Id
         );
+    
+    private IQueryable<T> GetEntitiesWithValueHistory<T>() where T : EntityWithValueHistory =>
+        dbContext.Set<T>()
+            .Include(x => x.ValueHistory);
+    
+    private IQueryable<Wallet> GetWallets(bool includeTargets)
+    {
+        var query = dbContext.Wallets
+            .Include(x => x.Components)
+            .ThenInclude(x => x.ValueHistory);
+
+        return includeTargets
+            ? query.Include(x => x.Targets)
+            : query;
+    }
 }

@@ -1,14 +1,14 @@
 using FinanceTracker.Core.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.Core.Commands;
 
-public class DeleteEntityCommand(IRepository repository)
+public class DeleteEntityCommand(FinanceTrackerContext dbContext)
 {
     public async ValueTask Delete<T>(Guid id) where T : class, INamedEntity
     {
-        await repository.DeleteAsync(
-            repository.GetEntities<T>()
-                .Where(entity => entity.Id == id)
-        );
+        await dbContext.Set<T>()
+            .Where(entity => entity.Id == id)
+            .ExecuteDeleteAsync();
     }
 }

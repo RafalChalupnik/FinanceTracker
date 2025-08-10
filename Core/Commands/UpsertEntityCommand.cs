@@ -3,11 +3,11 @@ using FinanceTracker.Core.Queries.DTOs;
 
 namespace FinanceTracker.Core.Commands;
 
-public class UpsertEntityCommand(IRepository repository)
+public class UpsertEntityCommand(FinanceTrackerContext dbContext)
 {
     public async ValueTask Upsert<T>(OrderableEntityDto updatedEntity) where T : class, IOrderableEntity, new()
     {
-        var alreadyExistingEntity = repository.GetOrderableEntities<T>()
+        var alreadyExistingEntity = dbContext.Set<T>()
             .SingleOrDefault(entity => entity.Id == updatedEntity.Key);
 
         if (alreadyExistingEntity != null)
@@ -17,19 +17,19 @@ public class UpsertEntityCommand(IRepository repository)
         }
         else
         {
-            repository.Add(new T
+            dbContext.Set<T>().Add(new T
             {
                 Name = updatedEntity.Name,
                 DisplaySequence = updatedEntity.DisplaySequence
             });
         }
         
-        await repository.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
     }
 
     public async ValueTask UpsertWalletComponent(Guid walletId, OrderableEntityDto updatedComponent)
     {
-        var alreadyExistingComponent = repository.GetOrderableEntities<Component>()
+        var alreadyExistingComponent = dbContext.Components
             .SingleOrDefault(component => component.Id == updatedComponent.Key);
         
         if (alreadyExistingComponent != null)
@@ -39,7 +39,7 @@ public class UpsertEntityCommand(IRepository repository)
         }
         else
         {
-            repository.Add(new Component
+            dbContext.Components.Add(new Component
             {
                 Name = updatedComponent.Name,
                 DisplaySequence = updatedComponent.DisplaySequence,
@@ -47,6 +47,6 @@ public class UpsertEntityCommand(IRepository repository)
             });
         }
         
-        await repository.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
     }
 }

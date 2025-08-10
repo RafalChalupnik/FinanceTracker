@@ -1,14 +1,22 @@
 using FinanceTracker.Core.Commands;
 using FinanceTracker.Core.Queries;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FinanceTracker.Core;
 
 public static class Bootstrap
 {
-    public static IServiceCollection AddCoreCommandsAndQueries(this IServiceCollection services)
+    public static void AddCoreServices(
+        this IServiceCollection services, 
+        IConfiguration configuration)
     {
-        return services
+        services
+            // Database
+            .AddDbContext<FinanceTrackerContext>(options => options.UseSqlite(
+                configuration.GetConnectionString("FinanceTracker")
+            ))
             // Commands
             .AddScoped<DeleteValuesForDate>()
             .AddScoped<DeleteEntityCommand>()

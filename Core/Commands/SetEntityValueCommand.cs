@@ -3,19 +3,19 @@ using FinanceTracker.Core.Primitives;
 
 namespace FinanceTracker.Core.Commands;
 
-public class SetEntityValueCommand(IRepository repository)
+public class SetEntityValueCommand(FinanceTrackerContext dbContext)
 {
     public async ValueTask SetEntityValue<T>(Guid entityId, DateOnly date, Money value)
         where T : EntityWithValueHistory, INamedEntity
     {
-        var entity = repository.GetEntityWithValueHistory<T>(entityId);
+        var entity = dbContext.Find<T>(entityId)!;
         var newValue = entity.SetValue(date, value);
 
         if (newValue != null)
         {
-            repository.Add(newValue);
+            dbContext.Add(newValue);
         }
 
-        await repository.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
     }
 }
