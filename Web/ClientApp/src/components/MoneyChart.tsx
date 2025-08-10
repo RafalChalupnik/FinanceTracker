@@ -1,8 +1,8 @@
 import React, {FC} from "react";
-import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
 import {EntityColumnDto, ValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
 import {ValueSnapshotDto} from "../api/value-history/DTOs/ValueSnapshotDto";
 import {MoneyDto} from "../api/value-history/DTOs/Money";
+import Chart from "./Chart";
 
 interface MoneyChartProps {
     headers: EntityColumnDto[],
@@ -11,15 +11,6 @@ interface MoneyChartProps {
 }
 
 const MoneyChart: FC<MoneyChartProps> = (props) => {
-    const chartLineColors = [
-        '#1890ff', 
-        '#52c41a', 
-        '#f5222d', 
-        '#fa8c16', 
-        '#722ed1',
-        '#13c2c2'
-    ];
-
     let series = props.headers.map((header, index) => {
         return {
             name: header.name,
@@ -51,26 +42,13 @@ const MoneyChart: FC<MoneyChartProps> = (props) => {
     })
     
     return (
-        <ResponsiveContainer width="100%" height={300} style={{padding: '16px'}}>
-            <LineChart width={500} height={300} margin={{ left: 40, right: 20, top: 20, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" type="category" allowDuplicatedCategory={false} />
-                <YAxis dataKey="value" tickFormatter={currencyFormatter.format} />
-                <Tooltip
-                    formatter={(value: any, name: string) => [currencyFormatter.format(value), name]}
-                />
-                <Legend />
-                {series.map((s, idx) => (
-                    <Line
-                        dataKey="value"
-                        data={s.data}
-                        name={s.name}
-                        key={s.name}
-                        stroke={chartLineColors[idx % chartLineColors.length]}
-                    />
-                ))}
-            </LineChart>
-        </ResponsiveContainer>
+        <Chart 
+            series={series} 
+            xDataKey='date' 
+            yDataKey='value' 
+            yAxisFormatter={currencyFormatter.format}
+            tooltipFormatter={(value: any, name: string) => [currencyFormatter.format(value), name]}
+        />
     );
 }
 

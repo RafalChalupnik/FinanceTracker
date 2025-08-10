@@ -10,8 +10,8 @@ import {
 } from "../api/value-history/Client";
 import {MoneyDto} from "../api/value-history/DTOs/Money";
 import {EntityTableDto, WalletComponentsValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
-import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
 import {Typography} from "antd";
+import Chart from "../components/Chart";
 
 const {Title} = Typography;
 
@@ -20,14 +20,9 @@ interface TargetChartProps {
 }
 
 const TargetChart: FC<TargetChartProps> = (props) => {
-    const chartLineColors = [
-        '#1890ff',
-        '#52c41a'
-    ];
-    
     let series = [
         {
-            name: 'Target (%)',
+            name: 'Target',
             data: props.data
                 .filter(dataPoint => dataPoint.target?.percentage !== undefined)
                 .map(dataPoint => {
@@ -41,25 +36,14 @@ const TargetChart: FC<TargetChartProps> = (props) => {
 
     return (
         <>
-            <Title level={5}>Target %</Title>
-            <ResponsiveContainer width="100%" height={300} style={{padding: '16px'}}>
-                <LineChart width={500} height={300} margin={{ left: 40, right: 20, top: 20, bottom: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" type="category" allowDuplicatedCategory={false} />
-                    <YAxis dataKey="value" />
-                    <Tooltip/>
-                    <Legend />
-                    {series.map((s, idx) => (
-                        <Line
-                            dataKey="value"
-                            data={s.data}
-                            name={s.name}
-                            key={s.name}
-                            stroke={chartLineColors[idx % chartLineColors.length]}
-                        />
-                    ))}
-                </LineChart>
-            </ResponsiveContainer>
+            <Title level={5}>Target</Title>
+            <Chart 
+                series={series} 
+                xDataKey='date' 
+                yDataKey='value'
+                yAxisFormatter={value => `${value.toFixed(2)}%`}
+                tooltipFormatter={(value: any, name: string) => [`${value.toFixed(2)}%`, name]}
+            />
         </>
     );
 }

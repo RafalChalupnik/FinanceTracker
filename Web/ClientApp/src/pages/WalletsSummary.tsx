@@ -1,13 +1,13 @@
 import {buildInflationColumn} from "../components/ColumnBuilder";
-import dayjs, {Dayjs} from "dayjs";
+import {Dayjs} from "dayjs";
 import EmptyConfig from "../components/EmptyConfig";
 import {EditableMoneyComponent} from "../components/EditableMoneyComponent";
 import React, {FC, useEffect, useState} from "react";
-import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
 import {Typography} from "antd";
 import {EntityColumnDto, WalletValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
 import {getWalletsValueHistory, setInflation} from "../api/value-history/Client";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
+import Chart from "../components/Chart";
 
 const {Title} = Typography;
 
@@ -16,15 +16,9 @@ interface ScoreChartProps {
 }
 
 const ScoreChart: FC<ScoreChartProps> = (props) => {
-    const chartLineColors = [
-        '#1890ff',
-        '#52c41a',
-        '#f5222d'
-    ];
-    
     let series = [
         {
-            name: 'Change (%)',
+            name: 'Change',
             data: props.data
                 .map(dataPoint => {
                     return {
@@ -34,17 +28,17 @@ const ScoreChart: FC<ScoreChartProps> = (props) => {
                 })
         },
         {
-            name: 'Inflation (%)',
+            name: 'Inflation',
             data: props.data
                 .map(dataPoint => {
                     return {
                         date: dataPoint.key,
-                        value: dataPoint.yield.inflation
+                        value: dataPoint.yield.inflation?.value
                     }
                 })
         },
         {
-            name: 'Total score (%)',
+            name: 'Total score',
             data: props.data
                 .map(dataPoint => {
                     return {
@@ -54,26 +48,18 @@ const ScoreChart: FC<ScoreChartProps> = (props) => {
                 })
         }
     ]
-
+    
     return (
-        <ResponsiveContainer width="100%" height={300} style={{padding: '16px'}}>
-            <LineChart width={500} height={300} margin={{ left: 40, right: 20, top: 20, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" type="category" allowDuplicatedCategory={false} />
-                <YAxis dataKey="value" />
-                <Tooltip/>
-                <Legend />
-                {series.map((s, idx) => (
-                    <Line
-                        dataKey="value"
-                        data={s.data}
-                        name={s.name}
-                        key={s.name}
-                        stroke={chartLineColors[idx % chartLineColors.length]}
-                    />
-                ))}
-            </LineChart>
-        </ResponsiveContainer>
+        <>
+            <Title level={5}>Total score</Title>
+            <Chart 
+                series={series} 
+                xDataKey='date' 
+                yDataKey='value'
+                yAxisFormatter={value => `${value.toFixed(2)}%`}
+                tooltipFormatter={(value: any, name: string) => [`${value.toFixed(2)}%`, name]}
+            />
+        </>
     );
 }
 
