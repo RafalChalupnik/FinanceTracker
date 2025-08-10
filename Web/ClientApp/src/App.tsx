@@ -15,7 +15,7 @@ import PortfolioSummary from "./pages/PortfolioSummary";
 import WalletsSummary from './pages/WalletsSummary';
 import Wallets from "./pages/Wallets";
 import Configuration from "./pages/Configuration";
-import {getConfiguration} from "./api/configuration/Client";
+import {getWallets} from "./api/configuration/Client";
 
 const { Header, Content } = Layout;
 
@@ -72,18 +72,14 @@ const mapMenuItems = (items: { [key: string]: NavBarItem}): MenuItem[] =>
 
 
 const App: React.FC = () => {
-    const {
-        token: { colorBgContainer, borderRadiusLG },
-    } = theme.useToken();
-
     const [navBar, setNavBar] = useState<{ [key: string]: NavBarItem} | undefined>(undefined);
     const [currentKey, setCurrentKey] = useState<string | undefined>(undefined);
     const [currentComponent, setCurrentComponent] = useState<ReactNode | undefined>();
 
     const populateData = async () => {
-        const response = await getConfiguration(); // TODO: Make dedicated endpoint
+        const wallets = await getWallets();
 
-        navBarTemplate['/wallets'].children = response.wallets.reduce((acc, wallet) => {
+        navBarTemplate['/wallets'].children = wallets.reduce((acc, wallet) => {
             acc[`/wallets:${wallet.key}`] = {
                 label: wallet.name,
                 component: <Wallets key={wallet.key} walletId={wallet.key} />

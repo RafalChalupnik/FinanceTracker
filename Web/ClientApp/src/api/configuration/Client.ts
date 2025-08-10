@@ -4,6 +4,10 @@ export async function getConfiguration() : Promise<ConfigurationDto> {
     return await sendGet('api/configuration');
 }
 
+export async function getWallets() : Promise<OrderableEntityDto[]> {
+    return await sendGet('api/configuration/wallets');
+}
+
 export async function upsertAsset(asset: OrderableEntityDto) : Promise<void> {
     await sendPost('api/configuration/assets', asset);
 }
