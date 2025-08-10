@@ -7,14 +7,14 @@ public record ConfigurationDto(
 );
 
 public record OrderableEntityDto(
-    Guid Id,
+    Guid Key,
     string Name,
     int DisplaySequence
 );
 
 public record WalletDataDto(
-    Guid Id,
+    Guid Key,
     string Name,
     int DisplaySequence,
     IReadOnlyCollection<OrderableEntityDto> Components
-) : OrderableEntityDto(Id, Name, DisplaySequence);
+) : OrderableEntityDto(Key, Name, DisplaySequence);

@@ -5,7 +5,7 @@ export type ConfigurationDto = {
 }
 
 export type OrderableEntityDto = {
-    id: string,
+    key: string,
     name: string,
     displaySequence: number
 }

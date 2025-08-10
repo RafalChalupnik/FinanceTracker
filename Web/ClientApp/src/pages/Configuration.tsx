@@ -1,34 +1,36 @@
 import React, {useEffect, useState} from "react";
 import {Input, Button, Space, Card, Popconfirm, Typography, InputNumber} from "antd";
 import {DeleteOutlined, PlusOutlined, SaveOutlined} from "@ant-design/icons";
-import {
-    Config, upsertWallet, deleteAsset, deleteDebt, deleteWallet, deleteWalletComponent, getConfiguration,
-    OrderableEntity,
-    upsertAsset, upsertDebt,
-    upsertWalletComponent,
-    WalletEntity
-} from "../api/ConfigurationApi";
 import {Column, ExtendableTable} from "../components/ExtendableTable";
 import {buildDeleteColumn} from "../components/ColumnBuilder";
+import {ConfigurationDto, OrderableEntityDto, WalletDataDto} from "../api/configuration/DTOs/ConfigurationDto";
+import {
+    deleteAsset,
+    deleteDebt, deleteWallet, deleteWalletComponent,
+    getConfiguration,
+    upsertAsset,
+    upsertDebt,
+    upsertWallet, upsertWalletComponent
+} from "../api/configuration/Client";
 
 const {Text} = Typography;
 
 interface EntityTableProps {
     title: string | React.ReactNode;
-    data: OrderableEntity[];
-    onUpdate: (entity: OrderableEntity) => void | Promise<void>;
+    data: OrderableEntityDto[];
+    onUpdate: (entity: OrderableEntityDto) => void | Promise<void>;
     onDelete: (entityId: string) => void | Promise<void>;
 }
 
 const EntityTable: React.FC<EntityTableProps> = (props) => {
-    let [newEntry, setNewEntry] = useState<OrderableEntity | undefined>(undefined);
+    let [newEntry, setNewEntry] = useState<OrderableEntityDto | undefined>(undefined);
     
-    const updateEntity = async (record: OrderableEntity) => {
+    const updateEntity = async (record: OrderableEntityDto) => {
         await props.onUpdate(record)
         setNewEntry(undefined);
     };
     
-    let columns : Column<OrderableEntity>[] = [
+    let columns : Column<OrderableEntityDto>[] = [
         {
             key: 'name',
             title: 'Name',
@@ -63,7 +65,7 @@ const EntityTable: React.FC<EntityTableProps> = (props) => {
     }
 
     const handleAdd = () => {
-        const newItem: OrderableEntity = {
+        const newItem: OrderableEntityDto = {
             key: crypto.randomUUID(),
             name: "New Item",
             displaySequence: props.data.length + 1,
@@ -82,10 +84,10 @@ const EntityTable: React.FC<EntityTableProps> = (props) => {
 };
 
 interface WalletProps {
-    wallet: WalletEntity;
-    onUpdateWallet: (wallet: OrderableEntity) => Promise<void>;
+    wallet: WalletDataDto;
+    onUpdateWallet: (wallet: OrderableEntityDto) => Promise<void>;
     onDeleteWallet: (walletId: string) => Promise<void>;
-    onUpdateComponent: (walletId: string, entity: OrderableEntity) => Promise<void>;
+    onUpdateComponent: (walletId: string, entity: OrderableEntityDto) => Promise<void>;
     onDeleteComponent: (componentId: string) => Promise<void>;
 }
 
@@ -133,7 +135,7 @@ const Wallet: React.FC<WalletProps> = (props) => {
 };
 
 const Configuration: React.FC = () => {
-    const [config, setConfig] = useState<Config>({
+    const [config, setConfig] = useState<ConfigurationDto>({
         assets: [],
         debts: [],
         wallets: [],

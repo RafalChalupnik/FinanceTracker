@@ -15,7 +15,7 @@ import PortfolioSummary from "./pages/PortfolioSummary";
 import WalletsSummary from './pages/WalletsSummary';
 import Wallets from "./pages/Wallets";
 import Configuration from "./pages/Configuration";
-import {getConfiguration} from "./api/ConfigurationApi";
+import {getConfiguration} from "./api/configuration/Client";
 
 const { Header, Content } = Layout;
 
