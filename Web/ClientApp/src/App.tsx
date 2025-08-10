@@ -1,5 +1,5 @@
 import React, {ReactNode, useEffect, useState} from 'react';
-import {Layout, Menu, MenuProps, Space, theme, Typography} from 'antd';
+import {Layout, Menu, MenuProps, Space, Typography} from 'antd';
 import {
     EuroCircleOutlined,
     LineChartOutlined,
@@ -82,7 +82,13 @@ const App: React.FC = () => {
         navBarTemplate['/wallets'].children = wallets.reduce((acc, wallet) => {
             acc[`/wallets:${wallet.key}`] = {
                 label: wallet.name,
-                component: <Wallets key={wallet.key} walletId={wallet.key} />
+                component: (
+                    <Wallets 
+                        key={wallet.key} 
+                        walletId={wallet.key}
+                        name={wallet.name}
+                    />
+                )
             };
             return acc;
         }, {} as Record<string, NavBarItem>);

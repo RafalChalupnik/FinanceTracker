@@ -20,23 +20,4 @@ internal static class EntityTableDtoBuilder
             Rows: rows
         );
     }
-    
-    public static WalletComponentsTableDto BuildWalletComponentsTableDto(
-        Wallet wallet,
-        WalletComponentsValueHistoryRecordDto[] rows
-    )
-    {
-        return new WalletComponentsTableDto(
-            Id: wallet.Id,
-            Name: wallet.Name,
-            Columns: wallet.Components
-                .OrderBy(component => component.DisplaySequence)
-                .Select(entity => new EntityColumnDto(
-                    Name: entity.Name,
-                    Id: entity.Id)
-                )
-                .ToArray(),
-            Rows: rows
-        );
-    }
 }

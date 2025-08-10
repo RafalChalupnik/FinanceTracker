@@ -103,13 +103,14 @@ public class ValueHistoryController(
         return NoContent();
     }
     
-    [HttpGet("wallets/components")]
-    public WalletsComponentsDto GetWalletsComponentsValueHistory(
+    [HttpGet("wallets/{walletId:guid}/components")]
+    public EntityTableDto<WalletComponentsValueHistoryRecordDto> GetWalletsComponentsValueHistory(
+        Guid walletId,
         [FromQuery] DateGranularity? granularity, 
         [FromQuery] DateOnly? from, 
         [FromQuery] DateOnly? to
         ) 
-        => query.ForWalletsAndComponents(granularity, from: from, to: to);
+        => query.ForWallet(walletId, granularity, from: from, to: to);
     
     [HttpPut("wallets/components/{componentId:guid}/{date}")]
     public async Task<IActionResult> SetWalletComponentValue(Guid componentId, DateOnly date, [FromBody] Money value)
