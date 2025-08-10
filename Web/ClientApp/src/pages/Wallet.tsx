@@ -11,8 +11,6 @@ import {MoneyDto} from "../api/value-history/DTOs/Money";
 import {EntityTableDto, WalletComponentsValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
 import WalletTargetChart from "../components/charts/custom/WalletTargetChart";
 import {EditableMoneyComponent} from "../components/money/EditableMoneyComponent";
-import {Space} from "antd";
-import CompositionChart from "../components/charts/custom/CompositionChart";
 
 interface WalletProps {
     walletId: string,
@@ -42,21 +40,9 @@ const Wallet: FC<WalletProps> = (props) => {
         await deleteWalletValues(walletId, date);
         await populateData();
     }
-
-    let walletTargetChart = wallet?.rows !== undefined && !wallet.rows.every(row => row.target === null)
-        ? <WalletTargetChart data={wallet.rows}/>
-        : undefined;
     
-    let extra = wallet !== undefined
-        ? (
-            <>
-                <CompositionChart 
-                    headers={wallet.columns} 
-                    records={wallet.rows}
-                />
-                {walletTargetChart}
-            </>
-        )
+    let extra = wallet?.rows !== undefined && !wallet.rows.every(row => row.target === null)
+        ? <WalletTargetChart data={wallet.rows}/>
         : undefined;
 
     return isLoading

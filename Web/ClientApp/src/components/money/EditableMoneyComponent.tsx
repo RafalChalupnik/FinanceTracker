@@ -9,6 +9,7 @@ import { MoneyDto } from "../../api/value-history/DTOs/Money";
 import {buildComponentsColumns, buildDateColumn, buildDeleteColumn, buildSummaryColumn} from "../table/ColumnBuilder";
 import DateGranularityPicker from "../DateGranularityPicker";
 import MoneyChart from "../charts/custom/MoneyChart";
+import CompositionChart from "../charts/custom/CompositionChart";
 
 const { Title } = Typography;
 
@@ -138,6 +139,10 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
                     headers={props.columns}
                     data={props.rows}
                     dataSelector={component => component.cumulativeChange}
+                />
+                <CompositionChart
+                    headers={props.columns}
+                    records={props.rows}
                 />
                 {props.extra}
             </Card>
