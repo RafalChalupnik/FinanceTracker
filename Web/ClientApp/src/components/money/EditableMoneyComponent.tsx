@@ -4,9 +4,9 @@ import {Button, Card, DatePicker, Modal, Space, Typography} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import { DateGranularity } from "../../api/value-history/DTOs/DateGranularity";
 import { EntityColumnDto, ValueHistoryRecordDto } from "../../api/value-history/DTOs/EntityTableDto";
-import {Column, ColumnGroup, ExtendableTable} from "../ExtendableTable";
+import {Column, ColumnGroup, ExtendableTable} from "../table/ExtendableTable";
 import { MoneyDto } from "../../api/value-history/DTOs/Money";
-import {buildComponentsColumns, buildDateColumn, buildDeleteColumn, buildSummaryColumn} from "../ColumnBuilder";
+import {buildComponentsColumns, buildDateColumn, buildDeleteColumn, buildSummaryColumn} from "../table/ColumnBuilder";
 import DateGranularityPicker from "../DateGranularityPicker";
 import MoneyChart from "../charts/custom/MoneyChart";
 

@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from "react";
 import {Input, Button, Space, Card, Popconfirm, Typography, InputNumber} from "antd";
 import {DeleteOutlined, PlusOutlined, SaveOutlined} from "@ant-design/icons";
-import {Column, ExtendableTable} from "../components/ExtendableTable";
-import {buildDeleteColumn} from "../components/ColumnBuilder";
+import {Column, ExtendableTable} from "../components/table/ExtendableTable";
+import {buildDeleteColumn} from "../components/table/ColumnBuilder";
 import {ConfigurationDto, OrderableEntityDto, WalletDataDto} from "../api/configuration/DTOs/ConfigurationDto";
 import {
     deleteAsset,

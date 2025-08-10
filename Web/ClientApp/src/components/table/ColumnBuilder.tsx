@@ -6,16 +6,16 @@ import {
     ValueHistoryRecordDto,
     WalletComponentsValueHistoryRecordDto,
     WalletValueHistoryRecordDto
-} from "../api/value-history/DTOs/EntityTableDto";
-import {MoneyDto} from "../api/value-history/DTOs/Money";
-import {ValueSnapshotDto} from "../api/value-history/DTOs/ValueSnapshotDto";
-import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
+} from "../../api/value-history/DTOs/EntityTableDto";
+import {MoneyDto} from "../../api/value-history/DTOs/Money";
+import {ValueSnapshotDto} from "../../api/value-history/DTOs/ValueSnapshotDto";
+import {DateGranularity} from "../../api/value-history/DTOs/DateGranularity";
 import {DeleteOutlined, ExclamationCircleOutlined} from "@ant-design/icons";
-import InflationForm from "./InflationForm";
+import InflationForm from "../InflationForm";
 import dayjs from "dayjs";
-import ColoredPercent from "./ColoredPercent";
-import MoneyForm from "./money/MoneyForm";
-import Money from "./money/Money";
+import ColoredPercent from "../ColoredPercent";
+import MoneyForm from "../money/MoneyForm";
+import Money from "../money/Money";
 
 const {Text} = Typography;
 

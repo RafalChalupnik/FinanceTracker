@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import EmptyConfig from "../components/EmptyConfig";
 import {Dayjs} from "dayjs";
-import {Column, ColumnGroup} from "../components/ExtendableTable";
+import {Column, ColumnGroup} from "../components/table/ExtendableTable";
 import { DateGranularity } from "../api/value-history/DTOs/DateGranularity";
 import {EntityColumnDto, EntityTableDto, ValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
 import {MoneyDto} from "../api/value-history/DTOs/Money";

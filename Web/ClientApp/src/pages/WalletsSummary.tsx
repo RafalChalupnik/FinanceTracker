@@ -1,15 +1,12 @@
-import {buildInflationColumn} from "../components/ColumnBuilder";
+import {buildInflationColumn} from "../components/table/ColumnBuilder";
 import {Dayjs} from "dayjs";
 import EmptyConfig from "../components/EmptyConfig";
 import {EditableMoneyComponent} from "../components/money/EditableMoneyComponent";
 import React, {FC, useEffect, useState} from "react";
-import {Typography} from "antd";
 import {EntityColumnDto, WalletValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
 import {getWalletsValueHistory, setInflation} from "../api/value-history/Client";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 import ScoreChart from "../components/charts/custom/ScoreChart";
-
-const {Title} = Typography;
 
 const WalletsSummary = () => {
     const [isLoading, setIsLoading] = useState(true)

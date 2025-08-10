@@ -1,7 +1,7 @@
 import React, {FC, useEffect, useState} from 'react';
 import EmptyConfig from "../components/EmptyConfig";
 import {Dayjs} from 'dayjs';
-import {buildTargetColumn} from "../components/ColumnBuilder";
+import {buildTargetColumn} from "../components/table/ColumnBuilder";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 import {
     deleteWalletValues, getWalletComponentsValueHistory,
