@@ -14,6 +14,8 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
     
     public DbSet<HistoricValue> HistoricValues { get; set; }
     
+    public DbSet<InflationHistoricValue> InflationValues { get; set; }
+    
     public DbSet<Wallet> Wallets { get; set; }
     
     public DbSet<WalletTarget> WalletTargets { get; set; }
@@ -52,6 +54,13 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                     .WithOne()
                     .OnDelete(DeleteBehavior.Cascade);
             });
+
+        modelBuilder.Entity<InflationHistoricValue>(b =>
+            {
+                b.HasKey(x => x.Id);
+                b.HasIndex(x => new {x.Year, x.Month}).IsUnique();
+            }
+            );
         
         modelBuilder.Entity<Wallet>(
             b =>
@@ -81,7 +90,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 .Include(component => component.ValueHistory);
         }
 
-        public T GetEntityWithValueHistory<T>(Guid id) where T : EntityWithValueHistory, IEntity
+        public T GetEntityWithValueHistory<T>(Guid id) where T : EntityWithValueHistory, INamedEntity
         {
             return context.Set<T>()
                 .Include(x => x.ValueHistory)
@@ -121,7 +130,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
         public async ValueTask DeleteAsync<T>(IQueryable<T> entities)
             => await entities.ExecuteDeleteAsync();
         
-        public void Update<T>(T entity) where T : class, IEntity 
+        public void Update<T>(T entity) where T : class, INamedEntity 
             => context.Set<T>().Update(entity);
 
         public async ValueTask SaveChangesAsync()

@@ -1,6 +1,6 @@
 namespace FinanceTracker.Web.DTOs;
 
-public record TargetUpdateDto(
+public record ValueUpdateDto(
     DateOnly Date,
-    decimal TargetInMainCurrency
+    decimal Value
 );

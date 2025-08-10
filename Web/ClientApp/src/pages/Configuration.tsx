@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {Input, Button, Space, Card, Popconfirm, Typography, InputNumber} from "antd";
 import {DeleteOutlined, PlusOutlined, SaveOutlined} from "@ant-design/icons";
-import {DataIndexPath, EditableColumn, EditableTable} from "../components/EditableTable";
 import {
     Config, upsertWallet, deleteAsset, deleteDebt, deleteWallet, deleteWalletComponent, getConfiguration,
     OrderableEntity,
@@ -9,6 +8,8 @@ import {
     upsertWalletComponent,
     WalletEntity
 } from "../api/ConfigurationApi";
+import {Column, ExtendableTable} from "../components/ExtendableTable";
+import {buildDeleteColumn} from "../components/ColumnBuilder";
 
 const {Text} = Typography;
 
@@ -22,30 +23,38 @@ interface EntityTableProps {
 const EntityTable: React.FC<EntityTableProps> = (props) => {
     let [newEntry, setNewEntry] = useState<OrderableEntity | undefined>(undefined);
     
-    const updateEntity = async (record: OrderableEntity, path: DataIndexPath<OrderableEntity>, value: any) => {
-        setValue(record, path, value);
+    const updateEntity = async (record: OrderableEntity) => {
         await props.onUpdate(record)
         setNewEntry(undefined);
     };
-
-    const columns: EditableColumn<OrderableEntity>[] = [
+    
+    let columns : Column<OrderableEntity>[] = [
         {
-            title: "Name",
             key: 'name',
-            dataIndex: "name",
+            title: 'Name',
+            render: row => row.name,
             editable: {
-                onUpdate: updateEntity
+                initialValueSelector: (row) => row.name,
+                onSave: async (row, value) => {
+                    row.name = value;
+                    await updateEntity(row)
+                }
             }
         },
         {
-            title: "Sequence",
             key: 'displaySequence',
-            dataIndex: "displaySequence",
+            title: 'Sequence',
+            render: row => row.displaySequence,
             editable: {
-                onUpdate: updateEntity
+                initialValueSelector: (row) => row.displaySequence,
+                onSave: async (row, value) => {
+                    row.displaySequence = value;
+                    await updateEntity(row)
+                }
             }
-        }
-    ];
+        },
+        buildDeleteColumn(async row => await props.onDelete(row.key))
+    ]
 
     const buildData = () => {
         return newEntry !== undefined
@@ -62,27 +71,11 @@ const EntityTable: React.FC<EntityTableProps> = (props) => {
         setNewEntry(newItem);
     };
 
-    function setValue(obj: any, path: string | (string | number)[], value: any): void {
-        const keys = Array.isArray(path) ? path : [path];
-
-        let current = obj;
-        for (let i = 0; i < keys.length - 1; i++) {
-            const key = keys[i];
-            if (!(key in current) || typeof current[key] !== 'object') {
-                current[key] = {};
-            }
-            current = current[key];
-        }
-
-        current[keys[keys.length - 1]] = value;
-    }
-
     return (
         <Card title={props.title} extra={<Button icon={<PlusOutlined />} onClick={handleAdd} >Add new entry</Button>}>
-            <EditableTable 
-                records={buildData()} 
+            <ExtendableTable 
+                rows={buildData()} 
                 columns={columns}
-                onDelete={async record => props.onDelete(record.key)}
             />
         </Card>
     );

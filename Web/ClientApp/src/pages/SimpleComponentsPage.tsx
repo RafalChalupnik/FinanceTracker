@@ -1,41 +1,38 @@
 import React, {FC, useEffect, useState} from "react";
-import EditableMoneyComponent from "../components/EditableMoneyComponent";
-import {
-    ComponentHeader,
-    DateGranularity,
-    EntityValueHistory,
-    MoneyDto,
-    ValueHistoryRecord
-} from "../api/ValueHistoryApi";
-import {Space} from "antd";
+import {EditableMoneyComponent} from "../components/EditableMoneyComponent";
 import EmptyConfig from "../components/EmptyConfig";
-import MoneyChart from "../components/MoneyChart";
 import {Dayjs} from "dayjs";
+import {Column, ColumnGroup} from "../components/ExtendableTable";
+import { DateGranularity } from "../api/value-history/DTOs/DateGranularity";
+import {EntityColumnDto, EntityTableDto, ValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
+import {MoneyDto} from "../api/value-history/DTOs/Money";
 
-interface SimpleComponentsPageProps {
+interface SimpleComponentsPageProps<T extends ValueHistoryRecordDto> {
     title: string;
     defaultGranularity: DateGranularity;
-    getData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<EntityValueHistory>,
-    editable?: EditableProps
+    getData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<EntityTableDto<T>>,
+    editable?: EditableProps<T>,
+    buildExtraColumns?: (granularity: DateGranularity) => (Column<T> | ColumnGroup<T>)[];
 }
 
-interface EditableProps {
+interface EditableProps<T> {
+    createEmptyRow: (date: Dayjs, columns: EntityColumnDto[]) => T;
     setValue: (id: string, date: string, value: MoneyDto) => Promise<void>;
     deleteValues: (date: string) => void | Promise<void>;   
 }
 
-const SimpleComponentsPage: FC<SimpleComponentsPageProps> = (props) => {
+export function SimpleComponentsPage<T extends ValueHistoryRecordDto>(props: SimpleComponentsPageProps<T>) {
     const [isLoading, setIsLoading] = useState(true)
     const [data, setData] = useState({
-        headers: [] as ComponentHeader[],
-        rows: [] as ValueHistoryRecord[]
+        headers: [] as EntityColumnDto[],
+        rows: [] as T[]
     });
 
     const populateData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => {
         const response = await props.getData(granularity, from, to);
         setData({
-            headers: response.headers,
-            rows: response.data
+            headers: response.columns,
+            rows: response.rows
         });
         
         setIsLoading(false)
@@ -57,6 +54,7 @@ const SimpleComponentsPage: FC<SimpleComponentsPageProps> = (props) => {
     
     let editable = props.editable
         ? {
+            createEmptyRow: props.editable!.createEmptyRow,
             onUpdate: updateEntity,
             onDelete: deleteEvaluations
         }
@@ -70,7 +68,8 @@ const SimpleComponentsPage: FC<SimpleComponentsPageProps> = (props) => {
                 rows={data.rows}
                 columns={data.headers}
                 editable={editable}
-                refreshData={populateData}            
+                refreshData={populateData}
+                buildExtraColumns={props.buildExtraColumns}
             />
         </EmptyConfig>;
 }

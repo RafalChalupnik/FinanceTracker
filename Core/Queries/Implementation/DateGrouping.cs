@@ -1,11 +1,15 @@
 using System.Globalization;
+using FinanceTracker.Core.Extensions;
 using FinanceTracker.Core.Queries.DTOs;
+using FinanceTracker.Core.Queries.Implementation.DTOs;
 
 namespace FinanceTracker.Core.Queries.Implementation;
 
 internal static class DateGrouping
 {
-    public static DateRepresentation[] GroupDates(this IEnumerable<DateOnly> dates, DateGranularity granularity)
+    private const DayOfWeek WeekStart = DayOfWeek.Monday;
+    
+    public static DateRange[] GroupDates(this IEnumerable<DateOnly> dates, DateGranularity granularity)
     {
         Func<DateOnly, string> keySelector = granularity switch
         {
@@ -19,8 +23,13 @@ internal static class DateGrouping
         
         return dates
             .GroupBy(keySelector)
-            .Select(group => new DateRepresentation(Date: group.Max(), Representation: group.Key))
-            .OrderBy(x => x.Date)
+            .Select(group => BuildDateRange(
+                    granularity: granularity,
+                    representation: group.Key,
+                    sampleDate: group.First()
+                )
+            )
+            .OrderBy(x => x.From)
             .ToArray();
     }
 
@@ -46,4 +55,27 @@ internal static class DateGrouping
     }
     
     private static string GetYearFormat(DateOnly date) => date.ToString("yyyy");
+
+    private static DateRange BuildDateRange(
+        DateGranularity granularity, 
+        string representation, 
+        DateOnly sampleDate)
+    {
+        var range = granularity switch
+        {
+            DateGranularity.Date => sampleDate.SingleDateAsRange(),
+            DateGranularity.Week => sampleDate.GetWeekRange(weekStart: WeekStart),
+            DateGranularity.Month => sampleDate.GetMonthRange(),
+            DateGranularity.Quarter => sampleDate.GetQuarterRange(),
+            DateGranularity.Year => sampleDate.GetYearRange(),
+            _ => throw new ArgumentOutOfRangeException(nameof(granularity), granularity, null)
+        };
+        
+        return new DateRange(
+            Granularity: granularity,
+            From: range.Start,
+            To: range.End,
+            Representation: representation
+        );
+    }
 }

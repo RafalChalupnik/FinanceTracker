@@ -1,5 +1,6 @@
 using FinanceTracker.Core;
 using FinanceTracker.Core.Commands;
+using FinanceTracker.Core.Commands.DTOs;
 using FinanceTracker.Core.Primitives;
 using FinanceTracker.Core.Queries;
 using FinanceTracker.Core.Queries.DTOs;
@@ -14,11 +15,12 @@ public class ValueHistoryController(
     ValueHistoryQueries query,
     SetEntityValueCommand setEntityValueCommand,
     SetTargetCommand setTargetCommand,
-    DeleteValuesForDate deleteValuesForDate
+    DeleteValuesForDate deleteValuesForDate,
+    SetInflationValueCommand setInflationValueCommand
     ) : ControllerBase
 {
     [HttpGet("assets")]
-    public EntitiesPerDateQueryDto GetAssetsValueHistory(
+    public EntityTableDto<ValueHistoryRecordDto> GetAssetsValueHistory(
         [FromQuery] DateGranularity? granularity, 
         [FromQuery] DateOnly? from, 
         [FromQuery] DateOnly? to
@@ -45,7 +47,7 @@ public class ValueHistoryController(
     }
     
     [HttpGet("debts")]
-    public EntitiesPerDateQueryDto GetDebtsValueHistory(
+    public EntityTableDto<ValueHistoryRecordDto> GetDebtsValueHistory(
         [FromQuery] DateGranularity? granularity, 
         [FromQuery] DateOnly? from, 
         [FromQuery] DateOnly? to
@@ -72,7 +74,7 @@ public class ValueHistoryController(
     }
     
     [HttpGet("portfolio")]
-    public EntitiesPerDateQueryDto GetPortfolioValueHistory(
+    public EntityTableDto<ValueHistoryRecordDto> GetPortfolioValueHistory(
         [FromQuery] DateGranularity? granularity, 
         [FromQuery] DateOnly? from, 
         [FromQuery] DateOnly? to
@@ -80,7 +82,7 @@ public class ValueHistoryController(
         => query.ForEntirePortfolio(granularity, from: from, to: to);
     
     [HttpGet("wallets")]
-    public EntitiesPerDateQueryDto GetWalletsValueHistory(
+    public EntityTableDto<WalletValueHistoryRecordDto> GetWalletsValueHistory(
         [FromQuery] DateGranularity? granularity, 
         [FromQuery] DateOnly? from, 
         [FromQuery] DateOnly? to
@@ -88,9 +90,9 @@ public class ValueHistoryController(
         => query.ForWallets(granularity, from: from, to: to);
 
     [HttpPut("wallets/{walletId:guid}/target")]
-    public async Task<IActionResult> SetWalletTarget(Guid walletId, [FromBody] TargetUpdateDto update)
+    public async Task<IActionResult> SetWalletTarget(Guid walletId, [FromBody] ValueUpdateDto update)
     {
-        await setTargetCommand.SetTarget(walletId, update.Date, update.TargetInMainCurrency);
+        await setTargetCommand.SetTarget(walletId, update.Date, update.Value);
         return NoContent();
     }
     
@@ -102,7 +104,7 @@ public class ValueHistoryController(
     }
     
     [HttpGet("wallets/components")]
-    public WalletsPerDateQueryDto GetWalletsComponentsValueHistory(
+    public WalletsComponentsDto GetWalletsComponentsValueHistory(
         [FromQuery] DateGranularity? granularity, 
         [FromQuery] DateOnly? from, 
         [FromQuery] DateOnly? to
@@ -118,6 +120,13 @@ public class ValueHistoryController(
             value: value
         );
         
+        return NoContent();
+    }
+    
+    [HttpPut("inflation")]
+    public async Task<IActionResult> SetInflation([FromBody] InflationUpdateDto update)
+    {
+        await setInflationValueCommand.SetInflationValue(update);
         return NoContent();
     }
 }

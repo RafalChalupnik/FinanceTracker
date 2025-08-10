@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { DatePicker, Select, Space } from 'antd';
+import React, {useState} from 'react';
+import {DatePicker, Select, Space} from 'antd';
 import {PickerMode} from "rc-picker/lib/interface";
 import dayjs, {Dayjs, OpUnitType, QUnitType} from "dayjs";
-import {DateGranularity} from "../api/ValueHistoryApi";
 
 import quarterOfYear from 'dayjs/plugin/quarterOfYear';
+import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
+
 dayjs.extend(quarterOfYear);
 
 const { Option } = Select;
@@ -12,13 +13,27 @@ const { Option } = Select;
 interface DateRangePickerWithTypeProps {
     minDate: Dayjs | undefined;
     maxDate: Dayjs | undefined;
-    onChange: (type: DateGranularity, start: Dayjs, end: Dayjs) => Promise<void>;
+    onChange: (type: DateGranularity, start?: Dayjs, end?: Dayjs) => Promise<void>;
+    allowedOptions?: DateGranularity[];
 }
 
 const DateRangePickerWithType: React.FC<DateRangePickerWithTypeProps> = (props) => {
+    const allOptions: { value: DateGranularity; picker: PickerMode; label: string }[] = [
+        { value: DateGranularity.Day, picker: 'date', label: "Date" },
+        { value: DateGranularity.Week, picker: 'week', label: "Week" },
+        { value: DateGranularity.Month, picker: 'month', label: "Month" },
+        { value: DateGranularity.Quarter, picker: 'quarter', label: "Quarter" },
+        { value: DateGranularity.Year, picker: 'year', label: "Year" },
+    ];
+    
     const [minDate, setMinDate] = useState<Dayjs | undefined>(undefined);
     const [maxDate, setMaxDate] = useState<Dayjs | undefined>(undefined);
-    const [mode, setMode] = useState<PickerMode>('date');
+    const [startDate, setStartDate] = useState<Dayjs | undefined>(undefined);
+    const [endDate, setEndDate] = useState<Dayjs | undefined>(undefined);
+    const [mode, setMode] = useState<PickerMode>(props.allowedOptions
+        ? allOptions.filter(opt => props.allowedOptions!.includes(opt.value))[0].picker
+        : allOptions[0].picker
+    );
     
     if (minDate === undefined) {
         setMinDate(props.minDate);
@@ -29,20 +44,7 @@ const DateRangePickerWithType: React.FC<DateRangePickerWithTypeProps> = (props) 
     }
     
     const mapToDateGranularity = (mode: PickerMode): DateGranularity => {
-        switch (mode) {
-            case 'date':
-                return DateGranularity.Day;
-            case 'week':
-                return DateGranularity.Week;
-            case 'month':
-                return DateGranularity.Month;
-            case 'quarter':
-                return DateGranularity.Quarter;
-            case 'year':
-                return DateGranularity.Year;
-            default:
-                throw new Error(`Unknown mode: ${mode}`);
-        }
+        return allOptions.find(option => option.picker === mode)!.value;
     }
 
     const mapToOpUnitType = (mode: PickerMode): OpUnitType | QUnitType => {
@@ -61,33 +63,45 @@ const DateRangePickerWithType: React.FC<DateRangePickerWithTypeProps> = (props) 
                 throw new Error(`Unknown mode: ${mode}`);
         }
     }
+    
+    const onModeChange = async (mode: PickerMode) => {
+        setMode(mode);
+        await props.onChange(mapToDateGranularity(mode), startDate, endDate);
+    }
 
-    const onChange = async (start: Dayjs, end: Dayjs) => {
+    const onDatesChange = async (start: Dayjs, end: Dayjs) => {
         const unitType = mapToOpUnitType(mode)
 
-        const startDate = start.startOf(unitType);
-        const endDate = end.endOf(unitType);
+        setStartDate(start.startOf(unitType));
+        setEndDate(end.endOf(unitType));
         
-        console.log('Start:', startDate)
-        console.log('End:', endDate)
-
         await props.onChange(mapToDateGranularity(mode), startDate, endDate);
-    };
+    }
+
+    const optionsToRender = props.allowedOptions
+        ? allOptions.filter(opt => props.allowedOptions!.includes(opt.value))
+        : allOptions;
 
     return (
         <Space direction='horizontal'>
-            <Select aria-label="Picker Type" value={mode} onChange={setMode} style={{width: 100}}>
-                <Option value="date">Date</Option>
-                <Option value="month">Month</Option>
-                <Option value="quarter">Quarter</Option>
-                <Option value="year">Year</Option>
+            <Select 
+                aria-label="Picker Type" 
+                value={mode} 
+                onChange={onModeChange} 
+                style={{width: 100}}
+            >
+                {optionsToRender.map(({ picker, label }) => (
+                    <Option value={picker}>
+                        {label}
+                    </Option>
+                ))}
             </Select>
             <DatePicker.RangePicker 
                 minDate={minDate}
                 maxDate={maxDate}
                 picker={mode}
                 onChange={async (dates, dateStrings) => {
-                    await onChange(dates![0]!, dates![1]!);
+                    await onDatesChange(dates![0]!, dates![1]!);
                 }} 
             />
         </Space>
