@@ -38,7 +38,10 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
 
     let columns = [
         buildDateColumn(),
-        ...buildComponentsColumns(props.columns, granularity, props.editable?.onUpdate),
+        ...buildComponentsColumns(props.columns, granularity, async (id, date, value) => {
+            setNewEntryDate(undefined);
+            await props.editable?.onUpdate(id, date, value);
+        }),
         buildSummaryColumn(),
         ...(props.buildExtraColumns
             ? props.buildExtraColumns!(granularity) 

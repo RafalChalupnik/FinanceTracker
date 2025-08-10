@@ -12,7 +12,7 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
     const MAIN_CURRENCY = 'PLN';
     
     const [amount, setAmount] = useState(props?.initialValue?.amount);
-    const [currency, setCurrency] = useState(props?.initialValue?.currency);
+    const [currency, setCurrency] = useState(props?.initialValue?.currency ?? 'PLN');
     const [amountInMainCurrency, setAmountInMainCurrency] = useState<number | undefined>(currency !== MAIN_CURRENCY
         ? props?.initialValue?.amountInMainCurrency
         : undefined);
@@ -51,7 +51,6 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
             />
             <Input 
                 value={currency}
-                placeholder="PLN" 
                 minLength={3} 
                 maxLength={3}
                 onChange={(e) => setCurrency(e.target.value)}
