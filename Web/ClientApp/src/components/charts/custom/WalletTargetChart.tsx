@@ -12,13 +12,24 @@ interface WalletTargetChartProps {
 const WalletTargetChart: FC<WalletTargetChartProps> = (props) => {
     let series = [
         {
-            name: 'Target',
+            name: 'Wallet',
             data: props.data
                 .filter(dataPoint => dataPoint.target?.percentage !== undefined)
                 .map(dataPoint => {
                     return {
                         date: dataPoint.key,
                         value: dataPoint.target?.percentage
+                    }
+                })
+        },
+        {
+            name: 'Target',
+            data: props.data
+                .filter(dataPoint => dataPoint.target?.percentage !== undefined)
+                .map(dataPoint => {
+                    return {
+                        date: dataPoint.key,
+                        value: 100
                     }
                 })
         }
