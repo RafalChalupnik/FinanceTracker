@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace FinanceTracker.Web.Migrations
+namespace FinanceTracker.Core.Migrations
 {
     /// <inheritdoc />
     public partial class CascadeDelete : Migration

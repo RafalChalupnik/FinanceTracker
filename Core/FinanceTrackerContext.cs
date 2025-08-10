@@ -1,8 +1,7 @@
-using FinanceTracker.Core;
 using FinanceTracker.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace FinanceTracker.Web;
+namespace FinanceTracker.Core;
 
 public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> options) : DbContext(options)
 {

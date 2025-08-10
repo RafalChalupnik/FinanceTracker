@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace FinanceTracker.Web.Migrations
+namespace FinanceTracker.Core.Migrations
 {
     /// <inheritdoc />
     public partial class IndexesAndNavProperties : Migration
