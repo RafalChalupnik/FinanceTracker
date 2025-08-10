@@ -6,5 +6,5 @@ public record EntityData(
     Guid? Id,
     string Name,
     IReadOnlyCollection<DateOnly> Dates,
-    Func<DateOnly, ValueSnapshotDto?> GetValueForDate
+    Func<DateOnly, EntityValueSnapshotDto?> GetValueForDate
 );

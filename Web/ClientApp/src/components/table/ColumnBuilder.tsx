@@ -8,7 +8,7 @@ import {
     WalletValueHistoryRecordDto
 } from "../../api/value-history/DTOs/EntityTableDto";
 import {MoneyDto} from "../../api/value-history/DTOs/Money";
-import {ValueSnapshotDto} from "../../api/value-history/DTOs/ValueSnapshotDto";
+import {EntityValueSnapshotDto, ValueSnapshotDto} from "../../api/value-history/DTOs/ValueSnapshotDto";
 import {DateGranularity} from "../../api/value-history/DTOs/DateGranularity";
 import {DeleteOutlined, ExclamationCircleOutlined} from "@ant-design/icons";
 import InflationForm from "../money/InflationForm";
@@ -184,6 +184,8 @@ function buildComponentColumns<T extends ValueHistoryRecordDto>(
     editableValue?: CustomEditableColumn<T>,
     fixed?: 'right' | undefined,
 ): ColumnGroup<T> {
+    
+    
     return {
         title: title,
         children: [
@@ -192,6 +194,7 @@ function buildComponentColumns<T extends ValueHistoryRecordDto>(
                 'Value',
                 record => selector(record)?.value,
                 false,
+                record => (selector(record) as EntityValueSnapshotDto)?.inferred ?? false,
                 fixed,
                 editableValue
             ),
@@ -200,6 +203,7 @@ function buildComponentColumns<T extends ValueHistoryRecordDto>(
                 'Change',
                 record => selector(record)?.change,
                 true,
+                record => false,
                 fixed
             ),
             buildMoneyColumn(
@@ -207,6 +211,7 @@ function buildComponentColumns<T extends ValueHistoryRecordDto>(
                 'Cumulative',
                 record => selector(record)?.cumulativeChange,
                 true,
+                record => false,
                 fixed
             )
         ]
@@ -218,6 +223,7 @@ function buildMoneyColumn<T extends ValueHistoryRecordDto>(
     title: string,
     selector: (record: T) => MoneyDto | undefined,
     colorCoding: boolean,
+    isInferred: (record: T) => boolean,
     fixed: 'right' | undefined,
     editable?: CustomEditableColumn<T>
 ): Column<T> {
@@ -229,6 +235,7 @@ function buildMoneyColumn<T extends ValueHistoryRecordDto>(
             <Money
                 value={selector(record)}
                 colorCoding={colorCoding}
+                isInferred={isInferred(record)}
             />
         ),
         editable: editable

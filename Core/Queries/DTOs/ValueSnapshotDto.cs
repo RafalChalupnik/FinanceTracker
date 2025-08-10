@@ -1,7 +1,13 @@
-using System.Text.Json.Serialization;
 using FinanceTracker.Core.Primitives;
 
 namespace FinanceTracker.Core.Queries.DTOs;
+
+public record EntityValueSnapshotDto(
+    Money Value,
+    bool Inferred,
+    Money? Change = null,
+    Money? CumulativeChange = null
+) : ValueSnapshotDto(Value, Change, CumulativeChange);
 
 public record ValueSnapshotDto
 {
@@ -19,7 +25,7 @@ public record ValueSnapshotDto
         CumulativeChange = cumulativeChange ?? Money.Empty with {Currency = value.Currency};
     }
 
-    public static ValueSnapshotDto? CalculateChanges(ValueSnapshotDto? previous, ValueSnapshotDto? current)
+    public static T? CalculateChanges<T>(T? previous, T? current) where T : ValueSnapshotDto
     {
         if (previous == null && current == null)
         {
@@ -43,8 +49,13 @@ public record ValueSnapshotDto
 
 public static class ValueSnapshotDtoExtensions
 {
-    public static ValueSnapshotDto? ToValueSnapshotDto(this Money? value) => 
+    public static EntityValueSnapshotDto? ToEntityValueSnapshotDto(this Money? value) => 
         value != null
-            ? new ValueSnapshotDto(value)
+            ? new EntityValueSnapshotDto(value, Inferred: true)
+            : null;
+    
+    public static EntityValueSnapshotDto? ToEntityValueSnapshotDto(this MoneyValue? value) => 
+        value != null
+            ? new EntityValueSnapshotDto(value.Value, Inferred: !value.ExactDate)
             : null;
 }

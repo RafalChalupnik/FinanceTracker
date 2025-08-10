@@ -44,12 +44,28 @@ public class Wallet : IEntityWithValueHistory, IOrderableEntity
     /// <summary>
     /// Gets value of the wallet for provided <see cref="DateOnly"/> in main currency.
     /// </summary>
-    public Money? GetValueFor(DateOnly date) =>
-        Components
+    public MoneyValue? GetValueFor(DateOnly date)
+    {
+        var moneyValues = Components
             .Select(component => component.GetValueFor(date))
             .WhereNotNull()
+            .ToArray();
+            
+        var money = moneyValues
+            .Select(moneyValue => moneyValue.Value)
             .ToArray()
             .Sum(mainCurrency: "PLN");
+
+        if (money == null)
+        {
+            return null;
+        }
+
+        return new MoneyValue(
+            Value: money,
+            ExactDate: moneyValues.All(value => value.ExactDate)
+        );
+    }
 
     /// <summary>
     /// Adds <see cref="Component"/> to the wallet.

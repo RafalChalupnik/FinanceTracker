@@ -1,4 +1,4 @@
-import {ValueSnapshotDto} from "./ValueSnapshotDto";
+import {EntityValueSnapshotDto, ValueSnapshotDto} from "./ValueSnapshotDto";
 
 export type EntityTableDto<T extends ValueHistoryRecordDto> = {
     columns: EntityColumnDto[],
@@ -12,7 +12,7 @@ export type EntityColumnDto = {
 
 export type ValueHistoryRecordDto = {
     key: string,
-    entities: (ValueSnapshotDto | undefined)[],
+    entities: (EntityValueSnapshotDto | undefined)[],
     summary: ValueSnapshotDto | undefined
 }
 

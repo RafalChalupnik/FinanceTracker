@@ -5,7 +5,8 @@ const { Text } = Typography;
 
 interface MoneyProps {
     value: Value | undefined,
-    colorCoding: boolean
+    colorCoding: boolean,
+    isInferred: boolean
 }
 
 interface Value {
@@ -49,7 +50,7 @@ const Money: FC<MoneyProps> = (props) => {
 
     const color = amountInMainCurrency !== 0 && props.colorCoding
         ? (amountInMainCurrency > 0 ? 'green' : 'red')
-        : 'black'
+        : (props.isInferred ? 'rgba(0, 0, 0, 0.25)' : 'black')
     
     return wrapInDiv(content, color);
 }

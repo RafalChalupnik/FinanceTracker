@@ -12,13 +12,13 @@ public record EntityColumnDto(
 
 public record ValueHistoryRecordDto(
     string Key,
-    IReadOnlyCollection<ValueSnapshotDto?> Entities,
+    IReadOnlyCollection<EntityValueSnapshotDto?> Entities,
     ValueSnapshotDto Summary
 );
 
 public record WalletValueHistoryRecordDto(
     string Key,
-    IReadOnlyCollection<ValueSnapshotDto?> Entities,
+    IReadOnlyCollection<EntityValueSnapshotDto?> Entities,
     ValueSnapshotDto Summary,
     YieldDto Yield
 ) : ValueHistoryRecordDto(Key, Entities, Summary);
@@ -36,7 +36,7 @@ public record InflationDto(
 
 public record WalletComponentsValueHistoryRecordDto(
     string Key,
-    IReadOnlyCollection<ValueSnapshotDto?> Entities,
+    IReadOnlyCollection<EntityValueSnapshotDto?> Entities,
     ValueSnapshotDto Summary,
     WalletTargetDto? Target
 ) : ValueHistoryRecordDto(Key, Entities, Summary);
