@@ -24,6 +24,14 @@ export async function deleteDebt(debtId: string) : Promise<void> {
     await sendDelete(`api/configuration/debts/${debtId}`);
 }
 
+export async function upsertPhysicalAllocation(physicalAllocation: OrderableEntityDto) : Promise<void> {
+    await sendPost('api/configuration/physical-allocations', physicalAllocation);
+}
+
+export async function deletePhysicalAllocation(physicalAllocationId: string) : Promise<void> {
+    await sendDelete(`api/configuration/physical-allocations/${physicalAllocationId}`);
+}
+
 export async function upsertWallet(wallet: OrderableEntityDto) : Promise<void> {
     await sendPost('api/configuration/wallets', wallet);
 }

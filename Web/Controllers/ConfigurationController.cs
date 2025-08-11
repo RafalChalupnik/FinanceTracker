@@ -49,7 +49,21 @@ public class ConfigurationController(
         await deleteEntityCommand.Delete<Debt>(debtId);
         return NoContent();
     }
-
+    
+    [HttpPost("physical-allocations")]
+    public async Task<IActionResult> UpsertPhysicalAllocation([FromBody] OrderableEntityDto physicalAllocation)
+    {
+        await upsertEntityCommand.Upsert<PhysicalAllocation>(physicalAllocation);
+        return NoContent();
+    }
+    
+    [HttpDelete("physical-allocations/{physicalAllocationId:guid}")]
+    public async Task<IActionResult> DeletePhysicalAllocation(Guid physicalAllocationId)
+    {
+        await deleteEntityCommand.Delete<PhysicalAllocation>(physicalAllocationId);
+        return NoContent();
+    }
+    
     [HttpPost("wallets")]
     public async Task<IActionResult> UpsertWallet([FromBody] OrderableEntityDto wallet)
     {

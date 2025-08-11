@@ -1,5 +1,6 @@
 using FinanceTracker.Core.Interfaces;
 using FinanceTracker.Core.Queries.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.Core.Queries;
 
@@ -10,7 +11,8 @@ public class ConfigQueries(FinanceTrackerContext dbContext)
         return new ConfigurationDto(
             Assets: GetOrderableEntities<Asset>(),
             Debts: GetOrderableEntities<Debt>(),
-            Wallets: GetWalletsWithComponents()
+            Wallets: GetWalletsWithComponents(),
+            PhysicalAllocations: GetOrderableEntities<PhysicalAllocation>()
         );
     }
 
@@ -25,6 +27,8 @@ public class ConfigQueries(FinanceTrackerContext dbContext)
     private WalletDataDto[] GetWalletsWithComponents()
     {
         return dbContext.Wallets
+            .Include(x => x.Components)
+            .AsEnumerable()
             .Select(wallet => new WalletDataDto(
                     wallet.Id,
                     wallet.Name,

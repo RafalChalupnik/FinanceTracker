@@ -6,10 +6,10 @@ import {buildDeleteColumn} from "../components/table/ColumnBuilder";
 import {ConfigurationDto, OrderableEntityDto, WalletDataDto} from "../api/configuration/DTOs/ConfigurationDto";
 import {
     deleteAsset,
-    deleteDebt, deleteWallet, deleteWalletComponent,
+    deleteDebt, deletePhysicalAllocation, deleteWallet, deleteWalletComponent,
     getConfiguration,
     upsertAsset,
-    upsertDebt,
+    upsertDebt, upsertPhysicalAllocation,
     upsertWallet, upsertWalletComponent
 } from "../api/configuration/Client";
 
@@ -139,6 +139,7 @@ const Configuration: React.FC = () => {
         assets: [],
         debts: [],
         wallets: [],
+        physicalAllocations: []
     });
     
     const populateData = async () => {
@@ -219,6 +220,19 @@ const Configuration: React.FC = () => {
                     />
                 ))}
             </Card>
+            
+            <EntityTable
+                title="Physical Allocations"
+                data={config.physicalAllocations}
+                onUpdate={async physicalAllocation => {
+                    await upsertPhysicalAllocation(physicalAllocation);
+                    await populateData();
+                }}
+                onDelete={async physicalAllocationId => {
+                    await deletePhysicalAllocation(physicalAllocationId);
+                    await populateData();
+                }}
+            />
         </Space>
     );
 };
