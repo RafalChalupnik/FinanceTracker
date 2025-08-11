@@ -130,6 +130,8 @@ public class Component : EntityWithValueHistory, IOrderableEntity
 {
     [Key]
     public Guid Id { get; init; } = Guid.NewGuid();
+    
+    public Guid? DefaultPhysicalAllocationId { get; set; }
 
     /// <summary>
     /// User-friendly name of the wallet component.

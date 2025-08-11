@@ -79,7 +79,7 @@ public class ConfigurationController(
     }
     
     [HttpPost("wallets/{walletId:guid}/components")]
-    public async Task<IActionResult> UpsertWalletComponent(Guid walletId, [FromBody] OrderableEntityDto component)
+    public async Task<IActionResult> UpsertWalletComponent(Guid walletId, [FromBody] WalletComponentDataDto component)
     {
         await upsertEntityCommand.UpsertWalletComponent(walletId, component);
         return NoContent();

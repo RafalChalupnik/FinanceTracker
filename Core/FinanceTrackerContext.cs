@@ -37,9 +37,15 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 b.HasKey(x => x.Id);
                 b.HasIndex(x => new {x.Id, x.Name}).IsUnique();
                 b.Property(x => x.DisplaySequence);
+                
                 b.HasMany(x => x.ValueHistory)
                     .WithOne()
                     .OnDelete(DeleteBehavior.Cascade);
+
+                b.HasOne<PhysicalAllocation>()
+                    .WithMany()
+                    .HasForeignKey(x => x.DefaultPhysicalAllocationId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
         
         modelBuilder.Entity<Debt>(

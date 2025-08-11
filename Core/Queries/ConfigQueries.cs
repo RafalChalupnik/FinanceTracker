@@ -39,6 +39,21 @@ public class ConfigQueries(FinanceTrackerContext dbContext)
             .OrderBy(x => x.DisplaySequence)
             .ToArray();
     }
+    
+    private static WalletComponentDataDto[] BuildOrderableEntityDtos(
+        IEnumerable<Component> components)
+    {
+        return components
+            .Select(component => new WalletComponentDataDto(
+                    Key: component.Id, 
+                    Name: component.Name, 
+                    DisplaySequence: component.DisplaySequence,
+                    DefaultPhysicalAllocationId: component.DefaultPhysicalAllocationId
+                )
+            )
+            .OrderBy(x => x.DisplaySequence)
+            .ToArray();
+    }
 
     private static OrderableEntityDto[] BuildOrderableEntityDtos(
         IEnumerable<IOrderableEntity> entities)

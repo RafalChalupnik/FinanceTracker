@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using FinanceTracker.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinanceTracker.Core.Migrations
 {
     [DbContext(typeof(FinanceTrackerContext))]
-    partial class FinanceTrackerContextModelSnapshot : ModelSnapshot
+    [Migration("20250811115328_AddedPhysicalAllocationToWalletComponent")]
+    partial class AddedPhysicalAllocationToWalletComponent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.7");

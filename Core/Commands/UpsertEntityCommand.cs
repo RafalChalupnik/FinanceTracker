@@ -27,7 +27,7 @@ public class UpsertEntityCommand(FinanceTrackerContext dbContext)
         await dbContext.SaveChangesAsync();
     }
 
-    public async ValueTask UpsertWalletComponent(Guid walletId, OrderableEntityDto updatedComponent)
+    public async ValueTask UpsertWalletComponent(Guid walletId, WalletComponentDataDto updatedComponent)
     {
         var alreadyExistingComponent = dbContext.Components
             .SingleOrDefault(component => component.Id == updatedComponent.Key);
@@ -36,6 +36,7 @@ public class UpsertEntityCommand(FinanceTrackerContext dbContext)
         {
             alreadyExistingComponent.Name = updatedComponent.Name;
             alreadyExistingComponent.DisplaySequence = updatedComponent.DisplaySequence;
+            alreadyExistingComponent.DefaultPhysicalAllocationId = updatedComponent.DefaultPhysicalAllocationId;
         }
         else
         {
@@ -43,7 +44,8 @@ public class UpsertEntityCommand(FinanceTrackerContext dbContext)
             {
                 Name = updatedComponent.Name,
                 DisplaySequence = updatedComponent.DisplaySequence,
-                WalletId = walletId
+                WalletId = walletId,
+                DefaultPhysicalAllocationId = updatedComponent.DefaultPhysicalAllocationId
             });
         }
         

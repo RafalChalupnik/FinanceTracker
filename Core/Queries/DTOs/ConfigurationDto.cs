@@ -17,5 +17,12 @@ public record WalletDataDto(
     Guid Key,
     string Name,
     int DisplaySequence,
-    IReadOnlyCollection<OrderableEntityDto> Components
+    IReadOnlyCollection<WalletComponentDataDto> Components
+) : OrderableEntityDto(Key, Name, DisplaySequence);
+
+public record WalletComponentDataDto(
+    Guid Key,
+    string Name,
+    int DisplaySequence,
+    Guid? DefaultPhysicalAllocationId
 ) : OrderableEntityDto(Key, Name, DisplaySequence);

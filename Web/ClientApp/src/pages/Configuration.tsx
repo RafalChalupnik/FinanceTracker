@@ -3,7 +3,12 @@ import {Input, Button, Space, Card, Popconfirm, Typography, InputNumber} from "a
 import {DeleteOutlined, PlusOutlined, SaveOutlined} from "@ant-design/icons";
 import {Column, ExtendableTable} from "../components/table/ExtendableTable";
 import {buildDeleteColumn} from "../components/table/ColumnBuilder";
-import {ConfigurationDto, OrderableEntityDto, WalletDataDto} from "../api/configuration/DTOs/ConfigurationDto";
+import {
+    ConfigurationDto,
+    OrderableEntityDto,
+    WalletComponentDataDto,
+    WalletDataDto
+} from "../api/configuration/DTOs/ConfigurationDto";
 import {
     deleteAsset,
     deleteDebt, deletePhysicalAllocation, deleteWallet, deleteWalletComponent,
@@ -12,25 +17,28 @@ import {
     upsertDebt, upsertPhysicalAllocation,
     upsertWallet, upsertWalletComponent
 } from "../api/configuration/Client";
+import {buildPhysicalAllocationColumn} from "../components/table/ConfigurationColumnBuilder";
 
 const {Text} = Typography;
 
-interface EntityTableProps {
+interface EntityTableProps<T extends OrderableEntityDto> {
     title: string | React.ReactNode;
-    data: OrderableEntityDto[];
-    onUpdate: (entity: OrderableEntityDto) => void | Promise<void>;
+    data: T[];
+    createNewRow: (sequence: number) => T;
+    onUpdate: (entity: T) => void | Promise<void>;
     onDelete: (entityId: string) => void | Promise<void>;
+    extraColumns?: Column<T>[];
 }
 
-const EntityTable: React.FC<EntityTableProps> = (props) => {
-    let [newEntry, setNewEntry] = useState<OrderableEntityDto | undefined>(undefined);
+function EntityTable<T extends OrderableEntityDto>(props: EntityTableProps<T>) {
+    let [newEntry, setNewEntry] = useState<T | undefined>(undefined);
     
-    const updateEntity = async (record: OrderableEntityDto) => {
+    const updateEntity = async (record: T) => {
         await props.onUpdate(record)
         setNewEntry(undefined);
     };
     
-    let columns : Column<OrderableEntityDto>[] = [
+    let columns : Column<T>[] = [
         {
             key: 'name',
             title: 'Name',
@@ -55,6 +63,7 @@ const EntityTable: React.FC<EntityTableProps> = (props) => {
                 }
             }
         },
+        ...props.extraColumns ?? [],
         buildDeleteColumn(async row => await props.onDelete(row.key))
     ]
 
@@ -65,11 +74,7 @@ const EntityTable: React.FC<EntityTableProps> = (props) => {
     }
 
     const handleAdd = () => {
-        const newItem: OrderableEntityDto = {
-            key: crypto.randomUUID(),
-            name: "New Item",
-            displaySequence: props.data.length + 1,
-        };
+        let newItem = props.createNewRow(props.data.length + 1);
         setNewEntry(newItem);
     };
 
@@ -85,15 +90,21 @@ const EntityTable: React.FC<EntityTableProps> = (props) => {
 
 interface WalletProps {
     wallet: WalletDataDto;
+    physicalAllocations: OrderableEntityDto[];
     onUpdateWallet: (wallet: OrderableEntityDto) => Promise<void>;
     onDeleteWallet: (walletId: string) => Promise<void>;
-    onUpdateComponent: (walletId: string, entity: OrderableEntityDto) => Promise<void>;
+    onUpdateComponent: (walletId: string, entity: WalletComponentDataDto) => Promise<void>;
     onDeleteComponent: (componentId: string) => Promise<void>;
 }
 
 const Wallet: React.FC<WalletProps> = (props) => {
     let [name, setName] = useState(props.wallet.name);
     let [sequence, setSequence] = useState(props.wallet.displaySequence);
+    
+    let physicalAllocationColumn = buildPhysicalAllocationColumn(
+        props.physicalAllocations,
+        async component => props.onUpdateComponent(props.wallet.key, component)
+    );
     
     return (
         <>
@@ -127,8 +138,15 @@ const Wallet: React.FC<WalletProps> = (props) => {
                     </Space>
                 }
                 data={props.wallet.components}
+                createNewRow={sequence => ({
+                    key: crypto.randomUUID(),
+                    name: "New Component",
+                    displaySequence: sequence,
+                    defaultPhysicalAllocationId: undefined
+                })}
                 onUpdate={async component => props.onUpdateComponent(props.wallet.key, component)}
                 onDelete={props.onDeleteComponent}
+                extraColumns={[physicalAllocationColumn]}
             />
         </>
     );
@@ -150,12 +168,21 @@ const Configuration: React.FC = () => {
     useEffect(() => {
         populateData()
     }, [])
+    
+    let createEmptyOrderableEntityDto = (sequence: number): OrderableEntityDto => {
+        return  {
+            key: crypto.randomUUID(),
+            name: "New Item",
+            displaySequence: sequence,
+        };
+    }
 
     return (
         <Space direction="vertical" style={{ width: "100%" }} size="large">
             <EntityTable
                 title="Assets"
                 data={config.assets}
+                createNewRow={createEmptyOrderableEntityDto}
                 onUpdate={async asset => {
                     await upsertAsset(asset);
                     await populateData();
@@ -169,6 +196,7 @@ const Configuration: React.FC = () => {
             <EntityTable
                 title="Debts"
                 data={config.debts}
+                createNewRow={createEmptyOrderableEntityDto}
                 onUpdate={async debt => {
                     await upsertDebt(debt);
                     await populateData();
@@ -201,6 +229,7 @@ const Configuration: React.FC = () => {
                 {config.wallets.map(wallet => (
                     <Wallet
                         wallet={wallet}
+                        physicalAllocations={config.physicalAllocations}
                         onUpdateWallet={async wallet => {
                             await upsertWallet(wallet);
                             await populateData();
@@ -224,6 +253,7 @@ const Configuration: React.FC = () => {
             <EntityTable
                 title="Physical Allocations"
                 data={config.physicalAllocations}
+                createNewRow={createEmptyOrderableEntityDto}
                 onUpdate={async physicalAllocation => {
                     await upsertPhysicalAllocation(physicalAllocation);
                     await populateData();
