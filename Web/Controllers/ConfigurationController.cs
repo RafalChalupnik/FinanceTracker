@@ -21,6 +21,10 @@ public class ConfigurationController(
     [HttpGet("wallets")]
     public OrderableEntityDto[] GetWallets()
         => query.GetWallets();
+    
+    [HttpGet("physical-allocations")]
+    public OrderableEntityDto[] GetPhysicalAllocations()
+        => query.GetPhysicalAllocations();
 
     [HttpPost("assets")]
     public async Task<IActionResult> UpsertAsset([FromBody] OrderableEntityDto asset)

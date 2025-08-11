@@ -8,6 +8,10 @@ export async function getWallets() : Promise<OrderableEntityDto[]> {
     return await sendGet('api/configuration/wallets');
 }
 
+export async function getPhysicalAllocations() : Promise<OrderableEntityDto[]> {
+    return await sendGet('api/configuration/physical-allocations');
+}
+
 export async function upsertAsset(asset: OrderableEntityDto) : Promise<void> {
     await sendPost('api/configuration/assets', asset);
 }

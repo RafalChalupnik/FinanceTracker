@@ -15,7 +15,7 @@ import PortfolioSummary from "./pages/PortfolioSummary";
 import WalletsSummary from './pages/WalletsSummary';
 import Wallet from "./pages/Wallet";
 import Configuration from "./pages/Configuration";
-import {getWallets} from "./api/configuration/Client";
+import {getPhysicalAllocations, getWallets} from "./api/configuration/Client";
 
 const { Header, Content } = Layout;
 
@@ -39,6 +39,10 @@ const navBarTemplate: { [key: string]: NavBarItem} = {
     },
     '/wallets': {
         label: 'Wallets',
+        icon: <WalletOutlined />,
+    },
+    '/physical-allocations': {
+        label: 'Physical Allocations',
         icon: <WalletOutlined />,
     },
     '/assets': {
@@ -78,6 +82,7 @@ const App: React.FC = () => {
 
     const populateData = async () => {
         const wallets = await getWallets();
+        const physicalAllocations = await getPhysicalAllocations();
 
         navBarTemplate['/wallets'].children = wallets.reduce((acc, wallet) => {
             acc[`/wallets:${wallet.key}`] = {
@@ -87,6 +92,20 @@ const App: React.FC = () => {
                         key={wallet.key} 
                         walletId={wallet.key}
                         name={wallet.name}
+                    />
+                )
+            };
+            return acc;
+        }, {} as Record<string, NavBarItem>);
+
+        navBarTemplate['/physical-allocations'].children = physicalAllocations.reduce((acc, allocation) => {
+            acc[`/physical-allocations:${allocation.key}`] = {
+                label: allocation.name,
+                component: (
+                    <Wallet
+                        key={allocation.key}
+                        walletId={allocation.key}
+                        name={allocation.name}
                     />
                 )
             };

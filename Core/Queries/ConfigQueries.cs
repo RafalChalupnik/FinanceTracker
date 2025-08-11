@@ -18,6 +18,9 @@ public class ConfigQueries(FinanceTrackerContext dbContext)
 
     public OrderableEntityDto[] GetWallets()
         => GetOrderableEntities<Wallet>();
+    
+    public OrderableEntityDto[] GetPhysicalAllocations()
+        => GetOrderableEntities<PhysicalAllocation>();
 
     private OrderableEntityDto[] GetOrderableEntities<T>() where T : class, IOrderableEntity =>
         BuildOrderableEntityDtos(
