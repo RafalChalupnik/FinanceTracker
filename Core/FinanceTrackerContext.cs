@@ -52,6 +52,17 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                     .WithOne()
                     .OnDelete(DeleteBehavior.Cascade);
             });
+        
+        modelBuilder.Entity<HistoricValue>(b =>
+        {
+            b.HasKey(x => x.Id);
+            b.Property(x => x.Date);
+            b.ComplexProperty(x => x.Value);
+
+            b.HasOne<PhysicalAllocation>()
+                .WithMany(x => x.ValueHistory)
+                .HasForeignKey(x => x.PhysicalAllocationId);
+        });
 
         modelBuilder.Entity<InflationHistoricValue>(b =>
             {
@@ -59,6 +70,16 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 b.HasIndex(x => new {x.Year, x.Month}).IsUnique();
             }
             );
+
+        modelBuilder.Entity<PhysicalAllocation>(b =>
+        {
+            b.HasKey(x => x.Id);
+            b.HasIndex(x => x.Name).IsUnique();
+            b.Property(x => x.DisplaySequence);
+            b.HasMany(x => x.ValueHistory)
+                .WithOne()
+                .OnDelete(DeleteBehavior.SetNull);
+        });
         
         modelBuilder.Entity<Wallet>(
             b =>
