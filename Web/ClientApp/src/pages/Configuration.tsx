@@ -34,8 +34,8 @@ function EntityTable<T extends OrderableEntityDto>(props: EntityTableProps<T>) {
     let [newEntry, setNewEntry] = useState<T | undefined>(undefined);
     
     const updateEntity = async (record: T) => {
-        await props.onUpdate(record)
         setNewEntry(undefined);
+        await props.onUpdate(record)
     };
     
     let columns : Column<T>[] = [
