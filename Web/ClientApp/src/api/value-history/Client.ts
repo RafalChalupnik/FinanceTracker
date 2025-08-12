@@ -84,8 +84,11 @@ export async function getWalletComponentsValueHistory(
     return await sendGet(`api/value-history/wallets/${walletId}/components`, granularity, from, to);
 }
 
-export async function setWalletComponentValue(id: string, date: string, value: MoneyDto) : Promise<void> {
-    await sendPut(`api/value-history/wallets/components/${id}/${date}`, value);
+export async function setWalletComponentValue(id: string, date: string, value: MoneyDto, physicalAllocationId?: string) : Promise<void> {
+    await sendPut(`api/value-history/wallets/components/${id}/${date}`, {
+        value: value,
+        physicalAllocationId: physicalAllocationId
+    });
 }
 
 export async function setInflation(year: number, month: number, value: number, confirmed: boolean) : Promise<void> {

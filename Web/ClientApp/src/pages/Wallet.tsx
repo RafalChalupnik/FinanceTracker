@@ -11,6 +11,8 @@ import {MoneyDto} from "../api/value-history/DTOs/Money";
 import {EntityTableDto, WalletComponentsValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
 import WalletTargetChart from "../components/charts/custom/WalletTargetChart";
 import {EditableMoneyComponent} from "../components/money/EditableMoneyComponent";
+import {OrderableEntityDto} from "../api/configuration/DTOs/ConfigurationDto";
+import { getPhysicalAllocations } from '../api/configuration/Client';
 
 interface WalletProps {
     walletId: string,
@@ -20,10 +22,15 @@ interface WalletProps {
 const Wallet: FC<WalletProps> = (props) => {
     const [isLoading, setIsLoading] = useState(true)
     const [wallet, setWallet] = useState<EntityTableDto<WalletComponentsValueHistoryRecordDto> | undefined>(undefined);
+    const [physicalAllocations, setPhysicalAllocations] = useState<OrderableEntityDto[]>([]);
 
     const populateData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => {
-        const response = await getWalletComponentsValueHistory(props.walletId, granularity, from, to)
-        setWallet(response)
+        const walletsResponse = await getWalletComponentsValueHistory(props.walletId, granularity, from, to)
+        setWallet(walletsResponse)
+        
+        const physicalAllocationsResponse = await getPhysicalAllocations();
+        setPhysicalAllocations(physicalAllocationsResponse);
+        
         setIsLoading(false)
     }
 
@@ -77,6 +84,7 @@ const Wallet: FC<WalletProps> = (props) => {
                         )
                     ]}
                     extra={extra}
+                    physicalAllocations={physicalAllocations}
                 />
             </EmptyConfig>
         );

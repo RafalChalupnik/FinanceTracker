@@ -16,6 +16,7 @@ import dayjs from "dayjs";
 import ColoredPercent from "../ColoredPercent";
 import MoneyForm from "../money/MoneyForm";
 import Money from "../money/Money";
+import {OrderableEntityDto} from "../../api/configuration/DTOs/ConfigurationDto";
 
 const {Text} = Typography;
 
@@ -33,10 +34,19 @@ export function buildComponentsColumns<T extends ValueHistoryRecordDto>(
     granularity: DateGranularity,
     showInferredValues: boolean,
     onUpdate?: (entityId: string, date: string, value: MoneyDto) => Promise<void>,
+    physicalAllocations?: OrderableEntityDto[],
+    defaultPhysicalAllocation?: string
 ): ColumnGroup<T>[] {
     return components.map((component, index) => {
         let editable = onUpdate !== undefined
-            ? buildEditableValue(component!.id!, index, granularity == DateGranularity.Day, onUpdate)
+            ? buildEditableValue(
+                component!.id!, 
+                index, 
+                granularity == DateGranularity.Day, 
+                onUpdate, 
+                physicalAllocations
+                defaultPhysicalAllocation
+            )
             : undefined;
         
         return buildComponentColumns(
@@ -249,7 +259,8 @@ function buildEditableValue<T extends ValueHistoryRecordDto>(
     componentId: string,
     index: number,
     isEditable: boolean,
-    onUpdate: (entityId: string, date: string, value: MoneyDto) => Promise<void>
+    onUpdate: (entityId: string, date: string, value: MoneyDto) => Promise<void>,
+    physicalAllocations?: OrderableEntityDto[],
 ): CustomEditableColumn<T> {
     return {
         isEditable: isEditable,
@@ -261,6 +272,8 @@ function buildEditableValue<T extends ValueHistoryRecordDto>(
                     closeCallback();
                 }}
                 onCancel={closeCallback}
+                physicalAllocations={physicalAllocations}
+                defaultPhysicalAllocation={defaultPhysicalAllocation}
             />
         )
     }

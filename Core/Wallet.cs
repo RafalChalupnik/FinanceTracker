@@ -147,7 +147,4 @@ public class Component : EntityWithValueHistory, IOrderableEntity
     /// ID of the wallet the component is part of.
     /// </summary>
     public Guid WalletId { get; init; }
-
-    protected override Guid? GetDefaultPhysicalAllocationId()
-        => DefaultPhysicalAllocationId;
 }

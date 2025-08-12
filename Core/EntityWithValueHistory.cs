@@ -13,8 +13,6 @@ public abstract class EntityWithValueHistory : IEntityWithValueHistory
 {
     private readonly List<HistoricValue> _valueHistory = [];
 
-    protected virtual Guid? GetDefaultPhysicalAllocationId() => null;
-    
     /// <summary>
     /// History of the value.
     /// </summary>
@@ -25,7 +23,7 @@ public abstract class EntityWithValueHistory : IEntityWithValueHistory
     /// <summary>
     /// Sets value for specific date.
     /// </summary>
-    public HistoricValue? SetValue(DateOnly date, Money value)
+    public HistoricValue? SetValue(DateOnly date, Money value, Guid? physicalAllocationId = null)
     {
         var alreadyExistingEntry = ValueHistory.FirstOrDefault(entry => entry.Date == date);
 
@@ -40,7 +38,7 @@ public abstract class EntityWithValueHistory : IEntityWithValueHistory
             Id = Guid.NewGuid(),
             Date = date,
             Value = value,
-            PhysicalAllocationId = GetDefaultPhysicalAllocationId()
+            PhysicalAllocationId = physicalAllocationId
         };
             
         _valueHistory.Add(newValue);

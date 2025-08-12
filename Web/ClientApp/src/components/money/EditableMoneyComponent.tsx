@@ -10,6 +10,7 @@ import {buildComponentsColumns, buildDateColumn, buildDeleteColumn, buildSummary
 import DateGranularityPicker from "../DateGranularityPicker";
 import MoneyChart from "../charts/custom/MoneyChart";
 import CompositionChart from "../charts/custom/CompositionChart";
+import {OrderableEntityDto} from "../../api/configuration/DTOs/ConfigurationDto";
 
 const { Title } = Typography;
 
@@ -24,6 +25,8 @@ interface EditableMoneyComponentProps<T> {
     extra?: React.ReactNode;
     allowedGranularities?: DateGranularity[];
     defaultGranularity?: DateGranularity;
+    physicalAllocations?: OrderableEntityDto[];
+    defaultPhysicalAllocation?: string;
 }
 
 interface EditableProps<T> {
@@ -51,7 +54,8 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
             props.columns, 
             granularity,
             props.showInferredValues ?? true,
-            onUpdate
+            onUpdate,
+            props.physicalAllocations
         ),
         buildSummaryColumn(),
         ...(props.buildExtraColumns

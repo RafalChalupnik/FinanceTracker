@@ -122,12 +122,16 @@ public class ValueHistoryController(
         => query.ForWallet(walletId, granularity, from: from, to: to);
     
     [HttpPut("wallets/components/{componentId:guid}/{date}")]
-    public async Task<IActionResult> SetWalletComponentValue(Guid componentId, DateOnly date, [FromBody] Money value)
+    public async Task<IActionResult> SetWalletComponentValue(
+        Guid componentId,
+        DateOnly date, 
+        [FromBody] WalletComponentValueUpdateDto update)
     {
-        await setEntityValueCommand.SetEntityValue<Component>(
-            entityId: componentId, 
+        await setEntityValueCommand.SetWalletComponentValue(
+            componentId: componentId, 
             date: date, 
-            value: value
+            value: update.Value,
+            physicalAllocationId: update.PhysicalAllocationId
         );
         
         return NoContent();
