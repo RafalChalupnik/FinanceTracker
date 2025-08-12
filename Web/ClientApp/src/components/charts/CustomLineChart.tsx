@@ -52,14 +52,6 @@ const CustomLineChart: React.FC<CustomLineChartProps> = ({
         );
     }, [series, xDataKey, yDataKey]);
 
-    const toggleSeries = (seriesName: string) => {
-        setHiddenSeries((prev) =>
-            prev.includes(seriesName)
-                ? prev.filter((name) => name !== seriesName)
-                : [...prev, seriesName]
-        );
-    };
-
     return (
         <div style={{ position: "relative", width: "100%", height: 320, padding: 16 }}>
             {/* Chart */}

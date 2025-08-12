@@ -35,13 +35,6 @@ const CustomAreaChart: FC<CustomAreaChartProps> = (props) => {
         );
     };
 
-    // Toggle visibility of a key
-    const toggleKey = (key: string) => {
-        setHiddenKeys((prev) =>
-            prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-        );
-    };
-
     return (
         <div style={{ position: "relative", width: "100%", height: 320, padding: 16 }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -49,7 +42,9 @@ const CustomAreaChart: FC<CustomAreaChartProps> = (props) => {
                     data={props.data}
                     margin={{ left: 40, right: 20, top: 20, bottom: 50 }} // bottom margin for legend
                 >
-                    <defs>{props.yDataKeys.map((_, idx) => buildGradientDefinition(idx))}</defs>
+                    <defs>
+                        {props.yDataKeys.map((_, idx) => buildGradientDefinition(idx))}
+                    </defs>
 
                     <XAxis
                         dataKey={props.xDataKey}
@@ -80,7 +75,6 @@ const CustomAreaChart: FC<CustomAreaChartProps> = (props) => {
                 </AreaChart>
             </ResponsiveContainer>
 
-            {/* Checkbox legend in bottom-right */}
             <div
                 style={{
                     position: "absolute",
