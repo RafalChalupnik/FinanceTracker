@@ -73,6 +73,15 @@ public class ValueHistoryController(
         return NoContent();
     }
     
+    [HttpGet("physical-allocations/{allocationId:guid}")]
+    public EntityTableDto<ValueHistoryRecordDto> GetPhysicalAllocationValueHistory(
+        Guid allocationId,
+        [FromQuery] DateGranularity? granularity, 
+        [FromQuery] DateOnly? from, 
+        [FromQuery] DateOnly? to
+    ) 
+        => query.ForPhysicalAllocations(allocationId, granularity, from: from, to: to);
+    
     [HttpGet("portfolio")]
     public EntityTableDto<ValueHistoryRecordDto> GetPortfolioValueHistory(
         [FromQuery] DateGranularity? granularity, 

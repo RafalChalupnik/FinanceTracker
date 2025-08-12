@@ -39,6 +39,15 @@ export async function deleteDebtsValues(date: string) : Promise<void> {
     await sendDelete(`api/value-history/debts/${date}`);
 }
 
+export async function getPhysicalAllocationValueHistory(
+    allocationId: string,
+    granularity?: DateGranularity,
+    from?: Dayjs,
+    to?: Dayjs
+) : Promise<EntityTableDto<ValueHistoryRecordDto>> {
+    return await sendGet(`api/value-history/physical-allocations/${allocationId}`, granularity, from, to);
+}
+
 export async function getPortfolioValueHistory(
     granularity?: DateGranularity,
     from?: Dayjs,

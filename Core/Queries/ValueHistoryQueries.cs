@@ -1,5 +1,6 @@
 using FinanceTracker.Core.Extensions;
 using FinanceTracker.Core.Interfaces;
+using FinanceTracker.Core.Primitives;
 using FinanceTracker.Core.Queries.DTOs;
 using FinanceTracker.Core.Queries.Implementation;
 using FinanceTracker.Core.Queries.Implementation.DTOs;
@@ -73,6 +74,71 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
 
         return EntityTableDtoBuilder.BuildEntityTableDto(
             orderedEntities: entities,
+            rows: records
+                .Select(record => record.ToValueHistoryRecord())
+                .ToArray()
+        );
+    }
+    
+    public EntityTableDto<ValueHistoryRecordDto> ForPhysicalAllocations(
+        Guid physicalAllocationId, 
+        DateGranularity? granularity, 
+        DateOnly? from, 
+        DateOnly? to
+        )
+    {
+        var allocation = dbContext.PhysicalAllocations
+            .Include(x => x.ValueHistory)
+            .ThenInclude(x => x.Component)
+            .First(x => x.Id == physicalAllocationId)!;
+
+        var valuesGroupedByComponent = allocation.ValueHistory
+            .Where(value => value.Component != null)
+            .GroupBy(x => x.Component!);
+
+        var orderedEntities = valuesGroupedByComponent
+            .OrderBy(x => x.Key.DisplaySequence)
+            .Select(componentValues =>
+            {
+                var orderedValues = componentValues
+                    .OrderByDescending(x => x.Date)
+                    .ToArray();
+
+                return new EntityData(
+                    Id: componentValues.Key.Id,
+                    Name: componentValues.Key.Name,
+                    Dates: orderedValues.Select(x => x.Date).Distinct().ToArray(),
+                    GetValueForDate: date =>
+                    {
+                        // TODO: Make an extension method from EntityWithValueHistory
+
+                        var historicValue = orderedValues
+                            .FirstOrDefault(x => x.Date <= date);
+                        // .Value;
+
+                        if (historicValue == null)
+                        {
+                            return null;
+                        }
+
+                        return new MoneyValue(
+                            Value: historicValue.Value,
+                            ExactDate: historicValue.Date == date
+                        ).ToEntityValueSnapshotDto();
+                    }
+                );
+            })
+            .ToArray();
+        
+        var records = RecordsBuilder.BuildValueRecords(
+            orderedEntities: orderedEntities,
+            granularity,
+            fromDate: from,
+            toDate: to
+        );
+        
+        return EntityTableDtoBuilder.BuildEntityTableDto(
+            orderedEntities: orderedEntities,
             rows: records
                 .Select(record => record.ToValueHistoryRecord())
                 .ToArray()

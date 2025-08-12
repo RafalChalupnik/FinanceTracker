@@ -14,6 +14,8 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
     
     public DbSet<InflationHistoricValue> InflationValues { get; set; }
     
+    public DbSet<PhysicalAllocation> PhysicalAllocations { get; set; }
+    
     public DbSet<Wallet> Wallets { get; set; }
     
     public DbSet<WalletTarget> WalletTargets { get; set; }
@@ -39,7 +41,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 b.Property(x => x.DisplaySequence);
                 
                 b.HasMany(x => x.ValueHistory)
-                    .WithOne()
+                    .WithOne(x => x.Component)
                     .OnDelete(DeleteBehavior.Cascade);
 
                 b.HasOne<PhysicalAllocation>()

@@ -16,6 +16,7 @@ import WalletsSummary from './pages/WalletsSummary';
 import Wallet from "./pages/Wallet";
 import Configuration from "./pages/Configuration";
 import {getPhysicalAllocations, getWallets} from "./api/configuration/Client";
+import PhysicalAllocation from "./pages/PhysicalAllocation";
 
 const { Header, Content } = Layout;
 
@@ -102,9 +103,9 @@ const App: React.FC = () => {
             acc[`/physical-allocations:${allocation.key}`] = {
                 label: allocation.name,
                 component: (
-                    <Wallet
+                    <PhysicalAllocation
                         key={allocation.key}
-                        walletId={allocation.key}
+                        allocationId={allocation.key}
                         name={allocation.name}
                     />
                 )
