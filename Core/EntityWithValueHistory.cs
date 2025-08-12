@@ -65,7 +65,8 @@ public abstract class EntityWithValueHistory : IEntityWithValueHistory
 
         return new MoneyValue(
             Value: historicValue.Value,
-            ExactDate: historicValue.Date == date
+            ExactDate: historicValue.Date == date,
+            PhysicalAllocationId: historicValue.PhysicalAllocationId
         );
     }
 }

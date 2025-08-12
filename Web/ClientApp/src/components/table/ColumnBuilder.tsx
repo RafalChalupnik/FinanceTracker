@@ -34,8 +34,7 @@ export function buildComponentsColumns<T extends ValueHistoryRecordDto>(
     granularity: DateGranularity,
     showInferredValues: boolean,
     onUpdate?: (entityId: string, date: string, value: MoneyDto) => Promise<void>,
-    physicalAllocations?: OrderableEntityDto[],
-    defaultPhysicalAllocation?: string
+    physicalAllocations?: OrderableEntityDto[]
 ): ColumnGroup<T>[] {
     return components.map((component, index) => {
         let editable = onUpdate !== undefined
@@ -45,7 +44,6 @@ export function buildComponentsColumns<T extends ValueHistoryRecordDto>(
                 granularity == DateGranularity.Day, 
                 onUpdate, 
                 physicalAllocations
-                defaultPhysicalAllocation
             )
             : undefined;
         
@@ -273,7 +271,7 @@ function buildEditableValue<T extends ValueHistoryRecordDto>(
                 }}
                 onCancel={closeCallback}
                 physicalAllocations={physicalAllocations}
-                defaultPhysicalAllocation={defaultPhysicalAllocation}
+                defaultPhysicalAllocation={record.entities[index]?.physicalAllocationId}
             />
         )
     }

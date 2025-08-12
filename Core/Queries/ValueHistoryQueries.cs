@@ -123,7 +123,8 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
 
                         return new MoneyValue(
                             Value: historicValue.Value,
-                            ExactDate: historicValue.Date == date
+                            ExactDate: historicValue.Date == date,
+                            PhysicalAllocationId: physicalAllocationId
                         ).ToEntityValueSnapshotDto();
                     }
                 );

@@ -63,7 +63,8 @@ public class Wallet : IEntityWithValueHistory, IOrderableEntity
 
         return new MoneyValue(
             Value: money,
-            ExactDate: moneyValues.All(value => value.ExactDate)
+            ExactDate: moneyValues.All(value => value.ExactDate),
+            PhysicalAllocationId: null
         );
     }
 

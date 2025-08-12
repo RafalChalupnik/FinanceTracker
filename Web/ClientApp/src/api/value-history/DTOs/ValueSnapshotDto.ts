@@ -1,7 +1,8 @@
 import { MoneyDto } from "./Money";
 
 export type EntityValueSnapshotDto = ValueSnapshotDto & {
-    inferred: boolean
+    inferred: boolean,
+    physicalAllocationId: string | undefined
 }
 
 export type ValueSnapshotDto = {
