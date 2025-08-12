@@ -1,13 +1,11 @@
 import {OrderableEntityDto} from "../api/configuration/DTOs/ConfigurationDto";
 import React, {FC} from "react";
-import {Button, Select, Space} from "antd";
-import {CloseOutlined, SaveOutlined} from "@ant-design/icons";
+import {Select, Space} from "antd";
 
 interface PhysicalAllocationPickerProps {
-    physicalAllocations: OrderableEntityDto[],
-    onUpdate: (physicalAllocationId: string | undefined) => void | Promise<void>
-    onCancel?: () => void;
-    defaultValue?: string,
+    physicalAllocations: OrderableEntityDto[];
+    initialValue: string | undefined;
+    onChange: (value: string | undefined) => void;
 }
 
 interface PhysicalAllocationOption {
@@ -28,36 +26,25 @@ const PhysicalAllocationPicker: FC<PhysicalAllocationPickerProps> = (props) => {
             }
         }))
     ]
+    
+    let defaultOption = options.find(option => option.value === props.initialValue) ?? options[0];
 
-    let [currentValue, setCurrentValue] = React.useState<PhysicalAllocationOption>(
-        options.find(option => option.value === props.defaultValue) ?? options[0]
-    );
-
-    const save = async () => {
-        let newId = currentValue.value !== ''
-            ? currentValue.value
+    const onChange = (selectedOption: PhysicalAllocationOption) => {
+        let newId = selectedOption.value !== ''
+            ? selectedOption.value
             : undefined;
-
-        await props.onUpdate(newId);
+        
+        props.onChange(newId);
     }
 
     return (
         <Space direction='horizontal'>
             <Select
                 labelInValue
-                defaultValue={currentValue}
+                defaultValue={defaultOption}
                 style={{ width: 200 }}
                 options={options}
-                onChange={setCurrentValue}
-            />
-            <Button
-                icon={<SaveOutlined />}
-                // onClick={() => props.onSave(currentValue)}
-                onClick={save}
-            />
-            <Button
-                icon={<CloseOutlined />}
-                onClick={props.onCancel}
+                onChange={onChange}
             />
         </Space>
     );

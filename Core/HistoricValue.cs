@@ -10,7 +10,7 @@ public class HistoricValue
     
     public Component? Component { get; init; }
     
-    public Guid? PhysicalAllocationId { get; init; }
+    public Guid? PhysicalAllocationId { get; set; }
     
     public DateOnly Date { get; init; }
     

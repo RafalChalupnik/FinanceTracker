@@ -72,8 +72,8 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
             {props.physicalAllocations && (
                 <PhysicalAllocationPicker 
                     physicalAllocations={props.physicalAllocations} 
-                    defaultValue={props.defaultPhysicalAllocation}
-                    onUpdate={setPhysicalAllocationId}
+                    initialValue={props.defaultPhysicalAllocation}
+                    onChange={setPhysicalAllocationId}
                 />
             )}
             <SaveCancelButtons 

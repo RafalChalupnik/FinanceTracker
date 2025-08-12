@@ -30,6 +30,7 @@ public abstract class EntityWithValueHistory : IEntityWithValueHistory
         if (alreadyExistingEntry != null)
         {
             alreadyExistingEntry.Value = value;
+            alreadyExistingEntry.PhysicalAllocationId = physicalAllocationId;
             return null;
         }
 
