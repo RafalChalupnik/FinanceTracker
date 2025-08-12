@@ -52,6 +52,7 @@ export function buildComponentsColumns<T extends ValueHistoryRecordDto>(
             : undefined;
         
         return buildComponentColumns(
+            component.name,
             areAllComponentsInSameWallet
                 ? component.name
                 : renderComponentTitle(component.parentName!, component.name),
@@ -63,7 +64,7 @@ export function buildComponentsColumns<T extends ValueHistoryRecordDto>(
 }
 
 export function buildSummaryColumn<T extends ValueHistoryRecordDto>(): ColumnGroup<T> {
-    return buildComponentColumns('Summary', record => record.summary, false, undefined, 'right');
+    return buildComponentColumns('summary', 'Summary', record => record.summary, false, undefined, 'right');
 }
 
 export function buildDeleteColumn<T>(
@@ -184,6 +185,7 @@ function renderComponentTitle(walletName: string, componentName: string) {
 }
 
 function buildComponentColumns<T extends ValueHistoryRecordDto>(
+    key: string,
     title: string | ReactNode,
     selector: (record: T) => ValueSnapshotDto | undefined,
     showInferredValues: boolean,
@@ -194,7 +196,7 @@ function buildComponentColumns<T extends ValueHistoryRecordDto>(
         title: title,
         children: [
             buildMoneyColumn(
-                `${title}-value`,
+                `${key}-value`,
                 'Value',
                 record => selector(record)?.value,
                 false,
@@ -203,7 +205,7 @@ function buildComponentColumns<T extends ValueHistoryRecordDto>(
                 editableValue
             ),
             buildMoneyColumn(
-                `${title}-change`,
+                `${key}-change`,
                 'Change',
                 record => selector(record)?.change,
                 true,
@@ -211,7 +213,7 @@ function buildComponentColumns<T extends ValueHistoryRecordDto>(
                 fixed
             ),
             buildMoneyColumn(
-                `${title}-cumulative`,
+                `${key}-cumulative`,
                 'Cumulative',
                 record => selector(record)?.cumulativeChange,
                 true,
