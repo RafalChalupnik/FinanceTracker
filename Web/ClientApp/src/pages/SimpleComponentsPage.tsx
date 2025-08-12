@@ -18,8 +18,8 @@ interface SimpleComponentsPageProps<T extends ValueHistoryRecordDto> {
 
 interface EditableProps<T> {
     createEmptyRow: (date: Dayjs, columns: EntityColumnDto[]) => T;
-    setValue: (id: string, date: string, value: MoneyDto) => Promise<void>;
-    deleteValues: (date: string) => void | Promise<void>;   
+    setValue: (id: string, date: string, value: MoneyDto, physicalAllocationId?: string) => Promise<void>;
+    deleteValues?: (date: string) => void | Promise<void>;   
 }
 
 export function SimpleComponentsPage<T extends ValueHistoryRecordDto>(props: SimpleComponentsPageProps<T>) {
@@ -49,7 +49,7 @@ export function SimpleComponentsPage<T extends ValueHistoryRecordDto>(props: Sim
     }
 
     const deleteEvaluations = async (date: string) => {
-        await props.editable!.deleteValues(date)
+        await props.editable!.deleteValues!(date)
         await populateData()
     }
     
@@ -57,7 +57,9 @@ export function SimpleComponentsPage<T extends ValueHistoryRecordDto>(props: Sim
         ? {
             createEmptyRow: props.editable!.createEmptyRow,
             onUpdate: updateEntity,
-            onDelete: deleteEvaluations
+            onDelete: props.editable?.deleteValues !== undefined
+                ? deleteEvaluations
+                : undefined
         }
         : undefined;
     

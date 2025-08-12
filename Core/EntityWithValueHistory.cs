@@ -12,7 +12,7 @@ internal interface IEntityWithValueHistory
 public abstract class EntityWithValueHistory : IEntityWithValueHistory
 {
     private readonly List<HistoricValue> _valueHistory = [];
-    
+
     /// <summary>
     /// History of the value.
     /// </summary>
@@ -23,13 +23,14 @@ public abstract class EntityWithValueHistory : IEntityWithValueHistory
     /// <summary>
     /// Sets value for specific date.
     /// </summary>
-    public HistoricValue? SetValue(DateOnly date, Money value)
+    public HistoricValue? SetValue(DateOnly date, Money value, Guid? physicalAllocationId = null)
     {
         var alreadyExistingEntry = ValueHistory.FirstOrDefault(entry => entry.Date == date);
 
         if (alreadyExistingEntry != null)
         {
             alreadyExistingEntry.Value = value;
+            alreadyExistingEntry.PhysicalAllocationId = physicalAllocationId;
             return null;
         }
 
@@ -37,7 +38,8 @@ public abstract class EntityWithValueHistory : IEntityWithValueHistory
         {
             Id = Guid.NewGuid(),
             Date = date,
-            Value = value
+            Value = value,
+            PhysicalAllocationId = physicalAllocationId
         };
             
         _valueHistory.Add(newValue);
@@ -64,7 +66,8 @@ public abstract class EntityWithValueHistory : IEntityWithValueHistory
 
         return new MoneyValue(
             Value: historicValue.Value,
-            ExactDate: historicValue.Date == date
+            ExactDate: historicValue.Date == date,
+            PhysicalAllocationId: historicValue.PhysicalAllocationId
         );
     }
 }

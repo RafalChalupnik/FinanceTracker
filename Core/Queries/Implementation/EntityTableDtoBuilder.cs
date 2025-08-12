@@ -14,7 +14,10 @@ internal static class EntityTableDtoBuilder
             Columns: orderedEntities
                 .Select(entity => new EntityColumnDto(
                     Name: entity.Name,
-                    Id: entity.Id)
+                    ParentName: entity.ParentName,
+                    Id: entity.Id,
+                    DefaultPhysicalAllocationId: entity.DefaultPhysicalAllocationId
+                    )
                 )
                 .ToArray(),
             Rows: rows

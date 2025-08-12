@@ -1,25 +1,24 @@
-using FinanceTracker.Core.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.Core.Commands;
 
-public class DeleteValuesForDate(IRepository repository)
+public class DeleteValuesForDate(FinanceTrackerContext dbContext)
 {
     public async ValueTask DeleteValues<T>(DateOnly date)
         where T : EntityWithValueHistory
     {
-        var entitiesToDelete = repository.GetEntitiesWithValueHistory<T>()
+        await dbContext.Set<T>()
             .SelectMany(entity => entity.ValueHistory)
-            .Where(entry => entry.Date == date);
-        
-        await repository.DeleteAsync(entitiesToDelete);
+            .Where(entry => entry.Date == date)
+            .ExecuteDeleteAsync();
     }
     
     public async ValueTask DeleteWalletValues(Guid walletId, DateOnly date)
     {
-        var entitiesToDelete = repository.GetComponentsForWallet(walletId)
+        await dbContext.Components
+            .Where(component => component.WalletId == walletId)
             .SelectMany(entity => entity.ValueHistory)
-            .Where(entry => entry.Date == date);
-        
-        await repository.DeleteAsync(entitiesToDelete);
+            .Where(entry => entry.Date == date)
+            .ExecuteDeleteAsync();
     }
 }

@@ -21,6 +21,10 @@ public class ConfigurationController(
     [HttpGet("wallets")]
     public OrderableEntityDto[] GetWallets()
         => query.GetWallets();
+    
+    [HttpGet("physical-allocations")]
+    public OrderableEntityDto[] GetPhysicalAllocations()
+        => query.GetPhysicalAllocations();
 
     [HttpPost("assets")]
     public async Task<IActionResult> UpsertAsset([FromBody] OrderableEntityDto asset)
@@ -49,7 +53,21 @@ public class ConfigurationController(
         await deleteEntityCommand.Delete<Debt>(debtId);
         return NoContent();
     }
-
+    
+    [HttpPost("physical-allocations")]
+    public async Task<IActionResult> UpsertPhysicalAllocation([FromBody] OrderableEntityDto physicalAllocation)
+    {
+        await upsertEntityCommand.Upsert<PhysicalAllocation>(physicalAllocation);
+        return NoContent();
+    }
+    
+    [HttpDelete("physical-allocations/{physicalAllocationId:guid}")]
+    public async Task<IActionResult> DeletePhysicalAllocation(Guid physicalAllocationId)
+    {
+        await deleteEntityCommand.Delete<PhysicalAllocation>(physicalAllocationId);
+        return NoContent();
+    }
+    
     [HttpPost("wallets")]
     public async Task<IActionResult> UpsertWallet([FromBody] OrderableEntityDto wallet)
     {
@@ -65,7 +83,7 @@ public class ConfigurationController(
     }
     
     [HttpPost("wallets/{walletId:guid}/components")]
-    public async Task<IActionResult> UpsertWalletComponent(Guid walletId, [FromBody] OrderableEntityDto component)
+    public async Task<IActionResult> UpsertWalletComponent(Guid walletId, [FromBody] WalletComponentDataDto component)
     {
         await upsertEntityCommand.UpsertWalletComponent(walletId, component);
         return NoContent();

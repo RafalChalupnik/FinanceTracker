@@ -8,6 +8,10 @@ public class HistoricValue
     [Key]
     public Guid Id { get; init; }
     
+    public Component? Component { get; init; }
+    
+    public Guid? PhysicalAllocationId { get; set; }
+    
     public DateOnly Date { get; init; }
     
     public required Money Value { get; set; }

@@ -1,9 +1,8 @@
 using FinanceTracker.Core.Commands.DTOs;
-using FinanceTracker.Core.Interfaces;
 
 namespace FinanceTracker.Core.Commands;
 
-public class SetInflationValueCommand(IRepository repository)
+public class SetInflationValueCommand(FinanceTrackerContext dbContext)
 {
     public async ValueTask SetInflationValue(InflationUpdateDto update)
     {
@@ -12,7 +11,7 @@ public class SetInflationValueCommand(IRepository repository)
             throw new ArgumentException("Invalid month", nameof(update.Month));
         }
         
-        var alreadyExistingValue = repository.GetEntities<InflationHistoricValue>()
+        var alreadyExistingValue = dbContext.InflationValues
             .FirstOrDefault(historicValue => historicValue.Year == update.Year && historicValue.Month == update.Month);
 
         if (alreadyExistingValue != null)
@@ -22,7 +21,7 @@ public class SetInflationValueCommand(IRepository repository)
         }
         else
         {
-            repository.Add(new InflationHistoricValue
+            dbContext.InflationValues.Add(new InflationHistoricValue
             {
                 Year = update.Year,
                 Month = update.Month,
@@ -31,6 +30,6 @@ public class SetInflationValueCommand(IRepository repository)
             });
         }
         
-        await repository.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
     }
 }

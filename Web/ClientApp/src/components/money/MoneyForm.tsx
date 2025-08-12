@@ -2,11 +2,16 @@ import React, { FC, useState } from "react";
 import {Alert, Button, Input, InputNumber, Space} from "antd";
 import {MoneyDto} from "../../api/value-history/DTOs/Money";
 import {CloseOutlined, SaveOutlined} from "@ant-design/icons";
+import {OrderableEntityDto} from "../../api/configuration/DTOs/ConfigurationDto";
+import PhysicalAllocationPicker from "../PhysicalAllocationPicker";
+import SaveCancelButtons from "../SaveCancelButtons";
 
 interface MoneyFormProps {
     initialValue: MoneyDto | undefined;
-    onSave: (value: MoneyDto) => (void | Promise<void>);
+    onSave: (value: MoneyDto, physicalAllocationId?: string) => (void | Promise<void>);
     onCancel: () => void;
+    physicalAllocations?: OrderableEntityDto[],
+    defaultPhysicalAllocation?: string
 }
 
 const MoneyForm: FC<MoneyFormProps> = (props) => {
@@ -17,6 +22,7 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
     const [amountInMainCurrency, setAmountInMainCurrency] = useState<number | undefined>(currency !== MAIN_CURRENCY
         ? props?.initialValue?.amountInMainCurrency
         : undefined);
+    const [physicalAllocationId, setPhysicalAllocationId] = useState<string | undefined>(undefined);
     const [alertVisible, setAlertVisible] = useState(false);
     
     const save = () => {
@@ -35,7 +41,7 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
                 : amount,
         }
         
-        props.onSave(money);
+        props.onSave(money, physicalAllocationId);
     }
     
     return (
@@ -63,10 +69,17 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
                 placeholder="0,00"
                 onChange={(e) => setAmountInMainCurrency( e?.valueOf())}
             />}
-            <Space direction={"horizontal"}>
-                <Button icon={<SaveOutlined/>} onClick={save}/>
-                <Button icon={<CloseOutlined/>} onClick={props.onCancel}/>
-            </Space>
+            {props.physicalAllocations && (
+                <PhysicalAllocationPicker 
+                    physicalAllocations={props.physicalAllocations} 
+                    initialValue={props.defaultPhysicalAllocation}
+                    onChange={setPhysicalAllocationId}
+                />
+            )}
+            <SaveCancelButtons 
+                onSave={save} 
+                onCancel={props.onCancel}
+            />
         </Space>
     );
 }

@@ -63,7 +63,8 @@ public class Wallet : IEntityWithValueHistory, IOrderableEntity
 
         return new MoneyValue(
             Value: money,
-            ExactDate: moneyValues.All(value => value.ExactDate)
+            ExactDate: moneyValues.All(value => value.ExactDate),
+            PhysicalAllocationId: null
         );
     }
 
@@ -130,6 +131,8 @@ public class Component : EntityWithValueHistory, IOrderableEntity
 {
     [Key]
     public Guid Id { get; init; } = Guid.NewGuid();
+    
+    public Guid? DefaultPhysicalAllocationId { get; set; }
 
     /// <summary>
     /// User-friendly name of the wallet component.
@@ -145,4 +148,9 @@ public class Component : EntityWithValueHistory, IOrderableEntity
     /// ID of the wallet the component is part of.
     /// </summary>
     public Guid WalletId { get; init; }
+    
+    /// <summary>
+    /// Wallet the component is part of.
+    /// </summary>
+    public Wallet? Wallet { get; init; }
 }

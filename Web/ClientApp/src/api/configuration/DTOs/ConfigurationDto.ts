@@ -1,7 +1,8 @@
 export type ConfigurationDto = {
     assets: OrderableEntityDto[],
     debts: OrderableEntityDto[],
-    wallets: WalletDataDto[]
+    wallets: WalletDataDto[],
+    physicalAllocations: OrderableEntityDto[]
 }
 
 export type OrderableEntityDto = {
@@ -11,5 +12,9 @@ export type OrderableEntityDto = {
 }
 
 export type WalletDataDto = OrderableEntityDto & {
-    components: OrderableEntityDto[]
+    components: WalletComponentDataDto[]
 }
+
+export type WalletComponentDataDto = OrderableEntityDto & {
+    defaultPhysicalAllocationId: string | undefined
+};

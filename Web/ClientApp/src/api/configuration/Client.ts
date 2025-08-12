@@ -1,4 +1,4 @@
-import {ConfigurationDto, OrderableEntityDto} from "./DTOs/ConfigurationDto";
+import {ConfigurationDto, OrderableEntityDto, WalletComponentDataDto} from "./DTOs/ConfigurationDto";
 
 export async function getConfiguration() : Promise<ConfigurationDto> {
     return await sendGet('api/configuration');
@@ -6,6 +6,10 @@ export async function getConfiguration() : Promise<ConfigurationDto> {
 
 export async function getWallets() : Promise<OrderableEntityDto[]> {
     return await sendGet('api/configuration/wallets');
+}
+
+export async function getPhysicalAllocations() : Promise<OrderableEntityDto[]> {
+    return await sendGet('api/configuration/physical-allocations');
 }
 
 export async function upsertAsset(asset: OrderableEntityDto) : Promise<void> {
@@ -24,6 +28,14 @@ export async function deleteDebt(debtId: string) : Promise<void> {
     await sendDelete(`api/configuration/debts/${debtId}`);
 }
 
+export async function upsertPhysicalAllocation(physicalAllocation: OrderableEntityDto) : Promise<void> {
+    await sendPost('api/configuration/physical-allocations', physicalAllocation);
+}
+
+export async function deletePhysicalAllocation(physicalAllocationId: string) : Promise<void> {
+    await sendDelete(`api/configuration/physical-allocations/${physicalAllocationId}`);
+}
+
 export async function upsertWallet(wallet: OrderableEntityDto) : Promise<void> {
     await sendPost('api/configuration/wallets', wallet);
 }
@@ -32,7 +44,7 @@ export async function deleteWallet(walletId: string) : Promise<void> {
     await sendDelete(`api/configuration/wallets/${walletId}`);
 }
 
-export async function upsertWalletComponent(walletId: string, component: OrderableEntityDto) : Promise<void> {
+export async function upsertWalletComponent(walletId: string, component: WalletComponentDataDto) : Promise<void> {
     await sendPost(
         `api/configuration/wallets/${walletId}/components`,
         component

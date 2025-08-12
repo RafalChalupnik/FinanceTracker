@@ -73,6 +73,15 @@ public class ValueHistoryController(
         return NoContent();
     }
     
+    [HttpGet("physical-allocations/{allocationId:guid}")]
+    public EntityTableDto<ValueHistoryRecordDto> GetPhysicalAllocationValueHistory(
+        Guid allocationId,
+        [FromQuery] DateGranularity? granularity, 
+        [FromQuery] DateOnly? from, 
+        [FromQuery] DateOnly? to
+    ) 
+        => query.ForPhysicalAllocations(allocationId, granularity, from: from, to: to);
+    
     [HttpGet("portfolio")]
     public EntityTableDto<ValueHistoryRecordDto> GetPortfolioValueHistory(
         [FromQuery] DateGranularity? granularity, 
@@ -113,12 +122,16 @@ public class ValueHistoryController(
         => query.ForWallet(walletId, granularity, from: from, to: to);
     
     [HttpPut("wallets/components/{componentId:guid}/{date}")]
-    public async Task<IActionResult> SetWalletComponentValue(Guid componentId, DateOnly date, [FromBody] Money value)
+    public async Task<IActionResult> SetWalletComponentValue(
+        Guid componentId,
+        DateOnly date, 
+        [FromBody] WalletComponentValueUpdateDto update)
     {
-        await setEntityValueCommand.SetEntityValue<Component>(
-            entityId: componentId, 
+        await setEntityValueCommand.SetWalletComponentValue(
+            componentId: componentId, 
             date: date, 
-            value: value
+            value: update.Value,
+            physicalAllocationId: update.PhysicalAllocationId
         );
         
         return NoContent();

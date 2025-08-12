@@ -6,3 +6,8 @@ public record MoneyUpdateDto(
     DateOnly Date,
     Money Value
 );
+
+public record WalletComponentValueUpdateDto(
+    Money Value,
+    Guid? PhysicalAllocationId
+);

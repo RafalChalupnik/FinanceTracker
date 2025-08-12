@@ -2,6 +2,7 @@ import {Alert, Button, Checkbox, InputNumber, Space} from "antd";
 import React, {FC, useState} from "react";
 import {CloseOutlined, SaveOutlined} from "@ant-design/icons";
 import {InflationDto} from "../../api/value-history/DTOs/EntityTableDto";
+import SaveCancelButtons from "../SaveCancelButtons";
 
 interface InflationFormProps {
     year: number,
@@ -48,8 +49,10 @@ const InflationForm: FC<InflationFormProps> = (props) => {
                     Is confirmed?
                 </Checkbox>
             </Space>
-            <Button icon={<SaveOutlined/>} onClick={save}/>
-            <Button icon={<CloseOutlined/>} onClick={props.closeCallback}/>
+            <SaveCancelButtons 
+                onSave={save} 
+                onCancel={props.closeCallback}
+            />
         </Space>
     );
 }

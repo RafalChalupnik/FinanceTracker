@@ -7,13 +7,17 @@ export type EntityTableDto<T extends ValueHistoryRecordDto> = {
 
 export type EntityColumnDto = {
     name: string,
-    id: string | undefined
+    parentName: string | undefined,
+    id: string | undefined,
+    defaultPhysicalAllocationId: string | undefined
 }
 
 export type ValueHistoryRecordDto = {
     key: string,
     entities: (EntityValueSnapshotDto | undefined)[],
     summary: ValueSnapshotDto | undefined
+    // Used internally
+    newEntry?: boolean,
 }
 
 export type WalletValueHistoryRecordDto = ValueHistoryRecordDto & {

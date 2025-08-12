@@ -1,36 +1,57 @@
 using FinanceTracker.Core.Interfaces;
 using FinanceTracker.Core.Queries.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.Core.Queries;
 
-public class ConfigQueries(IRepository repository)
+public class ConfigQueries(FinanceTrackerContext dbContext)
 {
     public ConfigurationDto GetConfiguration()
     {
         return new ConfigurationDto(
             Assets: GetOrderableEntities<Asset>(),
             Debts: GetOrderableEntities<Debt>(),
-            Wallets: GetWalletsWithComponents()
+            Wallets: GetWalletsWithComponents(),
+            PhysicalAllocations: GetOrderableEntities<PhysicalAllocation>()
         );
     }
 
     public OrderableEntityDto[] GetWallets()
         => GetOrderableEntities<Wallet>();
+    
+    public OrderableEntityDto[] GetPhysicalAllocations()
+        => GetOrderableEntities<PhysicalAllocation>();
 
     private OrderableEntityDto[] GetOrderableEntities<T>() where T : class, IOrderableEntity =>
         BuildOrderableEntityDtos(
-            repository.GetOrderableEntities<T>()
+            dbContext.Set<T>()
         );
 
     private WalletDataDto[] GetWalletsWithComponents()
     {
-        return repository.GetWallets(includeValueHistory: false, includeTargets: false)
+        return dbContext.Wallets
+            .Include(x => x.Components)
             .AsEnumerable()
             .Select(wallet => new WalletDataDto(
-                    Key: wallet.Id,
-                    Name: wallet.Name,
-                    DisplaySequence: wallet.DisplaySequence,
-                    Components: BuildOrderableEntityDtos(wallet.Components)
+                    wallet.Id,
+                    wallet.Name,
+                    wallet.DisplaySequence,
+                    BuildOrderableEntityDtos(wallet.Components)
+                )
+            )
+            .OrderBy(x => x.DisplaySequence)
+            .ToArray();
+    }
+    
+    private static WalletComponentDataDto[] BuildOrderableEntityDtos(
+        IEnumerable<Component> components)
+    {
+        return components
+            .Select(component => new WalletComponentDataDto(
+                    Key: component.Id, 
+                    Name: component.Name, 
+                    DisplaySequence: component.DisplaySequence,
+                    DefaultPhysicalAllocationId: component.DefaultPhysicalAllocationId
                 )
             )
             .OrderBy(x => x.DisplaySequence)

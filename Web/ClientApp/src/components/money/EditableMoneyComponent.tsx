@@ -10,6 +10,7 @@ import {buildComponentsColumns, buildDateColumn, buildDeleteColumn, buildSummary
 import DateGranularityPicker from "../DateGranularityPicker";
 import MoneyChart from "../charts/custom/MoneyChart";
 import CompositionChart from "../charts/custom/CompositionChart";
+import {OrderableEntityDto} from "../../api/configuration/DTOs/ConfigurationDto";
 
 const { Title } = Typography;
 
@@ -24,12 +25,14 @@ interface EditableMoneyComponentProps<T> {
     extra?: React.ReactNode;
     allowedGranularities?: DateGranularity[];
     defaultGranularity?: DateGranularity;
+    physicalAllocations?: OrderableEntityDto[];
+    defaultPhysicalAllocation?: string;
 }
 
 interface EditableProps<T> {
     createEmptyRow: (date: Dayjs, columns: EntityColumnDto[]) => T;
-    onUpdate: (id: string, date: string, value: MoneyDto) => Promise<void>;
-    onDelete: (date: string) => Promise<void>;
+    onUpdate: (id: string, date: string, value: MoneyDto, physicalAllocationId?: string) => Promise<void>;
+    onDelete?: (date: string) => Promise<void>;
 } 
 
 export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: EditableMoneyComponentProps<T>) {
@@ -39,9 +42,9 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
     const [granularity, setGranularity] = useState<DateGranularity>(props.defaultGranularity ?? DateGranularity.Day);
     
     let onUpdate = props.editable !== undefined
-        ? async (id: string, date: string, value: MoneyDto) => {
+        ? async (id: string, date: string, value: MoneyDto, physicalAllocationId?: string) => {
             setNewEntryDate(undefined);
-            await props.editable?.onUpdate(id, date, value);
+            await props.editable?.onUpdate(id, date, value, physicalAllocationId);
         }
         : undefined;
 
@@ -51,7 +54,8 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
             props.columns, 
             granularity,
             props.showInferredValues ?? true,
-            onUpdate
+            onUpdate,
+            props.physicalAllocations
         ),
         buildSummaryColumn(),
         ...(props.buildExtraColumns
@@ -60,9 +64,9 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
         )
     ]
     
-    if (props.editable && granularity == DateGranularity.Day) {
+    if (props.editable?.onDelete !== undefined && granularity == DateGranularity.Day) {
         columns.push(
-            buildDeleteColumn(async row => await props.editable!.onDelete(row.key))  
+            buildDeleteColumn(async row => await props.editable!.onDelete!(row.key))  
         );
     }
     
@@ -84,10 +88,12 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
         if (newEntryDate === undefined) {
             return props.rows;
         }
+        
+        let newRow = props.editable!.createEmptyRow(newEntryDate, props.columns)
 
         let newData = [
             ...props.rows,
-            props.editable!.createEmptyRow(newEntryDate, props.columns)
+            newRow
         ]
 
         return newData.sort((a, b) => dayjs(a.key).unix() - dayjs(b.key).unix());

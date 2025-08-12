@@ -1,5 +1,5 @@
 import {Column, ColumnGroup, CustomEditableColumn} from "./ExtendableTable";
-import React from "react";
+import React, {ReactNode} from "react";
 import {Popconfirm, Space, Tooltip, Typography} from "antd";
 import {
     EntityColumnDto,
@@ -16,6 +16,7 @@ import dayjs from "dayjs";
 import ColoredPercent from "../ColoredPercent";
 import MoneyForm from "../money/MoneyForm";
 import Money from "../money/Money";
+import {OrderableEntityDto} from "../../api/configuration/DTOs/ConfigurationDto";
 
 const {Text} = Typography;
 
@@ -32,15 +33,29 @@ export function buildComponentsColumns<T extends ValueHistoryRecordDto>(
     components: EntityColumnDto[],
     granularity: DateGranularity,
     showInferredValues: boolean,
-    onUpdate?: (entityId: string, date: string, value: MoneyDto) => Promise<void>,
+    onUpdate?: (entityId: string, date: string, value: MoneyDto, physicalAllocationId?: string) => Promise<void>,
+    physicalAllocations?: OrderableEntityDto[]
 ): ColumnGroup<T>[] {
+    let areAllComponentsInSameWallet = components
+        .every(component => component.parentName == components[0].parentName);
+    
     return components.map((component, index) => {
         let editable = onUpdate !== undefined
-            ? buildEditableValue(component!.id!, index, granularity == DateGranularity.Day, onUpdate)
+            ? buildEditableValue(
+                component!.id!, 
+                index, 
+                granularity == DateGranularity.Day, 
+                onUpdate, 
+                physicalAllocations,
+                component.defaultPhysicalAllocationId
+            )
             : undefined;
         
         return buildComponentColumns(
-            component.name, 
+            component.name,
+            areAllComponentsInSameWallet
+                ? component.name
+                : renderComponentTitle(component.parentName!, component.name),
             record => record.entities[index],
             showInferredValues,
             editable
@@ -49,7 +64,7 @@ export function buildComponentsColumns<T extends ValueHistoryRecordDto>(
 }
 
 export function buildSummaryColumn<T extends ValueHistoryRecordDto>(): ColumnGroup<T> {
-    return buildComponentColumns('Summary', record => record.summary, false, undefined, 'right');
+    return buildComponentColumns('summary', 'Summary', record => record.summary, false, undefined, 'right');
 }
 
 export function buildDeleteColumn<T>(
@@ -160,40 +175,28 @@ export function buildInflationColumn<T extends WalletValueHistoryRecordDto>(
     }
 }
 
-function renderPercent(value: number | undefined | null, colorCoding: boolean) {
-    if (value === undefined || value === null) {
-        return (
-            <div style={{ cursor: 'pointer', textAlign: 'right' }}>
-                -
-            </div>
-        );
-    }
-    
-    const color = colorCoding && value !== 0
-        ? (value > 0 ? 'green' : 'red')
-        : 'black'
-    
+function renderComponentTitle(walletName: string, componentName: string) {
     return (
-        <div style={{ cursor: 'pointer', color, textAlign: 'right' }}>
-            {`${value.toFixed(2)}%`}
-        </div>
+        <Space direction='vertical'>
+            <Text>{walletName}</Text>
+            <Text>{componentName}</Text>
+        </Space>
     );
 }
 
 function buildComponentColumns<T extends ValueHistoryRecordDto>(
-    title: string,
+    key: string,
+    title: string | ReactNode,
     selector: (record: T) => ValueSnapshotDto | undefined,
     showInferredValues: boolean,
     editableValue?: CustomEditableColumn<T>,
     fixed?: 'right' | undefined,
 ): ColumnGroup<T> {
-    
-    
     return {
         title: title,
         children: [
             buildMoneyColumn(
-                `${title}-value`,
+                `${key}-value`,
                 'Value',
                 record => selector(record)?.value,
                 false,
@@ -202,7 +205,7 @@ function buildComponentColumns<T extends ValueHistoryRecordDto>(
                 editableValue
             ),
             buildMoneyColumn(
-                `${title}-change`,
+                `${key}-change`,
                 'Change',
                 record => selector(record)?.change,
                 true,
@@ -210,7 +213,7 @@ function buildComponentColumns<T extends ValueHistoryRecordDto>(
                 fixed
             ),
             buildMoneyColumn(
-                `${title}-cumulative`,
+                `${key}-cumulative`,
                 'Cumulative',
                 record => selector(record)?.cumulativeChange,
                 true,
@@ -249,19 +252,29 @@ function buildEditableValue<T extends ValueHistoryRecordDto>(
     componentId: string,
     index: number,
     isEditable: boolean,
-    onUpdate: (entityId: string, date: string, value: MoneyDto) => Promise<void>
+    onUpdate: (entityId: string, date: string, value: MoneyDto, physicalAllocationId?: string) => Promise<void>,
+    physicalAllocations?: OrderableEntityDto[],
+    defaultPhysicalAllocation?: string | undefined
 ): CustomEditableColumn<T> {
     return {
         isEditable: isEditable,
-        renderEditable: (record, closeCallback) => (
-            <MoneyForm
-                initialValue={record.entities[index]?.value}
-                onSave={async money => {
-                    await onUpdate(componentId, record.key, money);
-                    closeCallback();
-                }}
-                onCancel={closeCallback}
-            />
-        )
+        renderEditable: (record, closeCallback) => {
+            let initialPhysicalAllocationId = record.newEntry
+                ? defaultPhysicalAllocation
+                : record.entities[index]?.physicalAllocationId;
+            
+            return (
+                <MoneyForm
+                    initialValue={record.entities[index]?.value}
+                    onSave={async (money, physicalAllocationId) => {
+                        await onUpdate(componentId, record.key, money, physicalAllocationId);
+                        closeCallback();
+                    }}
+                    onCancel={closeCallback}
+                    physicalAllocations={physicalAllocations}
+                    defaultPhysicalAllocation={initialPhysicalAllocationId}
+                />
+            );
+        }
     }
 }

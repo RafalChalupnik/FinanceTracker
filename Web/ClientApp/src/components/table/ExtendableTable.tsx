@@ -1,7 +1,8 @@
-import React, {FC} from "react";
+import React, {FC, ReactNode} from "react";
 import {Button, Input, Popconfirm, Space, Table} from "antd";
 import type {ColumnGroupType, ColumnType} from "antd/es/table";
-import {CloseOutlined, DeleteOutlined, EditOutlined, SaveOutlined} from "@ant-design/icons";
+import {EditOutlined} from "@ant-design/icons";
+import SaveCancelButtons from "../SaveCancelButtons";
 
 interface DefaultEditableCellProps {
     initialValue: any | undefined;
@@ -21,13 +22,9 @@ const DefaultEditableCell : FC<DefaultEditableCellProps> = (props) => {
                 onBlur={() => props.onSave(currentValue)}
                 // autoFocus
             />
-            <Button
-                icon={<SaveOutlined />}
-                onClick={() => props.onSave(currentValue)}
-            />
-            <Button
-                icon={<CloseOutlined />}
-                onClick={props.onCancel}
+            <SaveCancelButtons 
+                onSave={() => props.onSave(currentValue)} 
+                onCancel={props.onCancel}
             />
         </Space>
     );
@@ -47,7 +44,7 @@ export interface Column<T> {
 }
 
 export interface ColumnGroup<T> {
-    title: string;
+    title: string | ReactNode;
     children: (Column<T> | ColumnGroup<T>)[];
 }
 
