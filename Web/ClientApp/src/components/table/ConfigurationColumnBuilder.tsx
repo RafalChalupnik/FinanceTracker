@@ -36,7 +36,7 @@ export function buildPhysicalAllocationColumn(
 ): Column<WalletComponentDataDto> {
     return {
         key: 'defaultPhysicalAllocationId',
-        title: 'Physical Allocation',
+        title: 'Default Physical Allocation',
         render: row => {
             return physicalAllocations
                 .find(allocation => allocation.key === row.defaultPhysicalAllocationId)
