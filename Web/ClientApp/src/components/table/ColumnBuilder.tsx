@@ -179,7 +179,6 @@ function renderComponentTitle(walletName: string, componentName: string) {
         <Space direction='vertical'>
             <Text>{walletName}</Text>
             <Text>{componentName}</Text>
-            {/*<Text style={{ color: 'rgba(0, 0, 0, 0.25)' }}>{componentName}</Text>*/}
         </Space>
     );
 }
@@ -258,9 +257,9 @@ function buildEditableValue<T extends ValueHistoryRecordDto>(
     return {
         isEditable: isEditable,
         renderEditable: (record, closeCallback) => {
-            let initialPhysicalAllocationId = record.key !== ''
-                ? record.entities[index]?.physicalAllocationId
-                : defaultPhysicalAllocation;
+            let initialPhysicalAllocationId = record.newEntry
+                ? defaultPhysicalAllocation
+                : record.entities[index]?.physicalAllocationId;
             
             return (
                 <MoneyForm

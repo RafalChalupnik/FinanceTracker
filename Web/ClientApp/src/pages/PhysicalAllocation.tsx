@@ -1,6 +1,6 @@
 import SimpleComponentsPage from "./SimpleComponentsPage";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
-import {getPhysicalAllocationValueHistory} from "../api/value-history/Client";
+import {getPhysicalAllocationValueHistory, setWalletComponentValue} from "../api/value-history/Client";
 import {FC} from "react";
 
 interface PhysicalAllocationProps {
@@ -18,6 +18,17 @@ const PhysicalAllocation: FC<PhysicalAllocationProps> = (props) => {
             from,
             to
         )}
+        editable={{
+            createEmptyRow: (date, columns) => {
+                return {
+                    key: date.format("YYYY-MM-DD"),
+                    entities: columns.map(_ => undefined),
+                    summary: undefined,
+                    target: undefined,
+                }
+            },
+            setValue: setWalletComponentValue
+        }}
     />;
 };
 

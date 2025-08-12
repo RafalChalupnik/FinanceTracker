@@ -67,6 +67,7 @@ const Wallet: FC<WalletProps> = (props) => {
                                 entities: columns.map(_ => undefined),
                                 summary: undefined,
                                 target: undefined,
+                                newEntry: true
                             }
                         },
                         onUpdate: updateComponent,

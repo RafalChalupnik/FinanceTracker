@@ -16,6 +16,8 @@ export type ValueHistoryRecordDto = {
     key: string,
     entities: (EntityValueSnapshotDto | undefined)[],
     summary: ValueSnapshotDto | undefined
+    // Used internally
+    newEntry?: boolean,
 }
 
 export type WalletValueHistoryRecordDto = ValueHistoryRecordDto & {
