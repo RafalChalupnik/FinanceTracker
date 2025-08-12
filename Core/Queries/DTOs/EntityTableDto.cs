@@ -7,6 +7,7 @@ public record EntityTableDto<T>(
 
 public record EntityColumnDto(
     string Name,
+    string? ParentName,
     Guid? Id,
     Guid? DefaultPhysicalAllocationId
 );

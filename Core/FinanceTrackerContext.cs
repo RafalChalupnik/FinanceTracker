@@ -96,7 +96,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 b.HasIndex(x => x.Name).IsUnique();
                 b.Property(x => x.DisplaySequence);
                 b.HasMany(x => x.Components)
-                    .WithOne()
+                    .WithOne(x => x.Wallet)
                     .HasForeignKey(x => x.WalletId)
                     .IsRequired()
                     .OnDelete(DeleteBehavior.Cascade);

@@ -1,4 +1,4 @@
-import React, {FC} from "react";
+import React, {FC, ReactNode} from "react";
 import {Button, Input, Popconfirm, Space, Table} from "antd";
 import type {ColumnGroupType, ColumnType} from "antd/es/table";
 import {EditOutlined} from "@ant-design/icons";
@@ -44,7 +44,7 @@ export interface Column<T> {
 }
 
 export interface ColumnGroup<T> {
-    title: string;
+    title: string | ReactNode;
     children: (Column<T> | ColumnGroup<T>)[];
 }
 

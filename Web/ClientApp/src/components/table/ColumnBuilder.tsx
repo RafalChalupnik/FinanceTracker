@@ -1,5 +1,5 @@
 import {Column, ColumnGroup, CustomEditableColumn} from "./ExtendableTable";
-import React from "react";
+import React, {ReactNode} from "react";
 import {Popconfirm, Space, Tooltip, Typography} from "antd";
 import {
     EntityColumnDto,
@@ -36,6 +36,9 @@ export function buildComponentsColumns<T extends ValueHistoryRecordDto>(
     onUpdate?: (entityId: string, date: string, value: MoneyDto, physicalAllocationId?: string) => Promise<void>,
     physicalAllocations?: OrderableEntityDto[]
 ): ColumnGroup<T>[] {
+    let areAllComponentsInSameWallet = components
+        .every(component => component.parentName == components[0].parentName);
+    
     return components.map((component, index) => {
         let editable = onUpdate !== undefined
             ? buildEditableValue(
@@ -49,7 +52,9 @@ export function buildComponentsColumns<T extends ValueHistoryRecordDto>(
             : undefined;
         
         return buildComponentColumns(
-            component.name, 
+            areAllComponentsInSameWallet
+                ? component.name
+                : renderComponentTitle(component.parentName!, component.name),
             record => record.entities[index],
             showInferredValues,
             editable
@@ -169,35 +174,23 @@ export function buildInflationColumn<T extends WalletValueHistoryRecordDto>(
     }
 }
 
-function renderPercent(value: number | undefined | null, colorCoding: boolean) {
-    if (value === undefined || value === null) {
-        return (
-            <div style={{ cursor: 'pointer', textAlign: 'right' }}>
-                -
-            </div>
-        );
-    }
-    
-    const color = colorCoding && value !== 0
-        ? (value > 0 ? 'green' : 'red')
-        : 'black'
-    
+function renderComponentTitle(walletName: string, componentName: string) {
     return (
-        <div style={{ cursor: 'pointer', color, textAlign: 'right' }}>
-            {`${value.toFixed(2)}%`}
-        </div>
+        <Space direction='vertical'>
+            <Text>{walletName}</Text>
+            <Text>{componentName}</Text>
+            {/*<Text style={{ color: 'rgba(0, 0, 0, 0.25)' }}>{componentName}</Text>*/}
+        </Space>
     );
 }
 
 function buildComponentColumns<T extends ValueHistoryRecordDto>(
-    title: string,
+    title: string | ReactNode,
     selector: (record: T) => ValueSnapshotDto | undefined,
     showInferredValues: boolean,
     editableValue?: CustomEditableColumn<T>,
     fixed?: 'right' | undefined,
 ): ColumnGroup<T> {
-    
-    
     return {
         title: title,
         children: [

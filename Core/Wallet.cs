@@ -148,4 +148,9 @@ public class Component : EntityWithValueHistory, IOrderableEntity
     /// ID of the wallet the component is part of.
     /// </summary>
     public Guid WalletId { get; init; }
+    
+    /// <summary>
+    /// Wallet the component is part of.
+    /// </summary>
+    public Wallet? Wallet { get; init; }
 }
