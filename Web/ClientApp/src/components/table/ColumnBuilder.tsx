@@ -43,7 +43,8 @@ export function buildComponentsColumns<T extends ValueHistoryRecordDto>(
                 index, 
                 granularity == DateGranularity.Day, 
                 onUpdate, 
-                physicalAllocations
+                physicalAllocations,
+                component.defaultPhysicalAllocationId
             )
             : undefined;
         
@@ -259,6 +260,7 @@ function buildEditableValue<T extends ValueHistoryRecordDto>(
     isEditable: boolean,
     onUpdate: (entityId: string, date: string, value: MoneyDto, physicalAllocationId?: string) => Promise<void>,
     physicalAllocations?: OrderableEntityDto[],
+    defaultPhysicalAllocation?: string | undefined
 ): CustomEditableColumn<T> {
     return {
         isEditable: isEditable,
@@ -271,7 +273,7 @@ function buildEditableValue<T extends ValueHistoryRecordDto>(
                 }}
                 onCancel={closeCallback}
                 physicalAllocations={physicalAllocations}
-                defaultPhysicalAllocation={record.entities[index]?.physicalAllocationId}
+                defaultPhysicalAllocation={record.entities[index]?.physicalAllocationId ?? defaultPhysicalAllocation}
             />
         )
     }

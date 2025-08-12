@@ -7,7 +7,8 @@ export type EntityTableDto<T extends ValueHistoryRecordDto> = {
 
 export type EntityColumnDto = {
     name: string,
-    id: string | undefined
+    id: string | undefined,
+    defaultPhysicalAllocationId: string | undefined
 }
 
 export type ValueHistoryRecordDto = {

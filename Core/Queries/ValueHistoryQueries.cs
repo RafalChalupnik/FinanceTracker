@@ -107,6 +107,7 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
                 return new EntityData(
                     Id: componentValues.Key.Id,
                     Name: componentValues.Key.Name,
+                    DefaultPhysicalAllocationId: null,
                     Dates: orderedValues.Select(x => x.Date).Distinct().ToArray(),
                     GetValueForDate: date =>
                     {
@@ -292,6 +293,7 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
             Id: null,
             Name: name,
             Dates: dates,
+            DefaultPhysicalAllocationId: null,
             GetValueForDate: date => entities
                 .Select(entity => entity.GetValueFor(date))
                 .WhereNotNull()
@@ -302,10 +304,20 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
         );
     }
     
+    private static EntityData BuildEntityData(Component component) =>
+        new EntityData(
+            Name: component.Name,
+            Dates: component.GetEvaluationDates().ToArray(),
+            DefaultPhysicalAllocationId: component.DefaultPhysicalAllocationId,
+            GetValueForDate: date => component.GetValueFor(date).ToEntityValueSnapshotDto(),
+            Id: component.Id
+        );
+    
     private static EntityData BuildEntityData<T>(T entity) where T : IEntityWithValueHistory, IOrderableEntity =>
         new EntityData(
             Name: entity.Name,
             Dates: entity.GetEvaluationDates().ToArray(),
+            DefaultPhysicalAllocationId: null,
             GetValueForDate: date => entity.GetValueFor(date).ToEntityValueSnapshotDto(),
             Id: entity.Id
         );

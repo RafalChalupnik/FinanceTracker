@@ -7,7 +7,8 @@ public record EntityTableDto<T>(
 
 public record EntityColumnDto(
     string Name,
-    Guid? Id
+    Guid? Id,
+    Guid? DefaultPhysicalAllocationId
 );
 
 public record ValueHistoryRecordDto(
