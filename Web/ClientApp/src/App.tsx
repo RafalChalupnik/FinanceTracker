@@ -144,8 +144,8 @@ const App: React.FC = () => {
         <Layout style={{ minHeight: '100vh' }}>
             <Header style={{ display: 'flex', alignItems: 'center' }}>
                 <Space>
-                    <EuroCircleOutlined style={{ margin: 0, color: 'lightgray' }}/>
                     <Typography.Title level={3} style={{ margin: 0, color: 'lightgray' }}>
+                        <EuroCircleOutlined style={{ margin: 0, color: 'lightgray', paddingRight: '10px' }}/>
                         Finance Tracker
                     </Typography.Title>
                 </Space>
