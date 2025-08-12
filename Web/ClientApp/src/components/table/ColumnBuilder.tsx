@@ -264,17 +264,23 @@ function buildEditableValue<T extends ValueHistoryRecordDto>(
 ): CustomEditableColumn<T> {
     return {
         isEditable: isEditable,
-        renderEditable: (record, closeCallback) => (
-            <MoneyForm
-                initialValue={record.entities[index]?.value}
-                onSave={async (money, physicalAllocationId) => {
-                    await onUpdate(componentId, record.key, money, physicalAllocationId);
-                    closeCallback();
-                }}
-                onCancel={closeCallback}
-                physicalAllocations={physicalAllocations}
-                defaultPhysicalAllocation={record.entities[index]?.physicalAllocationId ?? defaultPhysicalAllocation}
-            />
-        )
+        renderEditable: (record, closeCallback) => {
+            let initialPhysicalAllocationId = record.key !== ''
+                ? record.entities[index]?.physicalAllocationId
+                : defaultPhysicalAllocation;
+            
+            return (
+                <MoneyForm
+                    initialValue={record.entities[index]?.value}
+                    onSave={async (money, physicalAllocationId) => {
+                        await onUpdate(componentId, record.key, money, physicalAllocationId);
+                        closeCallback();
+                    }}
+                    onCancel={closeCallback}
+                    physicalAllocations={physicalAllocations}
+                    defaultPhysicalAllocation={initialPhysicalAllocationId}
+                />
+            );
+        }
     }
 }

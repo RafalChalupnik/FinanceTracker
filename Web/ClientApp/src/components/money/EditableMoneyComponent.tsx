@@ -88,10 +88,13 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
         if (newEntryDate === undefined) {
             return props.rows;
         }
+        
+        let newRow = props.editable!.createEmptyRow(newEntryDate, props.columns)
+        newRow.key = ''
 
         let newData = [
             ...props.rows,
-            props.editable!.createEmptyRow(newEntryDate, props.columns)
+            newRow
         ]
 
         return newData.sort((a, b) => dayjs(a.key).unix() - dayjs(b.key).unix());
