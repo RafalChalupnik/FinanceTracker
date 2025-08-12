@@ -38,8 +38,8 @@ const Wallet: FC<WalletProps> = (props) => {
         populateData()
     }, [])
 
-    const updateComponent = async (id: string, date: string, value: MoneyDto) => {
-        await setWalletComponentValue(id, date, value);
+    const updateComponent = async (id: string, date: string, value: MoneyDto, physicalAllocationId?: string) => {
+        await setWalletComponentValue(id, date, value, physicalAllocationId);
         await populateData();
     }
 

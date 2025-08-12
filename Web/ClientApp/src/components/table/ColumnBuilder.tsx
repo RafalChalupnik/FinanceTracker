@@ -33,7 +33,7 @@ export function buildComponentsColumns<T extends ValueHistoryRecordDto>(
     components: EntityColumnDto[],
     granularity: DateGranularity,
     showInferredValues: boolean,
-    onUpdate?: (entityId: string, date: string, value: MoneyDto) => Promise<void>,
+    onUpdate?: (entityId: string, date: string, value: MoneyDto, physicalAllocationId?: string) => Promise<void>,
     physicalAllocations?: OrderableEntityDto[]
 ): ColumnGroup<T>[] {
     return components.map((component, index) => {
@@ -257,7 +257,7 @@ function buildEditableValue<T extends ValueHistoryRecordDto>(
     componentId: string,
     index: number,
     isEditable: boolean,
-    onUpdate: (entityId: string, date: string, value: MoneyDto) => Promise<void>,
+    onUpdate: (entityId: string, date: string, value: MoneyDto, physicalAllocationId?: string) => Promise<void>,
     physicalAllocations?: OrderableEntityDto[],
 ): CustomEditableColumn<T> {
     return {
@@ -265,8 +265,8 @@ function buildEditableValue<T extends ValueHistoryRecordDto>(
         renderEditable: (record, closeCallback) => (
             <MoneyForm
                 initialValue={record.entities[index]?.value}
-                onSave={async money => {
-                    await onUpdate(componentId, record.key, money);
+                onSave={async (money, physicalAllocationId) => {
+                    await onUpdate(componentId, record.key, money, physicalAllocationId);
                     closeCallback();
                 }}
                 onCancel={closeCallback}

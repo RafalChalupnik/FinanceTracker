@@ -31,7 +31,7 @@ interface EditableMoneyComponentProps<T> {
 
 interface EditableProps<T> {
     createEmptyRow: (date: Dayjs, columns: EntityColumnDto[]) => T;
-    onUpdate: (id: string, date: string, value: MoneyDto) => Promise<void>;
+    onUpdate: (id: string, date: string, value: MoneyDto, physicalAllocationId?: string) => Promise<void>;
     onDelete: (date: string) => Promise<void>;
 } 
 
@@ -42,9 +42,9 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
     const [granularity, setGranularity] = useState<DateGranularity>(props.defaultGranularity ?? DateGranularity.Day);
     
     let onUpdate = props.editable !== undefined
-        ? async (id: string, date: string, value: MoneyDto) => {
+        ? async (id: string, date: string, value: MoneyDto, physicalAllocationId?: string) => {
             setNewEntryDate(undefined);
-            await props.editable?.onUpdate(id, date, value);
+            await props.editable?.onUpdate(id, date, value, physicalAllocationId);
         }
         : undefined;
 
