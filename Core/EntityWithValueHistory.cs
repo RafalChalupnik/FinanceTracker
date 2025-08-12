@@ -12,6 +12,8 @@ internal interface IEntityWithValueHistory
 public abstract class EntityWithValueHistory : IEntityWithValueHistory
 {
     private readonly List<HistoricValue> _valueHistory = [];
+
+    protected virtual Guid? GetDefaultPhysicalAllocationId() => null;
     
     /// <summary>
     /// History of the value.
@@ -37,7 +39,8 @@ public abstract class EntityWithValueHistory : IEntityWithValueHistory
         {
             Id = Guid.NewGuid(),
             Date = date,
-            Value = value
+            Value = value,
+            PhysicalAllocationId = GetDefaultPhysicalAllocationId()
         };
             
         _valueHistory.Add(newValue);

@@ -4,7 +4,7 @@ using FinanceTracker.Core.Primitives;
 
 namespace FinanceTracker.Core;
 
-public class PhysicalAllocation : IOrderableEntity, IEntityWithValueHistory
+public class PhysicalAllocation : IOrderableEntity
 {
     [Key]
     public Guid Id { get; init; } = Guid.NewGuid();
@@ -22,15 +22,5 @@ public class PhysicalAllocation : IOrderableEntity, IEntityWithValueHistory
     /// <summary>
     /// History of the value allocations.
     /// </summary>
-    public IReadOnlyList<HistoricValue> ValueHistory { get; init; } = [];
-
-    public IEnumerable<DateOnly> GetEvaluationDates()
-    {
-        throw new NotImplementedException();
-    }
-
-    public MoneyValue? GetValueFor(DateOnly date)
-    {
-        throw new NotImplementedException();
-    }
+    public IReadOnlyList<HistoricValue> ValueHistory { get; init; } = new List<HistoricValue>();
 }
