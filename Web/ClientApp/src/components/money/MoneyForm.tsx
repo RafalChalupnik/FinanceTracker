@@ -4,6 +4,7 @@ import {MoneyDto} from "../../api/value-history/DTOs/Money";
 import {CloseOutlined, SaveOutlined} from "@ant-design/icons";
 import {OrderableEntityDto} from "../../api/configuration/DTOs/ConfigurationDto";
 import PhysicalAllocationPicker from "../PhysicalAllocationPicker";
+import SaveCancelButtons from "../SaveCancelButtons";
 
 interface MoneyFormProps {
     initialValue: MoneyDto | undefined;
@@ -75,10 +76,10 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
                     onUpdate={setPhysicalAllocationId}
                 />
             )}
-            <Space direction={"horizontal"}>
-                <Button icon={<SaveOutlined/>} onClick={save}/>
-                <Button icon={<CloseOutlined/>} onClick={props.onCancel}/>
-            </Space>
+            <SaveCancelButtons 
+                onSave={save} 
+                onCancel={props.onCancel}
+            />
         </Space>
     );
 }
