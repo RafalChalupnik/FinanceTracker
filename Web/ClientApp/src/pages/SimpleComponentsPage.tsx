@@ -74,6 +74,7 @@ export function SimpleComponentsPage<T extends ValueHistoryRecordDto>(props: Sim
                 refreshData={populateData}
                 showInferredValues={props.showInferredValues ?? true}
                 buildExtraColumns={props.buildExtraColumns}
+                defaultGranularity={props.defaultGranularity}
             />
         </EmptyConfig>;
 }

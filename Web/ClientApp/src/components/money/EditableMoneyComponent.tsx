@@ -106,13 +106,16 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
                 extra={ 
                     <Space direction='horizontal'>
                         <DateGranularityPicker 
-                            minDate={props.rows.length > 0 ? dayjs(props.rows[0].key) : undefined}
-                            maxDate={props.rows.length > 0 ? dayjs(props.rows[props.rows.length - 1].key) : undefined}
+                            allowedDateRange={props.rows.length === 0 ? undefined : {
+                                start: dayjs(props.rows[0].key),
+                                end: dayjs(props.rows[props.rows.length - 1].key)
+                            }}
                             onChange={async (granularity, start, end) => {
                                 setGranularity(granularity)
                                 await props.refreshData(granularity, start, end);
                             }}
-                            allowedOptions={props.allowedGranularities}
+                            allowedModes={props.allowedGranularities}
+                            defaultMode={props.defaultGranularity}
                         />
                         {props.editable && <Button
                             icon={<PlusOutlined />}

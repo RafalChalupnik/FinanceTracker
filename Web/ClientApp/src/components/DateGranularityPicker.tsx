@@ -5,16 +5,17 @@ import dayjs, {Dayjs, OpUnitType, QUnitType} from "dayjs";
 
 import quarterOfYear from 'dayjs/plugin/quarterOfYear';
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
+import {DateRange} from "../types/Range";
 
 dayjs.extend(quarterOfYear);
 
 const { Option } = Select;
 
 interface DateRangePickerWithTypeProps {
-    minDate: Dayjs | undefined;
-    maxDate: Dayjs | undefined;
     onChange: (type: DateGranularity, start?: Dayjs, end?: Dayjs) => Promise<void>;
-    allowedOptions?: DateGranularity[];
+    allowedDateRange?: DateRange;
+    allowedModes?: DateGranularity[];
+    defaultMode?: DateGranularity;
 }
 
 const DateRangePickerWithType: React.FC<DateRangePickerWithTypeProps> = (props) => {
@@ -26,21 +27,25 @@ const DateRangePickerWithType: React.FC<DateRangePickerWithTypeProps> = (props) 
         { value: DateGranularity.Year, picker: 'year', label: "Year" },
     ];
     
-    const [minDate, setMinDate] = useState<Dayjs | undefined>(undefined);
-    const [maxDate, setMaxDate] = useState<Dayjs | undefined>(undefined);
-    const [startDate, setStartDate] = useState<Dayjs | undefined>(undefined);
-    const [endDate, setEndDate] = useState<Dayjs | undefined>(undefined);
-    const [mode, setMode] = useState<PickerMode>(props.allowedOptions
-        ? allOptions.filter(opt => props.allowedOptions!.includes(opt.value))[0].picker
-        : allOptions[0].picker
-    );
-    
-    if (minDate === undefined) {
-        setMinDate(props.minDate);
+    const getInitialMode = () => {
+        if (props.defaultMode) {
+            return allOptions.find(option => option.value === props.defaultMode)!.picker;
+        }
+        
+        if (props.allowedModes) {
+            return allOptions.find(opt => props.allowedModes!.includes(opt.value))!.picker;
+        }
+        
+        return allOptions[0].picker;
     }
 
-    if (maxDate === undefined) {
-        setMaxDate(props.maxDate);
+    const [allowedDateRange, setAllowedDateRange] = useState<DateRange | undefined>(props.allowedDateRange);
+    const [selectedDateRange, setSelectedDateRange] = useState<DateRange | undefined>(props.allowedDateRange);
+    const [mode, setMode] = useState<PickerMode>(getInitialMode);
+    
+    // This state is required, so the whole date range is persisted even on data reload
+    if (allowedDateRange === undefined) {
+        setAllowedDateRange(props.allowedDateRange);
     }
     
     const mapToDateGranularity = (mode: PickerMode): DateGranularity => {
@@ -66,20 +71,24 @@ const DateRangePickerWithType: React.FC<DateRangePickerWithTypeProps> = (props) 
     
     const onModeChange = async (mode: PickerMode) => {
         setMode(mode);
-        await props.onChange(mapToDateGranularity(mode), startDate, endDate);
+        await props.onChange(mapToDateGranularity(mode), selectedDateRange?.start, selectedDateRange?.end);
     }
 
     const onDatesChange = async (start: Dayjs, end: Dayjs) => {
         const unitType = mapToOpUnitType(mode)
-
-        setStartDate(start.startOf(unitType));
-        setEndDate(end.endOf(unitType));
         
-        await props.onChange(mapToDateGranularity(mode), startDate, endDate);
+        let newRange = {
+            start: start.startOf(unitType),
+            end: end.endOf(unitType)
+        };
+
+        setSelectedDateRange(newRange)
+
+        await props.onChange(mapToDateGranularity(mode), newRange?.start, newRange?.end);
     }
 
-    const optionsToRender = props.allowedOptions
-        ? allOptions.filter(opt => props.allowedOptions!.includes(opt.value))
+    const optionsToRender = props.allowedModes
+        ? allOptions.filter(opt => props.allowedModes!.includes(opt.value))
         : allOptions;
 
     return (
@@ -97,10 +106,11 @@ const DateRangePickerWithType: React.FC<DateRangePickerWithTypeProps> = (props) 
                 ))}
             </Select>
             <DatePicker.RangePicker 
-                minDate={minDate}
-                maxDate={maxDate}
+                minDate={allowedDateRange?.start}
+                maxDate={allowedDateRange?.end}
+                defaultValue={[allowedDateRange?.start, allowedDateRange?.end]}
                 picker={mode}
-                onChange={async (dates, dateStrings) => {
+                onChange={async (dates) => {
                     await onDatesChange(dates![0]!, dates![1]!);
                 }} 
             />
