@@ -131,7 +131,7 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
                     rows={buildData()} 
                     columns={columns}
                 />
-                <Title level={5}>Value</Title>
+                <Title style={{paddingTop: '30px'}} level={5}>Value</Title>
                 <MoneyChart 
                     headers={props.columns}
                     data={props.rows}
