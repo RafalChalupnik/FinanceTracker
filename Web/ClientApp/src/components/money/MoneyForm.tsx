@@ -1,5 +1,5 @@
 import React, { FC, useState } from "react";
-import {Alert, Space} from "antd";
+import {Space} from "antd";
 import {MoneyDto} from "../../api/value-history/DTOs/Money";
 import {OrderableEntityDto} from "../../api/configuration/DTOs/ConfigurationDto";
 import PhysicalAllocationPicker from "../PhysicalAllocationPicker";
@@ -64,21 +64,25 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
         <Space direction={"vertical"}>
             <InputCurrency 
                 onValueChange={setAmount} 
-                onCurrencyChange={currency => {
-                    setCurrency(currency);
-                    
-                    if (currency != MAIN_CURRENCY && amountInMainCurrency === undefined) {
-                        setAmountInMainCurrency(0);
-                    }
-                }}
                 initialValue={amount}
-                initialCurrency={currency}
+                currency={{
+                    onChange: currency => {
+                        setCurrency(currency);
+
+                        if (currency != MAIN_CURRENCY && amountInMainCurrency === undefined) {
+                            setAmountInMainCurrency(0);
+                        }
+                    },
+                    initialCurrency: currency
+                }}
                 error={alertVisible ? 'Amount is required' : undefined}
             />
             {currency != MAIN_CURRENCY && <InputCurrency
                 onValueChange={setAmountInMainCurrency}
                 initialValue={amountInMainCurrency}
-                disableCurrencyPicker
+                currency={{
+                    disableCurrencyPicker: true
+                }}
                 extra={<TransactionOutlined onClick={updateAmountInMainCurrency}/>}
             />}
             {props.physicalAllocations && (

@@ -6,12 +6,16 @@ const { Option } = Select;
 
 interface InputCurrencyProps {
     onValueChange: (value: number | undefined) => void;
-    onCurrencyChange?: (currency: string) => void;
-    disableCurrencyPicker?: boolean;
     initialValue?: number;
-    initialCurrency?: string;
+    currency?: CurrencyProps;
     error?: string;
     extra?: ReactNode;
+}
+
+interface CurrencyProps {
+    onChange?: (currency: string) => void;
+    initialCurrency?: string;
+    disableCurrencyPicker?: boolean;
 }
 
 const InputCurrency: FC<InputCurrencyProps> = (props) => {
@@ -19,7 +23,7 @@ const InputCurrency: FC<InputCurrencyProps> = (props) => {
     const AVAILABLE_CURRENCIES = ["PLN", "CAD", "USD", "EUR", "GBP"];
 
     const [focused, setFocused] = useState(false);
-    const [currency, setCurrency] = useState(props.initialCurrency ?? DEFAULT_CURRENCY);
+    const [currency, setCurrency] = useState(props?.currency?.initialCurrency ?? DEFAULT_CURRENCY);
 
     const formatter = (val?: number | string) => {
         if (val === undefined || val === null || val === "") return "";
@@ -40,25 +44,36 @@ const InputCurrency: FC<InputCurrencyProps> = (props) => {
         return numeric ? parseFloat(numeric) : 0;
     };
     
-    const addOn = props.extra ?? (
-        <Select
-            disabled={props.disableCurrencyPicker}
-            defaultValue={currency}
-            style={{ width: "auto", minWidth: 80 }}
-            onChange={value => {
-                setCurrency(value);
-                props.onCurrencyChange?.(value);
-            }}
-            showSearch
-            optionFilterProp="children"
-        >
-            {AVAILABLE_CURRENCIES.map(c => (
-                <Option key={c} value={c}>
-                    {c}
-                </Option>
-            ))}
-        </Select>
-    );
+    const buildAddOn = () => {
+        if (props.extra) {
+            return props.extra;
+        }
+        
+        if (props?.currency === undefined)
+        {
+            return undefined;
+        }
+
+        return (
+            <Select
+                disabled={props.currency!.disableCurrencyPicker}
+                defaultValue={currency}
+                style={{ width: "auto", minWidth: 80 }}
+                onChange={value => {
+                    setCurrency(value);
+                    props.currency!.onChange?.(value);
+                }}
+                showSearch
+                optionFilterProp="children"
+            >
+                {AVAILABLE_CURRENCIES.map(c => (
+                    <Option key={c} value={c}>
+                        {c}
+                    </Option>
+                ))}
+            </Select>
+        );
+    }
     
     return (
             <Tooltip title={props.error}>
@@ -78,7 +93,7 @@ const InputCurrency: FC<InputCurrencyProps> = (props) => {
                     }}
                     onFocus={() => setFocused(true)}
                     onBlur={() => setFocused(false)}
-                    addonAfter={addOn}
+                    addonAfter={buildAddOn()}
                 />
             </Tooltip>
     );

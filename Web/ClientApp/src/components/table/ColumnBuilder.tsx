@@ -17,6 +17,7 @@ import ColoredPercent from "../ColoredPercent";
 import MoneyForm from "../money/MoneyForm";
 import Money from "../money/Money";
 import {OrderableEntityDto} from "../../api/configuration/DTOs/ConfigurationDto";
+import TargetForm from "../money/TargetForm";
 
 const {Text} = Typography;
 
@@ -114,8 +115,17 @@ export function buildTargetColumn<T extends WalletComponentsValueHistoryRecordDt
         ),
         editable: {
             isEditable: granularity == DateGranularity.Day,
-            initialValueSelector: record => record.target?.targetInMainCurrency,
-            onSave: (row, value) => onUpdate(row.key, value)
+            renderEditable: (row, closeCallback) => {
+                let date = dayjs(row.key).toString();
+
+                return (
+                    <TargetForm
+                        initialValue={row.target?.targetInMainCurrency}
+                        onSave={value => onUpdate(date, value)}
+                        onCancel={closeCallback}
+                    />
+                );
+            }
         }
     }
 }
