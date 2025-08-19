@@ -4,8 +4,8 @@ import {FC, useState} from "react";
 const { Option } = Select;
 
 interface InputCurrencyProps {
-    onValueChange: (value: number | undefined) => void;
-    onCurrencyChange?: (currency: string) => void;
+    onValueChange: (value: number | undefined) => void | Promise<void>;
+    onCurrencyChange?: (currency: string) => void | Promise<void>;
     disableCurrencyPicker?: boolean;
     initialValue?: number;
     initialCurrency?: string;
