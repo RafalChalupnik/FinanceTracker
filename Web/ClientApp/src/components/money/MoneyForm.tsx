@@ -5,6 +5,7 @@ import {OrderableEntityDto} from "../../api/configuration/DTOs/ConfigurationDto"
 import PhysicalAllocationPicker from "../PhysicalAllocationPicker";
 import SaveCancelButtons from "../SaveCancelButtons";
 import InputCurrency from "./InputCurrency";
+import {TransactionOutlined} from "@ant-design/icons";
 
 interface MoneyFormProps {
     initialValue: MoneyDto | undefined;
@@ -31,9 +32,9 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
     }
     
     const updateAmountInMainCurrency = async () => {
-        console.log('#Update', currency, amount, amountInMainCurrency);
-        if (currency !== MAIN_CURRENCY && amount !== undefined && amountInMainCurrency === undefined) {
-            console.log('#Request')
+        console.log('#Request')
+        
+        if (amount !== undefined) {
             let converted = await convertCurrency(amount, currency);
             console.log('#Response', converted)
             setAmountInMainCurrency(converted);
@@ -63,14 +64,8 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
         <Space direction={"vertical"}>
             {alertVisible && <Alert message="Amount is required" type="error" />}
             <InputCurrency 
-                onValueChange={async value => {
-                    setAmount(value);
-                    await updateAmountInMainCurrency();
-                }} 
-                onCurrencyChange={async currency => {
-                    setCurrency(currency);
-                    await updateAmountInMainCurrency();
-                }}
+                onValueChange={setAmount} 
+                onCurrencyChange={setCurrency}
                 initialValue={amount}
                 initialCurrency={currency}
             />
@@ -78,6 +73,7 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
                 onValueChange={setAmountInMainCurrency}
                 initialValue={amountInMainCurrency}
                 disableCurrencyPicker
+                extra={<TransactionOutlined onClick={updateAmountInMainCurrency}/>}
             />}
             {props.physicalAllocations && (
                 <PhysicalAllocationPicker 

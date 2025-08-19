@@ -1,14 +1,15 @@
 import {InputNumber, Select} from "antd";
-import {FC, useState} from "react";
+import {FC, ReactNode, useState} from "react";
 
 const { Option } = Select;
 
 interface InputCurrencyProps {
-    onValueChange: (value: number | undefined) => void | Promise<void>;
-    onCurrencyChange?: (currency: string) => void | Promise<void>;
+    onValueChange: (value: number | undefined) => void;
+    onCurrencyChange?: (currency: string) => void;
     disableCurrencyPicker?: boolean;
     initialValue?: number;
     initialCurrency?: string;
+    extra?: ReactNode;
 }
 
 const InputCurrency: FC<InputCurrencyProps> = (props) => {
@@ -38,10 +39,10 @@ const InputCurrency: FC<InputCurrencyProps> = (props) => {
     };
     
     return (
-        <>
+        <div style={{ display: 'flex', gap: 8 }}>
             <InputNumber
                 value={props.initialValue}
-                style={{ width: 'auto' }}
+                style={{ width: '100%' }}
                 step={0.01}
                 formatter={formatter}
                 parser={parser}
@@ -50,6 +51,7 @@ const InputCurrency: FC<InputCurrencyProps> = (props) => {
                 }}
                 onFocus={() => setFocused(true)}
                 onBlur={() => setFocused(false)}
+                addonAfter={props.extra}
             />
             <Select
                 disabled={props.disableCurrencyPicker}
@@ -68,7 +70,7 @@ const InputCurrency: FC<InputCurrencyProps> = (props) => {
                     </Option>
                 ))}
             </Select>
-        </>
+        </div>
     );
 }
 
