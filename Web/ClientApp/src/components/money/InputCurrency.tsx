@@ -1,5 +1,6 @@
-import {InputNumber, Select} from "antd";
-import {FC, ReactNode, useState} from "react";
+import {InputNumber, Select, Tooltip} from "antd";
+import React, {FC, ReactNode, useState} from "react";
+import {ExclamationCircleOutlined} from "@ant-design/icons";
 
 const { Option } = Select;
 
@@ -9,6 +10,7 @@ interface InputCurrencyProps {
     disableCurrencyPicker?: boolean;
     initialValue?: number;
     initialCurrency?: string;
+    error?: string;
     extra?: ReactNode;
 }
 
@@ -39,20 +41,28 @@ const InputCurrency: FC<InputCurrencyProps> = (props) => {
     };
     
     return (
+        
         <div style={{ display: 'flex', gap: 8 }}>
-            <InputNumber
-                value={props.initialValue}
-                style={{ width: '100%' }}
-                step={0.01}
-                formatter={formatter}
-                parser={parser}
-                onChange={(val) => {
-                    props.onValueChange(val ?? undefined);
-                }}
-                onFocus={() => setFocused(true)}
-                onBlur={() => setFocused(false)}
-                addonAfter={props.extra}
-            />
+            <Tooltip title={props.error}>
+                <InputNumber
+                    value={props.initialValue}
+                    style={{ width: '100%' }}
+                    status={props.error !== undefined ? 'error' : undefined}
+                    prefix={props.error !== undefined 
+                        ? (<ExclamationCircleOutlined/>) 
+                        : undefined
+                    }
+                    step={0.01}
+                    formatter={formatter}
+                    parser={parser}
+                    onChange={(val) => {
+                        props.onValueChange(val ?? undefined);
+                    }}
+                    onFocus={() => setFocused(true)}
+                    onBlur={() => setFocused(false)}
+                    addonAfter={props.extra}
+                />
+            </Tooltip>
             <Select
                 disabled={props.disableCurrencyPicker}
                 defaultValue={currency}

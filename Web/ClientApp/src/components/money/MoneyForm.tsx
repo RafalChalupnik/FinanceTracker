@@ -62,12 +62,12 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
     
     return (
         <Space direction={"vertical"}>
-            {alertVisible && <Alert message="Amount is required" type="error" />}
             <InputCurrency 
                 onValueChange={setAmount} 
                 onCurrencyChange={setCurrency}
                 initialValue={amount}
                 initialCurrency={currency}
+                error={alertVisible ? 'Amount is required' : undefined}
             />
             {currency != MAIN_CURRENCY && <InputCurrency
                 onValueChange={setAmountInMainCurrency}
