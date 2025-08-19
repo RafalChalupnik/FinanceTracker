@@ -5,6 +5,7 @@ import {CloseOutlined, SaveOutlined} from "@ant-design/icons";
 import {OrderableEntityDto} from "../../api/configuration/DTOs/ConfigurationDto";
 import PhysicalAllocationPicker from "../PhysicalAllocationPicker";
 import SaveCancelButtons from "../SaveCancelButtons";
+import InputCurrency from "./InputCurrency";
 
 interface MoneyFormProps {
     initialValue: MoneyDto | undefined;
@@ -47,27 +48,16 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
     return (
         <Space direction={"vertical"}>
             {alertVisible && <Alert message="Amount is required" type="error" />}
-            <InputNumber
-                value={amount}
-                style={{ width: '100%' }}
-                step={0.01}
-                placeholder="0,00"
-                onChange={(e) => {
-                    setAmount(e?.valueOf());
-                }}
+            <InputCurrency 
+                onValueChange={setAmount} 
+                onCurrencyChange={setCurrency}
+                initialValue={amount}
+                initialCurrency={currency}
             />
-            <Input 
-                value={currency}
-                minLength={3} 
-                maxLength={3}
-                onChange={(e) => setCurrency(e.target.value)}
-            />
-            {currency != MAIN_CURRENCY && <InputNumber
-                value={amountInMainCurrency}
-                style={{ width: '100%' }}
-                step={0.01}
-                placeholder="0,00"
-                onChange={(e) => setAmountInMainCurrency( e?.valueOf())}
+            {currency != MAIN_CURRENCY && <InputCurrency
+                onValueChange={setAmountInMainCurrency}
+                initialValue={amountInMainCurrency}
+                disableCurrencyPicker
             />}
             {props.physicalAllocations && (
                 <PhysicalAllocationPicker 
