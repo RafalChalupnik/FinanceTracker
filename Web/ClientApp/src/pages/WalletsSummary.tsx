@@ -9,7 +9,8 @@ import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 import ScoreChart from "../components/charts/custom/ScoreChart";
 
 const WalletsSummary = () => {
-    const [isLoading, setIsLoading] = useState(true)
+    const DEFAULT_GRANULARITY = DateGranularity.Month;
+    
     const [data, setData] = useState({
         headers: [] as EntityColumnDto[],
         rows: [] as WalletValueHistoryRecordDto[]
@@ -21,12 +22,10 @@ const WalletsSummary = () => {
             headers: response.columns,
             rows: response.rows
         });
-
-        setIsLoading(false)
     }
 
     useEffect(() => {
-        populateData(DateGranularity.Month)
+        populateData(DEFAULT_GRANULARITY);
     }, [])
     
     const updateInflation = async (year: number, month: number, value: number, confirmed: boolean) => {
@@ -38,9 +37,8 @@ const WalletsSummary = () => {
         buildInflationColumn(granularity, updateInflation)
     ]
     
-    return isLoading
-        ? <p><em>Loading...</em></p>
-        : <EmptyConfig enabled={data.headers.length === 0}>
+    return (
+        <EmptyConfig enabled={data.headers.length === 0}>
             <EditableMoneyComponent
                 title={'Wallets Summary'}
                 rows={data.rows}
@@ -56,7 +54,8 @@ const WalletsSummary = () => {
                 ]}
                 defaultGranularity={DateGranularity.Month}
             />
-        </EmptyConfig>;
+        </EmptyConfig>
+    );
 };
 
 export default WalletsSummary;
