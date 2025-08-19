@@ -106,6 +106,7 @@ const DateRangePickerWithType: React.FC<DateRangePickerWithTypeProps> = (props) 
                 ))}
             </Select>
             <DatePicker.RangePicker 
+                allowClear={false}
                 minDate={allowedDateRange?.start}
                 maxDate={allowedDateRange?.end}
                 defaultValue={[allowedDateRange?.start, allowedDateRange?.end]}
