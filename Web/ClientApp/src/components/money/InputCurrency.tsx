@@ -40,13 +40,31 @@ const InputCurrency: FC<InputCurrencyProps> = (props) => {
         return numeric ? parseFloat(numeric) : 0;
     };
     
+    const addOn = props.extra ?? (
+        <Select
+            disabled={props.disableCurrencyPicker}
+            defaultValue={currency}
+            style={{ width: "auto", minWidth: 80 }}
+            onChange={value => {
+                setCurrency(value);
+                props.onCurrencyChange?.(value);
+            }}
+            showSearch
+            optionFilterProp="children"
+        >
+            {AVAILABLE_CURRENCIES.map(c => (
+                <Option key={c} value={c}>
+                    {c}
+                </Option>
+            ))}
+        </Select>
+    );
+    
     return (
-        
-        <div style={{ display: 'flex', gap: 8 }}>
             <Tooltip title={props.error}>
                 <InputNumber
                     value={props.initialValue}
-                    style={{ width: '100%' }}
+                    style={{ width: 'auto' }}
                     status={props.error !== undefined ? 'error' : undefined}
                     prefix={props.error !== undefined 
                         ? (<ExclamationCircleOutlined/>) 
@@ -60,27 +78,9 @@ const InputCurrency: FC<InputCurrencyProps> = (props) => {
                     }}
                     onFocus={() => setFocused(true)}
                     onBlur={() => setFocused(false)}
-                    addonAfter={props.extra}
+                    addonAfter={addOn}
                 />
             </Tooltip>
-            <Select
-                disabled={props.disableCurrencyPicker}
-                defaultValue={currency}
-                style={{ width: "auto", minWidth: 80 }}
-                onChange={value => {
-                    setCurrency(value);
-                    props.onCurrencyChange?.(value);
-                }}
-                showSearch
-                optionFilterProp="children"
-            >
-                {AVAILABLE_CURRENCIES.map(c => (
-                    <Option key={c} value={c}>
-                        {c}
-                    </Option>
-                ))}
-            </Select>
-        </div>
     );
 }
 

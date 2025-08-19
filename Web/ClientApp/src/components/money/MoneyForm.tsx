@@ -64,7 +64,13 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
         <Space direction={"vertical"}>
             <InputCurrency 
                 onValueChange={setAmount} 
-                onCurrencyChange={setCurrency}
+                onCurrencyChange={currency => {
+                    setCurrency(currency);
+                    
+                    if (currency != MAIN_CURRENCY && amountInMainCurrency === undefined) {
+                        setAmountInMainCurrency(0);
+                    }
+                }}
                 initialValue={amount}
                 initialCurrency={currency}
                 error={alertVisible ? 'Amount is required' : undefined}
