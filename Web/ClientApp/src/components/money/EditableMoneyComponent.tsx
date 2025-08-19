@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import dayjs, {Dayjs} from "dayjs";
-import {Button, Card, DatePicker, Modal, Space, Typography} from "antd";
+import {Button, Card, DatePicker, Divider, Modal, Space, Typography} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import { DateGranularity } from "../../api/value-history/DTOs/DateGranularity";
 import { EntityColumnDto, ValueHistoryRecordDto } from "../../api/value-history/DTOs/EntityTableDto";
@@ -131,7 +131,8 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
                     rows={buildData()} 
                     columns={columns}
                 />
-                <Title style={{paddingTop: '30px'}} level={5}>Value</Title>
+                <Divider/>
+                <Title level={5}>Value</Title>
                 <MoneyChart 
                     headers={props.columns}
                     data={props.rows}
