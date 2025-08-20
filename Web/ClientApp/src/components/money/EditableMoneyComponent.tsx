@@ -26,7 +26,6 @@ interface EditableMoneyComponentProps<T> {
     allowedGranularities?: DateGranularity[];
     defaultGranularity?: DateGranularity;
     physicalAllocations?: OrderableEntityDto[];
-    defaultPhysicalAllocation?: string;
 }
 
 interface EditableProps<T> {
@@ -132,20 +131,20 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
                     columns={columns}
                 />
                 <Divider/>
-                <Title level={5}>Value</Title>
                 <MoneyChart 
+                    title='Value'
                     headers={props.columns}
                     data={props.rows}
                     dataSelector={component => component.value}
                 />
-                <Title level={5}>Change</Title>
                 <MoneyChart
+                    title='Change'
                     headers={props.columns}
                     data={props.rows}
                     dataSelector={component => component.change}
                 />
-                <Title level={5}>Cumulative change</Title>
                 <MoneyChart
+                    title='Cumulative change'
                     headers={props.columns}
                     data={props.rows}
                     dataSelector={component => component.cumulativeChange}

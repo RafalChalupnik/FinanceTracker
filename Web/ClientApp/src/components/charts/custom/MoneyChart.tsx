@@ -3,8 +3,12 @@ import {EntityColumnDto, ValueHistoryRecordDto} from "../../../api/value-history
 import {ValueSnapshotDto} from "../../../api/value-history/DTOs/ValueSnapshotDto";
 import {MoneyDto} from "../../../api/value-history/DTOs/Money";
 import CustomLineChart from "../CustomLineChart";
+import {Typography} from "antd";
+
+const { Title } = Typography;
 
 interface MoneyChartProps {
+    title: string;
     headers: EntityColumnDto[],
     data: ValueHistoryRecordDto[],
     dataSelector: (record: ValueSnapshotDto) => MoneyDto,
@@ -42,13 +46,16 @@ const MoneyChart: FC<MoneyChartProps> = (props) => {
     })
     
     return (
-        <CustomLineChart 
-            series={series} 
-            xDataKey='date' 
-            yDataKey='value' 
-            yAxisFormatter={currencyFormatter.format}
-            tooltipFormatter={(value: any, name: string) => [currencyFormatter.format(value), name]}
-        />
+        <>
+            <Title level={5}>{props.title}</Title>
+            <CustomLineChart 
+                series={series} 
+                xDataKey='date' 
+                yDataKey='value' 
+                yAxisFormatter={currencyFormatter.format}
+                tooltipFormatter={(value: any, name: string) => [currencyFormatter.format(value), name]}
+            />
+        </>
     );
 }
 
