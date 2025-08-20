@@ -1,9 +1,9 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import dayjs, {Dayjs} from "dayjs";
-import {Button, Card, DatePicker, Divider, Modal, Space, Typography} from "antd";
+import {Button, Card, DatePicker, Divider, Modal, Space} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import { DateGranularity } from "../../api/value-history/DTOs/DateGranularity";
-import { EntityColumnDto, ValueHistoryRecordDto } from "../../api/value-history/DTOs/EntityTableDto";
+import {EntityColumnDto, EntityTableDto, ValueHistoryRecordDto} from "../../api/value-history/DTOs/EntityTableDto";
 import {Column, ColumnGroup, ExtendableTable} from "../table/ExtendableTable";
 import { MoneyDto } from "../../api/value-history/DTOs/Money";
 import {buildComponentsColumns, buildDateColumn, buildDeleteColumn, buildSummaryColumn} from "../table/ColumnBuilder";
@@ -11,18 +11,16 @@ import DateGranularityPicker from "../DateGranularityPicker";
 import MoneyCharts from "../charts/custom/MoneyCharts";
 import CompositionChart from "../charts/custom/CompositionChart";
 import {OrderableEntityDto} from "../../api/configuration/DTOs/ConfigurationDto";
+import EmptyConfig from "../EmptyConfig";
 
-const { Title } = Typography;
-
-interface EditableMoneyComponentProps<T> {
+interface EditableMoneyComponentProps<T extends ValueHistoryRecordDto> {
     title: string;
-    rows: T[]
-    columns: EntityColumnDto[],
-    refreshData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<void>;
+    getData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<EntityTableDto<T>>;
+    // ---
     showInferredValues: boolean;
-    buildExtraColumns?: (granularity: DateGranularity) => (Column<T> | ColumnGroup<T>)[];
+    buildExtraColumns?: (granularity: DateGranularity, refreshCallback: () => Promise<void>) => (Column<T> | ColumnGroup<T>)[];
     editable?: EditableProps<T>;
-    extra?: React.ReactNode;
+    extra?: (data: EntityTableDto<T>) => React.ReactNode;
     allowedGranularities?: DateGranularity[];
     defaultGranularity?: DateGranularity;
     physicalAllocations?: OrderableEntityDto[];
@@ -39,6 +37,30 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
     const [selectedDate, setSelectedDate] = useState<Dayjs | undefined>(undefined);
     const [newEntryDate, setNewEntryDate] = useState<Dayjs | undefined>(undefined);
     const [granularity, setGranularity] = useState<DateGranularity>(props.defaultGranularity ?? DateGranularity.Day);
+    const [fromDate, setFromDate] = useState<Dayjs | undefined>(undefined);
+    const [toDate, setToDate] = useState<Dayjs | undefined>(undefined);
+
+    const [data, setData] = useState<EntityTableDto<T>>({
+        columns: [] as EntityColumnDto[],
+        rows: [] as T[]
+    });
+
+    const populateData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => {
+        const response = await props.getData(
+            granularity,
+            from,
+            to
+        );
+
+        setData({
+            columns: response.columns,
+            rows: response.rows
+        });
+    }
+
+    useEffect(() => {
+        populateData();
+    }, []);
     
     let onUpdate = props.editable !== undefined
         ? async (id: string, date: string, value: MoneyDto, physicalAllocationId?: string) => {
@@ -50,7 +72,7 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
     let columns = [
         buildDateColumn(),
         ...buildComponentsColumns(
-            props.columns, 
+            data.columns, 
             granularity,
             props.showInferredValues ?? true,
             onUpdate,
@@ -58,7 +80,7 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
         ),
         buildSummaryColumn(),
         ...(props.buildExtraColumns
-            ? props.buildExtraColumns!(granularity) 
+            ? props.buildExtraColumns!(granularity, async () => await populateData(granularity, fromDate, toDate))
             : []
         )
     ]
@@ -85,13 +107,13 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
 
     const buildData = () => {
         if (newEntryDate === undefined) {
-            return props.rows;
+            return data.rows;
         }
         
-        let newRow = props.editable!.createEmptyRow(newEntryDate, props.columns)
+        let newRow = props.editable!.createEmptyRow(newEntryDate, data.columns)
 
         let newData = [
-            ...props.rows,
+            ...data.rows,
             newRow
         ]
 
@@ -99,56 +121,60 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
     }
     
     return (
-        <div style={{ width: '95vw' }}>
-            <Card 
-                title={props.title} 
-                extra={ 
-                    <Space direction='horizontal'>
-                        <DateGranularityPicker 
-                            allowedDateRange={props.rows.length === 0 ? undefined : {
-                                start: dayjs(props.rows[0].key),
-                                end: dayjs(props.rows[props.rows.length - 1].key)
-                            }}
-                            onChange={async (granularity, start, end) => {
-                                setGranularity(granularity)
-                                await props.refreshData(granularity, start, end);
-                            }}
-                            allowedModes={props.allowedGranularities}
-                            defaultMode={props.defaultGranularity}
-                        />
-                        {props.editable && <Button
-                            icon={<PlusOutlined />}
-                            onClick={() => setIsModalOpen(true)}
-                        >
-                            Add new entry
-                        </Button>}
-                    </Space>
-                }
-                style={{ width: '100%' }}
-            >
-                <ExtendableTable
-                    rows={buildData()} 
-                    columns={columns}
-                />
-                <Divider/>
-                <MoneyCharts 
-                    headers={props.columns}
-                    data={props.rows}
-                />
-                <CompositionChart
-                    headers={props.columns}
-                    records={props.rows}
-                />
-                {props.extra}
-            </Card>
-            <Modal
-                title="Pick a date"
-                open={isModalOpen}
-                onOk={handleModalOk}
-                onCancel={handleModalCancel}
-            >
-                <DatePicker onChange={setSelectedDate} />
-            </Modal>
-        </div>
+        <EmptyConfig enabled={data.columns.length === 0}>
+            <div style={{ width: '95vw' }}>
+                <Card 
+                    title={props.title} 
+                    extra={ 
+                        <Space direction='horizontal'>
+                            <DateGranularityPicker 
+                                allowedDateRange={data.rows.length === 0 ? undefined : {
+                                    start: dayjs(data.rows[0].key),
+                                    end: dayjs(data.rows[data.rows.length - 1].key)
+                                }}
+                                onChange={async (granularity, start, end) => {
+                                    setGranularity(granularity)
+                                    setFromDate(start);
+                                    setToDate(end);
+                                    await populateData(granularity, start, end);
+                                }}
+                                allowedModes={props.allowedGranularities}
+                                defaultMode={props.defaultGranularity}
+                            />
+                            {props.editable && <Button
+                                icon={<PlusOutlined />}
+                                onClick={() => setIsModalOpen(true)}
+                            >
+                                Add new entry
+                            </Button>}
+                        </Space>
+                    }
+                    style={{ width: '100%' }}
+                >
+                    <ExtendableTable
+                        rows={buildData()} 
+                        columns={columns}
+                    />
+                    <Divider/>
+                    <MoneyCharts 
+                        headers={data.columns}
+                        data={data.rows}
+                    />
+                    <CompositionChart
+                        headers={data.columns}
+                        records={data.rows}
+                    />
+                    {props.extra?.(data)}
+                </Card>
+                <Modal
+                    title="Pick a date"
+                    open={isModalOpen}
+                    onOk={handleModalOk}
+                    onCancel={handleModalCancel}
+                >
+                    <DatePicker onChange={setSelectedDate} />
+                </Modal>
+            </div>
+        </EmptyConfig>
     );
 }
