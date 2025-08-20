@@ -1,4 +1,4 @@
-import React, {FC, useState} from 'react';
+import React, {FC, useEffect, useState} from 'react';
 import {Dayjs} from 'dayjs';
 import {buildComponentsColumns, buildTargetColumn} from "../components/table/ColumnBuilder";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
@@ -12,8 +12,9 @@ import {
 } from "../api/value-history/DTOs/EntityTableDto";
 import WalletTargetChart from "../components/charts/custom/WalletTargetChart";
 import {EditableMoneyComponent} from "../components/money/EditableMoneyComponent";
-import {OrderableEntityDto} from "../api/configuration/DTOs/ConfigurationDto";
 import {ColumnGroup} from "../components/table/ExtendableTable";
+import {getPhysicalAllocations} from "../api/configuration/Client";
+import {OrderableEntityDto} from "../api/configuration/DTOs/ConfigurationDto";
 
 interface WalletProps {
     walletId: string,
@@ -21,8 +22,17 @@ interface WalletProps {
 }
 
 const Wallet: FC<WalletProps> = (props) => {
-    const [physicalAllocations] = useState<OrderableEntityDto[]>([]);
+    const [physicalAllocations, setPhysicalAllocations] = useState<OrderableEntityDto[]>([]);
 
+    const populateData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => {
+        const physicalAllocationsResponse = await getPhysicalAllocations();
+        setPhysicalAllocations(physicalAllocationsResponse);
+    }
+
+    useEffect(() => {
+        populateData()
+    }, [])
+    
     const getData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => 
         await getWalletComponentsValueHistory(props.walletId, granularity, from, to)
 
@@ -38,7 +48,8 @@ const Wallet: FC<WalletProps> = (props) => {
             async (entityId, date, value) => {
                 await setWalletComponentValue(entityId, date, value);
                 await updateCallback();
-            }
+            },
+            physicalAllocations
         )
     }
 
@@ -69,7 +80,6 @@ const Wallet: FC<WalletProps> = (props) => {
                 )
             ]}
             extra={buildExtra}
-            physicalAllocations={physicalAllocations}
         />
     );
 }

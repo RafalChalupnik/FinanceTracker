@@ -116,12 +116,15 @@ export function buildTargetColumn<T extends WalletComponentsValueHistoryRecordDt
         editable: {
             isEditable: granularity == DateGranularity.Day,
             renderEditable: (row, closeCallback) => {
-                let date = dayjs(row.key).toString();
+                let date = dayjs(row.key).format('YYYY-MM-DD');
 
                 return (
                     <TargetForm
                         initialValue={row.target?.targetInMainCurrency}
-                        onSave={value => onUpdate(date, value)}
+                        onSave={async value => {
+                            await onUpdate(date, value);
+                            closeCallback();
+                        }}
                         onCancel={closeCallback}
                     />
                 );

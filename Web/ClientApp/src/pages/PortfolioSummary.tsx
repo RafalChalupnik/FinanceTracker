@@ -7,7 +7,7 @@ import {ColumnGroup} from "../components/table/ExtendableTable";
 import {buildComponentsColumns} from "../components/table/ColumnBuilder";
 
 const PortfolioSummary = () => {
-    let buildComponentColumns = (components: EntityColumnDto[], granularity: DateGranularity, updateCallback: () => Promise<void>): ColumnGroup<ValueHistoryRecordDto>[] => {
+    let buildComponentColumns = (components: EntityColumnDto[], granularity: DateGranularity): ColumnGroup<ValueHistoryRecordDto>[] => {
         return buildComponentsColumns(
             components,
             granularity,

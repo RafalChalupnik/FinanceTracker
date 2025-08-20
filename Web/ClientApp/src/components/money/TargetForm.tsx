@@ -26,7 +26,7 @@ const TargetForm: FC<TargetFormProps> = (props) => {
         <Space direction='vertical'>
             <InputCurrency
                 onValueChange={setTarget}
-                initialValue={props.initialValue}
+                initialValue={target}
                 error={alertVisible ? 'Target is required' : undefined}
             />
             <SaveCancelButtons

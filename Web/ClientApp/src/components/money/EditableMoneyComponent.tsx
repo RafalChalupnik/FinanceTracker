@@ -9,20 +9,17 @@ import {buildDateColumn, buildDeleteColumn, buildSummaryColumn} from "../table/C
 import DateGranularityPicker from "../DateGranularityPicker";
 import MoneyCharts from "../charts/custom/MoneyCharts";
 import CompositionChart from "../charts/custom/CompositionChart";
-import {OrderableEntityDto} from "../../api/configuration/DTOs/ConfigurationDto";
 import EmptyConfig from "../EmptyConfig";
 
 interface EditableMoneyComponentProps<T extends ValueHistoryRecordDto> {
     title: string;
     getData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<EntityTableDto<T>>;
     buildComponentColumns: (components: EntityColumnDto[], granularity: DateGranularity, updateCallback: () => Promise<void>) => ColumnGroup<T>[];
-    // ---
     buildExtraColumns?: (granularity: DateGranularity, refreshCallback: () => Promise<void>) => (Column<T> | ColumnGroup<T>)[];
     editable?: EditableProps<T>;
     extra?: (data: EntityTableDto<T>) => React.ReactNode;
     allowedGranularities?: DateGranularity[];
     defaultGranularity?: DateGranularity;
-    physicalAllocations?: OrderableEntityDto[];
 }
 
 interface EditableProps<T> {
@@ -75,7 +72,7 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
         )
     ]
     
-    if (props.editable?.onDelete !== undefined && granularity == DateGranularity.Day) {
+    if (props.editable?.onDelete !== undefined && granularity === DateGranularity.Day) {
         columns.push(
             buildDeleteColumn(async row => await props.editable!.onDelete!(row.key))  
         );

@@ -8,7 +8,7 @@ import {EntityColumnDto, ValueHistoryRecordDto} from "../api/value-history/DTOs/
 import {ColumnGroup} from "../components/table/ExtendableTable";
 
 const WalletsSummary = () => {
-    let buildComponentColumns = (components: EntityColumnDto[], granularity: DateGranularity, updateCallback: () => Promise<void>): ColumnGroup<ValueHistoryRecordDto>[] => {
+    let buildComponentColumns = (components: EntityColumnDto[], granularity: DateGranularity): ColumnGroup<ValueHistoryRecordDto>[] => {
         return buildComponentsColumns(
             components,
             granularity,
