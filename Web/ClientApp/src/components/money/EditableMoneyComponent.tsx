@@ -8,7 +8,7 @@ import {Column, ColumnGroup, ExtendableTable} from "../table/ExtendableTable";
 import { MoneyDto } from "../../api/value-history/DTOs/Money";
 import {buildComponentsColumns, buildDateColumn, buildDeleteColumn, buildSummaryColumn} from "../table/ColumnBuilder";
 import DateGranularityPicker from "../DateGranularityPicker";
-import MoneyChart from "../charts/custom/MoneyChart";
+import MoneyCharts from "../charts/custom/MoneyCharts";
 import CompositionChart from "../charts/custom/CompositionChart";
 import {OrderableEntityDto} from "../../api/configuration/DTOs/ConfigurationDto";
 
@@ -131,23 +131,9 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
                     columns={columns}
                 />
                 <Divider/>
-                <MoneyChart 
-                    title='Value'
+                <MoneyCharts 
                     headers={props.columns}
                     data={props.rows}
-                    dataSelector={component => component.value}
-                />
-                <MoneyChart
-                    title='Change'
-                    headers={props.columns}
-                    data={props.rows}
-                    dataSelector={component => component.change}
-                />
-                <MoneyChart
-                    title='Cumulative change'
-                    headers={props.columns}
-                    data={props.rows}
-                    dataSelector={component => component.cumulativeChange}
                 />
                 <CompositionChart
                     headers={props.columns}
