@@ -1,18 +1,19 @@
-import React, {FC, useEffect, useState} from 'react';
-import EmptyConfig from "../components/EmptyConfig";
+import React, {FC, useState} from 'react';
 import {Dayjs} from 'dayjs';
-import {buildTargetColumn} from "../components/table/ColumnBuilder";
+import {buildComponentsColumns, buildTargetColumn} from "../components/table/ColumnBuilder";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 import {
-    deleteWalletValues, getWalletComponentsValueHistory,
-    setWalletComponentValue, setWalletTarget
+    deleteWalletValues, getWalletComponentsValueHistory, setWalletComponentValue, setWalletTarget
 } from "../api/value-history/Client";
-import {MoneyDto} from "../api/value-history/DTOs/Money";
-import {EntityTableDto, WalletComponentsValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
+import {
+    EntityColumnDto,
+    EntityTableDto, ValueHistoryRecordDto,
+    WalletComponentsValueHistoryRecordDto
+} from "../api/value-history/DTOs/EntityTableDto";
 import WalletTargetChart from "../components/charts/custom/WalletTargetChart";
 import {EditableMoneyComponent} from "../components/money/EditableMoneyComponent";
 import {OrderableEntityDto} from "../api/configuration/DTOs/ConfigurationDto";
-import { getPhysicalAllocations } from '../api/configuration/Client';
+import {ColumnGroup} from "../components/table/ExtendableTable";
 
 interface WalletProps {
     walletId: string,
@@ -29,6 +30,18 @@ const Wallet: FC<WalletProps> = (props) => {
         ? <WalletTargetChart data={data.rows}/>
         : undefined;
 
+    let buildComponentColumns = (components: EntityColumnDto[], granularity: DateGranularity, updateCallback: () => Promise<void>): ColumnGroup<ValueHistoryRecordDto>[] => {
+        return buildComponentsColumns(
+            components,
+            granularity,
+            true,
+            async (entityId, date, value) => {
+                await setWalletComponentValue(entityId, date, value);
+                await updateCallback();
+            }
+        )
+    }
+
     return (
         <EditableMoneyComponent
             title={props.name}
@@ -43,10 +56,9 @@ const Wallet: FC<WalletProps> = (props) => {
                         newEntry: true
                     }
                 },
-                onUpdate: setWalletComponentValue,
                 onDelete: date => deleteWalletValues(props.walletId, date),
             }}
-            showInferredValues={true}
+            buildComponentColumns={buildComponentColumns}
             buildExtraColumns={(granularity, refreshCallback) => [
                 buildTargetColumn(
                     granularity,

@@ -5,8 +5,7 @@ import {PlusOutlined} from "@ant-design/icons";
 import { DateGranularity } from "../../api/value-history/DTOs/DateGranularity";
 import {EntityColumnDto, EntityTableDto, ValueHistoryRecordDto} from "../../api/value-history/DTOs/EntityTableDto";
 import {Column, ColumnGroup, ExtendableTable} from "../table/ExtendableTable";
-import { MoneyDto } from "../../api/value-history/DTOs/Money";
-import {buildComponentsColumns, buildDateColumn, buildDeleteColumn, buildSummaryColumn} from "../table/ColumnBuilder";
+import {buildDateColumn, buildDeleteColumn, buildSummaryColumn} from "../table/ColumnBuilder";
 import DateGranularityPicker from "../DateGranularityPicker";
 import MoneyCharts from "../charts/custom/MoneyCharts";
 import CompositionChart from "../charts/custom/CompositionChart";
@@ -16,8 +15,8 @@ import EmptyConfig from "../EmptyConfig";
 interface EditableMoneyComponentProps<T extends ValueHistoryRecordDto> {
     title: string;
     getData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<EntityTableDto<T>>;
+    buildComponentColumns: (components: EntityColumnDto[], granularity: DateGranularity, updateCallback: () => Promise<void>) => ColumnGroup<T>[];
     // ---
-    showInferredValues: boolean;
     buildExtraColumns?: (granularity: DateGranularity, refreshCallback: () => Promise<void>) => (Column<T> | ColumnGroup<T>)[];
     editable?: EditableProps<T>;
     extra?: (data: EntityTableDto<T>) => React.ReactNode;
@@ -28,7 +27,6 @@ interface EditableMoneyComponentProps<T extends ValueHistoryRecordDto> {
 
 interface EditableProps<T> {
     createEmptyRow: (date: Dayjs, columns: EntityColumnDto[]) => T;
-    onUpdate: (id: string, date: string, value: MoneyDto, physicalAllocationId?: string) => Promise<void>;
     onDelete?: (date: string) => Promise<void>;
 } 
 
@@ -62,25 +60,17 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
         populateData();
     }, []);
     
-    let onUpdate = props.editable !== undefined
-        ? async (id: string, date: string, value: MoneyDto, physicalAllocationId?: string) => {
-            setNewEntryDate(undefined);
-            await props.editable?.onUpdate(id, date, value, physicalAllocationId);
-        }
-        : undefined;
-
+    let onUpdateCallback = async () => {
+        setNewEntryDate(undefined);
+        await populateData(granularity, fromDate, toDate);
+    }
+    
     let columns = [
         buildDateColumn(),
-        ...buildComponentsColumns(
-            data.columns, 
-            granularity,
-            props.showInferredValues ?? true,
-            onUpdate,
-            props.physicalAllocations
-        ),
+        ...props.buildComponentColumns(data.columns, granularity, onUpdateCallback),
         buildSummaryColumn(),
         ...(props.buildExtraColumns
-            ? props.buildExtraColumns!(granularity, async () => await populateData(granularity, fromDate, toDate))
+            ? props.buildExtraColumns!(granularity, onUpdateCallback)
             : []
         )
     ]
