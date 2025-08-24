@@ -21,95 +21,13 @@ internal static class Seeder
         var bankAccountAllocationId = await SeedPhysicalAllocation(context, "Bank Account");
         await SeedEmergencyFund(context, startYear, endDate, bankAccountAllocationId);
         await SeedLongTermWallet(context, startYear, endDate, bankAccountAllocationId);
+
+        await SeedInflationValues(context, startYear, endDate);
         
         await SeedAssets(context, startYear, endDate);
         await SeedDebts(context, startYear, endDate);
 
         await context.SaveChangesAsync();
-        
-        // ---
-        
-        // var today = DateOnly.FromDateTime(DateTime.Now);
-        // var dummyValue = new Money(100, "PLN", 100);
-        //
-        // var bankAccount = new Component
-        // {
-        //     Name = "Bank Account",
-        //     DisplaySequence = 1,
-        // };
-        // // bankAccount.SetValue(today, dummyValue);
-        //
-        // var cash = new Component
-        // {
-        //     Name = "Cash",
-        //     DisplaySequence = 2,
-        // };
-        // // cash.SetValue(today, dummyValue);
-        //
-        // var emergencyFund = new Wallet
-        // {
-        //     Name = "Emergency Fund",
-        //     DisplaySequence = 1
-        // };
-        // emergencyFund.Add(bankAccount);
-        // emergencyFund.Add(cash);
-        //
-        // var bonds = new Component
-        // {
-        //     Name = "Bonds",
-        //     DisplaySequence = 1,
-        // };
-        // // bonds.SetValue(today, dummyValue);
-        //
-        // var stocks = new Component
-        // {
-        //     Name = "Stocks",
-        //     DisplaySequence = 2,       
-        // };
-        // // stocks.SetValue(today, dummyValue);
-        //
-        // var longTermWallet = new Wallet
-        // {
-        //     Name = "Long-Term Wallet",
-        //     DisplaySequence = 2
-        // };
-        // longTermWallet.Add(bonds);
-        // longTermWallet.Add(stocks);
-        //
-        // var home = new Asset
-        // {
-        //     Name = "Home",
-        //     DisplaySequence = 1
-        // };
-        // // home.SetValue(today, dummyValue);
-        //
-        // var car = new Asset
-        // {
-        //     Name = "Car",
-        //     DisplaySequence = 2,
-        // };
-        // // car.SetValue(today, dummyValue);
-        //
-        // var mortgage = new Debt
-        // {
-        //     Name = "Mortgage",
-        //     DisplaySequence = 1
-        // };
-        // // mortgage.SetValue(today, dummyValue);
-        //
-        // var carPayment = new Debt
-        // {
-        //     Name = "Car Payment",
-        //     DisplaySequence = 2
-        // };
-        // // carPayment.SetValue(today, dummyValue);
-        //
-        // context.Add(emergencyFund);
-        // context.Add(longTermWallet);
-        // context.Add(home);
-        // context.Add(car);
-        // context.Add(mortgage);
-        // context.Add(carPayment);
     }
     
     private static async ValueTask SeedEmergencyFund(
@@ -171,8 +89,7 @@ internal static class Seeder
             endDate: endDate,
             monthInterval: 1,
             minValue: 1_000,
-            maxValue: 5_000,
-            currency: "EUR"
+            maxValue: 5_000
         );
         
         var targets = GenerateValues(
@@ -191,7 +108,7 @@ internal static class Seeder
                 .Concat(cashPlnHistory
                     .Select(value => value.ToComponentValue(cashPln.Id, cashPhysicalAllocationId)))
                 .Concat(cashEurHistory
-                    .Select(value => value.ToComponentValue(cashEur.Id, cashPhysicalAllocationId)))
+                    .Select(value => value.ToComponentValue(cashEur.Id, cashPhysicalAllocationId, currency: "EUR")))
         );
 
         await context.WalletTargets.AddRangeAsync(
@@ -286,6 +203,32 @@ internal static class Seeder
 
         return physicalAllocation.Id;
     }
+    
+    private static async ValueTask SeedInflationValues(
+        FinanceTrackerContext context, 
+        int startYear, 
+        DateOnly endDate)
+    {
+        var inflationValues = GenerateValues(
+            startYear: startYear,
+            endDate: endDate,
+            monthInterval: 1,
+            minValue: -1,
+            maxValue: 5
+        );
+        
+        await context.InflationValues.AddRangeAsync(
+            inflationValues
+                .Select((value, index) => new InflationHistoricValue
+                {
+                    Year = value.Date.Year,
+                    Month = value.Date.Month,
+                    Value = value.Value / 100,
+                    // Let's set inflation to unconfirmed for the last 3 months
+                    Confirmed = index < inflationValues.Count - 3
+                })
+        );
+    }
 
     private static async ValueTask SeedAssets(FinanceTrackerContext context, int startYear, DateOnly endDate)
     {
@@ -372,8 +315,7 @@ internal static class Seeder
         DateOnly endDate, 
         int monthInterval,
         int minValue, 
-        int maxValue,
-        string currency = "PLN")
+        int maxValue)
     {
         // Start with the end of the first quarter
         var currentDate = new DateOnly(year: startYear, month: 1, day: 1).AddMonths(monthInterval).AddDays(-1);
@@ -384,7 +326,7 @@ internal static class Seeder
             values.Add(
                 new DateValue(
                     Date: currentDate,
-                    Value: GenerateRandomValue(minValue, maxValue, currency)
+                    Value: GenerateRandomDecimalValue(minValue, maxValue)
                 )
             );
 
@@ -395,41 +337,37 @@ internal static class Seeder
         values.Add(
             new DateValue(
                 Date: currentDate,
-                Value: GenerateRandomValue(minValue, maxValue, currency)
+                Value: GenerateRandomDecimalValue(minValue, maxValue)
             )
         );
 
         return values;
     }
 
-    private static Money GenerateRandomValue(int min, int max, string currency)
+    private static decimal GenerateRandomDecimalValue(int min, int max)
     {
-        // Generate decimals as well
-        var value = (decimal)Random.Shared.Next(min * 100, max * 100) / 100;
-        
-        return new Money(
-            Amount: value, 
-            Currency: currency, 
-            AmountInMainCurrency: value
-        );
+        return (decimal)Random.Shared.Next(min * 100, max * 100) / 100;
     }
 
-    private record DateValue(DateOnly Date, Money Value)
+    private record DateValue(DateOnly Date, decimal Value)
     {
-        public HistoricValue ToAssetValue(Guid assetId)
-            => HistoricValue.CreateAssetValue(Date, Value, assetId);
+        public HistoricValue ToAssetValue(Guid assetId, string currency = "PLN")
+            => HistoricValue.CreateAssetValue(Date, ToMoney(Value, currency), assetId);
 
-        public HistoricValue ToComponentValue(Guid componentId, Guid? physicalAllocationId)
-            => HistoricValue.CreateComponentValue(Date, Value, componentId, physicalAllocationId);
+        public HistoricValue ToComponentValue(Guid componentId, Guid? physicalAllocationId, string currency = "PLN")
+            => HistoricValue.CreateComponentValue(Date, ToMoney(Value, currency), componentId, physicalAllocationId);
         
-        public HistoricValue ToDebtValue(Guid debtId)
-            => HistoricValue.CreateDebtValue(Date, Value, debtId);
+        public HistoricValue ToDebtValue(Guid debtId, string currency = "PLN")
+            => HistoricValue.CreateDebtValue(Date, ToMoney(Value, currency), debtId);
 
         public WalletTarget ToWalletTarget(Guid walletId) => new()
         {
             WalletId = walletId,
             Date = Date,
-            ValueInMainCurrency = Value.AmountInMainCurrency
+            ValueInMainCurrency = Value
         };
+        
+        private static Money ToMoney(decimal amount, string currency)
+            => new(amount, currency, amount);
     }
 }
