@@ -105,6 +105,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                     .OnDelete(DeleteBehavior.Cascade);
                 b.HasMany(x => x.Targets)
                     .WithOne()
+                    .HasForeignKey(x => x.WalletId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
     }

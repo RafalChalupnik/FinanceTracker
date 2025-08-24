@@ -114,7 +114,15 @@ public class Wallet : IEntityWithValueHistory, IOrderableEntity
 [ComplexType]
 public class WalletTarget
 {
+    /// <summary>
+    /// ID of the target.
+    /// </summary>
     public Guid Id { get; init; } = Guid.NewGuid();
+    
+    /// <summary>
+    /// ID of the wallet.
+    /// </summary>
+    public Guid WalletId { get; init; }
     
     /// <summary>
     /// Date the target value has been set.

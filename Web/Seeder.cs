@@ -166,6 +166,14 @@ internal static class Seeder
             maxValue: 5_000,
             currency: "EUR"
         );
+        
+        var targets = GenerateValues(
+            startYear: startYear,
+            endDate: endDate,
+            monthInterval: 3,
+            minValue: 70_000,
+            maxValue: 120_000
+        );
 
         await context.Wallets.AddAsync(emergencyFund);
         
@@ -176,6 +184,11 @@ internal static class Seeder
                     .Select(value => value.ToComponentValue(cashPln.Id)))
                 .Concat(cashEurHistory
                     .Select(value => value.ToComponentValue(cashEur.Id)))
+        );
+
+        await context.WalletTargets.AddRangeAsync(
+            targets
+                .Select(target => target.ToWalletTarget(emergencyFund.Id))
         );
     }
 
@@ -316,5 +329,12 @@ internal static class Seeder
         
         public HistoricValue ToDebtValue(Guid debtId)
             => HistoricValue.CreateDebtValue(Date, Value, debtId);
+
+        public WalletTarget ToWalletTarget(Guid walletId) => new()
+        {
+            WalletId = walletId,
+            Date = Date,
+            ValueInMainCurrency = Value.AmountInMainCurrency
+        };
     }
 }
