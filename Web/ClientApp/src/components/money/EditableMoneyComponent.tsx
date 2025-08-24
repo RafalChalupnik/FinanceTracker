@@ -75,7 +75,10 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
     
     if (props.editable?.onDelete !== undefined && granularity === DateGranularity.Day) {
         columns.push(
-            buildDeleteColumn(async row => await props.editable!.onDelete!(dayjs(row.key)))  
+            buildDeleteColumn(async row => {
+                await props.editable!.onDelete!(dayjs(row.key));
+                await populateData(granularity, fromDate, toDate);
+            })  
         );
     }
     
