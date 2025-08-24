@@ -4,7 +4,7 @@ namespace FinanceTracker.Core;
 
 public class InflationHistoricValue : IEntity
 {
-    public Guid Id { get; init; }
+    public Guid Id { get; init; } = Guid.NewGuid();
     
     public int Year { get; init; }
     

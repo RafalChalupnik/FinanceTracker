@@ -57,6 +57,7 @@ const Wallet: FC<WalletProps> = (props) => {
         <EditableMoneyComponent
             title={props.name}
             getData={getData}
+            showCompositionChart={true}
             editable={{
                 createEmptyRow: (date, columns) => {
                     return {

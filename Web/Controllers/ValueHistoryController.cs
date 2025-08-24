@@ -30,8 +30,8 @@ public class ValueHistoryController(
     [HttpPut("assets/{assetId:guid}/{date}")]
     public async Task<IActionResult> SetAssetValue(Guid assetId, DateOnly date, [FromBody] Money value)
     {
-        await setEntityValueCommand.SetEntityValue<Asset>(
-            entityId: assetId, 
+        await setEntityValueCommand.SetAssetValue(
+            assetId: assetId, 
             date: date, 
             value: value
         );
@@ -57,8 +57,8 @@ public class ValueHistoryController(
     [HttpPut("debts/{debtId:guid}/{date}")]
     public async Task<IActionResult> SetDebtValue(Guid debtId, DateOnly date, [FromBody] Money value)
     {
-        await setEntityValueCommand.SetEntityValue<Debt>(
-            entityId: debtId, 
+        await setEntityValueCommand.SetDebtValue(
+            debtId: debtId, 
             date: date, 
             value: value
         );

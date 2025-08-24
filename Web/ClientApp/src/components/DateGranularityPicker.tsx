@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {DatePicker, Select, Space} from 'antd';
 import {PickerMode} from "rc-picker/lib/interface";
 import dayjs, {Dayjs, OpUnitType, QUnitType} from "dayjs";
@@ -19,6 +19,8 @@ interface DateRangePickerWithTypeProps {
 }
 
 const DateRangePickerWithType: React.FC<DateRangePickerWithTypeProps> = (props) => {
+    console.log('#Props', props)
+    
     const allOptions: { value: DateGranularity; picker: PickerMode; label: string }[] = [
         { value: DateGranularity.Day, picker: 'date', label: "Date" },
         { value: DateGranularity.Week, picker: 'week', label: "Week" },
@@ -39,15 +41,19 @@ const DateRangePickerWithType: React.FC<DateRangePickerWithTypeProps> = (props) 
         return allOptions[0].picker;
     }
 
-    const [allowedDateRange, setAllowedDateRange] = useState<DateRange | undefined>(props.allowedDateRange);
-    const [selectedDateRange, setSelectedDateRange] = useState<DateRange | undefined>(props.allowedDateRange);
+    const [allowedDateRange, setAllowedDateRange] = useState<DateRange | undefined>(undefined);
+    const [selectedDateRange, setSelectedDateRange] = useState<DateRange | undefined>(undefined);
     const [mode, setMode] = useState<PickerMode>(getInitialMode);
     
     // This state is required, so the whole date range is persisted even on data reload
-    if (allowedDateRange === undefined) {
-        setAllowedDateRange(props.allowedDateRange);
-    }
-    
+    useEffect(() => {
+        if (props.allowedDateRange !== undefined) {
+            setAllowedDateRange(prev => prev ?? props.allowedDateRange);
+            setSelectedDateRange(prev => prev ?? props.allowedDateRange);
+        }
+    }, [props.allowedDateRange]);
+
+
     const mapToDateGranularity = (mode: PickerMode): DateGranularity => {
         return allOptions.find(option => option.picker === mode)!.value;
     }
