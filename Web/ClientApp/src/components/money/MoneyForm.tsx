@@ -1,10 +1,11 @@
 import React, { FC, useState } from "react";
-import {Alert, Button, Input, InputNumber, Space} from "antd";
+import {Space} from "antd";
 import {MoneyDto} from "../../api/value-history/DTOs/Money";
-import {CloseOutlined, SaveOutlined} from "@ant-design/icons";
 import {OrderableEntityDto} from "../../api/configuration/DTOs/ConfigurationDto";
 import PhysicalAllocationPicker from "../PhysicalAllocationPicker";
 import SaveCancelButtons from "../SaveCancelButtons";
+import InputCurrency from "./InputCurrency";
+import {TransactionOutlined} from "@ant-design/icons";
 
 interface MoneyFormProps {
     initialValue: MoneyDto | undefined;
@@ -19,11 +20,26 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
     
     const [amount, setAmount] = useState(props?.initialValue?.amount);
     const [currency, setCurrency] = useState(props?.initialValue?.currency ?? 'PLN');
-    const [amountInMainCurrency, setAmountInMainCurrency] = useState<number | undefined>(currency !== MAIN_CURRENCY
-        ? props?.initialValue?.amountInMainCurrency
-        : undefined);
+    const [amountInMainCurrency, setAmountInMainCurrency] = useState<number | undefined>(props?.initialValue?.amountInMainCurrency);
     const [physicalAllocationId, setPhysicalAllocationId] = useState<string | undefined>(undefined);
     const [alertVisible, setAlertVisible] = useState(false);
+
+    // TODO: Move
+    async function convertCurrency(amount: number, currency: string): Promise<number> {
+        const res = await fetch(`https://open.er-api.com/v6/latest/${currency}`);
+        const data = await res.json();
+        return data.rates[MAIN_CURRENCY] * amount;
+    }
+    
+    const updateAmountInMainCurrency = async () => {
+        console.log('#Request')
+        
+        if (amount !== undefined) {
+            let converted = await convertCurrency(amount, currency);
+            console.log('#Response', converted)
+            setAmountInMainCurrency(converted);
+        }
+    }
     
     const save = () => {
         setAlertVisible(false);
@@ -46,28 +62,28 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
     
     return (
         <Space direction={"vertical"}>
-            {alertVisible && <Alert message="Amount is required" type="error" />}
-            <InputNumber
-                value={amount}
-                style={{ width: '100%' }}
-                step={0.01}
-                placeholder="0,00"
-                onChange={(e) => {
-                    setAmount(e?.valueOf());
+            <InputCurrency 
+                onValueChange={setAmount} 
+                initialValue={amount}
+                currency={{
+                    onChange: currency => {
+                        setCurrency(currency);
+
+                        if (currency != MAIN_CURRENCY && amountInMainCurrency === undefined) {
+                            setAmountInMainCurrency(0);
+                        }
+                    },
+                    initialCurrency: currency
                 }}
+                error={alertVisible ? 'Amount is required' : undefined}
             />
-            <Input 
-                value={currency}
-                minLength={3} 
-                maxLength={3}
-                onChange={(e) => setCurrency(e.target.value)}
-            />
-            {currency != MAIN_CURRENCY && <InputNumber
-                value={amountInMainCurrency}
-                style={{ width: '100%' }}
-                step={0.01}
-                placeholder="0,00"
-                onChange={(e) => setAmountInMainCurrency( e?.valueOf())}
+            {currency != MAIN_CURRENCY && <InputCurrency
+                onValueChange={setAmountInMainCurrency}
+                initialValue={amountInMainCurrency}
+                currency={{
+                    disableCurrencyPicker: true
+                }}
+                extra={<TransactionOutlined onClick={updateAmountInMainCurrency}/>}
             />}
             {props.physicalAllocations && (
                 <PhysicalAllocationPicker 

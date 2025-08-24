@@ -12,11 +12,12 @@ import {EntityValueSnapshotDto, ValueSnapshotDto} from "../../api/value-history/
 import {DateGranularity} from "../../api/value-history/DTOs/DateGranularity";
 import {DeleteOutlined, ExclamationCircleOutlined} from "@ant-design/icons";
 import InflationForm from "../money/InflationForm";
-import dayjs from "dayjs";
+import dayjs, {Dayjs} from "dayjs";
 import ColoredPercent from "../ColoredPercent";
 import MoneyForm from "../money/MoneyForm";
 import Money from "../money/Money";
 import {OrderableEntityDto} from "../../api/configuration/DTOs/ConfigurationDto";
+import TargetForm from "../money/TargetForm";
 
 const {Text} = Typography;
 
@@ -33,7 +34,7 @@ export function buildComponentsColumns<T extends ValueHistoryRecordDto>(
     components: EntityColumnDto[],
     granularity: DateGranularity,
     showInferredValues: boolean,
-    onUpdate?: (entityId: string, date: string, value: MoneyDto, physicalAllocationId?: string) => Promise<void>,
+    onUpdate?: (entityId: string, date: Dayjs, value: MoneyDto, physicalAllocationId?: string) => Promise<void>,
     physicalAllocations?: OrderableEntityDto[]
 ): ColumnGroup<T>[] {
     let areAllComponentsInSameWallet = components
@@ -90,7 +91,7 @@ export function buildDeleteColumn<T>(
 
 export function buildTargetColumn<T extends WalletComponentsValueHistoryRecordDto>(
     granularity: DateGranularity,
-    onUpdate: (date: string, value: number) => Promise<void>
+    onUpdate: (date: Dayjs, value: number) => Promise<void>
 ): Column<T> {
     const formatter = (amount: number) =>
         new Intl.NumberFormat('pl-PL', {
@@ -114,8 +115,17 @@ export function buildTargetColumn<T extends WalletComponentsValueHistoryRecordDt
         ),
         editable: {
             isEditable: granularity == DateGranularity.Day,
-            initialValueSelector: record => record.target?.targetInMainCurrency,
-            onSave: (row, value) => onUpdate(row.key, value)
+            renderEditable: (row, closeCallback) =>
+                (
+                    <TargetForm
+                        initialValue={row.target?.targetInMainCurrency}
+                        onSave={async value => {
+                            await onUpdate(dayjs(row.key), value);
+                            closeCallback();
+                        }}
+                        onCancel={closeCallback}
+                    />
+                )
         }
     }
 }
@@ -252,7 +262,7 @@ function buildEditableValue<T extends ValueHistoryRecordDto>(
     componentId: string,
     index: number,
     isEditable: boolean,
-    onUpdate: (entityId: string, date: string, value: MoneyDto, physicalAllocationId?: string) => Promise<void>,
+    onUpdate: (entityId: string, date: Dayjs, value: MoneyDto, physicalAllocationId?: string) => Promise<void>,
     physicalAllocations?: OrderableEntityDto[],
     defaultPhysicalAllocation?: string | undefined
 ): CustomEditableColumn<T> {
@@ -267,7 +277,7 @@ function buildEditableValue<T extends ValueHistoryRecordDto>(
                 <MoneyForm
                     initialValue={record.entities[index]?.value}
                     onSave={async (money, physicalAllocationId) => {
-                        await onUpdate(componentId, record.key, money, physicalAllocationId);
+                        await onUpdate(componentId, dayjs(record.key), money, physicalAllocationId);
                         closeCallback();
                     }}
                     onCancel={closeCallback}

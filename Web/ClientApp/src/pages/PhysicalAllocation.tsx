@@ -1,7 +1,13 @@
-import SimpleComponentsPage from "./SimpleComponentsPage";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
-import {getPhysicalAllocationValueHistory, setWalletComponentValue} from "../api/value-history/Client";
-import {FC} from "react";
+import {
+    getPhysicalAllocationValueHistory, setWalletComponentValue
+} from "../api/value-history/Client";
+import React, {FC} from "react";
+import {EditableMoneyComponent} from "../components/money/EditableMoneyComponent";
+import {Dayjs} from "dayjs";
+import {EntityColumnDto, ValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
+import {ColumnGroup} from "../components/table/ExtendableTable";
+import {buildComponentsColumns} from "../components/table/ColumnBuilder";
 
 interface PhysicalAllocationProps {
     allocationId: string,
@@ -9,27 +15,44 @@ interface PhysicalAllocationProps {
 }
 
 const PhysicalAllocation: FC<PhysicalAllocationProps> = (props) => {
-    return <SimpleComponentsPage
-        title={props.name}
-        defaultGranularity={DateGranularity.Day}
-        getData={async (granularity, from, to) => await getPhysicalAllocationValueHistory(
-            props.allocationId,
+    const getData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => 
+        await getPhysicalAllocationValueHistory(
+        props.allocationId,
+        granularity,
+        from,
+        to
+    )
+
+    let buildComponentColumns = (components: EntityColumnDto[], granularity: DateGranularity, updateCallback: () => Promise<void>): ColumnGroup<ValueHistoryRecordDto>[] => {
+        return buildComponentsColumns(
+            components,
             granularity,
-            from,
-            to
-        )}
-        editable={{
-            createEmptyRow: (date, columns) => {
-                return {
-                    key: date.format("YYYY-MM-DD"),
-                    entities: columns.map(_ => undefined),
-                    summary: undefined,
-                    target: undefined,
+            true,
+            async (entityId, date, value) => {
+                await setWalletComponentValue(entityId, date, value);
+                await updateCallback();
+            }
+        )
+    }
+
+    return (
+        <EditableMoneyComponent
+            title={props.name}
+            getData={getData}
+            defaultGranularity={DateGranularity.Day}
+            editable={{
+                createEmptyRow: (date, columns) => {
+                    return {
+                        key: date.format("YYYY-MM-DD"),
+                        entities: columns.map(_ => undefined),
+                        summary: undefined,
+                        target: undefined,
+                    }
                 }
-            },
-            setValue: setWalletComponentValue
-        }}
-    />;
+            }}
+            buildComponentColumns={buildComponentColumns}
+        />
+    );
 };
 
 export default PhysicalAllocation;

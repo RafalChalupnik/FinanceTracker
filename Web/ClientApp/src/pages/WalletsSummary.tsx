@@ -1,62 +1,43 @@
-import {buildInflationColumn} from "../components/table/ColumnBuilder";
-import {Dayjs} from "dayjs";
-import EmptyConfig from "../components/EmptyConfig";
+import {buildComponentsColumns, buildInflationColumn} from "../components/table/ColumnBuilder";
 import {EditableMoneyComponent} from "../components/money/EditableMoneyComponent";
-import React, {FC, useEffect, useState} from "react";
-import {EntityColumnDto, WalletValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
+import React from "react";
 import {getWalletsValueHistory, setInflation} from "../api/value-history/Client";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 import ScoreChart from "../components/charts/custom/ScoreChart";
+import {EntityColumnDto, ValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
+import {ColumnGroup} from "../components/table/ExtendableTable";
 
 const WalletsSummary = () => {
-    const [isLoading, setIsLoading] = useState(true)
-    const [data, setData] = useState({
-        headers: [] as EntityColumnDto[],
-        rows: [] as WalletValueHistoryRecordDto[]
-    });
-
-    const populateData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => {
-        const response = await getWalletsValueHistory(granularity, from, to)
-        setData({
-            headers: response.columns,
-            rows: response.rows
-        });
-
-        setIsLoading(false)
-    }
-
-    useEffect(() => {
-        populateData(DateGranularity.Month)
-    }, [])
-    
-    const updateInflation = async (year: number, month: number, value: number, confirmed: boolean) => {
-        await setInflation(year, month, value, confirmed);
-        await populateData(DateGranularity.Month);
+    let buildComponentColumns = (components: EntityColumnDto[], granularity: DateGranularity): ColumnGroup<ValueHistoryRecordDto>[] => {
+        return buildComponentsColumns(
+            components,
+            granularity,
+            true
+        )
     }
     
-    let buildExtraColumns = (granularity: DateGranularity) => [
-        buildInflationColumn(granularity, updateInflation)
+    let buildExtraColumns = (granularity: DateGranularity, refreshCallback: () => Promise<void>) => [
+        buildInflationColumn(granularity, async (year: number, month: number, value: number, confirmed: boolean) => {
+            await setInflation(year, month, value, confirmed);
+            await refreshCallback();
+        })
     ]
     
-    return isLoading
-        ? <p><em>Loading...</em></p>
-        : <EmptyConfig enabled={data.headers.length === 0}>
-            <EditableMoneyComponent
-                title={'Wallets Summary'}
-                rows={data.rows}
-                columns={data.headers}
-                refreshData={populateData}
-                showInferredValues={true}
-                buildExtraColumns={buildExtraColumns}
-                extra={<ScoreChart data={data.rows}/>}
-                allowedGranularities={[
-                    DateGranularity.Month,
-                    DateGranularity.Quarter,
-                    DateGranularity.Year
-                ]}
-                defaultGranularity={DateGranularity.Month}
-            />
-        </EmptyConfig>;
+    return (
+        <EditableMoneyComponent
+            title={'Wallets Summary'}
+            getData={getWalletsValueHistory}
+            buildComponentColumns={buildComponentColumns}
+            buildExtraColumns={buildExtraColumns}
+            extra={data => (<ScoreChart data={data.rows}/>)}
+            allowedGranularities={[
+                DateGranularity.Month,
+                DateGranularity.Quarter,
+                DateGranularity.Year
+            ]}
+            defaultGranularity={DateGranularity.Month}
+        />
+    );
 };
 
 export default WalletsSummary;
