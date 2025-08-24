@@ -18,7 +18,8 @@ internal static class Seeder
         var endDate = DateOnly.FromDateTime(DateTime.Today);
         var startYear = endDate.Year - 2;
 
-        // await SeedComponents(context);
+        await SeedEmergencyFund(context, startYear, endDate);
+        
         await SeedAssets(context, startYear, endDate);
         await SeedDebts(context, startYear, endDate);
 
@@ -108,6 +109,75 @@ internal static class Seeder
         // context.Add(mortgage);
         // context.Add(carPayment);
     }
+    
+    private static async ValueTask SeedEmergencyFund(
+        FinanceTrackerContext context, 
+        int startYear, 
+        DateOnly endDate)
+    {
+        var emergencyFund = new Wallet
+        {
+            Name = "Emergency Fund",
+            DisplaySequence = 1
+        };
+
+        var bankAccount = new Component
+        {
+            Name = "Bank Account",
+            DisplaySequence = 1
+        };
+        emergencyFund.Add(bankAccount);
+
+        var cashPln = new Component
+        {
+            Name = "Cash (PLN)",
+            DisplaySequence = 2
+        };
+        emergencyFund.Add(cashPln);
+        
+        var cashEur = new Component
+        {
+            Name = "Cash (EUR)",
+            DisplaySequence = 3
+        };
+        emergencyFund.Add(cashEur);
+        
+        var bankAccountHistory = GenerateValues(
+            startYear: startYear,
+            endDate: endDate,
+            monthInterval: 1,
+            minValue: 50_000,
+            maxValue: 100_000
+        );
+        
+        var cashPlnHistory = GenerateValues(
+            startYear: startYear,
+            endDate: endDate,
+            monthInterval: 1,
+            minValue: 5_000,
+            maxValue: 20_000
+        );
+        
+        var cashEurHistory = GenerateValues(
+            startYear: startYear,
+            endDate: endDate,
+            monthInterval: 1,
+            minValue: 1_000,
+            maxValue: 5_000,
+            currency: "EUR"
+        );
+
+        await context.Wallets.AddAsync(emergencyFund);
+        
+        await context.HistoricValues.AddRangeAsync(
+            bankAccountHistory
+                .Select(value => value.ToComponentValue(bankAccount.Id))
+                .Concat(cashPlnHistory
+                    .Select(value => value.ToComponentValue(cashPln.Id)))
+                .Concat(cashEurHistory
+                    .Select(value => value.ToComponentValue(cashEur.Id)))
+        );
+    }
 
     private static async ValueTask SeedAssets(FinanceTrackerContext context, int startYear, DateOnly endDate)
     {
@@ -123,18 +193,21 @@ internal static class Seeder
             DisplaySequence = 2,
         };
 
-        var homeValueHistory = GenerateQuarterlyValues(
+        var homeValueHistory = GenerateValues(
             startYear: startYear,
             endDate: endDate,
+            monthInterval: 3,
             minValue: 300_000,
             maxValue: 800_000
         );
         
-        var carValueHistory = GenerateQuarterlyValues(
+        var carValueHistory = GenerateValues(
             startYear: startYear,
             endDate: endDate,
+            monthInterval: 3,
             minValue: 40_000,
-            maxValue: 75_000);
+            maxValue: 75_000
+        );
 
         await context.Assets.AddRangeAsync(home, car);
         
@@ -160,17 +233,21 @@ internal static class Seeder
             DisplaySequence = 2,
         };
 
-        var mortgageHistory = GenerateQuarterlyValues(
+        var mortgageHistory = GenerateValues(
             startYear: startYear,
             endDate: endDate,
+            monthInterval: 3,
             minValue: -500_000,
-            maxValue: -200_000);
+            maxValue: -200_000
+        );
         
-        var carPaymentHistory = GenerateQuarterlyValues(
+        var carPaymentHistory = GenerateValues(
             startYear: startYear,
             endDate: endDate,
+            monthInterval: 3,
             minValue: -60_000,
-            maxValue: -5_000);
+            maxValue: -5_000
+        );
 
         await context.Debts.AddRangeAsync(mortgage, carPayment);
         
@@ -182,14 +259,16 @@ internal static class Seeder
         );
     }
 
-    private static List<DateValue> GenerateQuarterlyValues(
+    private static List<DateValue> GenerateValues(
         int startYear,
         DateOnly endDate, 
+        int monthInterval,
         int minValue, 
-        int maxValue)
+        int maxValue,
+        string currency = "PLN")
     {
         // Start with the end of the first quarter
-        var currentDate = new DateOnly(year: startYear, month: 1, day: 1).AddMonths(3).AddDays(-1);
+        var currentDate = new DateOnly(year: startYear, month: 1, day: 1).AddMonths(monthInterval).AddDays(-1);
         var values = new List<DateValue>();
 
         while (currentDate < endDate)
@@ -197,32 +276,32 @@ internal static class Seeder
             values.Add(
                 new DateValue(
                     Date: currentDate,
-                    Value: GenerateRandomValue(minValue, maxValue)
+                    Value: GenerateRandomValue(minValue, maxValue, currency)
                 )
             );
 
             // End of next quarter
-            currentDate = currentDate.AddDays(1).AddMonths(3).AddDays(-1);
+            currentDate = currentDate.AddDays(1).AddMonths(monthInterval).AddDays(-1);
         }
         
         values.Add(
             new DateValue(
                 Date: currentDate,
-                Value: GenerateRandomValue(minValue, maxValue)
+                Value: GenerateRandomValue(minValue, maxValue, currency)
             )
         );
 
         return values;
     }
 
-    private static Money GenerateRandomValue(int min, int max)
+    private static Money GenerateRandomValue(int min, int max, string currency)
     {
         // Generate decimals as well
         var value = (decimal)Random.Shared.Next(min * 100, max * 100) / 100;
         
         return new Money(
             Amount: value, 
-            Currency: "PLN", 
+            Currency: currency, 
             AmountInMainCurrency: value
         );
     }
@@ -231,6 +310,9 @@ internal static class Seeder
     {
         public HistoricValue ToAssetValue(Guid assetId)
             => HistoricValue.CreateAssetValue(Date, Value, assetId);
+
+        public HistoricValue ToComponentValue(Guid componentId)
+            => HistoricValue.CreateComponentValue(Date, Value, componentId, physicalAllocationId: null);
         
         public HistoricValue ToDebtValue(Guid debtId)
             => HistoricValue.CreateDebtValue(Date, Value, debtId);

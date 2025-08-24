@@ -30,6 +30,15 @@ public class HistoricValue
             AssetId = assetId
         };
     
+    public static HistoricValue CreateComponentValue(DateOnly date, Money value, Guid componentId, Guid? physicalAllocationId)
+        => new()
+        {
+            Date = date,
+            Value = value,
+            ComponentId = componentId,
+            PhysicalAllocationId = physicalAllocationId
+        };
+    
     public static HistoricValue CreateDebtValue(DateOnly date, Money value, Guid debtId)
         => new()
         {
