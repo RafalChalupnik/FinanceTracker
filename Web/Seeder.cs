@@ -349,13 +349,15 @@ internal static class Seeder
 
     private record DateValue(DateOnly Date, decimal Value)
     {
-        public HistoricValue ToAssetValue(Guid assetId, string currency = "PLN")
+        private const string DefaultCurrency = "PLN";
+        
+        public HistoricValue ToAssetValue(Guid assetId, string currency = DefaultCurrency)
             => HistoricValue.CreateAssetValue(Date, ToMoney(Value, currency), assetId);
 
-        public HistoricValue ToComponentValue(Guid componentId, Guid? physicalAllocationId, string currency = "PLN")
+        public HistoricValue ToComponentValue(Guid componentId, Guid? physicalAllocationId, string currency = DefaultCurrency)
             => HistoricValue.CreateComponentValue(Date, ToMoney(Value, currency), componentId, physicalAllocationId);
         
-        public HistoricValue ToDebtValue(Guid debtId, string currency = "PLN")
+        public HistoricValue ToDebtValue(Guid debtId, string currency = DefaultCurrency)
             => HistoricValue.CreateDebtValue(Date, ToMoney(Value, currency), debtId);
 
         public WalletTarget ToWalletTarget(Guid walletId) => new()
@@ -366,6 +368,19 @@ internal static class Seeder
         };
         
         private static Money ToMoney(decimal amount, string currency)
-            => new(amount, currency, amount);
+        {
+            if (currency == "PLN")
+            {
+                return new Money(amount, currency, amount);
+            }
+            
+            var exchangeRate = (decimal) Random.Shared.NextDouble() / 2 * 10;
+            
+            return new Money(
+                amount, 
+                currency, 
+                amount * exchangeRate
+            );
+        }
     }
 }
