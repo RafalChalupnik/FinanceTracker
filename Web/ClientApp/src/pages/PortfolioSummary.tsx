@@ -19,8 +19,9 @@ const PortfolioSummary = () => {
         <EditableMoneyComponent
             title='Portfolio Summary'
             getData={getPortfolioValueHistory}
-            defaultGranularity={DateGranularity.Month}
+            showCompositionChart={false}
             buildComponentColumns={buildComponentColumns}
+            defaultGranularity={DateGranularity.Month}
         />
     );
 };

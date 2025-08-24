@@ -27,6 +27,7 @@ const Assets = () => {
         <EditableMoneyComponent
             title='Assets'
             getData={getAssetsValueHistory}
+            showCompositionChart={true}
             defaultGranularity={DateGranularity.Day}
             editable={{
                 createEmptyRow: (date, columns) => {

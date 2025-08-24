@@ -27,6 +27,7 @@ const WalletsSummary = () => {
         <EditableMoneyComponent
             title={'Wallets Summary'}
             getData={getWalletsValueHistory}
+            showCompositionChart={true}
             buildComponentColumns={buildComponentColumns}
             buildExtraColumns={buildExtraColumns}
             extra={data => (<ScoreChart data={data.rows}/>)}

@@ -15,6 +15,7 @@ interface EditableMoneyComponentProps<T extends ValueHistoryRecordDto> {
     title: string;
     getData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<EntityTableDto<T>>;
     buildComponentColumns: (components: EntityColumnDto[], granularity: DateGranularity, updateCallback: () => Promise<void>) => ColumnGroup<T>[];
+    showCompositionChart: boolean;
     buildExtraColumns?: (granularity: DateGranularity, refreshCallback: () => Promise<void>) => (Column<T> | ColumnGroup<T>)[];
     editable?: EditableProps<T>;
     extra?: (data: EntityTableDto<T>) => React.ReactNode;
@@ -147,10 +148,10 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
                         headers={data.columns}
                         data={data.rows}
                     />
-                    <CompositionChart
+                    {props.showCompositionChart && (<CompositionChart
                         headers={data.columns}
                         records={data.rows}
-                    />
+                    />)}
                     {props.extra?.(data)}
                 </Card>
                 <Modal

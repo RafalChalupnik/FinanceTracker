@@ -39,6 +39,7 @@ const PhysicalAllocation: FC<PhysicalAllocationProps> = (props) => {
         <EditableMoneyComponent
             title={props.name}
             getData={getData}
+            showCompositionChart={true}
             defaultGranularity={DateGranularity.Day}
             editable={{
                 createEmptyRow: (date, columns) => {
