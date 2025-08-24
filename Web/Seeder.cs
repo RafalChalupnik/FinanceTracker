@@ -24,14 +24,14 @@ internal static class Seeder
             Name = "Bank Account",
             DisplaySequence = 1,
         };
-        bankAccount.SetValue(today, dummyValue);
+        // bankAccount.SetValue(today, dummyValue);
         
         var cash = new Component
         {
             Name = "Cash",
             DisplaySequence = 2,
         };
-        cash.SetValue(today, dummyValue);
+        // cash.SetValue(today, dummyValue);
         
         var emergencyFund = new Wallet
         {
@@ -46,14 +46,14 @@ internal static class Seeder
             Name = "Bonds",
             DisplaySequence = 1,
         };
-        bonds.SetValue(today, dummyValue);
+        // bonds.SetValue(today, dummyValue);
         
         var stocks = new Component
         {
             Name = "Stocks",
             DisplaySequence = 2,       
         };
-        stocks.SetValue(today, dummyValue);
+        // stocks.SetValue(today, dummyValue);
 
         var longTermWallet = new Wallet
         {
@@ -68,28 +68,28 @@ internal static class Seeder
             Name = "Home",
             DisplaySequence = 1
         };
-        home.SetValue(today, dummyValue);
+        // home.SetValue(today, dummyValue);
 
         var car = new Asset
         {
             Name = "Car",
             DisplaySequence = 2,
         };
-        car.SetValue(today, dummyValue);
+        // car.SetValue(today, dummyValue);
 
         var mortgage = new Debt
         {
             Name = "Mortgage",
             DisplaySequence = 1
         };
-        mortgage.SetValue(today, dummyValue);
+        // mortgage.SetValue(today, dummyValue);
 
         var carPayment = new Debt
         {
             Name = "Car Payment",
             DisplaySequence = 2
         };
-        carPayment.SetValue(today, dummyValue);
+        // carPayment.SetValue(today, dummyValue);
 
         context.Add(emergencyFund);
         context.Add(longTermWallet);

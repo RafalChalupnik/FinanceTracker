@@ -11,37 +11,11 @@ internal interface IEntityWithValueHistory
 
 public abstract class EntityWithValueHistory : IEntityWithValueHistory
 {
-    private readonly List<HistoricValue> _valueHistory = [];
-
     /// <summary>
     /// History of the value.
     /// </summary>
-    public IReadOnlyList<HistoricValue> ValueHistory => _valueHistory;
+    public IReadOnlyList<HistoricValue> ValueHistory => [];
     
-    /// <summary>
-    /// Sets value for specific date.
-    /// </summary>
-    public void SetValue(DateOnly date, Money value, Guid? physicalAllocationId = null)
-    {
-        var alreadyExistingEntry = ValueHistory.FirstOrDefault(entry => entry.Date == date);
-
-        if (alreadyExistingEntry != null)
-        {
-            alreadyExistingEntry.Value = value;
-            alreadyExistingEntry.PhysicalAllocationId = physicalAllocationId;
-        }
-        else
-        {
-            _valueHistory.Add(new HistoricValue
-            {
-                Id = Guid.NewGuid(),
-                Date = date,
-                Value = value,
-                PhysicalAllocationId = physicalAllocationId
-            });
-        }
-    }
-
     public IEnumerable<DateOnly> GetEvaluationDates()
         => ValueHistory.Select(entry => entry.Date);
 
