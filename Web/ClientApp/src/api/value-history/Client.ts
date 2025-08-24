@@ -15,12 +15,12 @@ export async function getAssetsValueHistory(
     return await sendGet('api/value-history/assets', granularity, from, to);
 }
 
-export async function setAssetValue(id: string, date: string, value: MoneyDto) : Promise<void> {
-    await sendPut(`api/value-history/assets/${id}/${date}`, value);
+export async function setAssetValue(id: string, date: Dayjs, value: MoneyDto) : Promise<void> {
+    await sendPut(`api/value-history/assets/${id}/${toDateString(date)}`, value);
 }
 
-export async function deleteAssetsValues(date: string) : Promise<void> {
-    await sendDelete(`api/value-history/assets/${date}`);
+export async function deleteAssetsValues(date: Dayjs) : Promise<void> {
+    await sendDelete(`api/value-history/assets/${toDateString(date)}`);
 }
 
 export async function getDebtsValueHistory(
@@ -31,12 +31,12 @@ export async function getDebtsValueHistory(
     return await sendGet('api/value-history/debts', granularity, from, to);
 }
 
-export async function setDebtValue(id: string, date: string, value: MoneyDto) : Promise<void> {
-    await sendPut(`api/value-history/debts/${id}/${date}`, value);
+export async function setDebtValue(id: string, date: Dayjs, value: MoneyDto) : Promise<void> {
+    await sendPut(`api/value-history/debts/${id}/${toDateString(date)}`, value);
 }
 
-export async function deleteDebtsValues(date: string) : Promise<void> {
-    await sendDelete(`api/value-history/debts/${date}`);
+export async function deleteDebtsValues(date: Dayjs) : Promise<void> {
+    await sendDelete(`api/value-history/debts/${toDateString(date)}`);
 }
 
 export async function getPhysicalAllocationValueHistory(
@@ -64,15 +64,15 @@ export async function getWalletsValueHistory(
     return await sendGet('api/value-history/wallets', granularity, from, to);
 }
 
-export async function setWalletTarget(id: string, date: string, value: number) : Promise<void> {
+export async function setWalletTarget(id: string, date: Dayjs, value: number) : Promise<void> {
     await sendPut(`api/value-history/wallets/${id}/target`, {
-        date: date,
+        date: toDateString(date),
         value: value
     });
 }
 
-export async function deleteWalletValues(walletId: string, date: string) : Promise<void> {
-    return await sendDelete(`api/value-history/wallets/${walletId}/${date}`);
+export async function deleteWalletValues(walletId: string, date: Dayjs) : Promise<void> {
+    return await sendDelete(`api/value-history/wallets/${walletId}/${toDateString(date)}`);
 }
 
 export async function getWalletComponentsValueHistory(
@@ -84,8 +84,8 @@ export async function getWalletComponentsValueHistory(
     return await sendGet(`api/value-history/wallets/${walletId}/components`, granularity, from, to);
 }
 
-export async function setWalletComponentValue(id: string, date: string, value: MoneyDto, physicalAllocationId?: string) : Promise<void> {
-    await sendPut(`api/value-history/wallets/components/${id}/${date}`, {
+export async function setWalletComponentValue(id: string, date: Dayjs, value: MoneyDto, physicalAllocationId?: string) : Promise<void> {
+    await sendPut(`api/value-history/wallets/components/${id}/${toDateString(date)}`, {
         value: value,
         physicalAllocationId: physicalAllocationId
     });
@@ -115,11 +115,11 @@ async function sendGet<T>(
     }
 
     if (from !== undefined) {
-        queryParams.append('from', from.format('YYYY-MM-DD'));
+        queryParams.append('from', toDateString(from));
     }
 
     if (to !== undefined) {
-        queryParams.append('to', to.format('YYYY-MM-DD'));
+        queryParams.append('to', toDateString(to));
     }
 
     const response = await fetch(`${path}?` + queryParams);
@@ -153,4 +153,8 @@ async function sendDelete(path: string) : Promise<void> {
     if (!response.ok) {
         throw new Error(`Failed to DELETE ${path}`);
     }
+}
+
+function toDateString(date: Dayjs) : string {
+    return date.format('YYYY-MM-DD');
 }
