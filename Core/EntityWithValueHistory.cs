@@ -14,7 +14,7 @@ public abstract class EntityWithValueHistory : IEntityWithValueHistory
     /// <summary>
     /// History of the value.
     /// </summary>
-    public IReadOnlyList<HistoricValue> ValueHistory => [];
+    public IReadOnlyList<HistoricValue> ValueHistory { get; } = new List<HistoricValue>();
     
     public IEnumerable<DateOnly> GetEvaluationDates()
         => ValueHistory.Select(entry => entry.Date);

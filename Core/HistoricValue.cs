@@ -6,7 +6,7 @@ namespace FinanceTracker.Core;
 public class HistoricValue
 {
     [Key]
-    public Guid Id { get; init; }
+    public Guid Id { get; init; } = Guid.NewGuid();
     
     public DateOnly Date { get; init; }
     
@@ -21,4 +21,12 @@ public class HistoricValue
     public Guid? DebtId { get; init; }
     
     public Guid? PhysicalAllocationId { get; set; }
+    
+    public static HistoricValue CreateAssetValue(DateOnly date, Money value, Guid assetId)
+        => new()
+        {
+            Date = date,
+            Value = value,
+            AssetId = assetId
+        };
 }

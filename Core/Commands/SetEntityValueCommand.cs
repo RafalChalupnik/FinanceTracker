@@ -16,13 +16,9 @@ public class SetEntityValueCommand(FinanceTrackerContext dbContext)
         }
         else
         {
-            await dbContext.Set<HistoricValue>().AddAsync(new HistoricValue
-            {
-                Id = Guid.NewGuid(),
-                Date = date,
-                Value = value,
-                AssetId = assetId
-            });
+            await dbContext.Set<HistoricValue>().AddAsync(
+                HistoricValue.CreateAssetValue(date, value, assetId)
+            );
         }
 
         await dbContext.SaveChangesAsync();
