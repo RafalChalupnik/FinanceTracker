@@ -109,32 +109,6 @@ internal static class Seeder
         // context.Add(carPayment);
     }
 
-    private static async ValueTask SeedComponents(FinanceTrackerContext context)
-    {
-        var wallet = new Wallet
-        {
-            Name = "Dummy",
-            DisplaySequence = 1
-        };
-        
-        var component = new Component
-        {
-            Name = "Dummy",
-            DisplaySequence = 1,       
-        };
-
-        wallet.Add(component);
-
-        var physical = new PhysicalAllocation
-        {
-            Name = "Dummy",
-            DisplaySequence = 1
-        };
-
-        await context.Wallets.AddAsync(wallet);
-        await context.PhysicalAllocations.AddAsync(physical);
-    }
-
     private static async ValueTask SeedAssets(FinanceTrackerContext context, int startYear, DateOnly endDate)
     {
         var home = new Asset
@@ -149,22 +123,27 @@ internal static class Seeder
             DisplaySequence = 2,
         };
 
-        var homeValueHistory = GenerateAssetValues(
-            assetId: home.Id,
+        var homeValueHistory = GenerateQuarterlyValues(
             startYear: startYear,
             endDate: endDate,
             minValue: 300_000,
-            maxValue: 800_000);
+            maxValue: 800_000
+        );
         
-        var carValueHistory = GenerateAssetValues(
-            assetId: car.Id,
+        var carValueHistory = GenerateQuarterlyValues(
             startYear: startYear,
             endDate: endDate,
             minValue: 40_000,
             maxValue: 75_000);
 
         await context.Assets.AddRangeAsync(home, car);
-        await context.HistoricValues.AddRangeAsync(homeValueHistory.Concat(carValueHistory));
+        
+        await context.HistoricValues.AddRangeAsync(
+            homeValueHistory
+                .Select(value => value.ToAssetValue(home.Id))
+                .Concat(carValueHistory
+                    .Select(value => value.ToAssetValue(car.Id)))
+        );
     }
     
     private static async ValueTask SeedDebts(FinanceTrackerContext context, int startYear, DateOnly endDate)
@@ -181,62 +160,29 @@ internal static class Seeder
             DisplaySequence = 2,
         };
 
-        var mortgageHistory = GenerateDebtValues(
-            debtId: mortgage.Id,
+        var mortgageHistory = GenerateQuarterlyValues(
             startYear: startYear,
             endDate: endDate,
             minValue: -500_000,
             maxValue: -200_000);
         
-        var carPaymentHistory = GenerateDebtValues(
-            debtId: carPayment.Id,
+        var carPaymentHistory = GenerateQuarterlyValues(
             startYear: startYear,
             endDate: endDate,
             minValue: -60_000,
             maxValue: -5_000);
 
         await context.Debts.AddRangeAsync(mortgage, carPayment);
-        await context.HistoricValues.AddRangeAsync(mortgageHistory.Concat(carPaymentHistory));
-    }
-
-    private static List<HistoricValue> GenerateAssetValues(
-        Guid assetId,
-        int startYear,
-        DateOnly endDate, 
-        int minValue, 
-        int maxValue)
-    {
-        // Start with the end of the first quarter
-        var currentDate = new DateOnly(year: startYear, month: 1, day: 1).AddMonths(3).AddDays(-1);
-        var values = new List<HistoricValue>();
-
-        while (currentDate < endDate)
-        {
-            values.Add(
-                HistoricValue.CreateAssetValue(
-                    date: currentDate,
-                    value: GenerateRandomValue(minValue, maxValue),
-                    assetId: assetId
-                )
-            );
-
-            // End of next quarter
-            currentDate = currentDate.AddDays(1).AddMonths(3).AddDays(-1);
-        }
         
-        values.Add(
-            HistoricValue.CreateAssetValue(
-                date: endDate,
-                value: GenerateRandomValue(minValue, maxValue),
-                assetId: assetId
-            )
+        await context.HistoricValues.AddRangeAsync(
+            mortgageHistory
+                .Select(value => value.ToDebtValue(mortgage.Id))
+                .Concat(carPaymentHistory
+                    .Select(value => value.ToDebtValue(carPayment.Id)))
         );
-
-        return values;
     }
-    
-    private static List<HistoricValue> GenerateDebtValues(
-        Guid debtId,
+
+    private static List<DateValue> GenerateQuarterlyValues(
         int startYear,
         DateOnly endDate, 
         int minValue, 
@@ -244,15 +190,14 @@ internal static class Seeder
     {
         // Start with the end of the first quarter
         var currentDate = new DateOnly(year: startYear, month: 1, day: 1).AddMonths(3).AddDays(-1);
-        var values = new List<HistoricValue>();
+        var values = new List<DateValue>();
 
         while (currentDate < endDate)
         {
             values.Add(
-                HistoricValue.CreateDebtValue(
-                    date: currentDate,
-                    value: GenerateRandomValue(minValue, maxValue),
-                    debtId: debtId
+                new DateValue(
+                    Date: currentDate,
+                    Value: GenerateRandomValue(minValue, maxValue)
                 )
             );
 
@@ -261,10 +206,9 @@ internal static class Seeder
         }
         
         values.Add(
-            HistoricValue.CreateDebtValue(
-                date: endDate,
-                value: GenerateRandomValue(minValue, maxValue),
-                debtId: debtId
+            new DateValue(
+                Date: currentDate,
+                Value: GenerateRandomValue(minValue, maxValue)
             )
         );
 
@@ -273,6 +217,7 @@ internal static class Seeder
 
     private static Money GenerateRandomValue(int min, int max)
     {
+        // Generate decimals as well
         var value = (decimal)Random.Shared.Next(min * 100, max * 100) / 100;
         
         return new Money(
@@ -280,5 +225,14 @@ internal static class Seeder
             Currency: "PLN", 
             AmountInMainCurrency: value
         );
+    }
+
+    private record DateValue(DateOnly Date, Money Value)
+    {
+        public HistoricValue ToAssetValue(Guid assetId)
+            => HistoricValue.CreateAssetValue(Date, Value, assetId);
+        
+        public HistoricValue ToDebtValue(Guid debtId)
+            => HistoricValue.CreateDebtValue(Date, Value, debtId);
     }
 }
