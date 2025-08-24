@@ -29,4 +29,12 @@ public class HistoricValue
             Value = value,
             AssetId = assetId
         };
+    
+    public static HistoricValue CreateDebtValue(DateOnly date, Money value, Guid debtId)
+        => new()
+        {
+            Date = date,
+            Value = value,
+            DebtId = debtId
+        };
 }
