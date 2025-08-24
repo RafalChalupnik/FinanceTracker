@@ -18,7 +18,7 @@ internal static class Seeder
         var endDate = DateOnly.FromDateTime(DateTime.Today);
         var startYear = endDate.Year - 2;
 
-        var bankAccountAllocationId = await SeedPhysicalAllocation(context, "Bank Account");
+        var bankAccountAllocationId = await SeedPhysicalAllocation(context, "Bank Account", displaySequence: 1);
         await SeedEmergencyFund(context, startYear, endDate, bankAccountAllocationId);
         await SeedLongTermWallet(context, startYear, endDate, bankAccountAllocationId);
 
@@ -50,7 +50,7 @@ internal static class Seeder
         };
         emergencyFund.Add(bankAccount);
         
-        var cashPhysicalAllocationId = await SeedPhysicalAllocation(context, "Cash");
+        var cashPhysicalAllocationId = await SeedPhysicalAllocation(context, "Cash", displaySequence: 2);
 
         var cashPln = new Component
         {
@@ -189,14 +189,12 @@ internal static class Seeder
         );
     }
 
-    private static async ValueTask<Guid> SeedPhysicalAllocation(FinanceTrackerContext context, string name)
+    private static async ValueTask<Guid> SeedPhysicalAllocation(FinanceTrackerContext context, string name, int displaySequence)
     {
         var physicalAllocation = new PhysicalAllocation
         {
             Name = name,
-            DisplaySequence = context.PhysicalAllocations
-                .OrderByDescending(x => x.DisplaySequence)
-                .FirstOrDefault()?.DisplaySequence + 1 ?? 1
+            DisplaySequence = displaySequence
         };
         
         await context.PhysicalAllocations.AddAsync(physicalAllocation);
