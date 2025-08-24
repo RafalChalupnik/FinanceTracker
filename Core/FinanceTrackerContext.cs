@@ -30,6 +30,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 b.Property(x => x.DisplaySequence);
                 b.HasMany(x => x.ValueHistory)
                     .WithOne()
+                    .HasForeignKey(x => x.AssetId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         
@@ -42,6 +43,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 
                 b.HasMany(x => x.ValueHistory)
                     .WithOne(x => x.Component)
+                    .HasForeignKey(x => x.ComponentId)
                     .OnDelete(DeleteBehavior.Cascade);
 
                 b.HasOne<PhysicalAllocation>()
@@ -58,6 +60,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 b.Property(x => x.DisplaySequence);
                 b.HasMany(x => x.ValueHistory)
                     .WithOne()
+                    .HasForeignKey(x => x.DebtId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         
