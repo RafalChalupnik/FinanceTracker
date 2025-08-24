@@ -18,7 +18,8 @@ internal static class Seeder
         var endDate = DateOnly.FromDateTime(DateTime.Today);
         var startYear = endDate.Year - 2;
 
-        await SeedEmergencyFund(context, startYear, endDate);
+        var bankAccountAllocationId = await SeedPhysicalAllocation(context, "Bank Account");
+        await SeedEmergencyFund(context, startYear, endDate, bankAccountAllocationId);
         
         await SeedAssets(context, startYear, endDate);
         await SeedDebts(context, startYear, endDate);
@@ -113,7 +114,8 @@ internal static class Seeder
     private static async ValueTask SeedEmergencyFund(
         FinanceTrackerContext context, 
         int startYear, 
-        DateOnly endDate)
+        DateOnly endDate,
+        Guid bankAccountAllocationId)
     {
         var emergencyFund = new Wallet
         {
@@ -124,21 +126,26 @@ internal static class Seeder
         var bankAccount = new Component
         {
             Name = "Bank Account",
-            DisplaySequence = 1
+            DisplaySequence = 1,
+            DefaultPhysicalAllocationId = bankAccountAllocationId
         };
         emergencyFund.Add(bankAccount);
+        
+        var cashPhysicalAllocationId = await SeedPhysicalAllocation(context, "Cash");
 
         var cashPln = new Component
         {
             Name = "Cash (PLN)",
-            DisplaySequence = 2
+            DisplaySequence = 2,
+            DefaultPhysicalAllocationId = cashPhysicalAllocationId
         };
         emergencyFund.Add(cashPln);
         
         var cashEur = new Component
         {
             Name = "Cash (EUR)",
-            DisplaySequence = 3
+            DisplaySequence = 3,
+            DefaultPhysicalAllocationId = cashPhysicalAllocationId
         };
         emergencyFund.Add(cashEur);
         
@@ -179,17 +186,32 @@ internal static class Seeder
         
         await context.HistoricValues.AddRangeAsync(
             bankAccountHistory
-                .Select(value => value.ToComponentValue(bankAccount.Id))
+                .Select(value => value.ToComponentValue(bankAccount.Id, bankAccountAllocationId))
                 .Concat(cashPlnHistory
-                    .Select(value => value.ToComponentValue(cashPln.Id)))
+                    .Select(value => value.ToComponentValue(cashPln.Id, cashPhysicalAllocationId)))
                 .Concat(cashEurHistory
-                    .Select(value => value.ToComponentValue(cashEur.Id)))
+                    .Select(value => value.ToComponentValue(cashEur.Id, cashPhysicalAllocationId)))
         );
 
         await context.WalletTargets.AddRangeAsync(
             targets
                 .Select(target => target.ToWalletTarget(emergencyFund.Id))
         );
+    }
+
+    private static async ValueTask<Guid> SeedPhysicalAllocation(FinanceTrackerContext context, string name)
+    {
+        var physicalAllocation = new PhysicalAllocation
+        {
+            Name = name,
+            DisplaySequence = context.PhysicalAllocations
+                .OrderByDescending(x => x.DisplaySequence)
+                .FirstOrDefault()?.DisplaySequence + 1 ?? 1
+        };
+        
+        await context.PhysicalAllocations.AddAsync(physicalAllocation);
+
+        return physicalAllocation.Id;
     }
 
     private static async ValueTask SeedAssets(FinanceTrackerContext context, int startYear, DateOnly endDate)
@@ -324,8 +346,8 @@ internal static class Seeder
         public HistoricValue ToAssetValue(Guid assetId)
             => HistoricValue.CreateAssetValue(Date, Value, assetId);
 
-        public HistoricValue ToComponentValue(Guid componentId)
-            => HistoricValue.CreateComponentValue(Date, Value, componentId, physicalAllocationId: null);
+        public HistoricValue ToComponentValue(Guid componentId, Guid? physicalAllocationId)
+            => HistoricValue.CreateComponentValue(Date, Value, componentId, physicalAllocationId);
         
         public HistoricValue ToDebtValue(Guid debtId)
             => HistoricValue.CreateDebtValue(Date, Value, debtId);
