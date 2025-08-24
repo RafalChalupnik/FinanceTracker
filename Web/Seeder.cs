@@ -20,6 +20,7 @@ internal static class Seeder
 
         var bankAccountAllocationId = await SeedPhysicalAllocation(context, "Bank Account");
         await SeedEmergencyFund(context, startYear, endDate, bankAccountAllocationId);
+        await SeedLongTermWallet(context, startYear, endDate, bankAccountAllocationId);
         
         await SeedAssets(context, startYear, endDate);
         await SeedDebts(context, startYear, endDate);
@@ -196,6 +197,78 @@ internal static class Seeder
         await context.WalletTargets.AddRangeAsync(
             targets
                 .Select(target => target.ToWalletTarget(emergencyFund.Id))
+        );
+    }
+    
+    private static async ValueTask SeedLongTermWallet(
+        FinanceTrackerContext context, 
+        int startYear, 
+        DateOnly endDate,
+        Guid bankAccountAllocationId)
+    {
+        var longTermWallet = new Wallet
+        {
+            Name = "Long-Term Wallet",
+            DisplaySequence = 2
+        };
+
+        var bankAccount = new Component
+        {
+            Name = "Bank Account",
+            DisplaySequence = 1,
+            DefaultPhysicalAllocationId = bankAccountAllocationId
+        };
+        longTermWallet.Add(bankAccount);
+        
+        var bonds = new Component
+        {
+            Name = "Bonds",
+            DisplaySequence = 2,
+            DefaultPhysicalAllocationId = null
+        };
+        longTermWallet.Add(bonds);
+        
+        var stocks = new Component
+        {
+            Name = "Stocks",
+            DisplaySequence = 3,
+            DefaultPhysicalAllocationId = null
+        };
+        longTermWallet.Add(stocks);
+        
+        var bankAccountHistory = GenerateValues(
+            startYear: startYear,
+            endDate: endDate,
+            monthInterval: 1,
+            minValue: 5_000,
+            maxValue: 10_000
+        );
+        
+        var bondsHistory = GenerateValues(
+            startYear: startYear,
+            endDate: endDate,
+            monthInterval: 1,
+            minValue: 20_000,
+            maxValue: 30_000
+        );
+        
+        var stocksHistory = GenerateValues(
+            startYear: startYear,
+            endDate: endDate,
+            monthInterval: 1,
+            minValue: 30_000,
+            maxValue: 50_000
+        );
+        
+        await context.Wallets.AddAsync(longTermWallet);
+        
+        await context.HistoricValues.AddRangeAsync(
+            bankAccountHistory
+                .Select(value => value.ToComponentValue(bankAccount.Id, bankAccountAllocationId))
+                .Concat(bondsHistory
+                    .Select(value => value.ToComponentValue(bonds.Id, physicalAllocationId: null)))
+                .Concat(stocksHistory
+                    .Select(value => value.ToComponentValue(stocks.Id, physicalAllocationId: null)))
         );
     }
 
