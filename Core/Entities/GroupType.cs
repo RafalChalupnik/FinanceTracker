@@ -13,6 +13,11 @@ public class GroupType : IOrderableEntity
     
     /// <inheritdoc />
     public int DisplaySequence { get; set; }
+    
+    /// <summary>
+    /// <see cref="Group"/>s that belong to this <see cref="GroupType"/>.
+    /// </summary>
+    public IReadOnlyCollection<Group> Groups { get; set; } = new List<Group>();
 }
 
 public static class GroupTypeExtensions

@@ -10,14 +10,16 @@ namespace FinanceTracker.Web.Controllers.Configuration;
 public class GroupTypesController(Repository repository)
 {
     [HttpGet]
-    public IReadOnlyCollection<OrderableEntityDto> GetGroupTypes() 
-        => repository.GetOrderableEntities<GroupType>();
+    public IReadOnlyCollection<OrderableEntityDto> GetGroupTypes()
+        => repository.ListOrderableEntities<GroupType>()
+            .Select(OrderableEntityDto.FromEntity)
+            .ToArray();
 
     [HttpPost]
     public void UpsertGroupType(OrderableEntityDto groupType) 
         => repository.Upsert(groupType.ToGroupType());
     
     [HttpDelete("{groupTypeId:guid}")]
-    public void UpsertGroupType(Guid groupTypeId)
+    public void DeleteGroupType(Guid groupTypeId)
         => repository.Delete<GroupType>(groupTypeId);
 }

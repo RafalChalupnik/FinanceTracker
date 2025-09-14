@@ -2,7 +2,7 @@ import React, { FC, useState } from "react";
 import {Space} from "antd";
 import {MoneyDto} from "../../api/value-history/DTOs/Money";
 import {OrderableEntityDto} from "../../api/configuration/DTOs/ConfigurationDto";
-import PhysicalAllocationPicker from "../PhysicalAllocationPicker";
+import SimpleDropdown from "../SimpleDropdown";
 import SaveCancelButtons from "../SaveCancelButtons";
 import InputCurrency from "./InputCurrency";
 import {TransactionOutlined} from "@ant-design/icons";
@@ -86,8 +86,8 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
                 extra={<TransactionOutlined onClick={updateAmountInMainCurrency}/>}
             />}
             {props.physicalAllocations && (
-                <PhysicalAllocationPicker 
-                    physicalAllocations={props.physicalAllocations} 
+                <SimpleDropdown 
+                    values={props.physicalAllocations} 
                     initialValue={props.defaultPhysicalAllocation}
                     onChange={setPhysicalAllocationId}
                 />

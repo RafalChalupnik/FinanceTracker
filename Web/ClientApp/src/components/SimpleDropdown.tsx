@@ -1,35 +1,39 @@
-import {OrderableEntityDto} from "../api/configuration/DTOs/ConfigurationDto";
 import React, {FC} from "react";
 import {Select, Space} from "antd";
 
-interface PhysicalAllocationPickerProps {
-    physicalAllocations: OrderableEntityDto[];
+interface DropdownItem {
+    key: string,
+    name: string
+}
+
+interface SimpleDropdownProps {
+    values: DropdownItem[];
     initialValue: string | undefined;
     onChange: (value: string | undefined) => void;
 }
 
-interface PhysicalAllocationOption {
+interface SimpleDropdownOption {
     value: string,
     label: string
 }
 
-const PhysicalAllocationPicker: FC<PhysicalAllocationPickerProps> = (props) => {
+const SimpleDropdown: FC<SimpleDropdownProps> = (props) => {
     let options = [
         {
             value: '',
             label: '-'
         },
-        ...(props.physicalAllocations.map(allocation => {
+        ...(props.values.map(value => {
             return {
-                value: allocation.key,
-                label: allocation.name
+                value: value.key,
+                label: value.name
             }
         }))
     ]
     
     let defaultOption = options.find(option => option.value === props.initialValue) ?? options[0];
 
-    const onChange = (selectedOption: PhysicalAllocationOption) => {
+    const onChange = (selectedOption: SimpleDropdownOption) => {
         let newId = selectedOption.value !== ''
             ? selectedOption.value
             : undefined;
@@ -50,4 +54,4 @@ const PhysicalAllocationPicker: FC<PhysicalAllocationPickerProps> = (props) => {
     );
 }
 
-export default PhysicalAllocationPicker;
+export default SimpleDropdown;

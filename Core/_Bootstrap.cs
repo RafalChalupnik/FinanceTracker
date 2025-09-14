@@ -30,7 +30,6 @@ public static class Bootstrap
             .AddScoped<ConfigQueries>()
             .AddScoped<ValueHistoryQueries>()
             // Repositories
-            .AddScoped<Repository>()
-            .AddScoped<GroupTypeRepository>();
+            .AddScoped<Repository>();
     }
 }

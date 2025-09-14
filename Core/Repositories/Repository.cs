@@ -5,12 +5,10 @@ namespace FinanceTracker.Core.Repositories;
 
 public class Repository(FinanceTrackerContext dbContext)
 {
-    public IReadOnlyCollection<OrderableEntityDto> GetOrderableEntities<T>() where T : class, IOrderableEntity
+    public IReadOnlyCollection<T> ListOrderableEntities<T>() where T : class, IOrderableEntity
     {
         return dbContext.Set<T>()
             .OrderBy(x => x.DisplaySequence)
-            .AsEnumerable()
-            .Select(OrderableEntityDto.FromEntity)
             .ToArray();
     }
 

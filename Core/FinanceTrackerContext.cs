@@ -7,6 +7,8 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
 {
     public DbSet<GroupType> GroupTypes { get; set; }
     
+    public DbSet<Group> Groups { get; set; }
+    
     public DbSet<Asset> Assets { get; set; }
     
     public DbSet<Component> Components { get; set; }
@@ -30,6 +32,17 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
             b.HasKey(x => x.Id);
             b.HasIndex(x => x.Name).IsUnique();
             b.Property(x => x.DisplaySequence);
+        });
+        
+        modelBuilder.Entity<Group>(b =>
+        {
+            b.HasKey(x => x.Id);
+            b.HasIndex(x => x.Name).IsUnique();
+            b.Property(x => x.DisplaySequence);
+            b.HasOne<GroupType>(x => x.GroupType)
+                .WithMany(x => x.Groups)
+                .HasForeignKey(x => x.GroupTypeId)
+                .IsRequired();
         });
         
         modelBuilder.Entity<Asset>(

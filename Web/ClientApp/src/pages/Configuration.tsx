@@ -17,8 +17,10 @@ import {
     upsertDebt, upsertPhysicalAllocation,
     upsertWallet, upsertWalletComponent
 } from "../api/configuration/Client";
-import {buildPhysicalAllocationColumn} from "../components/table/ConfigurationColumnBuilder";
+import {buildGroupTypeColumn, buildPhysicalAllocationColumn} from "../components/table/ConfigurationColumnBuilder";
 import {deleteGroupType, getGroupTypes, upsertGroupType} from "../api/configuration/GroupTypesClient";
+import {deleteGroup, getGroups, upsertGroup} from "../api/configuration/GroupsClient";
+import {GroupDto} from "../api/configuration/DTOs/GroupDto";
 
 const {Text} = Typography;
 
@@ -155,6 +157,7 @@ const Wallet: React.FC<WalletProps> = (props) => {
 
 const Configuration: React.FC = () => {
     const [groupTypes, setGroupTypes] = useState<OrderableEntityDto[]>([]);
+    const [groups, setGroups] = useState<GroupDto[]>([]);
     
     const [config, setConfig] = useState<ConfigurationDto>({
         assets: [],
@@ -166,8 +169,10 @@ const Configuration: React.FC = () => {
     const populateData = async () => {
         const config = await getConfiguration();
         const groupTypes = await getGroupTypes();
+        const groups = await getGroups();
         setConfig(config)
         setGroupTypes(groupTypes);
+        setGroups(groups);
     }
 
     useEffect(() => {
@@ -175,10 +180,19 @@ const Configuration: React.FC = () => {
     }, [])
     
     let createEmptyOrderableEntityDto = (sequence: number): OrderableEntityDto => {
-        return  {
+        return {
             key: crypto.randomUUID(),
             name: "New Item",
             displaySequence: sequence,
+        };
+    }
+    
+    let createEmptyGroupDto = (sequence: number): GroupDto => {
+        return {
+            key: crypto.randomUUID(),
+            name: "New Item",
+            displaySequence: sequence,
+            groupTypeId: groupTypes[0].key
         };
     }
 
@@ -196,6 +210,21 @@ const Configuration: React.FC = () => {
                     await deleteGroupType(groupTypeId)
                     setGroupTypes(groupTypes.filter(groupType => groupType.key !== groupTypeId));
                 }}
+            />
+
+            <EntityTable
+                title="Groups"
+                data={groups}
+                createNewRow={createEmptyGroupDto}
+                onUpdate={async group => {
+                    await upsertGroup(group);
+                    setGroups([...groups, group]);
+                }}
+                onDelete={async groupId => {
+                    await deleteGroup(groupId)
+                    setGroups(groups.filter(group => group.key !== groupId));
+                }}
+                extraColumns={[buildGroupTypeColumn(groupTypes, async group => await upsertGroup(group))]}
             />
             
             <EntityTable

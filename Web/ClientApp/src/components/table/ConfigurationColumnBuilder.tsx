@@ -1,24 +1,25 @@
 import {Column} from "./ExtendableTable";
 import {OrderableEntityDto, WalletComponentDataDto} from "../../api/configuration/DTOs/ConfigurationDto";
 import React, {FC} from "react";
-import PhysicalAllocationPicker from "../PhysicalAllocationPicker";
+import SimpleDropdown from "../SimpleDropdown";
 import {Space} from "antd";
 import SaveCancelButtons from "../SaveCancelButtons";
+import {GroupDto} from "../../api/configuration/DTOs/GroupDto";
 
-interface PhysicalAllocationForm {
-    physicalAllocations: OrderableEntityDto[];
+interface SimpleDropdownFormProps {
+    values: OrderableEntityDto[];
     initialValue: string | undefined;
-    onSave: (physicalAllocationId: string | undefined) => Promise<void>;
+    onSave: (entityId: string | undefined) => Promise<void>;
     onCancel: () => void;
 }
 
-const PhysicalAllocationForm: FC<PhysicalAllocationForm> = (props) => {
+const SimpleDropdownForm: FC<SimpleDropdownFormProps> = (props) => {
     let [currentValue, setCurrentValue] = React.useState<string | undefined>(props.initialValue);
     
     return (
         <Space direction='horizontal'>
-            <PhysicalAllocationPicker
-                physicalAllocations={props.physicalAllocations}
+            <SimpleDropdown
+                values={props.values}
                 initialValue={props.initialValue}
                 onChange={setCurrentValue}
             />
@@ -44,11 +45,40 @@ export function buildPhysicalAllocationColumn(
         },
         editable: {
             renderEditable: ((row, closeCallback) => (
-                <PhysicalAllocationForm 
-                    physicalAllocations={physicalAllocations}
+                <SimpleDropdownForm 
+                    values={physicalAllocations}
                     initialValue={row.defaultPhysicalAllocationId}
                     onSave={async (physicalAllocationId?: string) => {
                         row.defaultPhysicalAllocationId = physicalAllocationId;
+                        await onUpdate(row);
+                        closeCallback();
+                    }}
+                    onCancel={closeCallback}
+                />
+            ))
+        }
+    }
+}
+
+export function buildGroupTypeColumn(
+    groupTypes: OrderableEntityDto[],
+    onUpdate: (row: GroupDto) => Promise<void>
+): Column<GroupDto> {
+    return {
+        key: 'groupTypeId',
+        title: 'Group Type',
+        render: row => {
+            return groupTypes
+                .find(groupType => groupType.key === row.groupTypeId)
+                ?.name ?? '-';
+        },
+        editable: {
+            renderEditable: ((row, closeCallback) => (
+                <SimpleDropdownForm
+                    values={groupTypes}
+                    initialValue={row.groupTypeId}
+                    onSave={async (groupTypeId?: string) => {
+                        row.groupTypeId = groupTypeId!;
                         await onUpdate(row);
                         closeCallback();
                     }}
