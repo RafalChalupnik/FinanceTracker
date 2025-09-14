@@ -1,9 +1,12 @@
+using FinanceTracker.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.Core;
 
 public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> options) : DbContext(options)
 {
+    public DbSet<GroupType> GroupTypes { get; set; }
+    
     public DbSet<Asset> Assets { get; set; }
     
     public DbSet<Component> Components { get; set; }
@@ -20,8 +23,15 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
     
     public DbSet<WalletTarget> WalletTargets { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder) 
-    { 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<GroupType>(b =>
+        {
+            b.HasKey(x => x.Id);
+            b.HasIndex(x => x.Name).IsUnique();
+            b.Property(x => x.DisplaySequence);
+        });
+        
         modelBuilder.Entity<Asset>(
             b =>
             {

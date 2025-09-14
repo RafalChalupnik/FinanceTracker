@@ -1,3 +1,5 @@
+using FinanceTracker.Core.Interfaces;
+
 namespace FinanceTracker.Core.Queries.DTOs;
 
 public record ConfigurationDto(
@@ -11,7 +13,15 @@ public record OrderableEntityDto(
     Guid Key,
     string Name,
     int DisplaySequence
-);
+)
+{
+    public static OrderableEntityDto FromEntity(IOrderableEntity entity) =>
+        new(
+            Key: entity.Id, 
+            Name: entity.Name, 
+            DisplaySequence: entity.DisplaySequence
+        );
+}
 
 public record WalletDataDto(
     Guid Key,

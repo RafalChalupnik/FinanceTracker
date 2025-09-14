@@ -1,5 +1,6 @@
 using FinanceTracker.Core;
 using FinanceTracker.Core.Commands;
+using FinanceTracker.Core.Entities;
 using FinanceTracker.Core.Queries;
 using FinanceTracker.Core.Queries.DTOs;
 using Microsoft.AspNetCore.Mvc;

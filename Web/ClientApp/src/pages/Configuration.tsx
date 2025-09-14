@@ -18,6 +18,7 @@ import {
     upsertWallet, upsertWalletComponent
 } from "../api/configuration/Client";
 import {buildPhysicalAllocationColumn} from "../components/table/ConfigurationColumnBuilder";
+import {deleteGroupType, getGroupTypes, upsertGroupType} from "../api/configuration/GroupTypesClient";
 
 const {Text} = Typography;
 
@@ -153,6 +154,8 @@ const Wallet: React.FC<WalletProps> = (props) => {
 };
 
 const Configuration: React.FC = () => {
+    const [groupTypes, setGroupTypes] = useState<OrderableEntityDto[]>([]);
+    
     const [config, setConfig] = useState<ConfigurationDto>({
         assets: [],
         debts: [],
@@ -161,8 +164,10 @@ const Configuration: React.FC = () => {
     });
     
     const populateData = async () => {
-        const config = await getConfiguration()
+        const config = await getConfiguration();
+        const groupTypes = await getGroupTypes();
         setConfig(config)
+        setGroupTypes(groupTypes);
     }
 
     useEffect(() => {
@@ -179,6 +184,20 @@ const Configuration: React.FC = () => {
 
     return (
         <Space direction="vertical" style={{ width: "100%" }} size="large">
+            <EntityTable
+                title="Group Types"
+                data={groupTypes}
+                createNewRow={createEmptyOrderableEntityDto}
+                onUpdate={async groupType => {
+                    await upsertGroupType(groupType);
+                    setGroupTypes([...groupTypes, groupType]);
+                }}
+                onDelete={async groupTypeId => {
+                    await deleteGroupType(groupTypeId)
+                    setGroupTypes(groupTypes.filter(groupType => groupType.key !== groupTypeId));
+                }}
+            />
+            
             <EntityTable
                 title="Assets"
                 data={config.assets}
