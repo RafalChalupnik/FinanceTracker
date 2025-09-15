@@ -1,4 +1,5 @@
 ﻿using System;
+using FinanceTracker.Core.Entities;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -42,7 +43,14 @@ namespace FinanceTracker.Core.Migrations
                 column: "Name",
                 unique: true);
             
-            // TODO: Migrate wallets and add default Asset/Debt
+            InsertGroup(migrationBuilder, "Assets", 1);
+            InsertGroup(migrationBuilder, "Debts", 2);
+
+            migrationBuilder.Sql($@"
+                insert into Groups (Id, Name, DisplaySequence, GroupTypeId)
+                select Id, Name, DisplaySequence, (select Id from GroupTypes where Name = 'Wallets') from Wallets;
+            ");
+            
             // TODO: Require "GroupTypeId" value in dropdown in Configuration
         }
 
@@ -52,5 +60,16 @@ namespace FinanceTracker.Core.Migrations
             migrationBuilder.DropTable(
                 name: "Groups");
         }
+
+        private static void InsertGroup(MigrationBuilder migrationBuilder, string name, int displaySequence) =>
+            migrationBuilder.Sql($@"
+                insert into Groups (Id, Name, DisplaySequence, GroupTypeId)
+                values (
+                    '{Guid.NewGuid().ToString()}', 
+                    '{name}', 
+                    {displaySequence}, 
+                    (select Id from GroupTypes where Name = '{name}')
+                );
+            ");
     }
 }

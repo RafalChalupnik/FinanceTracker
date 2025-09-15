@@ -1,4 +1,5 @@
 ﻿using System;
+using FinanceTracker.Core.Entities;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -43,8 +44,14 @@ namespace FinanceTracker.Core.Migrations
         }
 
         private static void InsertGroupType(MigrationBuilder migrationBuilder, string name, int displaySequence) =>
-            migrationBuilder.InsertData("GroupTypes", ["Id", "Name", "DisplaySequence"], 
-                new object[] { 
+            migrationBuilder.InsertData(
+                table: "GroupTypes", 
+                columns: [
+                    nameof(GroupType.Id), 
+                    nameof(GroupType.Name), 
+                    nameof(GroupType.DisplaySequence)
+                ], 
+                values: new object[] { 
                     Guid.NewGuid(), 
                     name, 
                     displaySequence 
