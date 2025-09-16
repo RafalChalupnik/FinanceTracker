@@ -4,6 +4,8 @@ namespace FinanceTracker.Core.Entities;
 
 public class Group : IOrderableEntity
 {
+    private readonly List<Component> _components = [];
+    
     /// <inheritdoc />
     public Guid Id { get; init; } = Guid.NewGuid();
     
@@ -20,4 +22,9 @@ public class Group : IOrderableEntity
     
     /// ID of the <see cref="GroupType"/> to which the <see cref="Group"/> belongs.
     public Guid GroupTypeId { get; set; }
+    
+    /// <summary>
+    /// Components of the <see cref="Group"/>.
+    /// </summary>
+    public IReadOnlyList<Component> Components => _components;
 }

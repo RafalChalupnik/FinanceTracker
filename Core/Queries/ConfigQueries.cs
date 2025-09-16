@@ -1,4 +1,5 @@
 using FinanceTracker.Core.DTOs;
+using FinanceTracker.Core.Entities;
 using FinanceTracker.Core.Interfaces;
 using FinanceTracker.Core.Queries.DTOs;
 using Microsoft.EntityFrameworkCore;

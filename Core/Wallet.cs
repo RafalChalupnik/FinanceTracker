@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using FinanceTracker.Core.Entities;
 using FinanceTracker.Core.Exceptions;
 using FinanceTracker.Core.Extensions;
 using FinanceTracker.Core.Interfaces;
@@ -133,32 +134,4 @@ public class WalletTarget
     /// Target value of the wallet in main currency.
     /// </summary>
     public decimal ValueInMainCurrency { get; set; }
-}
-
-public class Component : EntityWithValueHistory, IOrderableEntity
-{
-    [Key]
-    public Guid Id { get; init; } = Guid.NewGuid();
-    
-    public Guid? DefaultPhysicalAllocationId { get; set; }
-
-    /// <summary>
-    /// User-friendly name of the wallet component.
-    /// </summary>
-    public string Name { get; set; } = string.Empty;
-    
-    /// <summary>
-    /// Sequence in which wallets should be displayed.
-    /// </summary>
-    public int DisplaySequence { get; set; }
-    
-    /// <summary>
-    /// ID of the wallet the component is part of.
-    /// </summary>
-    public Guid WalletId { get; init; }
-    
-    /// <summary>
-    /// Wallet the component is part of.
-    /// </summary>
-    public Wallet? Wallet { get; init; }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using FinanceTracker.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinanceTracker.Core.Migrations
 {
     [DbContext(typeof(FinanceTrackerContext))]
-    partial class FinanceTrackerContextModelSnapshot : ModelSnapshot
+    [Migration("20250916200924_AddedComponentsToGroup")]
+    partial class AddedComponentsToGroup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.7");
@@ -72,7 +75,7 @@ namespace FinanceTracker.Core.Migrations
                     b.Property<int>("DisplaySequence")
                         .HasColumnType("INTEGER");
 
-                    b.Property<Guid>("GroupId")
+                    b.Property<Guid?>("GroupId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
@@ -291,9 +294,7 @@ namespace FinanceTracker.Core.Migrations
 
                     b.HasOne("FinanceTracker.Core.Entities.Group", "Group")
                         .WithMany("Components")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("GroupId");
 
                     b.HasOne("FinanceTracker.Core.Wallet", "Wallet")
                         .WithMany("Components")

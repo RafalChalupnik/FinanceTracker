@@ -1,4 +1,5 @@
 using FinanceTracker.Core;
+using FinanceTracker.Core.Entities;
 using FinanceTracker.Core.Primitives;
 
 namespace FinanceTracker.Web;

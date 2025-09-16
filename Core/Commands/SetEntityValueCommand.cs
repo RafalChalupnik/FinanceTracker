@@ -1,3 +1,4 @@
+using FinanceTracker.Core.Entities;
 using FinanceTracker.Core.Primitives;
 using Microsoft.EntityFrameworkCore;
 

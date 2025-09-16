@@ -39,10 +39,16 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
             b.HasKey(x => x.Id);
             b.HasIndex(x => x.Name).IsUnique();
             b.Property(x => x.DisplaySequence);
+
             b.HasOne<GroupType>(x => x.GroupType)
                 .WithMany(x => x.Groups)
-                .HasForeignKey(x => x.GroupTypeId)
-                .IsRequired();
+                .HasForeignKey(x => x.GroupTypeId);
+
+            b.HasMany<Component>(x => x.Components)
+                .WithOne(x => x.Group)
+                .HasForeignKey(x => x.GroupId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
         });
         
         modelBuilder.Entity<Asset>(
@@ -124,7 +130,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 b.HasMany(x => x.Components)
                     .WithOne(x => x.Wallet)
                     .HasForeignKey(x => x.WalletId)
-                    .IsRequired()
+                    .IsRequired(false)
                     .OnDelete(DeleteBehavior.Cascade);
                 b.HasMany(x => x.Targets)
                     .WithOne()
