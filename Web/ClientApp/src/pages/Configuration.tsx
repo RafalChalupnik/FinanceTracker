@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Input, Button, Space, Card, Popconfirm, Typography, InputNumber} from "antd";
+import {Input, Button, Space, Card, Popconfirm, Typography, InputNumber, Row, Col} from "antd";
 import {DeleteOutlined, PlusOutlined, SaveOutlined} from "@ant-design/icons";
 import {Column, ExtendableTable} from "../components/table/ExtendableTable";
 import {buildDeleteColumn} from "../components/table/ColumnBuilder";
@@ -82,7 +82,7 @@ function EntityTable<T extends OrderableEntityDto>(props: EntityTableProps<T>) {
     };
 
     return (
-        <Card title={props.title} extra={<Button icon={<PlusOutlined />} onClick={handleAdd} >Add new entry</Button>}>
+        <Card style={{ height: "100%" }} title={props.title} extra={<Button icon={<PlusOutlined />} onClick={handleAdd} >Add new entry</Button>}>
             <ExtendableTable 
                 rows={buildData()} 
                 columns={columns}
@@ -198,34 +198,41 @@ const Configuration: React.FC = () => {
 
     return (
         <Space direction="vertical" style={{ width: "100%" }} size="large">
-            <EntityTable
-                title="Group Types"
-                data={groupTypes}
-                createNewRow={createEmptyOrderableEntityDto}
-                onUpdate={async groupType => {
-                    await upsertGroupType(groupType);
-                    setGroupTypes([...groupTypes, groupType]);
-                }}
-                onDelete={async groupTypeId => {
-                    await deleteGroupType(groupTypeId)
-                    setGroupTypes(groupTypes.filter(groupType => groupType.key !== groupTypeId));
-                }}
-            />
+            <Row gutter={16} style={{ alignItems: "stretch" }}>
+                <Col span={12} style={{ display: "flex", flexDirection: "column" }}>
+                    <EntityTable
+                        title="Group Types"
+                        data={groupTypes}
+                        createNewRow={createEmptyOrderableEntityDto}
+                        onUpdate={async groupType => {
+                            await upsertGroupType(groupType);
+                            setGroupTypes([...groupTypes, groupType]);
+                        }}
+                        onDelete={async groupTypeId => {
+                            await deleteGroupType(groupTypeId)
+                            setGroupTypes(groupTypes.filter(groupType => groupType.key !== groupTypeId));
+                        }}
+                    />
+                </Col>
 
-            <EntityTable
-                title="Groups"
-                data={groups}
-                createNewRow={createEmptyGroupDto}
-                onUpdate={async group => {
-                    await upsertGroup(group);
-                    setGroups([...groups, group]);
-                }}
-                onDelete={async groupId => {
-                    await deleteGroup(groupId)
-                    setGroups(groups.filter(group => group.key !== groupId));
-                }}
-                extraColumns={[buildGroupTypeColumn(groupTypes, async group => await upsertGroup(group))]}
-            />
+                <Col span={12}>
+                    <EntityTable
+                        title="Groups"
+                        data={groups}
+                        createNewRow={createEmptyGroupDto}
+                        onUpdate={async group => {
+                            await upsertGroup(group);
+                            setGroups([...groups, group]);
+                        }}
+                        onDelete={async groupId => {
+                            await deleteGroup(groupId)
+                            setGroups(groups.filter(group => group.key !== groupId));
+                        }}
+                        extraColumns={[buildGroupTypeColumn(groupTypes, async group => await upsertGroup(group))]}
+                    />
+                </Col>
+
+            </Row>
             
             <EntityTable
                 title="Assets"

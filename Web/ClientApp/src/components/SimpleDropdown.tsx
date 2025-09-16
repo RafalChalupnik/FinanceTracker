@@ -9,6 +9,7 @@ interface DropdownItem {
 interface SimpleDropdownProps {
     values: DropdownItem[];
     initialValue: string | undefined;
+    isRequired: boolean;
     onChange: (value: string | undefined) => void;
 }
 
@@ -18,18 +19,22 @@ interface SimpleDropdownOption {
 }
 
 const SimpleDropdown: FC<SimpleDropdownProps> = (props) => {
-    let options = [
-        {
-            value: '',
-            label: '-'
-        },
-        ...(props.values.map(value => {
-            return {
-                value: value.key,
-                label: value.name
-            }
-        }))
-    ]
+    let options = props.values.map(value => {
+        return {
+            value: value.key,
+            label: value.name
+        }
+    })
+    
+    if (!props.isRequired) {
+        options = [
+            {
+                value: '',
+                label: '-'
+            },
+            ...options
+        ]
+    }
     
     let defaultOption = options.find(option => option.value === props.initialValue) ?? options[0];
 

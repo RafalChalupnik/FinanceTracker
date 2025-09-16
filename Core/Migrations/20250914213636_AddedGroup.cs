@@ -65,7 +65,7 @@ namespace FinanceTracker.Core.Migrations
             migrationBuilder.Sql($@"
                 insert into Groups (Id, Name, DisplaySequence, GroupTypeId)
                 values (
-                    '{Guid.NewGuid().ToString()}', 
+                    '{Guid.NewGuid().ToString().ToUpperInvariant()}', 
                     '{name}', 
                     {displaySequence}, 
                     (select Id from GroupTypes where Name = '{name}')

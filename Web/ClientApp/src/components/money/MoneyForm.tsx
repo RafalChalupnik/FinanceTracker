@@ -89,6 +89,7 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
                 <SimpleDropdown 
                     values={props.physicalAllocations} 
                     initialValue={props.defaultPhysicalAllocation}
+                    isRequired={false}
                     onChange={setPhysicalAllocationId}
                 />
             )}

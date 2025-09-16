@@ -9,6 +9,7 @@ import {GroupDto} from "../../api/configuration/DTOs/GroupDto";
 interface SimpleDropdownFormProps {
     values: OrderableEntityDto[];
     initialValue: string | undefined;
+    isRequired: boolean;
     onSave: (entityId: string | undefined) => Promise<void>;
     onCancel: () => void;
 }
@@ -21,6 +22,7 @@ const SimpleDropdownForm: FC<SimpleDropdownFormProps> = (props) => {
             <SimpleDropdown
                 values={props.values}
                 initialValue={props.initialValue}
+                isRequired={props.isRequired}
                 onChange={setCurrentValue}
             />
             <SaveCancelButtons 
@@ -48,6 +50,7 @@ export function buildPhysicalAllocationColumn(
                 <SimpleDropdownForm 
                     values={physicalAllocations}
                     initialValue={row.defaultPhysicalAllocationId}
+                    isRequired={false}
                     onSave={async (physicalAllocationId?: string) => {
                         row.defaultPhysicalAllocationId = physicalAllocationId;
                         await onUpdate(row);
@@ -77,6 +80,7 @@ export function buildGroupTypeColumn(
                 <SimpleDropdownForm
                     values={groupTypes}
                     initialValue={row.groupTypeId}
+                    isRequired={true}
                     onSave={async (groupTypeId?: string) => {
                         row.groupTypeId = groupTypeId!;
                         await onUpdate(row);
