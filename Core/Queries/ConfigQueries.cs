@@ -1,4 +1,3 @@
-using FinanceTracker.Core.DTOs;
 using FinanceTracker.Core.Entities;
 using FinanceTracker.Core.Interfaces;
 using FinanceTracker.Core.Queries.DTOs;
@@ -18,8 +17,16 @@ public class ConfigQueries(FinanceTrackerContext dbContext)
         );
     }
 
-    public OrderableEntityDto[] GetGroups()
-        => GetOrderableEntities<Group>();
+    public Dictionary<string, OrderableEntityDto[]> GetGroups()
+    {
+        return dbContext.Groups
+            .Include(x => x.GroupType)
+            .GroupBy(x => x.GroupType)
+            .ToDictionary(
+                keySelector: grouping => grouping.Key!.Name,
+                elementSelector: BuildOrderableEntityDtos
+            );
+    }
 
     public OrderableEntityDto[] GetWallets()
         => GetOrderableEntities<Wallet>();

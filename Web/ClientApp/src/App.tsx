@@ -88,21 +88,36 @@ const App: React.FC = () => {
         const physicalAllocations = await getPhysicalAllocations();
         const groups = await getGroups();
 
-        navBarTemplate['/groups'].children = groups.reduce((acc, group) => {
-            acc[`/groups:${group.key}`] = {
-                label: group.name,
-                component: (
-                    <GroupPage
-                        key={group.key}
-                        groupId={group.key}
-                        name={group.name}
-                    />
-                )
-            };
-            return acc;
-        }, {} as Record<string, NavBarItem>);
+        const groupTypesItems: { [key: string]: NavBarItem } = Object.keys(groups).reduce(
+            (acc, groupType) => {
+                acc[groupType] = {
+                    label: `${groupType}`,
+                    icon: <WalletOutlined />,
+                    children: groups[groupType].reduce((childAcc, group) => {
+                        childAcc[`/groups:${group.key}`] = {
+                            label: group.name,
+                            component: (
+                                <GroupPage
+                                    key={group.key}
+                                    groupId={group.key}
+                                    name={group.name}
+                                />
+                            ),
+                        };
+                        return childAcc;
+                    }, {} as Record<string, NavBarItem>),
+                };
+                return acc;
+            },
+            {} as Record<string, NavBarItem>
+        );
+        
+        let navBar = {
+            ...navBarTemplate,
+            ...groupTypesItems
+        }
 
-        navBarTemplate['/wallets'].children = wallets.reduce((acc, wallet) => {
+        navBar['/wallets'].children = wallets.reduce((acc, wallet) => {
             acc[`/wallets:${wallet.key}`] = {
                 label: wallet.name,
                 component: (
@@ -116,7 +131,7 @@ const App: React.FC = () => {
             return acc;
         }, {} as Record<string, NavBarItem>);
 
-        navBarTemplate['/physical-allocations'].children = physicalAllocations.reduce((acc, allocation) => {
+        navBar['/physical-allocations'].children = physicalAllocations.reduce((acc, allocation) => {
             acc[`/physical-allocations:${allocation.key}`] = {
                 label: allocation.name,
                 component: (
@@ -130,7 +145,7 @@ const App: React.FC = () => {
             return acc;
         }, {} as Record<string, NavBarItem>);
         
-        setNavBar(navBarTemplate);
+        setNavBar(navBar);
         setCurrentKey(Object.keys(navBarTemplate)[0])
         setCurrentComponent(navBarTemplate[Object.keys(navBarTemplate)[0]].component)
     }

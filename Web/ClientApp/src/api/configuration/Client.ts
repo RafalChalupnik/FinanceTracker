@@ -4,7 +4,7 @@ export async function getConfiguration() : Promise<ConfigurationDto> {
     return await sendGet('api/configuration');
 }
 
-export async function getGroups() : Promise<OrderableEntityDto[]> {
+export async function getGroups() : Promise<Record<string, OrderableEntityDto[]>> {
     return await sendGet('api/configuration/groups2');
 }
 
