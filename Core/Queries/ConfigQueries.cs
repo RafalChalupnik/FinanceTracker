@@ -19,6 +19,7 @@ public class ConfigQueries(FinanceTrackerContext dbContext)
 
     public Dictionary<string, OrderableEntityDto[]> GetGroups()
     {
+        // TODO: Proper sequence
         return dbContext.Groups
             .Include(x => x.GroupType)
             .GroupBy(x => x.GroupType)

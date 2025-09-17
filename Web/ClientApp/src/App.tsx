@@ -28,7 +28,7 @@ interface NavBarItem {
     children?: { [key: string]: NavBarItem}
 }
 
-const navBarTemplate: { [key: string]: NavBarItem} = {
+const navBarBeforeGroups: { [key: string]: NavBarItem} = {
     '/': {
         label: 'Portfolio Summary',
         icon: <LineChartOutlined />,
@@ -38,28 +38,13 @@ const navBarTemplate: { [key: string]: NavBarItem} = {
         label: 'Wallets Summary',
         icon: <LineChartOutlined />,
         component: <WalletsSummary/>
-    },
-    '/wallets': {
-        label: 'Wallets',
-        icon: <WalletOutlined />,
-    },
+    }
+}
+
+const navBarAfterGroups: { [key: string]: NavBarItem} = {
     '/physical-allocations': {
         label: 'Physical Allocations',
         icon: <WalletOutlined />,
-    },
-    '/assets': {
-        label: 'Assets',
-        icon: <PlusSquareOutlined />,
-        component: <Assets/>
-    },
-    '/debts': {
-        label: 'Debts',
-        icon: <MinusSquareOutlined />,
-        component: <Debts/>
-    },
-    '/groups': {
-        label: 'Groups',
-        icon: <WalletOutlined />
     },
     '/config': {
         label: 'Configuration',
@@ -84,7 +69,6 @@ const App: React.FC = () => {
     const [currentComponent, setCurrentComponent] = useState<ReactNode | undefined>();
 
     const populateData = async () => {
-        const wallets = await getWallets();
         const physicalAllocations = await getPhysicalAllocations();
         const groups = await getGroups();
 
@@ -113,23 +97,10 @@ const App: React.FC = () => {
         );
         
         let navBar = {
-            ...navBarTemplate,
-            ...groupTypesItems
+            ...navBarBeforeGroups,
+            ...groupTypesItems,
+            ...navBarAfterGroups,
         }
-
-        navBar['/wallets'].children = wallets.reduce((acc, wallet) => {
-            acc[`/wallets:${wallet.key}`] = {
-                label: wallet.name,
-                component: (
-                    <Wallet 
-                        key={wallet.key} 
-                        walletId={wallet.key}
-                        name={wallet.name}
-                    />
-                )
-            };
-            return acc;
-        }, {} as Record<string, NavBarItem>);
 
         navBar['/physical-allocations'].children = physicalAllocations.reduce((acc, allocation) => {
             acc[`/physical-allocations:${allocation.key}`] = {
@@ -146,8 +117,8 @@ const App: React.FC = () => {
         }, {} as Record<string, NavBarItem>);
         
         setNavBar(navBar);
-        setCurrentKey(Object.keys(navBarTemplate)[0])
-        setCurrentComponent(navBarTemplate[Object.keys(navBarTemplate)[0]].component)
+        setCurrentKey(Object.keys(navBar)[0])
+        setCurrentComponent(navBar[Object.keys(navBar)[0]].component)
     }
 
     useEffect(() => {
