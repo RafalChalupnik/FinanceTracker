@@ -15,8 +15,9 @@ import PortfolioSummary from "./pages/PortfolioSummary";
 import WalletsSummary from './pages/WalletsSummary';
 import Wallet from "./pages/Wallet";
 import Configuration from "./pages/Configuration";
-import {getPhysicalAllocations, getWallets} from "./api/configuration/Client";
+import {getGroups, getPhysicalAllocations, getWallets} from "./api/configuration/Client";
 import PhysicalAllocation from "./pages/PhysicalAllocation";
+import GroupPage from "./pages/GroupPage";
 
 const { Header, Content } = Layout;
 
@@ -56,6 +57,10 @@ const navBarTemplate: { [key: string]: NavBarItem} = {
         icon: <MinusSquareOutlined />,
         component: <Debts/>
     },
+    '/groups': {
+        label: 'Groups',
+        icon: <WalletOutlined />
+    },
     '/config': {
         label: 'Configuration',
         icon: <SettingOutlined />,
@@ -73,9 +78,6 @@ const mapMenuItems = (items: { [key: string]: NavBarItem}): MenuItem[] =>
             icon: items[key].icon,
             children: items[key].children !== undefined ? mapMenuItems(items[key].children!) : undefined
         }));
-
-
-
 const App: React.FC = () => {
     const [navBar, setNavBar] = useState<{ [key: string]: NavBarItem} | undefined>(undefined);
     const [currentKey, setCurrentKey] = useState<string | undefined>(undefined);
@@ -84,6 +86,21 @@ const App: React.FC = () => {
     const populateData = async () => {
         const wallets = await getWallets();
         const physicalAllocations = await getPhysicalAllocations();
+        const groups = await getGroups();
+
+        navBarTemplate['/groups'].children = groups.reduce((acc, group) => {
+            acc[`/groups:${group.key}`] = {
+                label: group.name,
+                component: (
+                    <GroupPage
+                        key={group.key}
+                        groupId={group.key}
+                        name={group.name}
+                    />
+                )
+            };
+            return acc;
+        }, {} as Record<string, NavBarItem>);
 
         navBarTemplate['/wallets'].children = wallets.reduce((acc, wallet) => {
             acc[`/wallets:${wallet.key}`] = {

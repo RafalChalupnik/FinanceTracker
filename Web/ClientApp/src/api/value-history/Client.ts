@@ -7,6 +7,26 @@ import {
 } from "./DTOs/EntityTableDto";
 import {MoneyDto} from "./DTOs/Money";
 
+export async function getGroupValueHistory(
+    groupId: string,
+    granularity?: DateGranularity,
+    from?: Dayjs,
+    to?: Dayjs
+) : Promise<EntityTableDto<ValueHistoryRecordDto>> {
+    return await sendGet(`api/value-history/groups/${groupId}`, granularity, from, to);
+}
+
+export async function setGroupComponentValue(id: string, date: Dayjs, value: MoneyDto, physicalAllocationId?: string) : Promise<void> {
+    await sendPut(`api/value-history/groups/components/${id}/${toDateString(date)}`, {
+        value: value,
+        physicalAllocationId: physicalAllocationId
+    });
+}
+
+export async function deleteGroupValues(groupId: string, date: Dayjs) : Promise<void> {
+    return await sendDelete(`api/value-history/groups/${groupId}/${toDateString(date)}`);
+}
+
 export async function getAssetsValueHistory(
     granularity?: DateGranularity,
     from?: Dayjs,

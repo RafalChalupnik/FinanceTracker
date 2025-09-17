@@ -19,6 +19,10 @@ public class ConfigurationController(
     public ConfigurationDto GetConfiguration()
         => query.GetConfiguration();
     
+    [HttpGet("groups2")]
+    public OrderableEntityDto[] GetGroups()
+        => query.GetGroups();
+    
     [HttpGet("wallets")]
     public OrderableEntityDto[] GetWallets()
         => query.GetWallets();

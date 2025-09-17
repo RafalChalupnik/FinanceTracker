@@ -19,6 +19,38 @@ public class ValueHistoryController(
     SetInflationValueCommand setInflationValueCommand
     ) : ControllerBase
 {
+    [HttpGet("groups/{groupId:guid}")]
+    public EntityTableDto<ValueHistoryRecordDto> GetGroupValueHistory(
+        Guid groupId,
+        [FromQuery] DateGranularity? granularity,
+        [FromQuery] DateOnly? from,
+        [FromQuery] DateOnly? to
+    )
+        => query.ForGroup(groupId, granularity, from, to);
+    
+    [HttpPut("groups/components/{componentId:guid}/{date}")]
+    public async Task<IActionResult> SetGroupComponentValue(
+        Guid componentId,
+        DateOnly date, 
+        [FromBody] WalletComponentValueUpdateDto update)
+    {
+        await setEntityValueCommand.SetGroupComponentValue(
+            componentId: componentId, 
+            date: date, 
+            value: update.Value,
+            physicalAllocationId: update.PhysicalAllocationId
+        );
+        
+        return NoContent();
+    }
+    
+    [HttpDelete("groups/{groupId:guid}/{date}")]
+    public async Task<IActionResult> DeleteGroupValues(Guid groupId, DateOnly date)
+    {
+        await deleteValuesForDate.DeleteGroupValues(groupId, date);
+        return NoContent();
+    }
+    
     [HttpGet("assets")]
     public EntityTableDto<ValueHistoryRecordDto> GetAssetsValueHistory(
         [FromQuery] DateGranularity? granularity, 
@@ -127,7 +159,7 @@ public class ValueHistoryController(
         DateOnly date, 
         [FromBody] WalletComponentValueUpdateDto update)
     {
-        await setEntityValueCommand.SetWalletComponentValue(
+        await setEntityValueCommand.SetGroupComponentValue(
             componentId: componentId, 
             date: date, 
             value: update.Value,

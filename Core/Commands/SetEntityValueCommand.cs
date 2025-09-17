@@ -44,7 +44,7 @@ public class SetEntityValueCommand(FinanceTrackerContext dbContext)
         await dbContext.SaveChangesAsync();
     }
     
-    public async ValueTask SetWalletComponentValue(Guid componentId, DateOnly date, Money value, Guid? physicalAllocationId)
+    public async ValueTask SetGroupComponentValue(Guid componentId, DateOnly date, Money value, Guid? physicalAllocationId)
     {
         var alreadyExistingEntry = await dbContext.Set<HistoricValue>()
             .FirstOrDefaultAsync(entry => entry.ComponentId == componentId && entry.Date == date);
