@@ -1,25 +1,36 @@
 import React, {ReactNode, useEffect, useState} from 'react';
 import {Layout, Menu, MenuProps, Space, Typography} from 'antd';
 import {
-    EuroCircleOutlined,
+    EuroCircleOutlined, FileUnknownOutlined,
     LineChartOutlined,
-    MinusSquareOutlined,
-    PlusSquareOutlined,
     SettingOutlined,
     WalletOutlined
 } from "@ant-design/icons";
 
-import Assets from "./pages/Assets";
-import Debts from "./pages/Debts";
+import * as Icons from '@ant-design/icons';
+import type { IconBaseProps } from '@ant-design/icons/lib/components/Icon';
 import PortfolioSummary from "./pages/PortfolioSummary";
 import WalletsSummary from './pages/WalletsSummary';
-import Wallet from "./pages/Wallet";
 import Configuration from "./pages/Configuration";
-import {getGroups, getPhysicalAllocations, getWallets} from "./api/configuration/Client";
+import {getGroups, getPhysicalAllocations} from "./api/configuration/Client";
 import PhysicalAllocation from "./pages/PhysicalAllocation";
 import GroupPage from "./pages/GroupPage";
 
 const { Header, Content } = Layout;
+
+type IconName = keyof typeof Icons;
+
+interface DynamicIconProps extends IconBaseProps {
+    name: IconName;
+}
+
+const DynamicIcon: React.FC<DynamicIconProps> = ({ name, ...props }) => {
+    const IconComponent = Icons[name] as React.FC<IconBaseProps>;
+    
+    return IconComponent
+        ? (<IconComponent {...props} />)
+        : (<FileUnknownOutlined />);
+};
 
 interface NavBarItem {
     label: string,
@@ -72,12 +83,12 @@ const App: React.FC = () => {
         const physicalAllocations = await getPhysicalAllocations();
         const groups = await getGroups();
 
-        const groupTypesItems: { [key: string]: NavBarItem } = Object.keys(groups).reduce(
+        const groupTypesItems: { [key: string]: NavBarItem } = groups.reduce(
             (acc, groupType) => {
-                acc[groupType] = {
-                    label: `${groupType}`,
-                    icon: <WalletOutlined />,
-                    children: groups[groupType].reduce((childAcc, group) => {
+                acc[groupType.name] = {
+                    label: groupType.name,
+                    icon: <DynamicIcon name={groupType.icon as IconName} />,
+                    children: groupType.groups.reduce((childAcc, group) => {
                         childAcc[`/groups:${group.key}`] = {
                             label: group.name,
                             component: (

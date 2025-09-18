@@ -36,22 +36,6 @@ internal static class CollectionsExtensions
             => first.Plus(second, mainCurrency));
     }
     
-    public static OrderedDictionary<TKey, TElement> ToOrderedDictionary<TSource, TKey, TElement>(
-        this IEnumerable<TSource> input,
-        Func<TSource, TKey> keySelector,
-        Func<TSource, TElement> elementSelector
-        ) where TKey : notnull
-    {
-        var orderedDictionary = new OrderedDictionary<TKey, TElement>();
-        
-        foreach (var item in input)
-        {
-            orderedDictionary.Add(keySelector(item), elementSelector(item));
-        }
-
-        return orderedDictionary;
-    }
-    
     public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> source) where T : class =>
         source.Where(x => x != null).Select(x => x!);
 }

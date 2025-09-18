@@ -9,6 +9,17 @@ public record ConfigurationDto(
     IReadOnlyCollection<OrderableEntityDto> PhysicalAllocations
 );
 
+public record GroupTypeDto(
+    string Name,
+    string Icon,
+    IReadOnlyCollection<GroupDto> Groups
+);
+
+public record GroupDto(
+    Guid Key,
+    string Name
+);
+
 public record OrderableEntityDto(
     Guid Key,
     string Name,

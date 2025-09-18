@@ -15,6 +15,11 @@ public class GroupType : IOrderableEntity
     public int DisplaySequence { get; set; }
     
     /// <summary>
+    /// Represents the name of an icon associated with the group type.
+    /// </summary>
+    public required string IconName { get; set; }
+    
+    /// <summary>
     /// <see cref="Group"/>s that belong to this <see cref="GroupType"/>.
     /// </summary>
     public IReadOnlyCollection<Group> Groups { get; set; } = new List<Group>();
@@ -27,6 +32,7 @@ public static class GroupTypeExtensions
         {
             Id = dto.Key,
             Name = dto.Name,
+            IconName = string.Empty, // TODO
             DisplaySequence = dto.DisplaySequence
         };
 }

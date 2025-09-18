@@ -18,17 +18,27 @@ public class ConfigQueries(FinanceTrackerContext dbContext)
         );
     }
 
-    public OrderedDictionary<string, OrderableEntityDto[]> GetGroups()
+    public IReadOnlyCollection<GroupTypeDto> GetGroups()
     {
         return dbContext.Groups
             .Include(x => x.GroupType)
             .GroupBy(x => x.GroupType)
             .AsEnumerable()
             .OrderBy(x => x.Key!.DisplaySequence)
-            .ToOrderedDictionary(
-                keySelector: grouping => grouping.Key!.Name,
-                elementSelector: BuildOrderableEntityDtos
-            );
+            .Select(grouping => new GroupTypeDto(
+                Name: grouping.Key!.Name,
+                Icon: grouping.Key!.IconName,
+                Groups: grouping
+                    .OrderBy(group => group.DisplaySequence)
+                    .Select(group => new GroupDto(
+                        Key: group.Id,
+                        Name: group.Name
+                        )
+                    )
+                    .ToArray()
+                )
+            )
+            .ToArray();
     }
 
     public OrderableEntityDto[] GetWallets()
