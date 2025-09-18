@@ -21,6 +21,7 @@ import {buildGroupTypeColumn, buildPhysicalAllocationColumn} from "../components
 import {deleteGroupType, getGroupTypes, upsertGroupType} from "../api/configuration/GroupTypesClient";
 import {deleteGroup, getGroups, upsertGroup} from "../api/configuration/GroupsClient";
 import {GroupDto} from "../api/configuration/DTOs/GroupDto";
+import IconPicker from "../components/IconPicker";
 
 const {Text} = Typography;
 
@@ -200,6 +201,7 @@ const Configuration: React.FC = () => {
         <Space direction="vertical" style={{ width: "100%" }} size="large">
             <Row gutter={16} style={{ alignItems: "stretch" }}>
                 <Col span={12} style={{ display: "flex", flexDirection: "column" }}>
+                    <IconPicker/>
                     <EntityTable
                         title="Group Types"
                         data={groupTypes}
