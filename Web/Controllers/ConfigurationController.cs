@@ -20,7 +20,7 @@ public class ConfigurationController(
         => query.GetConfiguration();
     
     [HttpGet("groups2")]
-    public Dictionary<string, OrderableEntityDto[]> GetGroups()
+    public OrderedDictionary<string, OrderableEntityDto[]> GetGroups()
         => query.GetGroups();
     
     [HttpGet("wallets")]
