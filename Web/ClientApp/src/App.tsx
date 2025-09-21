@@ -1,36 +1,20 @@
 import React, {ReactNode, useEffect, useState} from 'react';
 import {Layout, Menu, MenuProps, Space, Typography} from 'antd';
 import {
-    EuroCircleOutlined, FileUnknownOutlined,
-    LineChartOutlined,
+    EuroCircleOutlined, LineChartOutlined,
     SettingOutlined,
     WalletOutlined
 } from "@ant-design/icons";
 
-import * as Icons from '@ant-design/icons';
-import type { IconBaseProps } from '@ant-design/icons/lib/components/Icon';
 import PortfolioSummary from "./pages/PortfolioSummary";
 import WalletsSummary from './pages/WalletsSummary';
 import Configuration from "./pages/Configuration";
 import {getGroups, getPhysicalAllocations} from "./api/configuration/Client";
 import PhysicalAllocation from "./pages/PhysicalAllocation";
 import GroupPage from "./pages/GroupPage";
+import DynamicIcon from "./components/DynamicIcon";
 
 const { Header, Content } = Layout;
-
-type IconName = keyof typeof Icons;
-
-interface DynamicIconProps extends IconBaseProps {
-    name: IconName;
-}
-
-const DynamicIcon: React.FC<DynamicIconProps> = ({ name, ...props }) => {
-    const IconComponent = Icons[name] as React.FC<IconBaseProps>;
-    
-    return IconComponent
-        ? (<IconComponent {...props} />)
-        : (<FileUnknownOutlined />);
-};
 
 interface NavBarItem {
     label: string,
@@ -87,7 +71,7 @@ const App: React.FC = () => {
             (acc, groupType) => {
                 acc[groupType.name] = {
                     label: groupType.name,
-                    icon: <DynamicIcon name={groupType.icon as IconName} />,
+                    icon: <DynamicIcon name={groupType.icon} />,
                     children: groupType.groups.reduce((childAcc, group) => {
                         childAcc[`/groups:${group.key}`] = {
                             label: group.name,

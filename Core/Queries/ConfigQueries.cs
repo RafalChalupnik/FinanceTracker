@@ -18,21 +18,37 @@ public class ConfigQueries(FinanceTrackerContext dbContext)
         );
     }
 
-    public IReadOnlyCollection<GroupTypeDto> GetGroups()
+    public IReadOnlyCollection<GroupTypeDto> GetGroupTypes() =>
+        dbContext.GroupTypes
+            .OrderBy(groupType => groupType.DisplaySequence)
+            .AsEnumerable()
+            .Select(groupType => new GroupTypeDto(
+                Key: groupType.Id,
+                Name: groupType.Name,
+                DisplaySequence: groupType.DisplaySequence,
+                Icon: groupType.IconName
+            ))
+            .ToArray();
+
+    public IReadOnlyCollection<GroupTypeWithGroupsDto> GetGroups()
     {
         return dbContext.Groups
             .Include(x => x.GroupType)
             .GroupBy(x => x.GroupType)
             .AsEnumerable()
             .OrderBy(x => x.Key!.DisplaySequence)
-            .Select(grouping => new GroupTypeDto(
+            .Select(grouping => new GroupTypeWithGroupsDto(
+                Key: grouping.Key!.Id,
                 Name: grouping.Key!.Name,
                 Icon: grouping.Key!.IconName,
+                DisplaySequence: grouping.Key!.DisplaySequence,
                 Groups: grouping
                     .OrderBy(group => group.DisplaySequence)
                     .Select(group => new GroupDto(
                         Key: group.Id,
-                        Name: group.Name
+                        Name: group.Name,
+                        DisplaySequence: group.DisplaySequence,
+                        GroupTypeId: group.GroupTypeId
                         )
                     )
                     .ToArray()

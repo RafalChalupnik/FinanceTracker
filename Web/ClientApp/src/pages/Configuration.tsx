@@ -12,17 +12,17 @@ import {
 import {
     deleteAsset,
     deleteDebt, deletePhysicalAllocation, deleteWallet, deleteWalletComponent,
-    getConfiguration,
+    getConfiguration, getGroups,
+    getGroupTypes,
     upsertAsset,
     upsertDebt, upsertPhysicalAllocation,
     upsertWallet, upsertWalletComponent
 } from "../api/configuration/Client";
 import {buildGroupTypeColumn, buildPhysicalAllocationColumn} from "../components/table/ConfigurationColumnBuilder";
-import {deleteGroupType, getGroupTypes, upsertGroupType} from "../api/configuration/GroupTypesClient";
-import {deleteGroup, getGroups, upsertGroup} from "../api/configuration/GroupsClient";
-import {GroupDto} from "../api/configuration/DTOs/GroupDto";
+import {GroupDto, GroupTypeDto} from "../api/configuration/DTOs/GroupDto";
 import IconPicker from "../components/IconPicker";
 import {EditableRowsTable} from "../components/table/EditableRowsTable";
+import DynamicIcon from "../components/DynamicIcon";
 
 const {Text} = Typography;
 
@@ -158,7 +158,7 @@ const Wallet: React.FC<WalletProps> = (props) => {
 };
 
 const Configuration: React.FC = () => {
-    const [groupTypes, setGroupTypes] = useState<OrderableEntityDto[]>([]);
+    const [groupTypes, setGroupTypes] = useState<GroupTypeDto[]>([]);
     const [groups, setGroups] = useState<GroupDto[]>([]);
     
     const [config, setConfig] = useState<ConfigurationDto>({
@@ -174,7 +174,7 @@ const Configuration: React.FC = () => {
         const groups = await getGroups();
         setConfig(config)
         setGroupTypes(groupTypes);
-        setGroups(groups);
+        setGroups(groups.map(groupType => groupType.groups).flat());
     }
 
     useEffect(() => {
@@ -197,14 +197,11 @@ const Configuration: React.FC = () => {
             groupTypeId: groupTypes[0].key
         };
     }
-    
-    let [icon, setIcon] = useState<string>('WalletOutlined');
 
     return (
         <Space direction="vertical" style={{ width: "100%" }} size="large">
             <Row gutter={16} style={{ alignItems: "stretch" }}>
                 <Col span={12} style={{ display: "flex", flexDirection: "column" }}>
-                    <IconPicker value={icon} onChange={setIcon}/>
                     <EditableRowsTable 
                         data={groupTypes} 
                         columns={[
@@ -226,9 +223,7 @@ const Configuration: React.FC = () => {
                                 title: 'Icon',
                                 dataIndex: 'icon',
                                 // inputType: '',
-                                render: (iconName: string) => {
-                                    return <WalletOutlined/>
-                                },
+                                render: (iconName: string) => <DynamicIcon name={iconName} />,
                                 width: '25%',
                                 editable: true,
                                 renderEditor: <IconPicker value="" onChange={() => {}} />
@@ -258,14 +253,14 @@ const Configuration: React.FC = () => {
                         data={groups}
                         createNewRow={createEmptyGroupDto}
                         onUpdate={async group => {
-                            await upsertGroup(group);
+                            // await upsertGroup(group);
                             setGroups([...groups, group]);
                         }}
                         onDelete={async groupId => {
-                            await deleteGroup(groupId)
+                            // await deleteGroup(groupId)
                             setGroups(groups.filter(group => group.key !== groupId));
                         }}
-                        extraColumns={[buildGroupTypeColumn(groupTypes, async group => await upsertGroup(group))]}
+                        // extraColumns={[buildGroupTypeColumn(groupTypes, async group => await upsertGroup(group))]}
                     />
                 </Col>
 

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Button, Form, Input, Table } from 'antd';
+import {Button, Form, Input, Space, Table} from 'antd';
 import type { FormRule, TableProps } from 'antd';
 import { ColumnType } from "antd/es/table";
 import SaveCancelButtons from "../SaveCancelButtons";
-import { EditOutlined } from "@ant-design/icons";
+import {DeleteOutlined, EditOutlined} from "@ant-design/icons";
 
 export interface EditableColumnType<T> extends ColumnType<T> {
     editable?: boolean;
@@ -54,7 +54,12 @@ export function EditableRowsTable<T extends { key: React.Key }>({ data, columns,
             const editable = isEditing(record);
             return editable
                 ? <SaveCancelButtons onSave={() => save(record.key)} onCancel={cancel} />
-                : <Button icon={<EditOutlined />} onClick={() => edit(record)} />;
+                : (
+                    <Space direction='horizontal'>
+                        <EditOutlined onClick={() => edit(record)} />
+                        <DeleteOutlined onClick={() => console.log('Delete')} />
+                    </Space>
+                );
         },
     };
 
@@ -99,9 +104,8 @@ export function EditableRowsTable<T extends { key: React.Key }>({ data, columns,
                 bordered
                 dataSource={data}
                 columns={[...mergedColumns, actionColumn]}
-                rowClassName="editable-row"
-                pagination={{ onChange: cancel }}
                 rowKey="key"
+                pagination={false}
             />
         </Form>
     );

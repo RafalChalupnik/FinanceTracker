@@ -1,12 +1,16 @@
 import {ConfigurationDto, OrderableEntityDto, WalletComponentDataDto} from "./DTOs/ConfigurationDto";
-import {GroupTypeDto} from "./DTOs/GroupDto";
+import {GroupTypeDto, GroupTypeDtoWithGroups} from "./DTOs/GroupDto";
 
 export async function getConfiguration() : Promise<ConfigurationDto> {
     return await sendGet('api/configuration');
 }
 
-export async function getGroups() : Promise<GroupTypeDto[]> {
-    return await sendGet('api/configuration/groups2');
+export async function getGroupTypes() : Promise<GroupTypeDto[]> {
+    return await sendGet('api/configuration/group-types');
+}
+
+export async function getGroups() : Promise<GroupTypeDtoWithGroups[]> {
+    return await sendGet('api/configuration/groups');
 }
 
 export async function getWallets() : Promise<OrderableEntityDto[]> {

@@ -10,14 +10,34 @@ public record ConfigurationDto(
 );
 
 public record GroupTypeDto(
+    Guid Key,
     string Name,
+    int DisplaySequence,
+    string Icon
+) : OrderableEntityDto(
+    Key, 
+    Name, 
+    DisplaySequence
+);
+
+public record GroupTypeWithGroupsDto(
+    Guid Key,
+    string Name,
+    int DisplaySequence,
     string Icon,
     IReadOnlyCollection<GroupDto> Groups
+) : GroupTypeDto(
+    Key, 
+    Name, 
+    DisplaySequence, 
+    Icon
 );
 
 public record GroupDto(
     Guid Key,
-    string Name
+    string Name,
+    int DisplaySequence,
+    Guid GroupTypeId
 );
 
 public record OrderableEntityDto(

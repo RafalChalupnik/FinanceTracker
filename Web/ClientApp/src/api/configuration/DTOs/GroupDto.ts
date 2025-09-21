@@ -4,13 +4,10 @@ export type GroupDto = OrderableEntityDto & {
     groupTypeId: string
 }
 
-export type GroupTypeDto = {
-    name: string,
-    icon: string,
-    groups: GroupDto2[]
-};
+export type GroupTypeDto = OrderableEntityDto & {
+    icon: string
+}
 
-export type GroupDto2 = {
-    key: string,
-    name: string
+export type GroupTypeDtoWithGroups = GroupTypeDto & {
+    groups: GroupDto[]
 }

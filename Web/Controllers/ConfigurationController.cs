@@ -19,8 +19,12 @@ public class ConfigurationController(
     public ConfigurationDto GetConfiguration()
         => query.GetConfiguration();
     
-    [HttpGet("groups2")]
-    public IReadOnlyCollection<GroupTypeDto> GetGroups()
+    [HttpGet("group-types")]
+    public IReadOnlyCollection<GroupTypeDto> GetGroupTypes()
+        => query.GetGroupTypes();
+    
+    [HttpGet("groups")]
+    public IReadOnlyCollection<GroupTypeWithGroupsDto> GetGroups()
         => query.GetGroups();
     
     [HttpGet("wallets")]
