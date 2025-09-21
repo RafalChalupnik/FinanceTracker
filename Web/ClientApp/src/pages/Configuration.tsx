@@ -332,26 +332,41 @@ const Configuration: React.FC = () => {
                             {
                                 title: 'Name',
                                 dataIndex: 'name',
-                                width: '50%',
+                                width: '40%',
                                 editable: true,
                             },
                             {
                                 title: 'Sequence',
                                 dataIndex: 'displaySequence',
-                                width: '25%',
+                                width: '20%',
                                 editable: true,
                             },
                             {
                                 title: 'Group',
                                 dataIndex: 'groupId',
                                 render: (groupId: string) => groups.find(x => x.key === groupId)!.name,
-                                width: '25%',
+                                width: '20%',
                                 editable: true,
                                 renderEditor: (
                                     <SimpleDropdown
                                         availableValues={groups}
                                         value=''
                                         isRequired={true}
+                                        onChange={() => {}}
+                                    />
+                                )
+                            },
+                            {
+                                title: 'Default Physical Allocation',
+                                dataIndex: 'defaultPhysicalAllocationId',
+                                render: (physicalAllocationId: string) => physicalAllocations.find(x => x.key === physicalAllocationId)?.name ?? '-',
+                                width: '20%',
+                                editable: true,
+                                renderEditor: (
+                                    <SimpleDropdown
+                                        availableValues={physicalAllocations}
+                                        value=''
+                                        isRequired={false}
                                         onChange={() => {}}
                                     />
                                 )

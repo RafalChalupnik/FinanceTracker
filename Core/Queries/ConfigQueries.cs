@@ -13,6 +13,7 @@ public class ConfigQueries(FinanceTrackerContext dbContext)
         var groupTypes = dbContext.GroupTypes
             .Include(groupType => groupType.Groups)
             .ThenInclude(group => group.Components)
+            .OrderBy(groupType => groupType.DisplaySequence)
             .AsEnumerable()
             .Select(groupType => new GroupTypeConfigDto(
                     Key: groupType.Id,
@@ -20,12 +21,14 @@ public class ConfigQueries(FinanceTrackerContext dbContext)
                     DisplaySequence: groupType.DisplaySequence,
                     Icon: groupType.IconName,
                     Groups: groupType.Groups
+                        .OrderBy(group => group.DisplaySequence)
                         .Select(group => new GroupConfigDto(
                                 Key: group.Id,
                                 Name: group.Name,
                                 DisplaySequence: group.DisplaySequence,
                                 GroupTypeId: groupType.Id,
                                 Components: group.Components
+                                    .OrderBy(component => component.DisplaySequence)
                                     .Select(component => new ComponentConfigDto(
                                             Key: component.Id,
                                             Name: component.Name,
