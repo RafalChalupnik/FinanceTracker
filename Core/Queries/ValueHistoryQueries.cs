@@ -1,6 +1,5 @@
 using FinanceTracker.Core.Entities;
 using FinanceTracker.Core.Extensions;
-using FinanceTracker.Core.Interfaces;
 using FinanceTracker.Core.Primitives;
 using FinanceTracker.Core.Queries.DTOs;
 using FinanceTracker.Core.Queries.Implementation;
@@ -23,7 +22,7 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
             .ToArray();
 
         var entities = groupsByType
-            .Select(groupsInType => MapEntities<Group>(groupsInType.ToArray(), groupsInType.Key!.Name))
+            .Select(groupsInType => MapGroups(groupsInType.ToArray(), groupsInType.Key!.Name))
             .ToArray();
 
         var records = RecordsBuilder.BuildValueRecords(
@@ -250,12 +249,9 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
         );
     }
 
-    private static EntityData MapEntities<T>(
-        IReadOnlyCollection<T> entities, 
-        string name
-    ) where T : IEntityWithValueHistory, IOrderableEntity
+    private static EntityData MapGroups(IReadOnlyCollection<Group> groups, string name)
     {
-        var dates = entities
+        var dates = groups
             .SelectMany(date => date.GetEvaluationDates())
             .ToArray();
         
@@ -265,7 +261,7 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
             ParentName: null,
             Dates: dates,
             DefaultPhysicalAllocationId: null,
-            GetValueForDate: date => entities
+            GetValueForDate: date => groups
                 .Select(entity => entity.GetValueFor(date))
                 .WhereNotNull()
                 .Select(moneyValue => moneyValue.Value)
@@ -285,13 +281,13 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
             Id: component.Id
         );
     
-    private static EntityData BuildEntityData<T>(T entity) where T : IEntityWithValueHistory, IOrderableEntity =>
+    private static EntityData BuildEntityData(Group group) =>
         new EntityData(
-            Name: entity.Name,
+            Name: group.Name,
             ParentName: null,
-            Dates: entity.GetEvaluationDates().ToArray(),
+            Dates: group.GetEvaluationDates().ToArray(),
             DefaultPhysicalAllocationId: null,
-            GetValueForDate: date => entity.GetValueFor(date).ToEntityValueSnapshotDto(),
-            Id: entity.Id
+            GetValueForDate: date => group.GetValueFor(date).ToEntityValueSnapshotDto(),
+            Id: group.Id
         );
 }
