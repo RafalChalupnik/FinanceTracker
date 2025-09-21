@@ -71,14 +71,4 @@ public record WalletComponentDataDto(
     string Name,
     int DisplaySequence,
     Guid? DefaultPhysicalAllocationId
-) : OrderableEntityDto(Key, Name, DisplaySequence)
-{
-    public Component ToComponent() =>
-        new()
-        {
-            Id = Key,
-            Name = Name,
-            DisplaySequence = DisplaySequence,
-            DefaultPhysicalAllocationId = DefaultPhysicalAllocationId
-        };   
-}
+) : OrderableEntityDto(Key, Name, DisplaySequence);

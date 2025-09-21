@@ -58,7 +58,7 @@ public class ConfigurationController(
     }
     
     [HttpPost("components")]
-    public IActionResult UpsertComponent([FromBody] WalletComponentDataDto component)
+    public IActionResult UpsertComponent([FromBody] ComponentConfigDto component)
     {
         repository.Upsert(component.ToComponent());
         return NoContent();

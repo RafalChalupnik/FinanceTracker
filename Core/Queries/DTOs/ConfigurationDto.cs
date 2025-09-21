@@ -1,3 +1,5 @@
+using FinanceTracker.Core.Entities;
+
 namespace FinanceTracker.Core.Queries.DTOs;
 
 public record ConfigurationDto(
@@ -37,6 +39,17 @@ public record ComponentConfigDto(
     Guid? DefaultPhysicalAllocationId = null
 ) : OrderableEntityDto(
     Key: Key,
-    Name: Name, 
+    Name: Name,
     DisplaySequence: DisplaySequence
-);
+)
+{
+    public Component ToComponent() =>
+        new()
+        {
+            Id = Key,
+            Name = Name,
+            DisplaySequence = DisplaySequence,
+            GroupId = GroupId,
+            DefaultPhysicalAllocationId = DefaultPhysicalAllocationId
+        };  
+}

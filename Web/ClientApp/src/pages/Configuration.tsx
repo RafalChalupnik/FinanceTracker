@@ -1,6 +1,6 @@
 import React, {FC, useEffect, useState} from "react";
-import {Input, Button, Space, Card, Popconfirm, Typography, InputNumber, Row, Col, Divider, FormRule} from "antd";
-import {DeleteOutlined, PlusOutlined, SaveOutlined, WalletOutlined} from "@ant-design/icons";
+import {Button, Space, Card, Row, Col, Divider} from "antd";
+import {PlusOutlined} from "@ant-design/icons";
 import {Column, ExtendableTable} from "../components/table/ExtendableTable";
 import {buildDeleteColumn} from "../components/table/ColumnBuilder";
 import {
@@ -17,14 +17,10 @@ import {
     upsertGroup,
     upsertGroupType, upsertPhysicalAllocation
 } from "../api/configuration/Client";
-import {buildPhysicalAllocationColumn} from "../components/table/ConfigurationColumnBuilder";
-import {GroupDto, GroupTypeDto} from "../api/configuration/DTOs/GroupDto";
 import IconPicker from "../components/IconPicker";
 import {EditableRowsTable} from "../components/table/EditableRowsTable";
 import DynamicIcon from "../components/DynamicIcon";
 import SimpleDropdown from "../components/SimpleDropdown";
-
-const {Text} = Typography;
 
 interface TableCardProps {
     title: string,
@@ -105,71 +101,7 @@ function EntityTable<T extends OrderableEntityDto>(props: EntityTableProps<T>) {
             />
         </Card>
     );
-};
-
-// interface WalletProps {
-//     wallet: WalletDataDto;
-//     physicalAllocations: OrderableEntityDto[];
-//     onUpdateWallet: (wallet: OrderableEntityDto) => Promise<void>;
-//     onDeleteWallet: (walletId: string) => Promise<void>;
-//     onUpdateComponent: (walletId: string, entity: WalletComponentDataDto) => Promise<void>;
-//     onDeleteComponent: (componentId: string) => Promise<void>;
-// }
-//
-// const Wallet: React.FC<WalletProps> = (props) => {
-//     let [name, setName] = useState(props.wallet.name);
-//     let [sequence, setSequence] = useState(props.wallet.displaySequence);
-//    
-//     let physicalAllocationColumn = buildPhysicalAllocationColumn(
-//         props.physicalAllocations,
-//         async component => props.onUpdateComponent(props.wallet.key, component)
-//     );
-//    
-//     return (
-//         <>
-//             <EntityTable
-//                 title={
-//                     <Space direction='horizontal'>
-//                         <Text>Name:</Text>
-//                         <Input value={name} onChange={e => setName(e.target.value)}/>
-//
-//                         <Text>Sequence:</Text>
-//                         <InputNumber value={sequence} onChange={e => setSequence(e?.valueOf() ?? 0)}/>
-//
-//                         <Button
-//                             icon={<SaveOutlined />}
-//                             onClick={async () => props.onUpdateWallet({
-//                                 key: props.wallet.key,
-//                                 name: name,
-//                                 displaySequence: sequence
-//                             })}
-//                         />
-//
-//                         <Popconfirm
-//                             title='Sure to delete?'
-//                             okText={'Yes'}
-//                             cancelText={'No'}
-//                             okButtonProps={{ danger: true }}
-//                             onConfirm={async () => await props.onDeleteWallet(props.wallet.key)}
-//                         >
-//                             <Button icon={<DeleteOutlined />}/>
-//                         </Popconfirm>
-//                     </Space>
-//                 }
-//                 data={props.wallet.components}
-//                 createNewRow={sequence => ({
-//                     key: crypto.randomUUID(),
-//                     name: "New Component",
-//                     displaySequence: sequence,
-//                     defaultPhysicalAllocationId: undefined
-//                 })}
-//                 onUpdate={async component => props.onUpdateComponent(props.wallet.key, component)}
-//                 onDelete={props.onDeleteComponent}
-//                 extraColumns={[physicalAllocationColumn]}
-//             />
-//         </>
-//     );
-// };
+}
 
 const Configuration: React.FC = () => {
     const [groupTypes, setGroupTypes] = useState<GroupTypeConfigDto[]>([]);
@@ -436,78 +368,6 @@ const Configuration: React.FC = () => {
                     />
                 </TableCard>
             ))}
-            
-            {/*<EntityTable*/}
-            {/*    title="Assets"*/}
-            {/*    data={config.assets}*/}
-            {/*    createNewRow={createEmptyOrderableEntityDto}*/}
-            {/*    onUpdate={async asset => {*/}
-            {/*        await upsertAsset(asset);*/}
-            {/*        await populateData();*/}
-            {/*    }}*/}
-            {/*    onDelete={async assetId => {*/}
-            {/*        await deleteAsset(assetId);*/}
-            {/*        await populateData();*/}
-            {/*    }}*/}
-            {/*/>*/}
-            
-            {/*<EntityTable*/}
-            {/*    title="Debts"*/}
-            {/*    data={config.debts}*/}
-            {/*    createNewRow={createEmptyOrderableEntityDto}*/}
-            {/*    onUpdate={async debt => {*/}
-            {/*        await upsertDebt(debt);*/}
-            {/*        await populateData();*/}
-            {/*    }}*/}
-            {/*    onDelete={async debtId => {*/}
-            {/*        await deleteDebt(debtId);*/}
-            {/*        await populateData();*/}
-            {/*    }}*/}
-            {/*/>*/}
-            
-            {/*<Card*/}
-            {/*    title="Wallets"*/}
-            {/*    extra={*/}
-            {/*        <Button*/}
-            {/*            icon={<PlusOutlined />}*/}
-            {/*            onClick={async () => {*/}
-            {/*                await upsertWallet({*/}
-            {/*                        key: crypto.randomUUID(),*/}
-            {/*                        name: "New Wallet",*/}
-            {/*                        displaySequence: config.wallets.length + 1*/}
-            {/*                    }*/}
-            {/*                )*/}
-            {/*                await populateData();*/}
-            {/*            }}*/}
-            {/*        >*/}
-            {/*            Add Wallet*/}
-            {/*        </Button>*/}
-            {/*    }*/}
-            {/*>*/}
-            {/*    {config.wallets.map(wallet => (*/}
-            {/*        <Wallet*/}
-            {/*            wallet={wallet}*/}
-            {/*            physicalAllocations={config.physicalAllocations}*/}
-            {/*            onUpdateWallet={async wallet => {*/}
-            {/*                await upsertWallet(wallet);*/}
-            {/*                await populateData();*/}
-            {/*            }}*/}
-            {/*            onDeleteWallet={async walletId => {*/}
-            {/*                await deleteWallet(walletId);*/}
-            {/*                await populateData();*/}
-            {/*            }}*/}
-            {/*            onUpdateComponent={async (walletId, component) => {*/}
-            {/*                await upsertWalletComponent(walletId, component);*/}
-            {/*                await populateData();*/}
-            {/*            }}*/}
-            {/*            onDeleteComponent={async componentId => {*/}
-            {/*                await deleteWalletComponent(componentId);*/}
-            {/*                await populateData();*/}
-            {/*            }}*/}
-            {/*        />*/}
-            {/*    ))}*/}
-            {/*</Card>*/}
-            
             <EntityTable
                 title="Physical Allocations"
                 data={physicalAllocations}
