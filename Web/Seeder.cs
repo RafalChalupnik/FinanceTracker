@@ -119,7 +119,7 @@ internal static class Seeder
                     .Select(value => value.ToComponentValue(cashEur.Id, cashPhysicalAllocationId, currency: "EUR")))
         );
 
-        await context.WalletTargets.AddRangeAsync(
+        await context.HistoricTargets.AddRangeAsync(
             targets
                 .Select(target => target.ToHistoricTarget(emergencyFund.Id))
         );

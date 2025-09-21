@@ -9,11 +9,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
     
     public DbSet<Group> Groups { get; set; }
     
-    public DbSet<Asset> Assets { get; set; }
-    
     public DbSet<Component> Components { get; set; }
-    
-    public DbSet<Debt> Debts { get; set; }
     
     public DbSet<HistoricValue> HistoricValues { get; set; }
     
@@ -21,9 +17,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
     
     public DbSet<PhysicalAllocation> PhysicalAllocations { get; set; }
     
-    public DbSet<Wallet> Wallets { get; set; }
-    
-    public DbSet<HistoricTarget> WalletTargets { get; set; }
+    public DbSet<HistoricTarget> HistoricTargets { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -56,14 +50,6 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 .OnDelete(DeleteBehavior.Cascade);
         });
         
-        modelBuilder.Entity<Asset>(
-            b =>
-            {
-                b.HasKey(x => x.Id);
-                b.HasIndex(x => x.Name).IsUnique();
-                b.Property(x => x.DisplaySequence);
-            });
-        
         modelBuilder.Entity<Component>(
             b =>
             {
@@ -80,14 +66,6 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                     .WithMany()
                     .HasForeignKey(x => x.DefaultPhysicalAllocationId)
                     .OnDelete(DeleteBehavior.SetNull);
-            });
-        
-        modelBuilder.Entity<Debt>(
-            b =>
-            {
-                b.HasKey(x => x.Id);
-                b.HasIndex(x => x.Name).IsUnique();
-                b.Property(x => x.DisplaySequence);
             });
         
         modelBuilder.Entity<HistoricValue>(b =>
@@ -117,13 +95,5 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 .WithOne()
                 .OnDelete(DeleteBehavior.SetNull);
         });
-        
-        modelBuilder.Entity<Wallet>(
-            b =>
-            {
-                b.HasKey(x => x.Id);
-                b.HasIndex(x => x.Name).IsUnique();
-                b.Property(x => x.DisplaySequence);
-            });
     }
 }

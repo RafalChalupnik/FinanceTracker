@@ -14,7 +14,7 @@ public class SetTargetCommand(FinanceTrackerContext dbContext)
 
         if (newValue != null)
         {
-            dbContext.WalletTargets.Add(newValue);
+            dbContext.HistoricTargets.Add(newValue);
         }
 
         await dbContext.SaveChangesAsync();
