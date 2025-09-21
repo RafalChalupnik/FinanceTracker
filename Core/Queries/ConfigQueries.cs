@@ -1,3 +1,4 @@
+using FinanceTracker.Core.Entities;
 using FinanceTracker.Core.Interfaces;
 using FinanceTracker.Core.Queries.DTOs;
 using Microsoft.EntityFrameworkCore;
@@ -8,17 +9,47 @@ public class ConfigQueries(FinanceTrackerContext dbContext)
 {
     public ConfigurationDto GetConfiguration()
     {
-        return new ConfigurationDto(
-            Assets: GetOrderableEntities<Asset>(),
-            Debts: GetOrderableEntities<Debt>(),
-            Wallets: GetWalletsWithComponents(),
-            PhysicalAllocations: GetOrderableEntities<PhysicalAllocation>()
-        );
+        var groupTypes = dbContext.GroupTypes
+            .Include(groupType => groupType.Groups)
+            .ThenInclude(group => group.Components)
+            .OrderBy(groupType => groupType.DisplaySequence)
+            .AsEnumerable()
+            .Select(groupType => new GroupTypeConfigDto(
+                    Key: groupType.Id,
+                    Name: groupType.Name,
+                    DisplaySequence: groupType.DisplaySequence,
+                    Icon: groupType.IconName,
+                    Groups: groupType.Groups
+                        .OrderBy(group => group.DisplaySequence)
+                        .Select(group => new GroupConfigDto(
+                                Key: group.Id,
+                                Name: group.Name,
+                                DisplaySequence: group.DisplaySequence,
+                                ShowTargets: group.ShowTargets,
+                                GroupTypeId: groupType.Id,
+                                Components: group.Components
+                                    .OrderBy(component => component.DisplaySequence)
+                                    .Select(component => new ComponentConfigDto(
+                                            Key: component.Id,
+                                            Name: component.Name,
+                                            DisplaySequence: component.DisplaySequence,
+                                            GroupId: component.GroupId,
+                                            DefaultPhysicalAllocationId: component.DefaultPhysicalAllocationId
+                                        )
+                                    )
+                                    .ToArray()
+                            )
+                        )
+                        .ToArray()
+                )
+            )
+            .ToArray();
+
+        var physicalAllocations = BuildOrderableEntityDtos(dbContext.PhysicalAllocations);
+        
+        return new ConfigurationDto(groupTypes, physicalAllocations);
     }
 
-    public OrderableEntityDto[] GetWallets()
-        => GetOrderableEntities<Wallet>();
-    
     public OrderableEntityDto[] GetPhysicalAllocations()
         => GetOrderableEntities<PhysicalAllocation>();
 
@@ -26,37 +57,6 @@ public class ConfigQueries(FinanceTrackerContext dbContext)
         BuildOrderableEntityDtos(
             dbContext.Set<T>()
         );
-
-    private WalletDataDto[] GetWalletsWithComponents()
-    {
-        return dbContext.Wallets
-            .Include(x => x.Components)
-            .AsEnumerable()
-            .Select(wallet => new WalletDataDto(
-                    wallet.Id,
-                    wallet.Name,
-                    wallet.DisplaySequence,
-                    BuildOrderableEntityDtos(wallet.Components)
-                )
-            )
-            .OrderBy(x => x.DisplaySequence)
-            .ToArray();
-    }
-    
-    private static WalletComponentDataDto[] BuildOrderableEntityDtos(
-        IEnumerable<Component> components)
-    {
-        return components
-            .Select(component => new WalletComponentDataDto(
-                    Key: component.Id, 
-                    Name: component.Name, 
-                    DisplaySequence: component.DisplaySequence,
-                    DefaultPhysicalAllocationId: component.DefaultPhysicalAllocationId
-                )
-            )
-            .OrderBy(x => x.DisplaySequence)
-            .ToArray();
-    }
 
     private static OrderableEntityDto[] BuildOrderableEntityDtos(
         IEnumerable<IOrderableEntity> entities)

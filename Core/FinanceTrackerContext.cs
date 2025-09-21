@@ -1,14 +1,15 @@
+using FinanceTracker.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.Core;
 
 public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> options) : DbContext(options)
 {
-    public DbSet<Asset> Assets { get; set; }
+    public DbSet<GroupType> GroupTypes { get; set; }
+    
+    public DbSet<Group> Groups { get; set; }
     
     public DbSet<Component> Components { get; set; }
-    
-    public DbSet<Debt> Debts { get; set; }
     
     public DbSet<HistoricValue> HistoricValues { get; set; }
     
@@ -16,23 +17,38 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
     
     public DbSet<PhysicalAllocation> PhysicalAllocations { get; set; }
     
-    public DbSet<Wallet> Wallets { get; set; }
-    
-    public DbSet<WalletTarget> WalletTargets { get; set; }
+    public DbSet<HistoricTarget> HistoricTargets { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder) 
-    { 
-        modelBuilder.Entity<Asset>(
-            b =>
-            {
-                b.HasKey(x => x.Id);
-                b.HasIndex(x => x.Name).IsUnique();
-                b.Property(x => x.DisplaySequence);
-                b.HasMany(x => x.ValueHistory)
-                    .WithOne()
-                    .HasForeignKey(x => x.AssetId)
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<GroupType>(b =>
+        {
+            b.HasKey(x => x.Id);
+            b.HasIndex(x => x.Name).IsUnique();
+            b.Property(x => x.DisplaySequence);
+        });
+        
+        modelBuilder.Entity<Group>(b =>
+        {
+            b.HasKey(x => x.Id);
+            b.HasIndex(x => x.Name).IsUnique();
+            b.Property(x => x.DisplaySequence);
+
+            b.HasOne<GroupType>(x => x.GroupType)
+                .WithMany(x => x.Groups)
+                .HasForeignKey(x => x.GroupTypeId);
+
+            b.HasMany<Component>(x => x.Components)
+                .WithOne(x => x.Group)
+                .HasForeignKey(x => x.GroupId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            b.HasMany<HistoricTarget>(x => x.Targets)
+                .WithOne()
+                .HasForeignKey(x => x.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
         
         modelBuilder.Entity<Component>(
             b =>
@@ -50,18 +66,6 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                     .WithMany()
                     .HasForeignKey(x => x.DefaultPhysicalAllocationId)
                     .OnDelete(DeleteBehavior.SetNull);
-            });
-        
-        modelBuilder.Entity<Debt>(
-            b =>
-            {
-                b.HasKey(x => x.Id);
-                b.HasIndex(x => x.Name).IsUnique();
-                b.Property(x => x.DisplaySequence);
-                b.HasMany(x => x.ValueHistory)
-                    .WithOne()
-                    .HasForeignKey(x => x.DebtId)
-                    .OnDelete(DeleteBehavior.Cascade);
             });
         
         modelBuilder.Entity<HistoricValue>(b =>
@@ -91,22 +95,5 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 .WithOne()
                 .OnDelete(DeleteBehavior.SetNull);
         });
-        
-        modelBuilder.Entity<Wallet>(
-            b =>
-            {
-                b.HasKey(x => x.Id);
-                b.HasIndex(x => x.Name).IsUnique();
-                b.Property(x => x.DisplaySequence);
-                b.HasMany(x => x.Components)
-                    .WithOne(x => x.Wallet)
-                    .HasForeignKey(x => x.WalletId)
-                    .IsRequired()
-                    .OnDelete(DeleteBehavior.Cascade);
-                b.HasMany(x => x.Targets)
-                    .WithOne()
-                    .HasForeignKey(x => x.WalletId)
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
     }
 }

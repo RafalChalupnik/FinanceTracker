@@ -1,4 +1,5 @@
 using FinanceTracker.Core.Commands.DTOs;
+using FinanceTracker.Core.Entities;
 
 namespace FinanceTracker.Core.Commands;
 

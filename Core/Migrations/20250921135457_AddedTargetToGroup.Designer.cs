@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using FinanceTracker.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,12 +12,56 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinanceTracker.Core.Migrations
 {
     [DbContext(typeof(FinanceTrackerContext))]
-    partial class FinanceTrackerContextModelSnapshot : ModelSnapshot
+    [Migration("20250921135457_AddedTargetToGroup")]
+    partial class AddedTargetToGroup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.7");
+
+            modelBuilder.Entity("FinanceTracker.Core.Asset", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("DisplaySequence")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Assets");
+                });
+
+            modelBuilder.Entity("FinanceTracker.Core.Debt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("DisplaySequence")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Debts");
+                });
 
             modelBuilder.Entity("FinanceTracker.Core.Entities.Component", b =>
                 {
@@ -37,11 +82,16 @@ namespace FinanceTracker.Core.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("WalletId")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DefaultPhysicalAllocationId");
 
                     b.HasIndex("GroupId");
+
+                    b.HasIndex("WalletId");
 
                     b.HasIndex("Id", "Name")
                         .IsUnique();
@@ -64,9 +114,6 @@ namespace FinanceTracker.Core.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<bool>("ShowTargets")
-                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -103,7 +150,7 @@ namespace FinanceTracker.Core.Migrations
                     b.ToTable("GroupTypes");
                 });
 
-            modelBuilder.Entity("FinanceTracker.Core.Entities.HistoricTarget", b =>
+            modelBuilder.Entity("FinanceTracker.Core.HistoricTarget", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -118,17 +165,25 @@ namespace FinanceTracker.Core.Migrations
                     b.Property<decimal>("ValueInMainCurrency")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("WalletId")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("GroupId");
 
-                    b.ToTable("HistoricTargets");
+                    b.HasIndex("WalletId");
+
+                    b.ToTable("WalletTargets");
                 });
 
-            modelBuilder.Entity("FinanceTracker.Core.Entities.HistoricValue", b =>
+            modelBuilder.Entity("FinanceTracker.Core.HistoricValue", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("AssetId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("ComponentId")
@@ -137,10 +192,13 @@ namespace FinanceTracker.Core.Migrations
                     b.Property<DateOnly>("Date")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("DebtId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("PhysicalAllocationId")
                         .HasColumnType("TEXT");
 
-                    b.ComplexProperty<Dictionary<string, object>>("Value", "FinanceTracker.Core.Entities.HistoricValue.Value#Money", b1 =>
+                    b.ComplexProperty<Dictionary<string, object>>("Value", "FinanceTracker.Core.HistoricValue.Value#Money", b1 =>
                         {
                             b1.IsRequired();
 
@@ -157,14 +215,18 @@ namespace FinanceTracker.Core.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssetId");
+
                     b.HasIndex("ComponentId");
+
+                    b.HasIndex("DebtId");
 
                     b.HasIndex("PhysicalAllocationId");
 
                     b.ToTable("HistoricValues");
                 });
 
-            modelBuilder.Entity("FinanceTracker.Core.Entities.InflationHistoricValue", b =>
+            modelBuilder.Entity("FinanceTracker.Core.InflationHistoricValue", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -190,7 +252,7 @@ namespace FinanceTracker.Core.Migrations
                     b.ToTable("InflationValues");
                 });
 
-            modelBuilder.Entity("FinanceTracker.Core.Entities.PhysicalAllocation", b =>
+            modelBuilder.Entity("FinanceTracker.Core.PhysicalAllocation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -211,9 +273,30 @@ namespace FinanceTracker.Core.Migrations
                     b.ToTable("PhysicalAllocations");
                 });
 
+            modelBuilder.Entity("FinanceTracker.Core.Wallet", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("DisplaySequence")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Wallets");
+                });
+
             modelBuilder.Entity("FinanceTracker.Core.Entities.Component", b =>
                 {
-                    b.HasOne("FinanceTracker.Core.Entities.PhysicalAllocation", null)
+                    b.HasOne("FinanceTracker.Core.PhysicalAllocation", null)
                         .WithMany()
                         .HasForeignKey("DefaultPhysicalAllocationId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -224,7 +307,14 @@ namespace FinanceTracker.Core.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FinanceTracker.Core.Wallet", "Wallet")
+                        .WithMany("Components")
+                        .HasForeignKey("WalletId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.Navigation("Group");
+
+                    b.Navigation("Wallet");
                 });
 
             modelBuilder.Entity("FinanceTracker.Core.Entities.Group", b =>
@@ -238,28 +328,54 @@ namespace FinanceTracker.Core.Migrations
                     b.Navigation("GroupType");
                 });
 
-            modelBuilder.Entity("FinanceTracker.Core.Entities.HistoricTarget", b =>
+            modelBuilder.Entity("FinanceTracker.Core.HistoricTarget", b =>
                 {
                     b.HasOne("FinanceTracker.Core.Entities.Group", null)
                         .WithMany("Targets")
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("FinanceTracker.Core.Wallet", null)
+                        .WithMany("Targets")
+                        .HasForeignKey("WalletId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("FinanceTracker.Core.Entities.HistoricValue", b =>
+            modelBuilder.Entity("FinanceTracker.Core.HistoricValue", b =>
                 {
+                    b.HasOne("FinanceTracker.Core.Asset", null)
+                        .WithMany("ValueHistory")
+                        .HasForeignKey("AssetId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("FinanceTracker.Core.Entities.Component", "Component")
                         .WithMany("ValueHistory")
                         .HasForeignKey("ComponentId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("FinanceTracker.Core.Entities.PhysicalAllocation", null)
+                    b.HasOne("FinanceTracker.Core.Debt", null)
+                        .WithMany("ValueHistory")
+                        .HasForeignKey("DebtId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("FinanceTracker.Core.PhysicalAllocation", null)
                         .WithMany("ValueHistory")
                         .HasForeignKey("PhysicalAllocationId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Component");
+                });
+
+            modelBuilder.Entity("FinanceTracker.Core.Asset", b =>
+                {
+                    b.Navigation("ValueHistory");
+                });
+
+            modelBuilder.Entity("FinanceTracker.Core.Debt", b =>
+                {
+                    b.Navigation("ValueHistory");
                 });
 
             modelBuilder.Entity("FinanceTracker.Core.Entities.Component", b =>
@@ -279,9 +395,16 @@ namespace FinanceTracker.Core.Migrations
                     b.Navigation("Groups");
                 });
 
-            modelBuilder.Entity("FinanceTracker.Core.Entities.PhysicalAllocation", b =>
+            modelBuilder.Entity("FinanceTracker.Core.PhysicalAllocation", b =>
                 {
                     b.Navigation("ValueHistory");
+                });
+
+            modelBuilder.Entity("FinanceTracker.Core.Wallet", b =>
+                {
+                    b.Navigation("Components");
+
+                    b.Navigation("Targets");
                 });
 #pragma warning restore 612, 618
         }

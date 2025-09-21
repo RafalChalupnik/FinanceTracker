@@ -1,12 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using FinanceTracker.Core.Interfaces;
 
-namespace FinanceTracker.Core;
+namespace FinanceTracker.Core.Entities;
 
-/// <summary>
-/// Represents a physical, non-monetary asset.
-/// </summary>
-public class Asset : EntityWithValueHistory, IOrderableEntity
+public class PhysicalAllocation : IOrderableEntity
 {
     [Key]
     public Guid Id { get; init; } = Guid.NewGuid();
@@ -20,4 +17,9 @@ public class Asset : EntityWithValueHistory, IOrderableEntity
     /// Sequence in which assets should be displayed.
     /// </summary>
     public int DisplaySequence { get; set; }
+
+    /// <summary>
+    /// History of the value allocations.
+    /// </summary>
+    public IReadOnlyList<HistoricValue> ValueHistory { get; init; } = new List<HistoricValue>();
 }

@@ -1,5 +1,6 @@
 using FinanceTracker.Core.Commands;
 using FinanceTracker.Core.Queries;
+using FinanceTracker.Core.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,13 +21,13 @@ public static class Bootstrap
             ))
             // Commands
             .AddScoped<DeleteValuesForDate>()
-            .AddScoped<DeleteEntityCommand>()
             .AddScoped<SetEntityValueCommand>()
             .AddScoped<SetInflationValueCommand>()
             .AddScoped<SetTargetCommand>()
-            .AddScoped<UpsertEntityCommand>()
             // Queries
             .AddScoped<ConfigQueries>()
-            .AddScoped<ValueHistoryQueries>();
+            .AddScoped<ValueHistoryQueries>()
+            // Repositories
+            .AddScoped<Repository>();
     }
 }

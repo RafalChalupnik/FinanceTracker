@@ -1,4 +1,5 @@
 using FinanceTracker.Core;
+using FinanceTracker.Core.Entities;
 using FinanceTracker.Core.Primitives;
 
 namespace FinanceTracker.Web;
@@ -7,7 +8,7 @@ internal static class Seeder
 {
     public static async ValueTask SeedDataIfNecessary(FinanceTrackerContext context)
     {
-        if (context.Assets.Any() == false && context.Debts.Any() == false && context.Wallets.Any() == false)
+        if (context.GroupTypes.Any() == false)
         {
             await SeedData(context);
         }
@@ -19,27 +20,34 @@ internal static class Seeder
         var startYear = endDate.Year - 2;
 
         var bankAccountAllocationId = await SeedPhysicalAllocation(context, "Bank Account", displaySequence: 1);
-        await SeedEmergencyFund(context, startYear, endDate, bankAccountAllocationId);
-        await SeedLongTermWallet(context, startYear, endDate, bankAccountAllocationId);
+        
+        var walletsGroupTypeId = await SeedGroupType(context, "Wallets", displaySequence: 1);
+        var assetsGroupTypeId = await SeedGroupType(context, "Assets", displaySequence: 2);
+        var debtsGroupTypeId = await SeedGroupType(context, "Debts", displaySequence: 3);
+        
+        await SeedEmergencyFund(context, walletsGroupTypeId, startYear, endDate, bankAccountAllocationId);
+        await SeedLongTermWallet(context, walletsGroupTypeId, startYear, endDate, bankAccountAllocationId);
 
         await SeedInflationValues(context, startYear, endDate);
         
-        await SeedAssets(context, startYear, endDate);
-        await SeedDebts(context, startYear, endDate);
+        await SeedAssets(context, assetsGroupTypeId, startYear, endDate);
+        await SeedDebts(context, debtsGroupTypeId, startYear, endDate);
 
         await context.SaveChangesAsync();
     }
     
     private static async ValueTask SeedEmergencyFund(
         FinanceTrackerContext context, 
+        Guid groupTypeId,
         int startYear, 
         DateOnly endDate,
         Guid bankAccountAllocationId)
     {
-        var emergencyFund = new Wallet
+        var emergencyFund = new Group
         {
             Name = "Emergency Fund",
-            DisplaySequence = 1
+            DisplaySequence = 1,
+            GroupTypeId = groupTypeId
         };
 
         var bankAccount = new Component
@@ -100,7 +108,7 @@ internal static class Seeder
             maxValue: 120_000
         );
 
-        await context.Wallets.AddAsync(emergencyFund);
+        await context.Groups.AddAsync(emergencyFund);
         
         await context.HistoricValues.AddRangeAsync(
             bankAccountHistory
@@ -111,22 +119,24 @@ internal static class Seeder
                     .Select(value => value.ToComponentValue(cashEur.Id, cashPhysicalAllocationId, currency: "EUR")))
         );
 
-        await context.WalletTargets.AddRangeAsync(
+        await context.HistoricTargets.AddRangeAsync(
             targets
-                .Select(target => target.ToWalletTarget(emergencyFund.Id))
+                .Select(target => target.ToHistoricTarget(emergencyFund.Id))
         );
     }
     
     private static async ValueTask SeedLongTermWallet(
         FinanceTrackerContext context, 
+        Guid groupTypeId,
         int startYear, 
         DateOnly endDate,
         Guid bankAccountAllocationId)
     {
-        var longTermWallet = new Wallet
+        var longTermWallet = new Group
         {
             Name = "Long-Term Wallet",
-            DisplaySequence = 2
+            DisplaySequence = 2,
+            GroupTypeId = groupTypeId
         };
 
         var bankAccount = new Component
@@ -177,7 +187,7 @@ internal static class Seeder
             maxValue: 50_000
         );
         
-        await context.Wallets.AddAsync(longTermWallet);
+        await context.Groups.AddAsync(longTermWallet);
         
         await context.HistoricValues.AddRangeAsync(
             bankAccountHistory
@@ -187,6 +197,20 @@ internal static class Seeder
                 .Concat(stocksHistory
                     .Select(value => value.ToComponentValue(stocks.Id, physicalAllocationId: null)))
         );
+    }
+    
+    private static async ValueTask<Guid> SeedGroupType(FinanceTrackerContext context, string name, int displaySequence)
+    {
+        var groupType = new GroupType
+        {
+            Name = name,
+            DisplaySequence = displaySequence,
+            IconName = ""
+        };
+        
+        await context.GroupTypes.AddAsync(groupType);
+
+        return groupType.Id;
     }
 
     private static async ValueTask<Guid> SeedPhysicalAllocation(FinanceTrackerContext context, string name, int displaySequence)
@@ -228,18 +252,25 @@ internal static class Seeder
         );
     }
 
-    private static async ValueTask SeedAssets(FinanceTrackerContext context, int startYear, DateOnly endDate)
+    private static async ValueTask SeedAssets(
+        FinanceTrackerContext context, 
+        Guid groupTypeId,
+        int startYear, 
+        DateOnly endDate
+        )
     {
-        var home = new Asset
+        var home = new Group
         {
             Name = "Home",
-            DisplaySequence = 1
+            DisplaySequence = 1,
+            GroupTypeId = groupTypeId
         };
 
-        var car = new Asset
+        var car = new Group
         {
             Name = "Car",
             DisplaySequence = 2,
+            GroupTypeId = groupTypeId
         };
 
         var homeValueHistory = GenerateValues(
@@ -258,28 +289,34 @@ internal static class Seeder
             maxValue: 75_000
         );
 
-        await context.Assets.AddRangeAsync(home, car);
+        await context.Groups.AddRangeAsync(home, car);
         
         await context.HistoricValues.AddRangeAsync(
             homeValueHistory
-                .Select(value => value.ToAssetValue(home.Id))
+                .Select(value => value.ToComponentValue(home.Id))
                 .Concat(carValueHistory
-                    .Select(value => value.ToAssetValue(car.Id)))
+                    .Select(value => value.ToComponentValue(car.Id)))
         );
     }
     
-    private static async ValueTask SeedDebts(FinanceTrackerContext context, int startYear, DateOnly endDate)
+    private static async ValueTask SeedDebts(
+        FinanceTrackerContext context, 
+        Guid groupTypeId,
+        int startYear, 
+        DateOnly endDate)
     {
-        var mortgage = new Debt
+        var mortgage = new Group
         {
             Name = "Mortgage",
-            DisplaySequence = 1
+            DisplaySequence = 1,
+            GroupTypeId = groupTypeId
         };
 
-        var carPayment = new Debt
+        var carPayment = new Group
         {
             Name = "Car Payment",
             DisplaySequence = 2,
+            GroupTypeId = groupTypeId
         };
 
         var mortgageHistory = GenerateValues(
@@ -298,13 +335,13 @@ internal static class Seeder
             maxValue: -5_000
         );
 
-        await context.Debts.AddRangeAsync(mortgage, carPayment);
+        await context.Groups.AddRangeAsync(mortgage, carPayment);
         
         await context.HistoricValues.AddRangeAsync(
             mortgageHistory
-                .Select(value => value.ToDebtValue(mortgage.Id))
+                .Select(value => value.ToComponentValue(mortgage.Id))
                 .Concat(carPaymentHistory
-                    .Select(value => value.ToDebtValue(carPayment.Id)))
+                    .Select(value => value.ToComponentValue(carPayment.Id)))
         );
     }
 
@@ -351,18 +388,12 @@ internal static class Seeder
     {
         private const string DefaultCurrency = "PLN";
         
-        public HistoricValue ToAssetValue(Guid assetId, string currency = DefaultCurrency)
-            => HistoricValue.CreateAssetValue(Date, ToMoney(Value, currency), assetId);
-
-        public HistoricValue ToComponentValue(Guid componentId, Guid? physicalAllocationId, string currency = DefaultCurrency)
+        public HistoricValue ToComponentValue(Guid componentId, Guid? physicalAllocationId = null, string currency = DefaultCurrency)
             => HistoricValue.CreateComponentValue(Date, ToMoney(Value, currency), componentId, physicalAllocationId);
-        
-        public HistoricValue ToDebtValue(Guid debtId, string currency = DefaultCurrency)
-            => HistoricValue.CreateDebtValue(Date, ToMoney(Value, currency), debtId);
 
-        public WalletTarget ToWalletTarget(Guid walletId) => new()
+        public HistoricTarget ToHistoricTarget(Guid groupId) => new()
         {
-            WalletId = walletId,
+            GroupId = groupId,
             Date = Date,
             ValueInMainCurrency = Value
         };

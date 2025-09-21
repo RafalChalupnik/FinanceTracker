@@ -1,22 +1,18 @@
 import React, {ReactNode, useEffect, useState} from 'react';
 import {Layout, Menu, MenuProps, Space, Typography} from 'antd';
 import {
-    EuroCircleOutlined,
-    LineChartOutlined,
-    MinusSquareOutlined,
-    PlusSquareOutlined,
+    EuroCircleOutlined, LineChartOutlined,
     SettingOutlined,
     WalletOutlined
 } from "@ant-design/icons";
 
-import Assets from "./pages/Assets";
-import Debts from "./pages/Debts";
 import PortfolioSummary from "./pages/PortfolioSummary";
 import WalletsSummary from './pages/WalletsSummary';
-import Wallet from "./pages/Wallet";
-import Configuration from "./pages/Configuration";
-import {getPhysicalAllocations, getWallets} from "./api/configuration/Client";
+import ConfigurationPage from "./pages/ConfigurationPage";
+import {getConfiguration} from "./api/configuration/Client";
 import PhysicalAllocation from "./pages/PhysicalAllocation";
+import GroupPage from "./pages/GroupPage";
+import DynamicIcon from "./components/DynamicIcon";
 
 const { Header, Content } = Layout;
 
@@ -27,7 +23,7 @@ interface NavBarItem {
     children?: { [key: string]: NavBarItem}
 }
 
-const navBarTemplate: { [key: string]: NavBarItem} = {
+const navBarBeforeGroups: { [key: string]: NavBarItem} = {
     '/': {
         label: 'Portfolio Summary',
         icon: <LineChartOutlined />,
@@ -37,29 +33,18 @@ const navBarTemplate: { [key: string]: NavBarItem} = {
         label: 'Wallets Summary',
         icon: <LineChartOutlined />,
         component: <WalletsSummary/>
-    },
-    '/wallets': {
-        label: 'Wallets',
-        icon: <WalletOutlined />,
-    },
+    }
+}
+
+const navBarAfterGroups: { [key: string]: NavBarItem} = {
     '/physical-allocations': {
         label: 'Physical Allocations',
         icon: <WalletOutlined />,
     },
-    '/assets': {
-        label: 'Assets',
-        icon: <PlusSquareOutlined />,
-        component: <Assets/>
-    },
-    '/debts': {
-        label: 'Debts',
-        icon: <MinusSquareOutlined />,
-        component: <Debts/>
-    },
     '/config': {
         label: 'Configuration',
         icon: <SettingOutlined />,
-        component: <Configuration/>
+        component: <ConfigurationPage/>
     },
 }
 
@@ -73,33 +58,46 @@ const mapMenuItems = (items: { [key: string]: NavBarItem}): MenuItem[] =>
             icon: items[key].icon,
             children: items[key].children !== undefined ? mapMenuItems(items[key].children!) : undefined
         }));
-
-
-
 const App: React.FC = () => {
     const [navBar, setNavBar] = useState<{ [key: string]: NavBarItem} | undefined>(undefined);
     const [currentKey, setCurrentKey] = useState<string | undefined>(undefined);
     const [currentComponent, setCurrentComponent] = useState<ReactNode | undefined>();
 
     const populateData = async () => {
-        const wallets = await getWallets();
-        const physicalAllocations = await getPhysicalAllocations();
+        const config = await getConfiguration();
 
-        navBarTemplate['/wallets'].children = wallets.reduce((acc, wallet) => {
-            acc[`/wallets:${wallet.key}`] = {
-                label: wallet.name,
-                component: (
-                    <Wallet 
-                        key={wallet.key} 
-                        walletId={wallet.key}
-                        name={wallet.name}
-                    />
-                )
-            };
-            return acc;
-        }, {} as Record<string, NavBarItem>);
+        const groupTypesItems: { [key: string]: NavBarItem } = config.groupTypes.reduce(
+            (acc, groupType) => {
+                acc[groupType.name] = {
+                    label: groupType.name,
+                    icon: <DynamicIcon name={groupType.icon} />,
+                    children: groupType.groups.reduce((childAcc, group) => {
+                        childAcc[`/groups:${group.key}`] = {
+                            label: group.name,
+                            component: (
+                                <GroupPage
+                                    key={group.key}
+                                    groupId={group.key}
+                                    name={group.name}
+                                    showTargets={group.showTargets}
+                                />
+                            ),
+                        };
+                        return childAcc;
+                    }, {} as Record<string, NavBarItem>),
+                };
+                return acc;
+            },
+            {} as Record<string, NavBarItem>
+        );
+        
+        let navBar = {
+            ...navBarBeforeGroups,
+            ...groupTypesItems,
+            ...navBarAfterGroups,
+        }
 
-        navBarTemplate['/physical-allocations'].children = physicalAllocations.reduce((acc, allocation) => {
+        navBar['/physical-allocations'].children = config.physicalAllocations.reduce((acc, allocation) => {
             acc[`/physical-allocations:${allocation.key}`] = {
                 label: allocation.name,
                 component: (
@@ -113,9 +111,9 @@ const App: React.FC = () => {
             return acc;
         }, {} as Record<string, NavBarItem>);
         
-        setNavBar(navBarTemplate);
-        setCurrentKey(Object.keys(navBarTemplate)[0])
-        setCurrentComponent(navBarTemplate[Object.keys(navBarTemplate)[0]].component)
+        setNavBar(navBar);
+        setCurrentKey(Object.keys(navBar)[0])
+        setCurrentComponent(navBar[Object.keys(navBar)[0]].component)
     }
 
     useEffect(() => {

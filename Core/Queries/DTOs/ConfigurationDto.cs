@@ -1,28 +1,56 @@
+using FinanceTracker.Core.Entities;
+
 namespace FinanceTracker.Core.Queries.DTOs;
 
 public record ConfigurationDto(
-    IReadOnlyCollection<OrderableEntityDto> Assets,
-    IReadOnlyCollection<OrderableEntityDto> Debts,
-    IReadOnlyCollection<WalletDataDto> Wallets,
+    IReadOnlyCollection<GroupTypeConfigDto> GroupTypes,
     IReadOnlyCollection<OrderableEntityDto> PhysicalAllocations
 );
 
-public record OrderableEntityDto(
+public record GroupTypeConfigDto(
     Guid Key,
     string Name,
-    int DisplaySequence
+    int DisplaySequence,
+    string Icon,
+    IReadOnlyCollection<GroupConfigDto> Groups
+) : OrderableEntityDto(
+    Key: Key,
+    Name: Name, 
+    DisplaySequence: DisplaySequence
 );
 
-public record WalletDataDto(
+public record GroupConfigDto(
     Guid Key,
     string Name,
     int DisplaySequence,
-    IReadOnlyCollection<WalletComponentDataDto> Components
-) : OrderableEntityDto(Key, Name, DisplaySequence);
+    bool ShowTargets,
+    Guid GroupTypeId,
+    IReadOnlyCollection<ComponentConfigDto> Components
+) : OrderableEntityDto(
+    Key: Key,
+    Name: Name, 
+    DisplaySequence: DisplaySequence
+);
 
-public record WalletComponentDataDto(
+public record ComponentConfigDto(
     Guid Key,
     string Name,
     int DisplaySequence,
-    Guid? DefaultPhysicalAllocationId
-) : OrderableEntityDto(Key, Name, DisplaySequence);
+    Guid GroupId,
+    Guid? DefaultPhysicalAllocationId = null
+) : OrderableEntityDto(
+    Key: Key,
+    Name: Name,
+    DisplaySequence: DisplaySequence
+)
+{
+    public Component ToComponent() =>
+        new()
+        {
+            Id = Key,
+            Name = Name,
+            DisplaySequence = DisplaySequence,
+            GroupId = GroupId,
+            DefaultPhysicalAllocationId = DefaultPhysicalAllocationId
+        };  
+}

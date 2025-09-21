@@ -1,8 +1,22 @@
 export type ConfigurationDto = {
-    assets: OrderableEntityDto[],
-    debts: OrderableEntityDto[],
-    wallets: WalletDataDto[],
+    groupTypes: GroupTypeConfigDto[],
     physicalAllocations: OrderableEntityDto[]
+}
+
+export type GroupTypeConfigDto = OrderableEntityDto & {
+    icon: string,
+    groups: GroupConfigDto[]
+}
+
+export type GroupConfigDto = OrderableEntityDto & {
+    showTargets: boolean,
+    groupTypeId: string,
+    components: ComponentConfigDto[]
+}
+
+export type ComponentConfigDto = OrderableEntityDto & {
+    groupId: string,
+    defaultPhysicalAllocationId: string | undefined,
 }
 
 export type OrderableEntityDto = {
@@ -10,6 +24,8 @@ export type OrderableEntityDto = {
     name: string,
     displaySequence: number
 }
+
+// ---
 
 export type WalletDataDto = OrderableEntityDto & {
     components: WalletComponentDataDto[]

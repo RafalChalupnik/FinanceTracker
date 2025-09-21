@@ -4,17 +4,17 @@ namespace FinanceTracker.Core.Commands;
 
 public class SetTargetCommand(FinanceTrackerContext dbContext)
 {
-    public async ValueTask SetTarget(Guid walletId, DateOnly date, decimal value)
+    public async ValueTask SetTarget(Guid groupId, DateOnly date, decimal value)
     {
-        var wallet = dbContext.Wallets
+        var group = dbContext.Groups
             .Include(x => x.Targets)
-            .First(wallet => wallet.Id == walletId);
+            .First(group => group.Id == groupId);
         
-        var newValue = wallet.SetTarget(date, value);
+        var newValue = group.SetTarget(date, value);
 
         if (newValue != null)
         {
-            dbContext.WalletTargets.Add(newValue);
+            dbContext.HistoricTargets.Add(newValue);
         }
 
         await dbContext.SaveChangesAsync();

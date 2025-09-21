@@ -19,57 +19,42 @@ public class ValueHistoryController(
     SetInflationValueCommand setInflationValueCommand
     ) : ControllerBase
 {
-    [HttpGet("assets")]
-    public EntityTableDto<ValueHistoryRecordDto> GetAssetsValueHistory(
-        [FromQuery] DateGranularity? granularity, 
-        [FromQuery] DateOnly? from, 
+    [HttpGet("groups/{groupId:guid}")]
+    public EntityTableDto<WalletComponentsValueHistoryRecordDto> GetGroupValueHistory(
+        Guid groupId,
+        [FromQuery] DateGranularity? granularity,
+        [FromQuery] DateOnly? from,
         [FromQuery] DateOnly? to
-        ) 
-        => query.ForAssets(granularity, from: from, to: to);
+    )
+        => query.ForGroup(groupId, granularity, from, to);
     
-    [HttpPut("assets/{assetId:guid}/{date}")]
-    public async Task<IActionResult> SetAssetValue(Guid assetId, DateOnly date, [FromBody] Money value)
+    [HttpPut("groups/{groupId:guid}/target")]
+    public async Task<IActionResult> SetGroupTarget(Guid groupId, [FromBody] ValueUpdateDto update)
     {
-        await setEntityValueCommand.SetAssetValue(
-            assetId: assetId, 
+        await setTargetCommand.SetTarget(groupId, update.Date, update.Value);
+        return NoContent();
+    }
+    
+    [HttpPut("groups/components/{componentId:guid}/{date}")]
+    public async Task<IActionResult> SetGroupComponentValue(
+        Guid componentId,
+        DateOnly date, 
+        [FromBody] WalletComponentValueUpdateDto update)
+    {
+        await setEntityValueCommand.SetGroupComponentValue(
+            componentId: componentId, 
             date: date, 
-            value: value
+            value: update.Value,
+            physicalAllocationId: update.PhysicalAllocationId
         );
         
         return NoContent();
     }
     
-    [HttpDelete("assets/{date}")]
-    public async Task<IActionResult> DeleteAssetsValues(DateOnly date)
+    [HttpDelete("groups/{groupId:guid}/{date}")]
+    public async Task<IActionResult> DeleteGroupValues(Guid groupId, DateOnly date)
     {
-        await deleteValuesForDate.DeleteValues<Asset>(date);
-        return NoContent();
-    }
-    
-    [HttpGet("debts")]
-    public EntityTableDto<ValueHistoryRecordDto> GetDebtsValueHistory(
-        [FromQuery] DateGranularity? granularity, 
-        [FromQuery] DateOnly? from, 
-        [FromQuery] DateOnly? to
-        ) 
-        => query.ForDebts(granularity, from: from, to: to);
-    
-    [HttpPut("debts/{debtId:guid}/{date}")]
-    public async Task<IActionResult> SetDebtValue(Guid debtId, DateOnly date, [FromBody] Money value)
-    {
-        await setEntityValueCommand.SetDebtValue(
-            debtId: debtId, 
-            date: date, 
-            value: value
-        );
-        
-        return NoContent();
-    }
-    
-    [HttpDelete("debts/{date}")]
-    public async Task<IActionResult> DeleteDebtsValues(DateOnly date)
-    {
-        await deleteValuesForDate.DeleteValues<Debt>(date);
+        await deleteValuesForDate.DeleteGroupValues(groupId, date);
         return NoContent();
     }
     
@@ -98,45 +83,6 @@ public class ValueHistoryController(
         ) 
         => query.ForWallets(granularity, from: from, to: to);
 
-    [HttpPut("wallets/{walletId:guid}/target")]
-    public async Task<IActionResult> SetWalletTarget(Guid walletId, [FromBody] ValueUpdateDto update)
-    {
-        await setTargetCommand.SetTarget(walletId, update.Date, update.Value);
-        return NoContent();
-    }
-    
-    [HttpDelete("wallets/{walletId:guid}/{date}")]
-    public async Task<IActionResult> DeleteWalletValues(Guid walletId, DateOnly date)
-    {
-        await deleteValuesForDate.DeleteWalletValues(walletId, date);
-        return NoContent();
-    }
-    
-    [HttpGet("wallets/{walletId:guid}/components")]
-    public EntityTableDto<WalletComponentsValueHistoryRecordDto> GetWalletsComponentsValueHistory(
-        Guid walletId,
-        [FromQuery] DateGranularity? granularity, 
-        [FromQuery] DateOnly? from, 
-        [FromQuery] DateOnly? to
-        ) 
-        => query.ForWallet(walletId, granularity, from: from, to: to);
-    
-    [HttpPut("wallets/components/{componentId:guid}/{date}")]
-    public async Task<IActionResult> SetWalletComponentValue(
-        Guid componentId,
-        DateOnly date, 
-        [FromBody] WalletComponentValueUpdateDto update)
-    {
-        await setEntityValueCommand.SetWalletComponentValue(
-            componentId: componentId, 
-            date: date, 
-            value: update.Value,
-            physicalAllocationId: update.PhysicalAllocationId
-        );
-        
-        return NoContent();
-    }
-    
     [HttpPut("inflation")]
     public async Task<IActionResult> SetInflation([FromBody] InflationUpdateDto update)
     {

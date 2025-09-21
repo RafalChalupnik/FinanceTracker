@@ -1,6 +1,6 @@
 using FinanceTracker.Core.Interfaces;
 
-namespace FinanceTracker.Core;
+namespace FinanceTracker.Core.Entities;
 
 public class InflationHistoricValue : IEntity
 {
