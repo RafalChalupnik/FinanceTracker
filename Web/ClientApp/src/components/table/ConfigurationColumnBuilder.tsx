@@ -20,8 +20,8 @@ const SimpleDropdownForm: FC<SimpleDropdownFormProps> = (props) => {
     return (
         <Space direction='horizontal'>
             <SimpleDropdown
-                values={props.values}
-                initialValue={props.initialValue}
+                availableValues={props.values}
+                value={props.initialValue}
                 isRequired={props.isRequired}
                 onChange={setCurrentValue}
             />
@@ -53,36 +53,6 @@ export function buildPhysicalAllocationColumn(
                     isRequired={false}
                     onSave={async (physicalAllocationId?: string) => {
                         row.defaultPhysicalAllocationId = physicalAllocationId;
-                        await onUpdate(row);
-                        closeCallback();
-                    }}
-                    onCancel={closeCallback}
-                />
-            ))
-        }
-    }
-}
-
-export function buildGroupTypeColumn(
-    groupTypes: OrderableEntityDto[],
-    onUpdate: (row: GroupDto) => Promise<void>
-): Column<GroupDto> {
-    return {
-        key: 'groupTypeId',
-        title: 'Group Type',
-        render: row => {
-            return groupTypes
-                .find(groupType => groupType.key === row.groupTypeId)
-                ?.name ?? '-';
-        },
-        editable: {
-            renderEditable: ((row, closeCallback) => (
-                <SimpleDropdownForm
-                    values={groupTypes}
-                    initialValue={row.groupTypeId}
-                    isRequired={true}
-                    onSave={async (groupTypeId?: string) => {
-                        row.groupTypeId = groupTypeId!;
                         await onUpdate(row);
                         closeCallback();
                     }}

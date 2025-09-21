@@ -23,6 +23,7 @@ import {GroupDto, GroupTypeDto} from "../api/configuration/DTOs/GroupDto";
 import IconPicker from "../components/IconPicker";
 import {EditableRowsTable} from "../components/table/EditableRowsTable";
 import DynamicIcon from "../components/DynamicIcon";
+import SimpleDropdown from "../components/SimpleDropdown";
 
 const {Text} = Typography;
 
@@ -209,9 +210,20 @@ const Configuration: React.FC = () => {
             name: "New Item",
             displaySequence: (groupTypes.at(-1)?.displaySequence ?? 0) + 1,
             icon: 'EllipsisOutlined'
-        };
+        } as GroupTypeDto;
         
         setGroupTypes([...groupTypes, newItem]);
+    }
+
+    let addNewGroupDto = () => {
+        let newItem = {
+            key: crypto.randomUUID(),
+            name: "New Item",
+            displaySequence: (groupTypes.at(-1)?.displaySequence ?? 0) + 1,
+            groupTypeId: groupTypes[0].key
+        } as GroupDto;
+
+        setGroups([...groups, newItem]);
     }
     
     let createEmptyGroupDto = (sequence: number): GroupDto => {
@@ -219,7 +231,7 @@ const Configuration: React.FC = () => {
             key: crypto.randomUUID(),
             name: "New Item",
             displaySequence: sequence,
-            groupTypeId: groupTypes[0].key
+            groupTypeId: ''
         };
     }
 
@@ -248,7 +260,6 @@ const Configuration: React.FC = () => {
                                 {
                                     title: 'Icon',
                                     dataIndex: 'icon',
-                                    // inputType: '',
                                     render: (iconName: string) => <DynamicIcon name={iconName} />,
                                     width: '25%',
                                     editable: true,
@@ -271,37 +282,57 @@ const Configuration: React.FC = () => {
                             }}
                         />
                     </TableCard>
-                    
-                    {/*<EntityTable*/}
-                    {/*    title="Group Types"*/}
-                    {/*    data={groupTypes}*/}
-                    {/*    createNewRow={createEmptyOrderableEntityDto}*/}
-                    {/*    onUpdate={async groupType => {*/}
-                    {/*        await upsertGroupType(groupType);*/}
-                    {/*        setGroupTypes([...groupTypes, groupType]);*/}
-                    {/*    }}*/}
-                    {/*    onDelete={async groupTypeId => {*/}
-                    {/*        await deleteGroupType(groupTypeId)*/}
-                    {/*        setGroupTypes(groupTypes.filter(groupType => groupType.key !== groupTypeId));*/}
-                    {/*    }}*/}
-                    {/*/>*/}
                 </Col>
 
                 <Col span={12}>
-                    <EntityTable
-                        title="Groups"
-                        data={groups}
-                        createNewRow={createEmptyGroupDto}
-                        onUpdate={async group => {
-                            // await upsertGroup(group);
-                            setGroups([...groups, group]);
-                        }}
-                        onDelete={async groupId => {
-                            // await deleteGroup(groupId)
-                            setGroups(groups.filter(group => group.key !== groupId));
-                        }}
-                        // extraColumns={[buildGroupTypeColumn(groupTypes, async group => await upsertGroup(group))]}
-                    />
+                    <TableCard title={'Groups'} onAdd={addNewGroupDto}>
+                        <EditableRowsTable
+                            data={groups}
+                            columns={[
+                                {
+                                    title: 'Name',
+                                    dataIndex: 'name',
+                                    width: '50%',
+                                    editable: true,
+                                },
+                                {
+                                    title: 'Sequence',
+                                    dataIndex: 'displaySequence',
+                                    width: '25%',
+                                    editable: true,
+                                },
+                                {
+                                    title: 'Group Type',
+                                    dataIndex: 'groupTypeId',
+                                    render: (groupTypeId: string) => groupTypes.find(x => x.key === groupTypeId)!.name,
+                                    width: '25%',
+                                    editable: true,
+                                    renderEditor: (
+                                        <SimpleDropdown
+                                            availableValues={groupTypes}
+                                            value=''
+                                            isRequired={true}
+                                            onChange={() => {}}
+                                        />
+                                    )
+                                }
+                            ]}
+                            onRowSave={async groupType => {
+                                // await upsertGroupType(groupType)
+
+                                const newGroupTypes = [
+                                    ...groupTypes.filter(x => x.key !== groupType.key),
+                                    groupType,
+                                ];
+
+                                // setGroupTypes(newGroupTypes.sort((a, b) => a.displaySequence - b.displaySequence));
+                            }}
+                            onRowDelete={async groupType => {
+                                // await deleteGroupType(groupType.key);
+                                // setGroupTypes(groupTypes.filter(x => x.key !== groupType.key));
+                            }}
+                        />
+                    </TableCard>
                 </Col>
 
             </Row>
