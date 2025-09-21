@@ -6,44 +6,6 @@ namespace FinanceTracker.Core.Commands;
 
 public class SetEntityValueCommand(FinanceTrackerContext dbContext)
 {
-    public async ValueTask SetAssetValue(Guid assetId, DateOnly date, Money value)
-    {
-        var alreadyExistingEntry = await dbContext.Set<HistoricValue>()
-            .FirstOrDefaultAsync(entry => entry.AssetId == assetId && entry.Date == date);
-
-        if (alreadyExistingEntry != null)
-        {
-            alreadyExistingEntry.Value = value;
-        }
-        else
-        {
-            await dbContext.Set<HistoricValue>().AddAsync(
-                HistoricValue.CreateAssetValue(date, value, assetId)
-            );
-        }
-
-        await dbContext.SaveChangesAsync();
-    }
-    
-    public async ValueTask SetDebtValue(Guid debtId, DateOnly date, Money value)
-    {
-        var alreadyExistingEntry = await dbContext.Set<HistoricValue>()
-            .FirstOrDefaultAsync(entry => entry.DebtId == debtId && entry.Date == date);
-
-        if (alreadyExistingEntry != null)
-        {
-            alreadyExistingEntry.Value = value;
-        }
-        else
-        {
-            await dbContext.Set<HistoricValue>().AddAsync(
-                HistoricValue.CreateDebtValue(date, value, debtId)
-            );
-        }
-
-        await dbContext.SaveChangesAsync();
-    }
-    
     public async ValueTask SetGroupComponentValue(Guid componentId, DateOnly date, Money value, Guid? physicalAllocationId)
     {
         var alreadyExistingEntry = await dbContext.Set<HistoricValue>()

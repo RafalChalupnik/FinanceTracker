@@ -6,7 +6,7 @@ namespace FinanceTracker.Core;
 /// <summary>
 /// Represents a physical, non-monetary asset.
 /// </summary>
-public class Asset : EntityWithValueHistory, IOrderableEntity
+public class Asset : IOrderableEntity
 {
     [Key]
     public Guid Id { get; init; } = Guid.NewGuid();

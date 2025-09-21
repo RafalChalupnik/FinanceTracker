@@ -50,7 +50,7 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
         var allocation = dbContext.PhysicalAllocations
             .Include(x => x.ValueHistory)
             .ThenInclude(x => x.Component)
-            .ThenInclude(x => x.Wallet)
+            .ThenInclude(x => x.Group)
             .First(x => x.Id == physicalAllocationId)!;
 
         var valuesGroupedByComponent = allocation.ValueHistory
@@ -58,7 +58,7 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
             .GroupBy(x => x.Component!);
 
         var orderedEntities = valuesGroupedByComponent
-            .OrderBy(x => x.Key.Wallet?.DisplaySequence ?? 0)
+            .OrderBy(x => x.Key.Group?.DisplaySequence ?? 0)
             .ThenBy(x => x.Key.DisplaySequence)
             .Select(componentValues =>
             {
@@ -69,7 +69,7 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
                 return new EntityData(
                     Id: componentValues.Key.Id,
                     Name: componentValues.Key.Name,
-                    ParentName: componentValues.Key.Wallet?.Name,
+                    ParentName: componentValues.Key.Group?.Name,
                     DefaultPhysicalAllocationId: null,
                     Dates: orderedValues.Select(x => x.Date).Distinct().ToArray(),
                     GetValueForDate: date =>
@@ -287,7 +287,7 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
     private static EntityData BuildEntityData(Component component) =>
         new EntityData(
             Name: component.Name,
-            ParentName: component.Wallet?.Name,
+            ParentName: component.Group?.Name,
             Dates: component.GetEvaluationDates().ToArray(),
             DefaultPhysicalAllocationId: component.DefaultPhysicalAllocationId,
             GetValueForDate: date => component.GetValueFor(date).ToEntityValueSnapshotDto(),

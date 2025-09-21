@@ -1,8 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using FinanceTracker.Core.Interfaces;
-using FinanceTracker.Core.Primitives;
 
-namespace FinanceTracker.Core;
+namespace FinanceTracker.Core.Entities;
 
 public class PhysicalAllocation : IOrderableEntity
 {

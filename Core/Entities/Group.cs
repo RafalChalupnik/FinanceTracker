@@ -1,3 +1,4 @@
+using FinanceTracker.Core.Exceptions;
 using FinanceTracker.Core.Extensions;
 using FinanceTracker.Core.Interfaces;
 using FinanceTracker.Core.Primitives;
@@ -64,6 +65,20 @@ public class Group : IEntityWithValueHistory, IOrderableEntity
             ExactDate: moneyValues.All(value => value.ExactDate),
             PhysicalAllocationId: null
         );
+    }
+    
+    /// <summary>
+    /// Adds <see cref="Component"/> to the wallet.
+    /// </summary>
+    /// <exception cref="DuplicateException"/>
+    public void Add(Component component)
+    {
+        if (Components.Any(x => x.Name == component.Name))
+        {
+            throw new DuplicateException(entityType: nameof(Component), duplicatedValue: component.Name);
+        }
+
+        _components.Add(component);
     }
     
     /// <summary>

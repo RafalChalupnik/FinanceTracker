@@ -6,7 +6,7 @@ namespace FinanceTracker.Core;
 /// <summary>
 /// Represents a debt.
 /// </summary>
-public class Debt : EntityWithValueHistory, IOrderableEntity
+public class Debt : IOrderableEntity
 {
     [Key]
     public Guid Id { get; init; } = Guid.NewGuid();
