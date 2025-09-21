@@ -1,6 +1,7 @@
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 import {
-    getPhysicalAllocationValueHistory, setWalletComponentValue
+    getPhysicalAllocationValueHistory, 
+    setGroupComponentValue
 } from "../api/value-history/Client";
 import React, {FC} from "react";
 import {EditableMoneyComponent} from "../components/money/EditableMoneyComponent";
@@ -29,7 +30,7 @@ const PhysicalAllocation: FC<PhysicalAllocationProps> = (props) => {
             granularity,
             true,
             async (entityId, date, value) => {
-                await setWalletComponentValue(entityId, date, value);
+                await setGroupComponentValue(entityId, date, value);
                 await updateCallback();
             }
         )

@@ -17,6 +17,20 @@ export async function sendPost(path: string, body: any) : Promise<void> {
     }
 }
 
+export async function sendPut(path: string, body: any) : Promise<void> {
+    let response = await fetch(path, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Failed to PUT to ${path}`);
+    }
+}
+
 export async function sendDelete(path: string) : Promise<void> {
     let response = await fetch(path, {
         method: "DELETE",
