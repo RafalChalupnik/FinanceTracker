@@ -3,9 +3,9 @@ import {EditableMoneyComponent} from "../components/money/EditableMoneyComponent
 import {
     deleteGroupValues,
     getGroupValueHistory,
-    setGroupComponentValue
+    setGroupComponentValue, setGroupTarget
 } from "../api/value-history/Client";
-import {buildComponentsColumns} from "../components/table/ColumnBuilder";
+import {buildComponentsColumns, buildTargetColumn} from "../components/table/ColumnBuilder";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 import {Dayjs} from "dayjs";
 import {EntityColumnDto, ValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
@@ -57,21 +57,22 @@ const GroupPage: FC<GroupPageProps> = (props) => {
                         key: date.format("YYYY-MM-DD"),
                         entities: columns.map(_ => undefined),
                         summary: undefined,
+                        target: undefined,
                         newEntry: true
                     }
                 },
                 onDelete: date => deleteGroupValues(props.groupId, date),
             }}
             buildComponentColumns={buildComponentColumns}
-            // buildExtraColumns={(granularity, refreshCallback) => [
-            //     buildTargetColumn(
-            //         granularity,
-            //         async (date, value) => {
-            //             await setWalletTarget(props.walletId, date, value);
-            //             await refreshCallback();
-            //         }
-            //     )
-            // ]}
+            buildExtraColumns={(granularity, refreshCallback) => [
+                buildTargetColumn(
+                    granularity,
+                    async (date, value) => {
+                        await setGroupTarget(props.groupId, date, value);
+                        await refreshCallback();
+                    }
+                )
+            ]}
             // extra={buildExtra} // Target chart
         />
     );

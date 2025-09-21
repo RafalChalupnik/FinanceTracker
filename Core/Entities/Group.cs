@@ -65,4 +65,28 @@ public class Group : IEntityWithValueHistory, IOrderableEntity
             PhysicalAllocationId: null
         );
     }
+    
+    /// <summary>
+    /// Adds <see cref="HistoricTarget"/> to the wallet.
+    /// </summary>
+    public HistoricTarget? SetTarget(DateOnly date, decimal valueInMainCurrency)
+    {
+        var alreadyExistingTarget = Targets.FirstOrDefault(x => x.Date == date);
+        
+        if (alreadyExistingTarget != null)
+        {
+            alreadyExistingTarget.ValueInMainCurrency = valueInMainCurrency;
+            return null;
+        }
+
+        var newTarget = new HistoricTarget
+        {
+            Id = Guid.NewGuid(),
+            Date = date,
+            ValueInMainCurrency = valueInMainCurrency
+        };
+        
+        _targets.Add(newTarget);
+        return newTarget;
+    }
 }

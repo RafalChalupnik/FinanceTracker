@@ -110,10 +110,11 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
         );
     }
     
-    public EntityTableDto<ValueHistoryRecordDto> ForGroup(Guid groupId, DateGranularity? granularity, DateOnly? from,
+    public EntityTableDto<WalletComponentsValueHistoryRecordDto> ForGroup(Guid groupId, DateGranularity? granularity, DateOnly? from,
         DateOnly? to)
     {
         var group = dbContext.Groups
+            .Include(group => group.Targets)
             .Include(group => group.Components)
             .ThenInclude(component => component.ValueHistory)
             .First(group => group.Id == groupId);
@@ -123,14 +124,26 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
             .Select(BuildEntityData)
             .ToArray();
         
-        // TODO
-        // var targets = wallet.Targets
-        //     .OrderByDescending(x => x.Date)
-        //     .ToArray();
+        var records = RecordsBuilder.BuildValueRecords(
+            orderedComponents, 
+            granularity ?? DateGranularity.Month, 
+            fromDate: from, 
+            toDate: to
+        );
+        
+        var targets = group.Targets
+            .OrderByDescending(x => x.Date)
+            .ToArray();
+        
+        var rows = records
+            .Select(record => record.ToWalletComponentsValueHistoryRecord(
+                BuildTargetData(record, targets)
+            ))
+            .ToArray();
         
         return EntityTableDtoBuilder.BuildEntityTableDto(
             orderedEntities: orderedComponents,
-            rows: BuildGroupComponentsRows(orderedComponents, granularity, from, to)
+            rows: rows
         );
     }
 

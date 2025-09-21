@@ -20,13 +20,20 @@ public class ValueHistoryController(
     ) : ControllerBase
 {
     [HttpGet("groups/{groupId:guid}")]
-    public EntityTableDto<ValueHistoryRecordDto> GetGroupValueHistory(
+    public EntityTableDto<WalletComponentsValueHistoryRecordDto> GetGroupValueHistory(
         Guid groupId,
         [FromQuery] DateGranularity? granularity,
         [FromQuery] DateOnly? from,
         [FromQuery] DateOnly? to
     )
         => query.ForGroup(groupId, granularity, from, to);
+    
+    [HttpPut("groups/{groupId:guid}/target")]
+    public async Task<IActionResult> SetGroupTarget(Guid groupId, [FromBody] ValueUpdateDto update)
+    {
+        await setTargetCommand.SetTarget(groupId, update.Date, update.Value);
+        return NoContent();
+    }
     
     [HttpPut("groups/components/{componentId:guid}/{date}")]
     public async Task<IActionResult> SetGroupComponentValue(
