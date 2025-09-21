@@ -13,12 +13,18 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
 {
     public EntityTableDto<ValueHistoryRecordDto> ForEntirePortfolio(DateGranularity? granularity, DateOnly? from, DateOnly? to)
     {
-        EntityData[] entities =
-        [
-            MapEntities(GetWallets(includeTargets: false).ToArray(), "Wallets"),
-            MapEntities(GetEntitiesWithValueHistory<Asset>().ToArray(), "Assets"),
-            MapEntities(GetEntitiesWithValueHistory<Debt>().ToArray(), "Debts"),
-        ];
+        var groupsByType = dbContext.Groups
+            .Include(group => group.GroupType)
+            .Include(group => group.Components)
+            .ThenInclude(component => component.ValueHistory)
+            .AsEnumerable()
+            .GroupBy(group => group.GroupType)
+            .OrderBy(grouping => grouping.Key!.DisplaySequence)
+            .ToArray();
+
+        var entities = groupsByType
+            .Select(groupsInType => MapEntities<Group>(groupsInType.ToArray(), groupsInType.Key!.Name))
+            .ToArray();
 
         var records = RecordsBuilder.BuildValueRecords(
             orderedEntities: entities,
@@ -181,27 +187,6 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
             .ToArray();
     }
 
-    private static WalletComponentsValueHistoryRecordDto[] BuildWalletComponentsRows(
-        IReadOnlyList<EntityData> orderedComponents,
-        IReadOnlyList<WalletTarget> targets,
-        DateGranularity? granularity, 
-        DateOnly? from, 
-        DateOnly? to)
-    {
-        var records = RecordsBuilder.BuildValueRecords(
-            orderedComponents, 
-            granularity, 
-            fromDate: from, 
-            toDate: to
-        );
-
-        return records
-            .Select(record => record.ToWalletComponentsValueHistoryRecord(
-                target: BuildTargetData(record, targets)
-            ))
-            .ToArray();
-    }
-
     private static WalletTargetDto? BuildTargetData(ValueRecord record, IReadOnlyCollection<WalletTarget> targets)
     {
         var target = targets.FirstOrDefault(target => target.Date <= record.DateRange.To);
@@ -304,10 +289,6 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
             GetValueForDate: date => entity.GetValueFor(date).ToEntityValueSnapshotDto(),
             Id: entity.Id
         );
-    
-    private IQueryable<T> GetEntitiesWithValueHistory<T>() where T : EntityWithValueHistory =>
-        dbContext.Set<T>()
-            .Include(x => x.ValueHistory);
     
     private IQueryable<Wallet> GetWallets(bool includeTargets)
     {
