@@ -191,7 +191,7 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
             .ToArray();
     }
 
-    private static WalletTargetDto? BuildTargetData(ValueRecord record, IReadOnlyCollection<WalletTarget> targets)
+    private static WalletTargetDto? BuildTargetData(ValueRecord record, IReadOnlyCollection<HistoricTarget> targets)
     {
         var target = targets.FirstOrDefault(target => target.Date <= record.DateRange.To);
 

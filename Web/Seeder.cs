@@ -361,7 +361,7 @@ internal static class Seeder
         public HistoricValue ToDebtValue(Guid debtId, string currency = DefaultCurrency)
             => HistoricValue.CreateDebtValue(Date, ToMoney(Value, currency), debtId);
 
-        public WalletTarget ToWalletTarget(Guid walletId) => new()
+        public HistoricTarget ToWalletTarget(Guid walletId) => new()
         {
             WalletId = walletId,
             Date = Date,

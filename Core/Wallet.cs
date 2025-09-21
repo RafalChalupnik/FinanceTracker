@@ -14,7 +14,7 @@ namespace FinanceTracker.Core;
 public class Wallet : IEntityWithValueHistory, IOrderableEntity
 {
     private readonly List<Component> _components = [];
-    private readonly List<WalletTarget> _targets = [];
+    private readonly List<HistoricTarget> _targets = [];
     
     [Key]
     public Guid Id { get; init; } = Guid.NewGuid();
@@ -37,7 +37,7 @@ public class Wallet : IEntityWithValueHistory, IOrderableEntity
     /// <summary>
     /// Historic targets of the wallet.
     /// </summary>
-    public IReadOnlyList<WalletTarget> Targets => _targets;
+    public IReadOnlyList<HistoricTarget> Targets => _targets;
 
     public IEnumerable<DateOnly> GetEvaluationDates() => Components
         .SelectMany(component => component.GetEvaluationDates());
@@ -84,10 +84,10 @@ public class Wallet : IEntityWithValueHistory, IOrderableEntity
     }
     
     /// <summary>
-    /// Adds <see cref="WalletTarget"/> to the wallet.
+    /// Adds <see cref="HistoricTarget"/> to the wallet.
     /// </summary>
     /// <exception cref="DuplicateException"/>
-    public WalletTarget? SetTarget(DateOnly date, decimal valueInMainCurrency)
+    public HistoricTarget? SetTarget(DateOnly date, decimal valueInMainCurrency)
     {
         var alreadyExistingTarget = Targets.FirstOrDefault(x => x.Date == date);
         
@@ -97,7 +97,7 @@ public class Wallet : IEntityWithValueHistory, IOrderableEntity
             return null;
         }
 
-        var newTarget = new WalletTarget
+        var newTarget = new HistoricTarget
         {
             Id = Guid.NewGuid(),
             Date = date,
@@ -110,15 +110,20 @@ public class Wallet : IEntityWithValueHistory, IOrderableEntity
 }
 
 /// <summary>
-/// Historic target value of the wallet.
+/// Historic target value.
 /// </summary>
 [ComplexType]
-public class WalletTarget
+public class HistoricTarget
 {
     /// <summary>
     /// ID of the target.
     /// </summary>
     public Guid Id { get; init; } = Guid.NewGuid();
+    
+    /// <summary>
+    /// ID of the <see cref="Group"/> the <see cref="HistoricTarget"/> is referring of.
+    /// </summary>
+    public Guid GroupId { get; init; }
     
     /// <summary>
     /// ID of the wallet.

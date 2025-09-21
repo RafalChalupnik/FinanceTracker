@@ -7,6 +7,7 @@ namespace FinanceTracker.Core.Entities;
 public class Group : IEntityWithValueHistory, IOrderableEntity
 {
     private readonly List<Component> _components = [];
+    private readonly List<HistoricTarget> _targets = [];
     
     /// <inheritdoc />
     public Guid Id { get; init; } = Guid.NewGuid();
@@ -29,6 +30,11 @@ public class Group : IEntityWithValueHistory, IOrderableEntity
     /// Components of the <see cref="Group"/>.
     /// </summary>
     public IReadOnlyList<Component> Components => _components;
+    
+    /// <summary>
+    /// Historic targets of the group.
+    /// </summary>
+    public IReadOnlyList<HistoricTarget> Targets => _targets;
     
     public IEnumerable<DateOnly> GetEvaluationDates() =>
         Components.SelectMany(component => component.GetEvaluationDates());

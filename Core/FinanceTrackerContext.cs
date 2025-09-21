@@ -23,7 +23,7 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
     
     public DbSet<Wallet> Wallets { get; set; }
     
-    public DbSet<WalletTarget> WalletTargets { get; set; }
+    public DbSet<HistoricTarget> WalletTargets { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -48,6 +48,11 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 .WithOne(x => x.Group)
                 .HasForeignKey(x => x.GroupId)
                 .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            b.HasMany<HistoricTarget>(x => x.Targets)
+                .WithOne()
+                .HasForeignKey(x => x.GroupId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
         
