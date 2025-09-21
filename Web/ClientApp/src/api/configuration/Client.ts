@@ -13,6 +13,10 @@ export async function upsertGroupType(groupType: GroupTypeDto) : Promise<void> {
     await sendPost('api/configuration/group-types', groupType);
 }
 
+export async function deleteGroupType(groupTypeId: string) : Promise<void> {
+    await sendDelete(`api/configuration/group-types/${groupTypeId}`);
+}
+
 export async function getGroups() : Promise<GroupTypeDtoWithGroups[]> {
     return await sendGet('api/configuration/groups');
 }

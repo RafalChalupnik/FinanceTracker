@@ -32,6 +32,13 @@ public class ConfigurationController(
         return NoContent();
     }
 
+    [HttpDelete("group-types/{groupTypeId:guid}")]
+    public IActionResult DeleteGroupType(Guid groupTypeId)
+    {
+        repository.Delete<GroupType>(groupTypeId);
+        return NoContent();
+    }
+
     [HttpGet("groups")]
     public IReadOnlyCollection<GroupTypeWithGroupsDto> GetGroups()
         => query.GetGroups();
