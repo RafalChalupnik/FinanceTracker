@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {Input, Button, Space, Card, Popconfirm, Typography, InputNumber, Row, Col} from "antd";
-import {DeleteOutlined, PlusOutlined, SaveOutlined} from "@ant-design/icons";
+import {DeleteOutlined, PlusOutlined, SaveOutlined, WalletOutlined} from "@ant-design/icons";
 import {Column, ExtendableTable} from "../components/table/ExtendableTable";
 import {buildDeleteColumn} from "../components/table/ColumnBuilder";
 import {
@@ -22,6 +22,7 @@ import {deleteGroupType, getGroupTypes, upsertGroupType} from "../api/configurat
 import {deleteGroup, getGroups, upsertGroup} from "../api/configuration/GroupsClient";
 import {GroupDto} from "../api/configuration/DTOs/GroupDto";
 import IconPicker from "../components/IconPicker";
+import {EditableRowsTable} from "../components/table/EditableRowsTable";
 
 const {Text} = Typography;
 
@@ -204,19 +205,50 @@ const Configuration: React.FC = () => {
             <Row gutter={16} style={{ alignItems: "stretch" }}>
                 <Col span={12} style={{ display: "flex", flexDirection: "column" }}>
                     <IconPicker value={icon} onChange={setIcon}/>
-                    <EntityTable
-                        title="Group Types"
-                        data={groupTypes}
-                        createNewRow={createEmptyOrderableEntityDto}
-                        onUpdate={async groupType => {
-                            await upsertGroupType(groupType);
-                            setGroupTypes([...groupTypes, groupType]);
-                        }}
-                        onDelete={async groupTypeId => {
-                            await deleteGroupType(groupTypeId)
-                            setGroupTypes(groupTypes.filter(groupType => groupType.key !== groupTypeId));
-                        }}
+                    <EditableRowsTable 
+                        data={groupTypes} 
+                        columns={[
+                            {
+                                title: 'Name',
+                                dataIndex: 'name',
+                                inputType: 'text',
+                                width: '50%',
+                                editable: true,
+                            },
+                            {
+                                title: 'Sequence',
+                                dataIndex: 'displaySequence',
+                                inputType: 'number',
+                                width: '25%',
+                                editable: true,
+                            },
+                            {
+                                title: 'Icon',
+                                dataIndex: 'icon',
+                                inputType: '',
+                                width: '25%',
+                                editable: true,
+                                renderCell: (record, isEditing) => isEditing
+                                    ? <IconPicker value={'WalletOutlined'} onChange={name => console.log('Icon: ', name)}/>
+                                    : <WalletOutlined/>
+                            }
+                        ]} 
+                        onChange={groupType => console.log('Updated', groupType)}
                     />
+                    
+                    {/*<EntityTable*/}
+                    {/*    title="Group Types"*/}
+                    {/*    data={groupTypes}*/}
+                    {/*    createNewRow={createEmptyOrderableEntityDto}*/}
+                    {/*    onUpdate={async groupType => {*/}
+                    {/*        await upsertGroupType(groupType);*/}
+                    {/*        setGroupTypes([...groupTypes, groupType]);*/}
+                    {/*    }}*/}
+                    {/*    onDelete={async groupTypeId => {*/}
+                    {/*        await deleteGroupType(groupTypeId)*/}
+                    {/*        setGroupTypes(groupTypes.filter(groupType => groupType.key !== groupTypeId));*/}
+                    {/*    }}*/}
+                    {/*/>*/}
                 </Col>
 
                 <Col span={12}>
