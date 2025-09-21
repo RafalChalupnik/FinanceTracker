@@ -196,12 +196,14 @@ const Configuration: React.FC = () => {
             groupTypeId: groupTypes[0].key
         };
     }
+    
+    let [icon, setIcon] = useState<string>('WalletOutlined');
 
     return (
         <Space direction="vertical" style={{ width: "100%" }} size="large">
             <Row gutter={16} style={{ alignItems: "stretch" }}>
                 <Col span={12} style={{ display: "flex", flexDirection: "column" }}>
-                    <IconPicker/>
+                    <IconPicker value={icon} onChange={setIcon}/>
                     <EntityTable
                         title="Group Types"
                         data={groupTypes}
