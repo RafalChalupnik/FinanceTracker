@@ -23,19 +23,6 @@ public record GroupTypeDto(
         };
 }
 
-public record GroupTypeWithGroupsDto(
-    Guid Key,
-    string Name,
-    int DisplaySequence,
-    string Icon,
-    IReadOnlyCollection<GroupDto> Groups
-) : GroupTypeDto(
-    Key, 
-    Name, 
-    DisplaySequence, 
-    Icon
-);
-
 public record GroupDto(
     Guid Key,
     string Name,
@@ -57,18 +44,13 @@ public record OrderableEntityDto(
     Guid Key,
     string Name,
     int DisplaySequence
-);
-
-public record WalletDataDto(
-    Guid Key,
-    string Name,
-    int DisplaySequence,
-    IReadOnlyCollection<WalletComponentDataDto> Components
-) : OrderableEntityDto(Key, Name, DisplaySequence);
-
-public record WalletComponentDataDto(
-    Guid Key,
-    string Name,
-    int DisplaySequence,
-    Guid? DefaultPhysicalAllocationId
-) : OrderableEntityDto(Key, Name, DisplaySequence);
+)
+{
+    public PhysicalAllocation ToPhysicalAllocation() =>
+        new()
+        {
+            Id = Key,
+            Name = Name,
+            DisplaySequence = DisplaySequence
+        };
+}

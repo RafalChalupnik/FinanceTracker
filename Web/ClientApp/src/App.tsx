@@ -9,7 +9,7 @@ import {
 import PortfolioSummary from "./pages/PortfolioSummary";
 import WalletsSummary from './pages/WalletsSummary';
 import ConfigurationPage from "./pages/ConfigurationPage";
-import {getConfiguration, getGroups, getPhysicalAllocations} from "./api/configuration/Client";
+import {getConfiguration} from "./api/configuration/Client";
 import PhysicalAllocation from "./pages/PhysicalAllocation";
 import GroupPage from "./pages/GroupPage";
 import DynamicIcon from "./components/DynamicIcon";
