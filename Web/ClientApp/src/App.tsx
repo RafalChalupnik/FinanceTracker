@@ -8,8 +8,8 @@ import {
 
 import PortfolioSummary from "./pages/PortfolioSummary";
 import WalletsSummary from './pages/WalletsSummary';
-import Configuration from "./pages/Configuration";
-import {getGroups, getPhysicalAllocations} from "./api/configuration/Client";
+import ConfigurationPage from "./pages/ConfigurationPage";
+import {getConfiguration, getGroups, getPhysicalAllocations} from "./api/configuration/Client";
 import PhysicalAllocation from "./pages/PhysicalAllocation";
 import GroupPage from "./pages/GroupPage";
 import DynamicIcon from "./components/DynamicIcon";
@@ -44,7 +44,7 @@ const navBarAfterGroups: { [key: string]: NavBarItem} = {
     '/config': {
         label: 'Configuration',
         icon: <SettingOutlined />,
-        component: <Configuration/>
+        component: <ConfigurationPage/>
     },
 }
 
@@ -64,10 +64,9 @@ const App: React.FC = () => {
     const [currentComponent, setCurrentComponent] = useState<ReactNode | undefined>();
 
     const populateData = async () => {
-        const physicalAllocations = await getPhysicalAllocations();
-        const groups = await getGroups();
+        const config = await getConfiguration();
 
-        const groupTypesItems: { [key: string]: NavBarItem } = groups.reduce(
+        const groupTypesItems: { [key: string]: NavBarItem } = config.groupTypes.reduce(
             (acc, groupType) => {
                 acc[groupType.name] = {
                     label: groupType.name,
@@ -97,7 +96,7 @@ const App: React.FC = () => {
             ...navBarAfterGroups,
         }
 
-        navBar['/physical-allocations'].children = physicalAllocations.reduce((acc, allocation) => {
+        navBar['/physical-allocations'].children = config.physicalAllocations.reduce((acc, allocation) => {
             acc[`/physical-allocations:${allocation.key}`] = {
                 label: allocation.name,
                 component: (

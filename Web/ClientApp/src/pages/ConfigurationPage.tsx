@@ -33,7 +33,7 @@ const TableCard: FC<TableCardProps> = (props) => {
     );
 }
 
-const Configuration: React.FC = () => {
+const ConfigurationPage: React.FC = () => {
     const [groupTypes, setGroupTypes] = useState<GroupTypeConfigDto[]>([]);
     const [groups, setGroups] = useState<GroupConfigDto[]>([]);
     const [physicalAllocations, setPhysicalAllocations] = useState<OrderableEntityDto[]>([]);
@@ -283,4 +283,4 @@ const Configuration: React.FC = () => {
     );
 };
 
-export default Configuration;
+export default ConfigurationPage;
