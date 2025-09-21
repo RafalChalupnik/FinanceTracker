@@ -142,8 +142,13 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
             throw new ArgumentException("Granularity must be greater or equal to month.", nameof(granularity));
         }
 
-        var orderedEntities = GetWallets(includeTargets: false)
-            .OrderBy(wallet => wallet.DisplaySequence)
+        var orderedEntities = dbContext.GroupTypes
+            .Where(groupType => groupType.Name == "Wallets")
+            .Include(groupType => groupType.Groups)
+            .ThenInclude(group => group.Components)
+            .ThenInclude(component => component.ValueHistory)
+            .SelectMany(groupType => groupType.Groups)
+            .OrderBy(group => group.DisplaySequence)
             .AsEnumerable()
             .Select(BuildEntityData)
             .ToArray();
@@ -289,15 +294,4 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
             GetValueForDate: date => entity.GetValueFor(date).ToEntityValueSnapshotDto(),
             Id: entity.Id
         );
-    
-    private IQueryable<Wallet> GetWallets(bool includeTargets)
-    {
-        var query = dbContext.Wallets
-            .Include(x => x.Components)
-            .ThenInclude(x => x.ValueHistory);
-
-        return includeTargets
-            ? query.Include(x => x.Targets)
-            : query;
-    }
 }
