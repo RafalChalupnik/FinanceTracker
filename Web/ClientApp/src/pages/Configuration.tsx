@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {FC, useEffect, useState} from "react";
 import {Input, Button, Space, Card, Popconfirm, Typography, InputNumber, Row, Col} from "antd";
 import {DeleteOutlined, PlusOutlined, SaveOutlined, WalletOutlined} from "@ant-design/icons";
 import {Column, ExtendableTable} from "../components/table/ExtendableTable";
@@ -25,6 +25,20 @@ import {EditableRowsTable} from "../components/table/EditableRowsTable";
 import DynamicIcon from "../components/DynamicIcon";
 
 const {Text} = Typography;
+
+interface TableCardProps {
+    title: string,
+    onAdd: () => void,
+    children: React.ReactNode
+}
+
+const TableCard: FC<TableCardProps> = (props) => {
+    return (
+        <Card style={{ height: "100%" }} title={props.title} extra={<Button icon={<PlusOutlined />} onClick={props.onAdd}/>}>
+            {props.children}
+        </Card>
+    );
+}
 
 interface EntityTableProps<T extends OrderableEntityDto> {
     title: string | React.ReactNode;
@@ -188,6 +202,17 @@ const Configuration: React.FC = () => {
             displaySequence: sequence,
         };
     }
+
+    let addNewGroupTypeDto = () => {
+        let newItem = {
+            key: crypto.randomUUID(),
+            name: "New Item",
+            displaySequence: (groupTypes.at(-1)?.displaySequence ?? 0) + 1,
+            icon: 'EllipsisOutlined'
+        };
+        
+        setGroupTypes([...groupTypes, newItem]);
+    }
     
     let createEmptyGroupDto = (sequence: number): GroupDto => {
         return {
@@ -202,48 +227,50 @@ const Configuration: React.FC = () => {
         <Space direction="vertical" style={{ width: "100%" }} size="large">
             <Row gutter={16} style={{ alignItems: "stretch" }}>
                 <Col span={12} style={{ display: "flex", flexDirection: "column" }}>
-                    <EditableRowsTable 
-                        data={groupTypes} 
-                        columns={[
-                            {
-                                title: 'Name',
-                                dataIndex: 'name',
-                                // inputType: 'text',
-                                width: '50%',
-                                editable: true,
-                            },
-                            {
-                                title: 'Sequence',
-                                dataIndex: 'displaySequence',
-                                // inputType: 'number',k
-                                width: '25%',
-                                editable: true,
-                            },
-                            {
-                                title: 'Icon',
-                                dataIndex: 'icon',
-                                // inputType: '',
-                                render: (iconName: string) => <DynamicIcon name={iconName} />,
-                                width: '25%',
-                                editable: true,
-                                renderEditor: <IconPicker value="" onChange={() => {}} />
-                            }
-                        ]} 
-                        onRowSave={async groupType => {
-                            await upsertGroupType(groupType)
-                            
-                            const newGroupTypes = [
-                                ...groupTypes.filter(x => x.key !== groupType.key),
-                                groupType,
-                            ];
+                    <TableCard title={'Group Types'} onAdd={addNewGroupTypeDto}>
+                        <EditableRowsTable
+                            data={groupTypes}
+                            columns={[
+                                {
+                                    title: 'Name',
+                                    dataIndex: 'name',
+                                    // inputType: 'text',
+                                    width: '50%',
+                                    editable: true,
+                                },
+                                {
+                                    title: 'Sequence',
+                                    dataIndex: 'displaySequence',
+                                    // inputType: 'number',k
+                                    width: '25%',
+                                    editable: true,
+                                },
+                                {
+                                    title: 'Icon',
+                                    dataIndex: 'icon',
+                                    // inputType: '',
+                                    render: (iconName: string) => <DynamicIcon name={iconName} />,
+                                    width: '25%',
+                                    editable: true,
+                                    renderEditor: <IconPicker value="" onChange={() => {}} />
+                                }
+                            ]}
+                            onRowSave={async groupType => {
+                                await upsertGroupType(groupType)
 
-                            setGroupTypes(newGroupTypes.sort((a, b) => a.displaySequence - b.displaySequence));
-                        }}
-                        onRowDelete={async groupType => {
-                            await deleteGroupType(groupType.key);
-                            setGroupTypes(groupTypes.filter(x => x.key !== groupType.key));
-                        }}
-                    />
+                                const newGroupTypes = [
+                                    ...groupTypes.filter(x => x.key !== groupType.key),
+                                    groupType,
+                                ];
+
+                                setGroupTypes(newGroupTypes.sort((a, b) => a.displaySequence - b.displaySequence));
+                            }}
+                            onRowDelete={async groupType => {
+                                await deleteGroupType(groupType.key);
+                                setGroupTypes(groupTypes.filter(x => x.key !== groupType.key));
+                            }}
+                        />
+                    </TableCard>
                     
                     {/*<EntityTable*/}
                     {/*    title="Group Types"*/}
