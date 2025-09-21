@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {Form, Input, Space, Table} from 'antd';
+import {Form, Input, Popconfirm, Space, Table} from 'antd';
 import type { FormRule } from 'antd';
 import { ColumnType } from "antd/es/table";
 import SaveCancelButtons from "../SaveCancelButtons";
@@ -15,9 +15,10 @@ interface EditableRowsTableProps<T> {
     data: T[];
     columns: EditableColumnType<T>[];
     onRowSave: (row: T) => void | Promise<void>;
+    onRowDelete: (row: T) => void | Promise<void>;
 }
 
-export function EditableRowsTable<T extends { key: React.Key }>({ data, columns, onRowSave }: EditableRowsTableProps<T>) {
+export function EditableRowsTable<T extends { key: React.Key }>(props: EditableRowsTableProps<T>) {
     const [form] = Form.useForm();
     const [editingKey, setEditingKey] = useState<React.Key>('');
 
@@ -35,10 +36,10 @@ export function EditableRowsTable<T extends { key: React.Key }>({ data, columns,
     const save = async (key: React.Key) => {
         try {
             const newValues = await form.validateFields() as Omit<T, 'key'>;
-            const originalData = data.find(d => d.key === key);
+            const originalData = props.data.find(d => d.key === key);
 
             if (originalData) {
-                await onRowSave({ ...originalData, ...newValues });
+                await props.onRowSave({ ...originalData, ...newValues });
                 setEditingKey('');
             }
         } catch (errInfo) {
@@ -57,13 +58,21 @@ export function EditableRowsTable<T extends { key: React.Key }>({ data, columns,
                 : (
                     <Space direction='horizontal'>
                         <EditOutlined onClick={() => edit(record)} />
-                        <DeleteOutlined onClick={() => console.log('Delete')} />
+                        <Popconfirm
+                            title='Sure to delete?'
+                            okText={'Yes'}
+                            cancelText={'No'}
+                            okButtonProps={{ danger: true }}
+                            onConfirm={async () => await props.onRowDelete(record)}
+                        >
+                            <DeleteOutlined />
+                        </Popconfirm>
                     </Space>
                 );
         },
     };
 
-    const mergedColumns = columns.map((col): ColumnType<T> => {
+    const mergedColumns = props.columns.map((col): ColumnType<T> => {
         if (!col.editable || !col.dataIndex) {
             return col;
         }
@@ -102,7 +111,7 @@ export function EditableRowsTable<T extends { key: React.Key }>({ data, columns,
         <Form form={form} component={false}>
             <Table<T>
                 bordered
-                dataSource={data}
+                dataSource={props.data}
                 columns={[...mergedColumns, actionColumn]}
                 rowKey="key"
                 pagination={false}

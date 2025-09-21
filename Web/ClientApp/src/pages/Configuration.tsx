@@ -11,7 +11,7 @@ import {
 } from "../api/configuration/DTOs/ConfigurationDto";
 import {
     deleteAsset,
-    deleteDebt, deletePhysicalAllocation, deleteWallet, deleteWalletComponent,
+    deleteDebt, deleteGroupType, deletePhysicalAllocation, deleteWallet, deleteWalletComponent,
     getConfiguration, getGroups,
     getGroupTypes,
     upsertAsset,
@@ -230,6 +230,7 @@ const Configuration: React.FC = () => {
                             }
                         ]} 
                         onRowSave={groupType => upsertGroupType(groupType)}
+                        onRowDelete={groupType => deleteGroupType(groupType.key)}
                     />
                     
                     {/*<EntityTable*/}
