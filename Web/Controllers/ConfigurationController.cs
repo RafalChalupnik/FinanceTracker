@@ -57,6 +57,20 @@ public class ConfigurationController(
         return NoContent();
     }
     
+    [HttpPost("components")]
+    public IActionResult UpsertComponent([FromBody] WalletComponentDataDto component)
+    {
+        repository.Upsert(component.ToComponent());
+        return NoContent();
+    }
+    
+    [HttpDelete("components/{componentId:guid}")]
+    public async Task<IActionResult> DeleteComponent(Guid componentId)
+    {
+        await deleteEntityCommand.Delete<Component>(componentId);
+        return NoContent();
+    }
+    
     [HttpGet("wallets")]
     public OrderableEntityDto[] GetWallets()
         => query.GetWallets();

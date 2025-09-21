@@ -1,4 +1,4 @@
-import {ConfigurationDto, OrderableEntityDto} from "./DTOs/ConfigurationDto";
+import {ConfigurationDto, OrderableEntityDto, WalletComponentDataDto} from "./DTOs/ConfigurationDto";
 import {GroupDto, GroupTypeDto, GroupTypeDtoWithGroups} from "./DTOs/GroupDto";
 
 export async function getConfiguration() : Promise<ConfigurationDto> {
@@ -27,6 +27,17 @@ export async function upsertGroup(group: GroupDto) : Promise<void> {
 
 export async function deleteGroup(groupId: string) : Promise<void> {
     await sendDelete(`api/configuration/groups/${groupId}`);
+}
+
+export async function upsertComponent(component: WalletComponentDataDto) : Promise<void> {
+    await sendPost(
+        `api/configuration/components`,
+        component
+    );
+}
+
+export async function deleteComponent(componentId: string) : Promise<void> {
+    await sendDelete(`api/configuration/components/${componentId}`);
 }
 
 export async function getWallets() : Promise<OrderableEntityDto[]> {
@@ -69,7 +80,7 @@ export async function deleteWallet(walletId: string) : Promise<void> {
     await sendDelete(`api/configuration/wallets/${walletId}`);
 }
 
-export async function upsertWalletComponent(walletId: string, component: any) : Promise<void> {
+export async function upsertWalletComponent(walletId: string, component: WalletComponentDataDto) : Promise<void> {
     await sendPost(
         `api/configuration/wallets/${walletId}/components`,
         component

@@ -1,13 +1,19 @@
 import React, {FC, useEffect, useState} from "react";
-import {Input, Button, Space, Card, Popconfirm, Typography, InputNumber, Row, Col, Divider} from "antd";
+import {Input, Button, Space, Card, Popconfirm, Typography, InputNumber, Row, Col, Divider, FormRule} from "antd";
 import {DeleteOutlined, PlusOutlined, SaveOutlined, WalletOutlined} from "@ant-design/icons";
 import {Column, ExtendableTable} from "../components/table/ExtendableTable";
 import {buildDeleteColumn} from "../components/table/ColumnBuilder";
-import {GroupConfigDto, GroupTypeConfigDto, OrderableEntityDto} from "../api/configuration/DTOs/ConfigurationDto";
 import {
+    ComponentConfigDto,
+    GroupConfigDto,
+    GroupTypeConfigDto,
+    OrderableEntityDto
+} from "../api/configuration/DTOs/ConfigurationDto";
+import {
+    deleteComponent,
     deleteGroup,
     deleteGroupType, deletePhysicalAllocation,
-    getConfiguration,
+    getConfiguration, upsertComponent,
     upsertGroup,
     upsertGroupType, upsertPhysicalAllocation
 } from "../api/configuration/Client";
@@ -212,6 +218,39 @@ const Configuration: React.FC = () => {
         setGroups([...groups, newItem]);
     }
     
+    let addNewComponent = (group: GroupConfigDto) => {
+        let newComponent = {
+            key: crypto.randomUUID(),
+            name: "New Item",
+            displaySequence: (group.components.at(-1)?.displaySequence ?? 0) + 1,
+            groupId: group.key,
+            defaultPhysicalAllocationId: undefined
+        }
+        
+        updateGroupComponents(group, [...group.components, newComponent]);
+    }
+    
+    let updateGroupComponents = (group: GroupConfigDto, components: ComponentConfigDto[]) => {
+        group.components = components
+            .sort((a, b) => a.displaySequence - b.displaySequence);
+
+        const newGroups = [
+            ...groups.filter(x => x.key !== group.key),
+            group,
+        ];
+
+        setGroups(newGroups.sort((a, b) => {
+            let aGroupType = groupTypes.find(x => x.key == a.groupTypeId)!;
+            let bGroupType = groupTypes.find(x => x.key == b.groupTypeId)!;
+
+            if (aGroupType.displaySequence !== bGroupType.displaySequence) {
+                return aGroupType.displaySequence - bGroupType.displaySequence;
+            }
+
+            return a.displaySequence - b.displaySequence;
+        }));
+    }
+    
     return (
         <Space direction="vertical" style={{ width: "100%" }} size="large">
             <Row gutter={16} style={{ alignItems: "stretch" }}>
@@ -325,7 +364,7 @@ const Configuration: React.FC = () => {
             <Divider/>
 
             {groups.map(group => (
-                <TableCard title={group.name} onAdd={() => {}}>
+                <TableCard title={group.name} onAdd={() => {addNewComponent(group)}}>
                     <EditableRowsTable
                         data={group.components}
                         columns={[
@@ -359,6 +398,12 @@ const Configuration: React.FC = () => {
                             {
                                 title: 'Default Physical Allocation',
                                 dataIndex: 'defaultPhysicalAllocationId',
+                                editorRules: [
+                                    {
+                                        required: false,
+                                        message: ''
+                                    }
+                                ],
                                 render: (physicalAllocationId: string) => physicalAllocations.find(x => x.key === physicalAllocationId)?.name ?? '-',
                                 width: '20%',
                                 editable: true,
@@ -370,31 +415,23 @@ const Configuration: React.FC = () => {
                                         onChange={() => {}}
                                     />
                                 )
-                            },
-                            // Default physical allocation id
+                            }
                         ]}
-                        onRowSave={async group => {
-                            // await upsertGroup(group)
-                            //
-                            // const newGroups = [
-                            //     ...groups.filter(x => x.key !== group.key),
-                            //     group,
-                            // ];
-                            //
-                            // setGroups(newGroups.sort((a, b) => {
-                            //     let aGroupType = groupTypes.find(x => x.key == a.groupTypeId)!;
-                            //     let bGroupType = groupTypes.find(x => x.key == b.groupTypeId)!;
-                            //
-                            //     if (aGroupType.displaySequence !== bGroupType.displaySequence) {
-                            //         return aGroupType.displaySequence - bGroupType.displaySequence;
-                            //     }
-                            //
-                            //     return a.displaySequence - b.displaySequence;
-                            // }));
+                        onRowSave={async component => {
+                            console.log('Upsert', component);
+                            await upsertComponent(component);
+
+                            const newComponents = [
+                                ...group.components.filter(x => x.key !== group.key),
+                                component,
+                            ];
+
+                            updateGroupComponents(group, newComponents
+                                .sort((a, b) => a.displaySequence - b.displaySequence));
                         }}
-                        onRowDelete={async group => {
-                            // await deleteGroup(group.key);
-                            // setGroups(groups.filter(x => x.key !== group.key));
+                        onRowDelete={async component => {
+                            await deleteComponent(component.key);
+                            updateGroupComponents(group, group.components.filter(x => x.key !== group.key));
                         }}
                     />
                 </TableCard>
