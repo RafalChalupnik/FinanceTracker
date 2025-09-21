@@ -23,6 +23,7 @@ public record GroupConfigDto(
     Guid Key,
     string Name,
     int DisplaySequence,
+    bool ShowTargets,
     Guid GroupTypeId,
     IReadOnlyCollection<ComponentConfigDto> Components
 ) : OrderableEntityDto(

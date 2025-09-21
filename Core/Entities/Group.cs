@@ -20,6 +20,11 @@ public class Group : IEntityWithValueHistory, IOrderableEntity
     public int DisplaySequence { get; set; }
     
     /// <summary>
+    /// Determines whether to include <see cref="HistoricTarget"/> values for this <see cref="Group"/>.
+    /// </summary>
+    public bool ShowTargets { get; set; }
+    
+    /// <summary>
     /// <see cref="GroupType"/> to which the <see cref="Group"/> belongs.
     /// </summary>
     public GroupType? GroupType { get; set; }

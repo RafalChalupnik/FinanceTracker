@@ -9,6 +9,7 @@ export type GroupTypeConfigDto = OrderableEntityDto & {
 }
 
 export type GroupConfigDto = OrderableEntityDto & {
+    showTargets: boolean,
     groupTypeId: string,
     components: ComponentConfigDto[]
 }

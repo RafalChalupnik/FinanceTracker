@@ -48,7 +48,7 @@ export function EditableRowsTable<T extends { key: React.Key }>(props: EditableR
     };
 
     const actionColumn: ColumnType<T> = {
-        title: 'Action',
+        title: '',
         dataIndex: 'operation',
         fixed: 'right',
         render: (_: any, record: T) => {

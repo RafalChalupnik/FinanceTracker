@@ -27,6 +27,7 @@ public record GroupDto(
     Guid Key,
     string Name,
     int DisplaySequence,
+    bool ShowTargets,
     Guid GroupTypeId
 )
 {
@@ -36,6 +37,7 @@ public record GroupDto(
             Id = Key,
             Name = Name,
             DisplaySequence = DisplaySequence,
+            ShowTargets = ShowTargets,
             GroupTypeId = GroupTypeId
         };
 }

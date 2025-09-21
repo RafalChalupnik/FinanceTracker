@@ -79,6 +79,7 @@ const App: React.FC = () => {
                                     key={group.key}
                                     groupId={group.key}
                                     name={group.name}
+                                    showTargets={group.showTargets}
                                 />
                             ),
                         };

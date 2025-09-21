@@ -130,10 +130,12 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
             fromDate: from, 
             toDate: to
         );
-        
-        var targets = group.Targets
-            .OrderByDescending(x => x.Date)
-            .ToArray();
+
+        var targets = group.ShowTargets
+            ? group.Targets
+                .OrderByDescending(x => x.Date)
+                .ToArray()
+            : [];
         
         var rows = records
             .Select(record => record.ToWalletComponentsValueHistoryRecord(
@@ -186,24 +188,6 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
         );
     }
     
-    private static ValueHistoryRecordDto[] BuildGroupComponentsRows(
-        IReadOnlyList<EntityData> orderedComponents,
-        DateGranularity? granularity, 
-        DateOnly? from, 
-        DateOnly? to)
-    {
-        var records = RecordsBuilder.BuildValueRecords(
-            orderedComponents, 
-            granularity, 
-            fromDate: from, 
-            toDate: to
-        );
-
-        return records
-            .Select(record => record.ToValueHistoryRecord())
-            .ToArray();
-    }
-
     private static WalletTargetDto? BuildTargetData(ValueRecord record, IReadOnlyCollection<HistoricTarget> targets)
     {
         var target = targets.FirstOrDefault(target => target.Date <= record.DateRange.To);

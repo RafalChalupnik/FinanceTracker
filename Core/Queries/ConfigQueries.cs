@@ -25,6 +25,7 @@ public class ConfigQueries(FinanceTrackerContext dbContext)
                                 Key: group.Id,
                                 Name: group.Name,
                                 DisplaySequence: group.DisplaySequence,
+                                ShowTargets: group.ShowTargets,
                                 GroupTypeId: groupType.Id,
                                 Components: group.Components
                                     .OrderBy(component => component.DisplaySequence)

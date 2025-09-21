@@ -20,7 +20,8 @@ import WalletTargetChart from "../components/charts/custom/WalletTargetChart";
 
 interface GroupPageProps {
     groupId: string,
-    name: string
+    name: string,
+    showTargets: boolean
 }
 
 const GroupPage: FC<GroupPageProps> = (props) => {
@@ -50,8 +51,22 @@ const GroupPage: FC<GroupPageProps> = (props) => {
             physicalAllocations
         )
     }
+    
+    const buildExtraColumns = (granularity: DateGranularity, refreshCallback: () => void) => {
+        return props.showTargets
+            ? [
+                buildTargetColumn(
+                    granularity,
+                    async (date, value) => {
+                        await setGroupTarget(props.groupId, date, value);
+                        await refreshCallback();
+                    }
+                )
+            ]
+            : [];
+    }
 
-    const buildExtra = (data: EntityTableDto<WalletComponentsValueHistoryRecordDto>) =>  data?.rows !== undefined && !data.rows.every(row => row.target === null)
+    const buildExtra = (data: EntityTableDto<WalletComponentsValueHistoryRecordDto>) => props.showTargets
         ? <WalletTargetChart data={data.rows}/>
         : undefined;
     
@@ -73,15 +88,7 @@ const GroupPage: FC<GroupPageProps> = (props) => {
                 onDelete: date => deleteGroupValues(props.groupId, date),
             }}
             buildComponentColumns={buildComponentColumns}
-            buildExtraColumns={(granularity, refreshCallback) => [
-                buildTargetColumn(
-                    granularity,
-                    async (date, value) => {
-                        await setGroupTarget(props.groupId, date, value);
-                        await refreshCallback();
-                    }
-                )
-            ]}
+            buildExtraColumns={buildExtraColumns}
             extra={buildExtra}
         />
     );

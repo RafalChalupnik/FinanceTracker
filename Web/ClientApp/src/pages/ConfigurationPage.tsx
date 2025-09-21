@@ -1,5 +1,5 @@
 import React, {FC, useEffect, useState} from "react";
-import {Button, Space, Card, Row, Col, Divider} from "antd";
+import {Button, Space, Card, Row, Col, Divider, Checkbox, Switch} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import {
     GroupConfigDto,
@@ -146,14 +146,14 @@ const ConfigurationPage: React.FC = () => {
                                 {
                                     title: 'Name',
                                     dataIndex: 'name',
-                                    width: '50%',
+                                    width: '40%',
                                     editable: true,
                                 },
                                 {
                                     title: 'Group Type',
                                     dataIndex: 'groupTypeId',
                                     render: (groupTypeId: string) => groupTypes.find(x => x.key === groupTypeId)!.name,
-                                    width: '25%',
+                                    width: '20%',
                                     editable: true,
                                     renderEditor: (
                                         <SimpleDropdown
@@ -167,11 +167,22 @@ const ConfigurationPage: React.FC = () => {
                                 {
                                     title: 'Sequence',
                                     dataIndex: 'displaySequence',
-                                    width: '25%',
+                                    width: '20%',
                                     editable: true,
+                                },
+                                {
+                                    title: 'Show targets',
+                                    dataIndex: 'showTargets',
+                                    render: (showTargets: boolean) => <Switch value={showTargets} disabled />,
+                                    width: '20%',
+                                    editable: true,
+                                    renderEditor: (
+                                        <Switch />
+                                    )
                                 }
                             ]}
                             onRowSave={async group => {
+                                console.log('Upsert', group)
                                 await upsertGroup(group);
                                 await populateData();
                             }}
