@@ -11,11 +11,11 @@ import {
 } from "../api/configuration/DTOs/ConfigurationDto";
 import {
     deleteAsset,
-    deleteDebt, deleteGroupType, deletePhysicalAllocation, deleteWallet, deleteWalletComponent,
+    deleteDebt, deleteGroup, deleteGroupType, deletePhysicalAllocation, deleteWallet, deleteWalletComponent,
     getConfiguration, getGroups,
     getGroupTypes,
     upsertAsset,
-    upsertDebt, upsertGroupType, upsertPhysicalAllocation,
+    upsertDebt, upsertGroup, upsertGroupType, upsertPhysicalAllocation,
     upsertWallet, upsertWalletComponent
 } from "../api/configuration/Client";
 import {buildPhysicalAllocationColumn} from "../components/table/ConfigurationColumnBuilder";
@@ -317,19 +317,28 @@ const Configuration: React.FC = () => {
                                     )
                                 }
                             ]}
-                            onRowSave={async groupType => {
-                                // await upsertGroupType(groupType)
+                            onRowSave={async group => {
+                                await upsertGroup(group)
 
-                                const newGroupTypes = [
-                                    ...groupTypes.filter(x => x.key !== groupType.key),
-                                    groupType,
+                                const newGroups = [
+                                    ...groups.filter(x => x.key !== group.key),
+                                    group,
                                 ];
 
-                                // setGroupTypes(newGroupTypes.sort((a, b) => a.displaySequence - b.displaySequence));
+                                setGroups(newGroups.sort((a, b) => {
+                                    let aGroupType = groupTypes.find(x => x.key == a.groupTypeId)!;
+                                    let bGroupType = groupTypes.find(x => x.key == b.groupTypeId)!;
+                                    
+                                    if (aGroupType.displaySequence !== bGroupType.displaySequence) {
+                                        return aGroupType.displaySequence - bGroupType.displaySequence;
+                                    }
+                                    
+                                    return a.displaySequence - b.displaySequence;
+                                }));
                             }}
-                            onRowDelete={async groupType => {
-                                // await deleteGroupType(groupType.key);
-                                // setGroupTypes(groupTypes.filter(x => x.key !== groupType.key));
+                            onRowDelete={async group => {
+                                await deleteGroup(group.key);
+                                setGroups(groups.filter(x => x.key !== group.key));
                             }}
                         />
                     </TableCard>

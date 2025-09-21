@@ -43,6 +43,20 @@ public class ConfigurationController(
     public IReadOnlyCollection<GroupTypeWithGroupsDto> GetGroups()
         => query.GetGroups();
     
+    [HttpPost("groups")]
+    public IActionResult UpsertGroup([FromBody] GroupDto group)
+    {
+        repository.Upsert(group.ToGroup());
+        return NoContent();
+    }
+    
+    [HttpDelete("groups/{groupId:guid}")]
+    public IActionResult DeleteGroup(Guid groupId)
+    {
+        repository.Delete<Group>(groupId);
+        return NoContent();
+    }
+    
     [HttpGet("wallets")]
     public OrderableEntityDto[] GetWallets()
         => query.GetWallets();

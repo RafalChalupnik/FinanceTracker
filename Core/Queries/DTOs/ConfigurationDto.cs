@@ -49,7 +49,17 @@ public record GroupDto(
     string Name,
     int DisplaySequence,
     Guid GroupTypeId
-);
+)
+{
+    public Group ToGroup() =>
+        new()
+        {
+            Id = Key,
+            Name = Name,
+            DisplaySequence = DisplaySequence,
+            GroupTypeId = GroupTypeId
+        };
+}
 
 public record OrderableEntityDto(
     Guid Key,
