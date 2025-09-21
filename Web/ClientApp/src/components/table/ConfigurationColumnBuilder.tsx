@@ -4,7 +4,6 @@ import React, {FC} from "react";
 import SimpleDropdown from "../SimpleDropdown";
 import {Space} from "antd";
 import SaveCancelButtons from "../SaveCancelButtons";
-import {GroupDto} from "../../api/configuration/DTOs/GroupDto";
 
 interface SimpleDropdownFormProps {
     values: OrderableEntityDto[];

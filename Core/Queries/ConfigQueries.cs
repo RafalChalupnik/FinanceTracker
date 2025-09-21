@@ -10,12 +10,41 @@ public class ConfigQueries(FinanceTrackerContext dbContext)
 {
     public ConfigurationDto GetConfiguration()
     {
-        return new ConfigurationDto(
-            Assets: GetOrderableEntities<Asset>(),
-            Debts: GetOrderableEntities<Debt>(),
-            Wallets: GetWalletsWithComponents(),
-            PhysicalAllocations: GetOrderableEntities<PhysicalAllocation>()
-        );
+        var groupTypes = dbContext.GroupTypes
+            .Include(groupType => groupType.Groups)
+            .ThenInclude(group => group.Components)
+            .AsEnumerable()
+            .Select(groupType => new GroupTypeConfigDto(
+                    Key: groupType.Id,
+                    Name: groupType.Name,
+                    DisplaySequence: groupType.DisplaySequence,
+                    Icon: groupType.IconName,
+                    Groups: groupType.Groups
+                        .Select(group => new GroupConfigDto(
+                                Key: group.Id,
+                                Name: group.Name,
+                                DisplaySequence: group.DisplaySequence,
+                                GroupTypeId: groupType.Id,
+                                Components: group.Components
+                                    .Select(component => new ComponentConfigDto(
+                                            Key: component.Id,
+                                            Name: component.Name,
+                                            DisplaySequence: component.DisplaySequence,
+                                            GroupId: component.GroupId,
+                                            DefaultPhysicalAllocationId: component.DefaultPhysicalAllocationId
+                                        )
+                                    )
+                                    .ToArray()
+                            )
+                        )
+                        .ToArray()
+                )
+            )
+            .ToArray();
+
+        var physicalAllocations = BuildOrderableEntityDtos(dbContext.PhysicalAllocations);
+        
+        return new ConfigurationDto(groupTypes, physicalAllocations);
     }
 
     public IReadOnlyCollection<GroupTypeDto> GetGroupTypes() =>
