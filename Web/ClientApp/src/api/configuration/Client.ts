@@ -9,6 +9,10 @@ export async function getGroupTypes() : Promise<GroupTypeDto[]> {
     return await sendGet('api/configuration/group-types');
 }
 
+export async function upsertGroupType(groupType: GroupTypeDto) : Promise<void> {
+    await sendPost('api/configuration/group-types', groupType);
+}
+
 export async function getGroups() : Promise<GroupTypeDtoWithGroups[]> {
     return await sendGet('api/configuration/groups');
 }

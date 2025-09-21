@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import {Button, Form, Input, Space, Table} from 'antd';
-import type { FormRule, TableProps } from 'antd';
+import {Form, Input, Space, Table} from 'antd';
+import type { FormRule } from 'antd';
 import { ColumnType } from "antd/es/table";
 import SaveCancelButtons from "../SaveCancelButtons";
 import {DeleteOutlined, EditOutlined} from "@ant-design/icons";

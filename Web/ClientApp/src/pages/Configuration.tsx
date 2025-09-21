@@ -15,10 +15,10 @@ import {
     getConfiguration, getGroups,
     getGroupTypes,
     upsertAsset,
-    upsertDebt, upsertPhysicalAllocation,
+    upsertDebt, upsertGroupType, upsertPhysicalAllocation,
     upsertWallet, upsertWalletComponent
 } from "../api/configuration/Client";
-import {buildGroupTypeColumn, buildPhysicalAllocationColumn} from "../components/table/ConfigurationColumnBuilder";
+import {buildPhysicalAllocationColumn} from "../components/table/ConfigurationColumnBuilder";
 import {GroupDto, GroupTypeDto} from "../api/configuration/DTOs/GroupDto";
 import IconPicker from "../components/IconPicker";
 import {EditableRowsTable} from "../components/table/EditableRowsTable";
@@ -229,7 +229,7 @@ const Configuration: React.FC = () => {
                                 renderEditor: <IconPicker value="" onChange={() => {}} />
                             }
                         ]} 
-                        onRowSave={groupType => console.log('Updated', groupType)}
+                        onRowSave={groupType => upsertGroupType(groupType)}
                     />
                     
                     {/*<EntityTable*/}

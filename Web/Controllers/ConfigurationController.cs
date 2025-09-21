@@ -3,6 +3,7 @@ using FinanceTracker.Core.Commands;
 using FinanceTracker.Core.Entities;
 using FinanceTracker.Core.Queries;
 using FinanceTracker.Core.Queries.DTOs;
+using FinanceTracker.Core.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceTracker.Web.Controllers;
@@ -11,6 +12,7 @@ namespace FinanceTracker.Web.Controllers;
 [Route("api/configuration")]
 public class ConfigurationController(
     ConfigQueries query,
+    Repository repository,
     UpsertEntityCommand upsertEntityCommand,
     DeleteEntityCommand deleteEntityCommand
 ) : ControllerBase
@@ -20,9 +22,16 @@ public class ConfigurationController(
         => query.GetConfiguration();
     
     [HttpGet("group-types")]
-    public IReadOnlyCollection<GroupTypeDto> GetGroupTypes()
-        => query.GetGroupTypes();
-    
+    public IReadOnlyCollection<GroupTypeDto> GetGroupTypes() => 
+        query.GetGroupTypes();
+
+    [HttpPost("group-types")]
+    public IActionResult UpsertGroupType([FromBody] GroupTypeDto groupType)
+    {
+        repository.Upsert(groupType.ToGroupType());
+        return NoContent();
+    }
+
     [HttpGet("groups")]
     public IReadOnlyCollection<GroupTypeWithGroupsDto> GetGroups()
         => query.GetGroups();

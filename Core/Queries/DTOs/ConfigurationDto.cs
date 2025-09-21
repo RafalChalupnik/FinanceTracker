@@ -1,3 +1,4 @@
+using FinanceTracker.Core.Entities;
 using FinanceTracker.Core.Interfaces;
 
 namespace FinanceTracker.Core.Queries.DTOs;
@@ -15,10 +16,20 @@ public record GroupTypeDto(
     int DisplaySequence,
     string Icon
 ) : OrderableEntityDto(
-    Key, 
-    Name, 
+    Key,
+    Name,
     DisplaySequence
-);
+)
+{
+    public GroupType ToGroupType() =>
+        new()
+        {
+            Id = Key,
+            Name = Name,
+            IconName = Icon,
+            DisplaySequence = DisplaySequence
+        };
+}
 
 public record GroupTypeWithGroupsDto(
     Guid Key,
