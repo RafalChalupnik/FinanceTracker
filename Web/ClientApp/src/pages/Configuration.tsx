@@ -1,10 +1,7 @@
 import React, {FC, useEffect, useState} from "react";
 import {Button, Space, Card, Row, Col, Divider} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
-import {Column, ExtendableTable} from "../components/table/ExtendableTable";
-import {buildDeleteColumn} from "../components/table/ColumnBuilder";
 import {
-    ComponentConfigDto,
     GroupConfigDto,
     GroupTypeConfigDto,
     OrderableEntityDto
@@ -36,73 +33,6 @@ const TableCard: FC<TableCardProps> = (props) => {
     );
 }
 
-interface EntityTableProps<T extends OrderableEntityDto> {
-    title: string | React.ReactNode;
-    data: T[];
-    createNewRow: (sequence: number) => T;
-    onUpdate: (entity: T) => void | Promise<void>;
-    onDelete: (entityId: string) => void | Promise<void>;
-    extraColumns?: Column<T>[];
-}
-
-function EntityTable<T extends OrderableEntityDto>(props: EntityTableProps<T>) {
-    let [newEntry, setNewEntry] = useState<T | undefined>(undefined);
-    
-    const updateEntity = async (record: T) => {
-        setNewEntry(undefined);
-        await props.onUpdate(record)
-    };
-    
-    let columns : Column<T>[] = [
-        {
-            key: 'name',
-            title: 'Name',
-            render: row => row.name,
-            editable: {
-                initialValueSelector: (row) => row.name,
-                onSave: async (row, value) => {
-                    row.name = value;
-                    await updateEntity(row)
-                }
-            }
-        },
-        {
-            key: 'displaySequence',
-            title: 'Sequence',
-            render: row => row.displaySequence,
-            editable: {
-                initialValueSelector: (row) => row.displaySequence,
-                onSave: async (row, value) => {
-                    row.displaySequence = value;
-                    await updateEntity(row)
-                }
-            }
-        },
-        ...props.extraColumns ?? [],
-        buildDeleteColumn(async row => await props.onDelete(row.key))
-    ]
-
-    const buildData = () => {
-        return newEntry !== undefined
-            ? [...props.data, newEntry]
-            : props.data
-    }
-
-    const handleAdd = () => {
-        let newItem = props.createNewRow(props.data.length + 1);
-        setNewEntry(newItem);
-    };
-
-    return (
-        <Card style={{ height: "100%" }} title={props.title} extra={<Button icon={<PlusOutlined />} onClick={handleAdd} >Add new entry</Button>}>
-            <ExtendableTable 
-                rows={buildData()} 
-                columns={columns}
-            />
-        </Card>
-    );
-}
-
 const Configuration: React.FC = () => {
     const [groupTypes, setGroupTypes] = useState<GroupTypeConfigDto[]>([]);
     const [groups, setGroups] = useState<GroupConfigDto[]>([]);
@@ -120,15 +50,17 @@ const Configuration: React.FC = () => {
         populateData()
     }, [])
     
-    let createEmptyOrderableEntityDto = (sequence: number): OrderableEntityDto => {
-        return {
+    let addNewPhysicalAllocationDto = () => {
+        let newItem = {
             key: crypto.randomUUID(),
             name: "New Item",
-            displaySequence: sequence,
-        };
+            displaySequence: (physicalAllocations.at(-1)?.displaySequence ?? 0) + 1,
+        } as OrderableEntityDto;
+        
+        setPhysicalAllocations([...physicalAllocations, newItem]);
     }
 
-    let addNewGroupTypeDto = () => {
+    let addNewGroupTypeDto = async () => {
         let newItem = {
             key: crypto.randomUUID(),
             name: "New Item",
@@ -136,51 +68,33 @@ const Configuration: React.FC = () => {
             icon: 'EllipsisOutlined'
         } as GroupTypeConfigDto;
         
-        setGroupTypes([...groupTypes, newItem]);
+        await upsertGroupType(newItem);
+        await populateData();
     }
 
-    let addNewGroupDto = () => {
+    let addNewGroupDto = async () => {
         let newItem = {
             key: crypto.randomUUID(),
             name: "New Item",
             displaySequence: (groupTypes.at(-1)?.displaySequence ?? 0) + 1,
             groupTypeId: groupTypes[0].key
-        } as GroupConfigDto;
-
-        setGroups([...groups, newItem]);
+        };
+        
+        await upsertGroup(newItem);
+        await populateData();
     }
     
-    let addNewComponent = (group: GroupConfigDto) => {
+    let addNewComponent = async (group: GroupConfigDto) => {
         let newComponent = {
             key: crypto.randomUUID(),
             name: "New Item",
             displaySequence: (group.components.at(-1)?.displaySequence ?? 0) + 1,
             groupId: group.key,
             defaultPhysicalAllocationId: undefined
-        }
+        };
         
-        updateGroupComponents(group, [...group.components, newComponent]);
-    }
-    
-    let updateGroupComponents = (group: GroupConfigDto, components: ComponentConfigDto[]) => {
-        group.components = components
-            .sort((a, b) => a.displaySequence - b.displaySequence);
-
-        const newGroups = [
-            ...groups.filter(x => x.key !== group.key),
-            group,
-        ];
-
-        setGroups(newGroups.sort((a, b) => {
-            let aGroupType = groupTypes.find(x => x.key == a.groupTypeId)!;
-            let bGroupType = groupTypes.find(x => x.key == b.groupTypeId)!;
-
-            if (aGroupType.displaySequence !== bGroupType.displaySequence) {
-                return aGroupType.displaySequence - bGroupType.displaySequence;
-            }
-
-            return a.displaySequence - b.displaySequence;
-        }));
+        await upsertComponent(newComponent);
+        await populateData();
     }
     
     return (
@@ -194,7 +108,6 @@ const Configuration: React.FC = () => {
                                 {
                                     title: 'Name',
                                     dataIndex: 'name',
-                                    // inputType: 'text',
                                     width: '50%',
                                     editable: true,
                                 },
@@ -214,18 +127,12 @@ const Configuration: React.FC = () => {
                                 }
                             ]}
                             onRowSave={async groupType => {
-                                await upsertGroupType(groupType)
-
-                                const newGroupTypes = [
-                                    ...groupTypes.filter(x => x.key !== groupType.key),
-                                    groupType,
-                                ];
-
-                                setGroupTypes(newGroupTypes.sort((a, b) => a.displaySequence - b.displaySequence));
+                                await upsertGroupType(groupType);
+                                await populateData();
                             }}
                             onRowDelete={async groupType => {
                                 await deleteGroupType(groupType.key);
-                                setGroupTypes(groupTypes.filter(x => x.key !== groupType.key));
+                                await populateData();
                             }}
                         />
                     </TableCard>
@@ -265,27 +172,12 @@ const Configuration: React.FC = () => {
                                 }
                             ]}
                             onRowSave={async group => {
-                                await upsertGroup(group)
-
-                                const newGroups = [
-                                    ...groups.filter(x => x.key !== group.key),
-                                    group,
-                                ];
-
-                                setGroups(newGroups.sort((a, b) => {
-                                    let aGroupType = groupTypes.find(x => x.key == a.groupTypeId)!;
-                                    let bGroupType = groupTypes.find(x => x.key == b.groupTypeId)!;
-                                    
-                                    if (aGroupType.displaySequence !== bGroupType.displaySequence) {
-                                        return aGroupType.displaySequence - bGroupType.displaySequence;
-                                    }
-                                    
-                                    return a.displaySequence - b.displaySequence;
-                                }));
+                                await upsertGroup(group);
+                                await populateData();
                             }}
                             onRowDelete={async group => {
                                 await deleteGroup(group.key);
-                                setGroups(groups.filter(x => x.key !== group.key));
+                                await populateData();
                             }}
                         />
                     </TableCard>
@@ -350,37 +242,43 @@ const Configuration: React.FC = () => {
                             }
                         ]}
                         onRowSave={async component => {
-                            console.log('Upsert', component);
                             await upsertComponent(component);
-
-                            const newComponents = [
-                                ...group.components.filter(x => x.key !== group.key),
-                                component,
-                            ];
-
-                            updateGroupComponents(group, newComponents
-                                .sort((a, b) => a.displaySequence - b.displaySequence));
+                            await populateData();
                         }}
                         onRowDelete={async component => {
                             await deleteComponent(component.key);
-                            updateGroupComponents(group, group.components.filter(x => x.key !== group.key));
+                            await populateData();
                         }}
                     />
                 </TableCard>
             ))}
-            <EntityTable
-                title="Physical Allocations"
-                data={physicalAllocations}
-                createNewRow={createEmptyOrderableEntityDto}
-                onUpdate={async physicalAllocation => {
-                    await upsertPhysicalAllocation(physicalAllocation);
-                    await populateData();
-                }}
-                onDelete={async physicalAllocationId => {
-                    await deletePhysicalAllocation(physicalAllocationId);
-                    await populateData();
-                }}
-            />
+            <TableCard title={'Physical Allocations'} onAdd={addNewPhysicalAllocationDto}>
+                <EditableRowsTable
+                    data={physicalAllocations}
+                    columns={[
+                        {
+                            title: 'Name',
+                            dataIndex: 'name',
+                            width: '80%',
+                            editable: true,
+                        },
+                        {
+                            title: 'Sequence',
+                            dataIndex: 'displaySequence',
+                            width: '20%',
+                            editable: true,
+                        }
+                    ]}
+                    onRowSave={async physicalAllocation => {
+                        await upsertPhysicalAllocation(physicalAllocation);
+                        await populateData();
+                    }}
+                    onRowDelete={async physicalAllocation => {
+                        await deletePhysicalAllocation(physicalAllocation.key);
+                        await populateData();
+                    }}
+                />
+            </TableCard>
         </Space>
     );
 };
