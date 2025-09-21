@@ -229,8 +229,20 @@ const Configuration: React.FC = () => {
                                 renderEditor: <IconPicker value="" onChange={() => {}} />
                             }
                         ]} 
-                        onRowSave={groupType => upsertGroupType(groupType)}
-                        onRowDelete={groupType => deleteGroupType(groupType.key)}
+                        onRowSave={async groupType => {
+                            await upsertGroupType(groupType)
+                            
+                            const newGroupTypes = [
+                                ...groupTypes.filter(x => x.key !== groupType.key),
+                                groupType,
+                            ];
+
+                            setGroupTypes(newGroupTypes.sort((a, b) => a.displaySequence - b.displaySequence));
+                        }}
+                        onRowDelete={async groupType => {
+                            await deleteGroupType(groupType.key);
+                            setGroupTypes(groupTypes.filter(x => x.key !== groupType.key));
+                        }}
                     />
                     
                     {/*<EntityTable*/}
