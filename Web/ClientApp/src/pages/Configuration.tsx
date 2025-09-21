@@ -211,29 +211,30 @@ const Configuration: React.FC = () => {
                             {
                                 title: 'Name',
                                 dataIndex: 'name',
-                                inputType: 'text',
+                                // inputType: 'text',
                                 width: '50%',
                                 editable: true,
                             },
                             {
                                 title: 'Sequence',
                                 dataIndex: 'displaySequence',
-                                inputType: 'number',
+                                // inputType: 'number',k
                                 width: '25%',
                                 editable: true,
                             },
                             {
                                 title: 'Icon',
                                 dataIndex: 'icon',
-                                inputType: '',
+                                // inputType: '',
+                                render: (iconName: string) => {
+                                    return <WalletOutlined/>
+                                },
                                 width: '25%',
                                 editable: true,
-                                renderCell: (record, isEditing) => isEditing
-                                    ? <IconPicker value={'WalletOutlined'} onChange={name => console.log('Icon: ', name)}/>
-                                    : <WalletOutlined/>
+                                renderEditor: <IconPicker value="" onChange={() => {}} />
                             }
                         ]} 
-                        onChange={groupType => console.log('Updated', groupType)}
+                        onRowSave={groupType => console.log('Updated', groupType)}
                     />
                     
                     {/*<EntityTable*/}

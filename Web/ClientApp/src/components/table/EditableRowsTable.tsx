@@ -1,81 +1,30 @@
-import React, {ReactNode, useState} from 'react';
-import {Button, TableProps} from 'antd';
-import { Form, Input, InputNumber, Table } from 'antd';
-import {ColumnType} from "antd/es/table";
+import React, { useState } from 'react';
+import { Button, Form, Input, Table } from 'antd';
+import type { FormRule, TableProps } from 'antd';
+import { ColumnType } from "antd/es/table";
 import SaveCancelButtons from "../SaveCancelButtons";
-import {EditOutlined} from "@ant-design/icons";
-
-interface DataType {
-    key: string;
-    name: string
-    age: number;
-    address: string;
-}
-
-interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
-    editing: boolean;
-    dataIndex: string;
-    title: any;
-    inputType: 'number' | 'text';
-    record: DataType;
-    index: number;
-}
-
-const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
-                                                                                editing,
-                                                                                dataIndex,
-                                                                                title,
-                                                                                inputType,
-                                                                                record,
-                                                                                index,
-                                                                                children,
-                                                                                ...restProps
-                                                                            }) => {
-    const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
-
-    return (
-        <td {...restProps}>
-            {editing ? (
-                <Form.Item
-                    name={dataIndex}
-                    style={{ margin: 0 }}
-                    rules={[
-                        {
-                            required: true,
-                            message: `Please Input ${title}!`,
-                        },
-                    ]}
-                >
-                    {inputNode}
-                </Form.Item>
-            ) : (
-                children
-            )}
-        </td>
-    );
-};
-
-interface EditableRowsTableProps<T> {
-    data: T[],
-    columns: EditableColumnType<T>[],
-    onChange: (row: T) => void
-}
+import { EditOutlined } from "@ant-design/icons";
 
 export interface EditableColumnType<T> extends ColumnType<T> {
-    inputType: string,
-    editable: boolean,
-    renderCell?: (record: T, isEditing: boolean) => ReactNode,
+    editable?: boolean;
+    renderEditor?: React.ReactNode;
+    editorRules?: FormRule[];
 }
 
-export function EditableRowsTable<T extends {key: React.Key}>(props: EditableRowsTableProps<T>) {
+interface EditableRowsTableProps<T> {
+    data: T[];
+    columns: EditableColumnType<T>[];
+    onRowSave: (row: T) => void | Promise<void>;
+}
+
+export function EditableRowsTable<T extends { key: React.Key }>({ data, columns, onRowSave }: EditableRowsTableProps<T>) {
     const [form] = Form.useForm();
-    const [data, setData] = useState<T[]>(props.data);
     const [editingKey, setEditingKey] = useState<React.Key>('');
 
     const isEditing = (record: T) => record.key === editingKey;
 
     const edit = (record: Partial<T> & { key: React.Key }) => {
-        form.setFieldsValue({ ...record });
+        form.setFieldsValue(record);
         setEditingKey(record.key);
     };
 
@@ -85,94 +34,74 @@ export function EditableRowsTable<T extends {key: React.Key}>(props: EditableRow
 
     const save = async (key: React.Key) => {
         try {
-            const row = (await form.validateFields()) as T;
+            const newValues = await form.validateFields() as Omit<T, 'key'>;
+            const originalData = data.find(d => d.key === key);
 
-            const newData = [...data];
-            const index = newData.findIndex((item) => key === item.key);
-            if (index > -1) {
-                const item = newData[index];
-                newData.splice(index, 1, {
-                    ...item,
-                    ...row,
-                });
-                setData(newData);
-                setEditingKey('');
-            } else {
-                newData.push(row);
-                setData(newData);
+            if (originalData) {
+                await onRowSave({ ...originalData, ...newValues });
                 setEditingKey('');
             }
-            
-            props.onChange(row);
         } catch (errInfo) {
             console.log('Validate Failed:', errInfo);
         }
     };
 
-    const columns: EditableColumnType<T>[] = [
-        ...props.columns,
-        // {
-        //     title: 'name',
-        //     dataIndex: 'name',
-        //     width: '25%',
-        //     editable: true,
-        // },
-        // {
-        //     title: 'age',
-        //     dataIndex: 'age',
-        //     width: '15%',
-        //     editable: true,
-        // },
-        // {
-        //     title: 'address',
-        //     dataIndex: 'address',
-        //     width: '40%',
-        //     editable: true,
-        // },
-        {
-            title: '',
-            dataIndex: 'operation',
-            inputType: '',
-            editable: false,
-            render: (_: any, record: T) => {
-                const editable = isEditing(record);
-                return editable 
-                    ? (<SaveCancelButtons onSave={() => save(record.key)} onCancel={cancel}/>) 
-                    : (<Button icon={<EditOutlined onClick={() => edit(record)} />}/>)
-            },
+    const actionColumn: ColumnType<T> = {
+        title: 'Action',
+        dataIndex: 'operation',
+        fixed: 'right',
+        render: (_: any, record: T) => {
+            const editable = isEditing(record);
+            return editable
+                ? <SaveCancelButtons onSave={() => save(record.key)} onCancel={cancel} />
+                : <Button icon={<EditOutlined />} onClick={() => edit(record)} />;
         },
-    ];
+    };
 
-    const mergedColumns: TableProps<T>['columns'] = columns.map((col) => {
-        if (!col.editable) {
+    const mergedColumns = columns.map((col): ColumnType<T> => {
+        if (!col.editable || !col.dataIndex) {
             return col;
         }
+
+        const originalRender = col.render;
+
         return {
             ...col,
-            render: col.renderCell
-                ? ((value, record, index) => col.renderCell!(record, isEditing(record)))
-                : null,
-            onCell: (record: T) => ({
-                record,
-                inputType: col.inputType,
-                dataIndex: col.dataIndex,
-                title: col.title,
-                editing: isEditing(record),
-            }),
-        } as ColumnType<T>
+            render: (text: any, record: T, index: number) => {
+                const editing = isEditing(record);
+
+                if (!editing) {
+                    if (originalRender) {
+                        return originalRender(text, record, index);
+                    }
+                    // --- THE FIX IS HERE ---
+                    // It should return 'text' (the cell's value), not an undefined 'children' variable.
+                    return text;
+                }
+
+                const editorNode = col.renderEditor ?? <Input />;
+                return (
+                    <Form.Item
+                        name={col.dataIndex as string | string[]}
+                        style={{ margin: 0 }}
+                        rules={col.editorRules ?? [{ required: true, message: `Please input ${String(col.title || col.dataIndex)}!` }]}
+                    >
+                        {React.isValidElement(editorNode) ? React.cloneElement(editorNode as React.ReactElement) : editorNode}
+                    </Form.Item>
+                );
+            }
+        };
     });
 
     return (
         <Form form={form} component={false}>
             <Table<T>
-                components={{
-                    body: { cell: EditableCell },
-                }}
                 bordered
-                dataSource={props.data}
-                columns={mergedColumns}
+                dataSource={data}
+                columns={[...mergedColumns, actionColumn]}
                 rowClassName="editable-row"
                 pagination={{ onChange: cancel }}
+                rowKey="key"
             />
         </Form>
     );
