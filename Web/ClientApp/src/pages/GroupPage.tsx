@@ -8,10 +8,15 @@ import {
 import {buildComponentsColumns, buildTargetColumn} from "../components/table/ColumnBuilder";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 import {Dayjs} from "dayjs";
-import {EntityColumnDto, ValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
+import {
+    EntityColumnDto, EntityTableDto,
+    ValueHistoryRecordDto,
+    WalletComponentsValueHistoryRecordDto
+} from "../api/value-history/DTOs/EntityTableDto";
 import {ColumnGroup} from "../components/table/ExtendableTable";
 import {OrderableEntityDto} from "../api/configuration/DTOs/ConfigurationDto";
 import {getPhysicalAllocations} from "../api/configuration/Client";
+import WalletTargetChart from "../components/charts/custom/WalletTargetChart";
 
 interface GroupPageProps {
     groupId: string,
@@ -45,6 +50,10 @@ const GroupPage: FC<GroupPageProps> = (props) => {
             physicalAllocations
         )
     }
+
+    const buildExtra = (data: EntityTableDto<WalletComponentsValueHistoryRecordDto>) =>  data?.rows !== undefined && !data.rows.every(row => row.target === null)
+        ? <WalletTargetChart data={data.rows}/>
+        : undefined;
     
     return (
         <EditableMoneyComponent
@@ -73,7 +82,7 @@ const GroupPage: FC<GroupPageProps> = (props) => {
                     }
                 )
             ]}
-            // extra={buildExtra} // Target chart
+            extra={buildExtra}
         />
     );
 }
