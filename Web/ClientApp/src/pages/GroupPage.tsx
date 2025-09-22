@@ -7,10 +7,6 @@ import {
 } from "../api/value-history/Client";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 import {Dayjs} from "dayjs";
-import {
-    EntityTableDto
-} from "../api/value-history/DTOs/EntityTableDto";
-import TargetChart from "../components/charts/custom/TargetChart";
 
 interface GroupPageProps {
     groupId: string,
@@ -22,10 +18,6 @@ const GroupPage: FC<GroupPageProps> = (props) => {
     const getData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) =>
         await getGroupValueHistory(props.groupId, granularity, from, to)
 
-    const buildExtra = (data: EntityTableDto) => props.showTargets
-        ? <TargetChart data={data.rows}/>
-        : undefined;
-    
     return (
         <EditableMoneyComponent
             title={props.name}
@@ -37,7 +29,6 @@ const GroupPage: FC<GroupPageProps> = (props) => {
                 setTarget: async (date, value) => await setGroupTarget(props.groupId, date, value)
             }}
             showInferredValues={true}
-            extra={buildExtra}
         />
     );
 }

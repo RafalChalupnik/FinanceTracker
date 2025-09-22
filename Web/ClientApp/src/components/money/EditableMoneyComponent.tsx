@@ -19,6 +19,8 @@ import EmptyConfig from "../EmptyConfig";
 import {OrderableEntityDto} from "../../api/configuration/DTOs/ConfigurationDto";
 import {getPhysicalAllocations} from "../../api/configuration/Client";
 import {MoneyDto} from "../../api/value-history/DTOs/Money";
+import TargetChart from "../charts/custom/TargetChart";
+import ScoreChart from "../charts/custom/ScoreChart";
 
 interface EditableMoneyComponentProps {
     title: string;
@@ -27,7 +29,6 @@ interface EditableMoneyComponentProps {
     showCompositionChart: boolean;
     editable?: EditableProps;
     setInflation?: (year: number, month: number, value: number, confirmed: boolean) => Promise<void>;
-    extra?: (data: EntityTableDto) => React.ReactNode;
     allowedGranularities?: DateGranularity[];
     defaultGranularity?: DateGranularity;
 }
@@ -194,7 +195,8 @@ const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props: Editable
                         headers={data.columns}
                         records={data.rows}
                     />)}
-                    {props.extra?.(data)}
+                    <TargetChart data={data.rows}/>
+                    <ScoreChart data={data.rows}/>
                 </Card>
                 <Modal
                     title="Pick a date"
