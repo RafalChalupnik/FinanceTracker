@@ -1,10 +1,9 @@
-import React, {FC, ReactNode, useEffect, useState} from "react";
+import React, {FC, useEffect, useState} from "react";
 import dayjs, {Dayjs} from "dayjs";
-import {Button, Card, DatePicker, Divider, Modal, Popconfirm, Space, Tooltip, Typography} from "antd";
-import {DeleteOutlined, ExclamationCircleOutlined, PlusOutlined} from "@ant-design/icons";
+import {Button, Card, DatePicker, Divider, Modal, Space} from "antd";
+import {PlusOutlined} from "@ant-design/icons";
 import { DateGranularity } from "../../api/value-history/DTOs/DateGranularity";
 import {EntityColumnDto, EntityTableDto, ValueHistoryRecordDto} from "../../api/value-history/DTOs/EntityTableDto";
-import {Column, ColumnGroup, CustomEditableColumn, ExtendableTable} from "../table/ExtendableTable";
 import DateGranularityPicker from "../DateGranularityPicker";
 import MoneyCharts from "../charts/custom/MoneyCharts";
 import CompositionChart from "../charts/custom/CompositionChart";
@@ -14,15 +13,7 @@ import {getPhysicalAllocations} from "../../api/configuration/Client";
 import {MoneyDto} from "../../api/value-history/DTOs/Money";
 import TargetChart from "../charts/custom/TargetChart";
 import ScoreChart from "../charts/custom/ScoreChart";
-import MoneyForm from "./MoneyForm";
-import {EntityValueSnapshotDto, ValueSnapshotDto} from "../../api/value-history/DTOs/ValueSnapshotDto";
-import Money from "./Money";
-import TargetForm from "./TargetForm";
-import ColoredPercent from "../ColoredPercent";
-import InflationForm from "./InflationForm";
 import EditableMoneyTable from "./EditableMoneyTable";
-
-const {Text} = Typography;
 
 interface EditableMoneyComponentProps {
     title: string;
@@ -76,6 +67,11 @@ const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props: Editable
     useEffect(() => {
         populateData();
     }, []);
+
+    let onUpdateCallback = async () => {
+        setNewEntryDate(undefined);
+        await populateData(granularity, fromDate, toDate);
+    }
     
     const handleModalOk = () => {
         if (!selectedDate) {
@@ -108,6 +104,34 @@ const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props: Editable
 
         return newData.sort((a, b) => dayjs(a.key).unix() - dayjs(b.key).unix());
     }
+    
+    let onComponentUpdate = props.editable?.onUpdate
+        ? async (id: string, date: Dayjs, value: MoneyDto, physicalAllocationId?: string) => {
+            await props.editable!.onUpdate(id, date, value, physicalAllocationId);
+            await onUpdateCallback();
+        }
+        : undefined;
+    
+    let onComponentDelete = props.editable?.onDelete
+        ? async (date: Dayjs) => {
+            await props.editable!.onDelete!(date);
+            await onUpdateCallback();
+        }
+        : undefined;
+    
+    let onTargetUpdate = props.editable?.setTarget
+        ? async (date: Dayjs, value: number) => {
+            await props.editable!.setTarget!(date, value);
+            await onUpdateCallback();
+        }
+        : undefined;
+    
+    let onInflationUpdate = props.setInflation
+        ? async (year: number, month: number, value: number, confirmed: boolean) => {
+            await props.setInflation!(year, month, value, confirmed);
+            await onUpdateCallback();
+        }
+        : undefined;
     
     return (
         <EmptyConfig enabled={data.columns.length === 0}>
@@ -146,10 +170,10 @@ const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props: Editable
                         granularity={granularity} 
                         showInferredValues={props.showInferredValues} 
                         physicalAllocations={physicalAllocations}
-                        onComponentUpdate={props.editable?.onUpdate}
-                        onComponentDelete={props.editable?.onDelete}
-                        onTargetUpdate={props.editable?.setTarget}
-                        onInflationUpdate={props.setInflation}
+                        onComponentUpdate={onComponentUpdate}
+                        onComponentDelete={onComponentDelete}
+                        onTargetUpdate={onTargetUpdate}
+                        onInflationUpdate={onInflationUpdate}
                     />
                     <Divider/>
                     <MoneyCharts 
@@ -160,8 +184,12 @@ const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props: Editable
                         headers={data.columns}
                         records={data.rows}
                     />)}
-                    <TargetChart data={data.rows}/>
-                    <ScoreChart data={data.rows}/>
+                    {props.editable?.setTarget && (
+                        <TargetChart data={data.rows}/>
+                    )}
+                    {props.setInflation && (
+                        <ScoreChart data={data.rows}/>
+                    )}
                 </Card>
                 <Modal
                     title="Pick a date"

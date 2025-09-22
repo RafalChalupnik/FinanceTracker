@@ -26,7 +26,9 @@ const GroupPage: FC<GroupPageProps> = (props) => {
             editable={{
                 onUpdate: setGroupComponentValue,
                 onDelete: date => deleteGroupValues(props.groupId, date),
-                setTarget: async (date, value) => await setGroupTarget(props.groupId, date, value)
+                setTarget: props.showTargets
+                    ? async (date, value) => await setGroupTarget(props.groupId, date, value)
+                    : undefined
             }}
             showInferredValues={true}
         />
