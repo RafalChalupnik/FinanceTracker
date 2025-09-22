@@ -219,10 +219,6 @@ const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props: Editable
         })
     }
 
-    let buildSummaryColumn = (): ColumnGroup<ValueHistoryRecordDto> => {
-        return buildComponentColumns('summary', 'Summary', record => record.summary, false, undefined, 'right');
-    }
-
     let buildTargetColumn = (
         granularity: DateGranularity,
         onUpdate: (date: Dayjs, value: number) => Promise<void>
@@ -357,7 +353,13 @@ const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props: Editable
             },
             physicalAllocations
         ),
-        buildSummaryColumn(),
+        buildComponentColumns(
+            'summary', 
+            'Summary', 
+                record => record.summary, 
+            false, 
+            undefined, 
+            'right'),
         buildTargetColumn(
             granularity,
             async (date, value) => {
