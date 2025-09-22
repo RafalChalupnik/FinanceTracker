@@ -197,7 +197,7 @@ const MoneyPage: FC<MoneyPageProps> = (props: MoneyPageProps) => {
                     onOk={handleModalOk}
                     onCancel={() => setIsModalOpen(false)}
                 >
-                    <DatePicker onChange={setSelectedDate} />
+                    <DatePicker defaultValue={dayjs()} onChange={setSelectedDate} />
                 </Modal>
             </div>
         </EmptyConfig>
