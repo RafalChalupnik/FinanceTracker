@@ -28,13 +28,13 @@ export function buildDateColumn(): Column<ValueHistoryRecordDto> {
     }
 }
 
-export function buildComponentsColumns<T extends ValueHistoryRecordDto>(
+export function buildComponentsColumns(
     components: EntityColumnDto[],
     granularity: DateGranularity,
     showInferredValues: boolean,
     onUpdate?: (entityId: string, date: Dayjs, value: MoneyDto, physicalAllocationId?: string) => Promise<void>,
     physicalAllocations?: OrderableEntityDto[]
-): ColumnGroup<T>[] {
+): ColumnGroup<ValueHistoryRecordDto>[] {
     let areAllComponentsInSameWallet = components
         .every(component => component.parentName == components[0].parentName);
     
@@ -62,7 +62,7 @@ export function buildComponentsColumns<T extends ValueHistoryRecordDto>(
     })
 }
 
-export function buildSummaryColumn<T extends ValueHistoryRecordDto>(): ColumnGroup<T> {
+export function buildSummaryColumn(): ColumnGroup<ValueHistoryRecordDto> {
     return buildComponentColumns('summary', 'Summary', record => record.summary, false, undefined, 'right');
 }
 

@@ -5,16 +5,19 @@ import {PlusOutlined} from "@ant-design/icons";
 import { DateGranularity } from "../../api/value-history/DTOs/DateGranularity";
 import {EntityColumnDto, EntityTableDto, ValueHistoryRecordDto} from "../../api/value-history/DTOs/EntityTableDto";
 import {Column, ColumnGroup, ExtendableTable} from "../table/ExtendableTable";
-import {buildDateColumn, buildDeleteColumn, buildSummaryColumn} from "../table/ColumnBuilder";
+import {buildComponentsColumns, buildDateColumn, buildDeleteColumn, buildSummaryColumn} from "../table/ColumnBuilder";
 import DateGranularityPicker from "../DateGranularityPicker";
 import MoneyCharts from "../charts/custom/MoneyCharts";
 import CompositionChart from "../charts/custom/CompositionChart";
 import EmptyConfig from "../EmptyConfig";
+import {OrderableEntityDto} from "../../api/configuration/DTOs/ConfigurationDto";
+import {getPhysicalAllocations} from "../../api/configuration/Client";
+import {MoneyDto} from "../../api/value-history/DTOs/Money";
 
 interface EditableMoneyComponentProps {
     title: string;
     getData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<EntityTableDto>;
-    buildComponentColumns: (components: EntityColumnDto[], granularity: DateGranularity, updateCallback: () => Promise<void>) => ColumnGroup<ValueHistoryRecordDto>[];
+    showInferredValues: boolean;
     showCompositionChart: boolean;
     buildExtraColumns?: (granularity: DateGranularity, refreshCallback: () => Promise<void>) => (Column<ValueHistoryRecordDto> | ColumnGroup<ValueHistoryRecordDto>)[];
     editable?: EditableProps;
@@ -24,6 +27,7 @@ interface EditableMoneyComponentProps {
 }
 
 interface EditableProps {
+    onUpdate: (id: string, date: Dayjs, value: MoneyDto, physicalAllocationId?: string) => Promise<void>;
     onDelete?: (date: Dayjs) => Promise<void>;
 } 
 
@@ -40,17 +44,23 @@ const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props: Editable
         rows: [] as ValueHistoryRecordDto[]
     });
 
+    const [physicalAllocations, setPhysicalAllocations] = useState<OrderableEntityDto[]>([]);
+
     const populateData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => {
-        const response = await props.getData(
+        const dataResponse = await props.getData(
             granularity,
             from,
             to
         );
+        
+        const physicalAllocationsResponse = await getPhysicalAllocations();
 
         setData({
-            columns: response.columns,
-            rows: response.rows
+            columns: dataResponse.columns,
+            rows: dataResponse.rows
         });
+        
+        setPhysicalAllocations(physicalAllocationsResponse);
     }
 
     useEffect(() => {
@@ -64,7 +74,16 @@ const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props: Editable
     
     let columns = [
         buildDateColumn(),
-        ...props.buildComponentColumns(data.columns, granularity, onUpdateCallback),
+        ...buildComponentsColumns(
+            data.columns,
+            granularity,
+            props.showInferredValues,
+            async (id, date, value, physicalAllocationId) => {
+                await props.editable!.onUpdate(id, date, value, physicalAllocationId);
+                await onUpdateCallback();
+            },
+            physicalAllocations
+        ),
         buildSummaryColumn(),
         ...(props.buildExtraColumns
             ? props.buildExtraColumns!(granularity, onUpdateCallback)
