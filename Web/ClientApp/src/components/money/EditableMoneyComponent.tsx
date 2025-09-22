@@ -392,10 +392,6 @@ const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props: Editable
         setIsModalOpen(false);
     };
 
-    const handleModalCancel = () => {
-        setIsModalOpen(false);
-    };
-
     const buildData = () => {
         if (newEntryDate === undefined) {
             return data.rows;
@@ -469,7 +465,7 @@ const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props: Editable
                     title="Pick a date"
                     open={isModalOpen}
                     onOk={handleModalOk}
-                    onCancel={handleModalCancel}
+                    onCancel={() => setIsModalOpen(false)}
                 >
                     <DatePicker onChange={setSelectedDate} />
                 </Modal>
