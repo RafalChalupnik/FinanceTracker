@@ -5,17 +5,17 @@ namespace FinanceTracker.Core.Queries.Implementation;
 
 internal static class EntityTableDtoBuilder
 {
-    public static EntityTableDto<T> BuildEntityTableDto<T>(
+    public static EntityTableDto BuildEntityTableDto(
         IReadOnlyList<EntityData> orderedEntities,
-        T[] rows
-        ) where T : ValueHistoryRecordDto
+        IReadOnlyCollection<ValueHistoryRecordDto> rows
+        )
     {
-        return new EntityTableDto<T>(
+        return new EntityTableDto(
             Columns: orderedEntities
                 .Select(entity => new EntityColumnDto(
+                    Id: entity.Id ?? Guid.Empty,
                     Name: entity.Name,
                     ParentName: entity.ParentName,
-                    Id: entity.Id,
                     DefaultPhysicalAllocationId: entity.DefaultPhysicalAllocationId
                     )
                 )
