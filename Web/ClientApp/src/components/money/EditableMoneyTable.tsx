@@ -257,7 +257,8 @@ const buildDeleteColumn = (
 }
 
 interface EditableMoneyTableProps {
-    data: EntityTableDto,
+    columns: EntityColumnDto[],
+    rows: ValueHistoryRecordDto[],
     granularity: DateGranularity,
     showInferredValues: boolean,
     physicalAllocations: OrderableEntityDto[],
@@ -271,7 +272,7 @@ const EditableMoneyTable: FC<EditableMoneyTableProps> = (props) => {
     let columns: (Column<ValueHistoryRecordDto> | ColumnGroup<ValueHistoryRecordDto>)[] = [
         buildDateColumn(),
         ...buildComponentsColumnGroups(
-            props.data.columns,
+            props.columns,
             props.granularity,
             props.showInferredValues,
             props.onComponentUpdate,
@@ -308,7 +309,7 @@ const EditableMoneyTable: FC<EditableMoneyTableProps> = (props) => {
     
     return (
         <ExtendableTable
-            rows={props.data.rows}
+            rows={props.rows}
             columns={columns}
         />
     );

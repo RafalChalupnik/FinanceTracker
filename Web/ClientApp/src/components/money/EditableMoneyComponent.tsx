@@ -20,6 +20,7 @@ import Money from "./Money";
 import TargetForm from "./TargetForm";
 import ColoredPercent from "../ColoredPercent";
 import InflationForm from "./InflationForm";
+import EditableMoneyTable from "./EditableMoneyTable";
 
 const {Text} = Typography;
 
@@ -76,312 +77,6 @@ const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props: Editable
         populateData();
     }, []);
     
-    let onUpdateCallback = async () => {
-        setNewEntryDate(undefined);
-        await populateData(granularity, fromDate, toDate);
-    }
-    
-    let buildEditableValue = (
-        componentId: string,
-        index: number,
-        isEditable: boolean,
-        onUpdate: (entityId: string, date: Dayjs, value: MoneyDto, physicalAllocationId?: string) => Promise<void>,
-        physicalAllocations?: OrderableEntityDto[],
-        defaultPhysicalAllocation?: string | undefined
-    ): CustomEditableColumn<ValueHistoryRecordDto> => {
-        return {
-            isEditable: isEditable,
-            renderEditable: (record, closeCallback) => {
-                let initialPhysicalAllocationId = record.newEntry
-                    ? defaultPhysicalAllocation
-                    : record.entities[index]?.physicalAllocationId;
-
-                return (
-                    <MoneyForm
-                        initialValue={record.entities[index]?.value}
-                        onSave={async (money, physicalAllocationId) => {
-                            await onUpdate(componentId, dayjs(record.key), money, physicalAllocationId);
-                            closeCallback();
-                        }}
-                        onCancel={closeCallback}
-                        physicalAllocations={physicalAllocations}
-                        defaultPhysicalAllocation={initialPhysicalAllocationId}
-                    />
-                );
-            }
-        }
-    }
-    
-    let buildComponentColumns = (
-        key: string,
-        title: string | ReactNode,
-        selector: (record: ValueHistoryRecordDto) => ValueSnapshotDto | undefined,
-        showInferredValues: boolean,
-        editableValue?: CustomEditableColumn<ValueHistoryRecordDto>,
-        fixed?: 'right' | undefined,
-    ): ColumnGroup<ValueHistoryRecordDto> => {
-        return {
-            title: title,
-            children: [
-                buildMoneyColumn(
-                    `${key}-value`,
-                    'Value',
-                    record => selector(record)?.value,
-                    false,
-                    record => showInferredValues && ((selector(record) as EntityValueSnapshotDto)?.inferred ?? false),
-                    fixed,
-                    editableValue
-                ),
-                buildMoneyColumn(
-                    `${key}-change`,
-                    'Change',
-                    record => selector(record)?.change,
-                    true,
-                    record => false,
-                    fixed
-                ),
-                buildMoneyColumn(
-                    `${key}-cumulative`,
-                    'Cumulative',
-                    record => selector(record)?.cumulativeChange,
-                    true,
-                    record => false,
-                    fixed
-                )
-            ]
-        }
-    }
-    
-    let buildMoneyColumn = (
-        key: string,
-        title: string,
-        selector: (record: ValueHistoryRecordDto) => MoneyDto | undefined,
-        colorCoding: boolean,
-        isInferred: (record: ValueHistoryRecordDto) => boolean,
-        fixed: 'right' | undefined,
-        editable?: CustomEditableColumn<ValueHistoryRecordDto>
-    ): Column<ValueHistoryRecordDto> => {
-        return {
-            key: key,
-            title: title,
-            fixed: fixed,
-            render: (record: ValueHistoryRecordDto) => (
-                <Money
-                    value={selector(record)}
-                    colorCoding={colorCoding}
-                    isInferred={isInferred(record)}
-                />
-            ),
-            editable: editable
-        }
-    }
-
-    let renderComponentTitle = (walletName: string, componentName: string) => {
-        return (
-            <Space direction='vertical'>
-                <Text>{walletName}</Text>
-                <Text>{componentName}</Text>
-            </Space>
-        );
-    }
-
-    let buildComponentsColumns = (
-            components: EntityColumnDto[],
-            granularity: DateGranularity,
-            showInferredValues: boolean,
-            onUpdate?: (entityId: string, date: Dayjs, value: MoneyDto, physicalAllocationId?: string) => Promise<void>,
-            physicalAllocations?: OrderableEntityDto[]
-        ): ColumnGroup<ValueHistoryRecordDto>[] => {
-        let areAllComponentsInSameWallet = components
-            .every(component => component.parentName == components[0].parentName);
-
-        return components.map((component, index) => {
-            let editable = onUpdate !== undefined
-                ? buildEditableValue(
-                    component!.id!,
-                    index,
-                    granularity == DateGranularity.Day,
-                    onUpdate,
-                    physicalAllocations,
-                    component.defaultPhysicalAllocationId
-                )
-                : undefined;
-
-            return buildComponentColumns(
-                component.name,
-                areAllComponentsInSameWallet
-                    ? component.name
-                    : renderComponentTitle(component.parentName!, component.name),
-                record => record.entities[index],
-                showInferredValues,
-                editable
-            );
-        })
-    }
-
-    let buildTargetColumn = (
-        granularity: DateGranularity,
-        onUpdate: (date: Dayjs, value: number) => Promise<void>
-    ): Column<ValueHistoryRecordDto> => {
-        const formatter = (amount: number) =>
-            new Intl.NumberFormat('pl-PL', {
-                style: 'currency',
-                currency: 'PLN',
-            }).format(amount)
-
-        return {
-            key: 'target',
-            title: 'Target',
-            fixed: 'right',
-            render: record => record.target?.targetInMainCurrency === undefined
-                ? '-'
-                : (
-                    <Space direction='vertical'>
-                        <Space direction={"vertical"}>
-                            {`${record.target?.percentage}%`}
-                            <Text disabled>{formatter(record.target!.targetInMainCurrency)}</Text>
-                        </Space>
-                    </Space>
-                ),
-            editable: {
-                isEditable: granularity == DateGranularity.Day,
-                renderEditable: (row, closeCallback) =>
-                    (
-                        <TargetForm
-                            initialValue={row.target?.targetInMainCurrency}
-                            onSave={async value => {
-                                await onUpdate(dayjs(row.key), value);
-                                closeCallback();
-                            }}
-                            onCancel={closeCallback}
-                        />
-                    )
-            }
-        }
-    }
-
-    let buildInflationColumn = (
-        granularity: DateGranularity,
-        onUpdate: (year: number, month: number, value: number, confirmed: boolean) => Promise<void>
-    ): ColumnGroup<ValueHistoryRecordDto> => {
-        return {
-            title: 'Score',
-            children: [
-                {
-                    key: 'change-percent',
-                    title: 'Change (%)',
-                    fixed: 'right',
-                    render: record => <ColoredPercent value={record.score?.changePercent} colorCoding={true}/>
-                },
-                {
-                    key: 'inflation',
-                    title: 'Inflation (%)',
-                    fixed: 'right',
-                    render: record => (
-                        <ColoredPercent
-                            value={record.score?.inflation?.value}
-                            colorCoding={false}
-                            extra={record.score?.inflation?.confirmed == false && (
-                                <Tooltip title='Inflation value not yet confirmed'>
-                                    <ExclamationCircleOutlined style={{ color: '#faad14', fontSize: '16px' }}/>
-                                </Tooltip>
-                            )}
-                        />
-                    ),
-                    editable: {
-                        isEditable: granularity == DateGranularity.Month,
-                        renderEditable: (row, closeCallback) => {
-                            let date = dayjs(row.key);
-
-                            return (
-                                <InflationForm
-                                    year={date.year()}
-                                    month={date.month() + 1}
-                                    initialValue={row.score?.inflation}
-                                    onUpdate={onUpdate}
-                                    closeCallback={closeCallback}
-                                />
-                            );
-                        }
-                    }
-                },
-                {
-                    key: 'total-score',
-                    title: 'Total score (%)',
-                    fixed: 'right',
-                    render: record => <ColoredPercent value={record.score?.totalChangePercent} colorCoding={true}/>
-                }
-            ]
-        }
-    }
-
-    let buildDeleteColumn = (
-        onDeleteRow: (row: ValueHistoryRecordDto) => Promise<void>
-    ): Column<ValueHistoryRecordDto> => {
-        return {
-            key: 'delete',
-            title: '',
-            fixed: 'right',
-            render: (row: ValueHistoryRecordDto) => (
-                <Popconfirm
-                    title='Sure to delete?'
-                    okText={'Yes'}
-                    cancelText={'No'}
-                    okButtonProps={{ danger: true }}
-                    onConfirm={async () => await onDeleteRow(row)}
-                >
-                    <DeleteOutlined />
-                </Popconfirm>
-            )
-        }
-    }
-    
-    let columns: (Column<ValueHistoryRecordDto> | ColumnGroup<ValueHistoryRecordDto>)[] = [
-        {
-            key: 'date',
-            title: 'Date',
-            fixed: 'left',
-            render: (record: ValueHistoryRecordDto) => record.key
-        },
-        ...buildComponentsColumns(
-            data.columns,
-            granularity,
-            props.showInferredValues,
-            async (id, date, value, physicalAllocationId) => {
-                await props.editable!.onUpdate(id, date, value, physicalAllocationId);
-                await onUpdateCallback();
-            },
-            physicalAllocations
-        ),
-        buildComponentColumns(
-            'summary', 
-            'Summary', 
-                record => record.summary, 
-            false, 
-            undefined, 
-            'right'),
-        buildTargetColumn(
-            granularity,
-            async (date, value) => {
-                await props.editable?.setTarget?.(date, value);
-                await onUpdateCallback();
-            }
-        ),
-        buildInflationColumn(granularity, async (year: number, month: number, value: number, confirmed: boolean) => {
-            await props.setInflation?.(year, month, value, confirmed);
-            await onUpdateCallback();
-        })
-    ];
-    
-    if (props.editable?.onDelete !== undefined && granularity === DateGranularity.Day) {
-        columns.push(
-            buildDeleteColumn(async row => {
-                await props.editable!.onDelete!(dayjs(row.key));
-                await populateData(granularity, fromDate, toDate);
-            })  
-        );
-    }
-    
     const handleModalOk = () => {
         if (!selectedDate) {
             console.warn("No date selected");
@@ -399,7 +94,7 @@ const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props: Editable
         
         let newRow = {
             key: newEntryDate.format("YYYY-MM-DD"),
-            entities: columns.map(_ => undefined),
+            entities: data.columns.map(_ => undefined),
             summary: undefined,
             target: undefined,
             score: undefined,
@@ -445,9 +140,16 @@ const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props: Editable
                     }
                     style={{ width: '100%' }}
                 >
-                    <ExtendableTable
-                        rows={buildData()} 
-                        columns={columns}
+                    <EditableMoneyTable 
+                        columns={data.columns}
+                        rows={buildData()}
+                        granularity={granularity} 
+                        showInferredValues={props.showInferredValues} 
+                        physicalAllocations={physicalAllocations}
+                        onComponentUpdate={props.editable?.onUpdate}
+                        onComponentDelete={props.editable?.onDelete}
+                        onTargetUpdate={props.editable?.setTarget}
+                        onInflationUpdate={props.setInflation}
                     />
                     <Divider/>
                     <MoneyCharts 
