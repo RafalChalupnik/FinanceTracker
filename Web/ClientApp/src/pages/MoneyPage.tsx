@@ -65,7 +65,7 @@ const MoneyPage: FC<MoneyPageProps> = (props: MoneyPageProps) => {
     }
 
     useEffect(() => {
-        populateData();
+        populateData(granularity, fromDate, toDate);
     }, []);
 
     let onUpdateCallback = async () => {
