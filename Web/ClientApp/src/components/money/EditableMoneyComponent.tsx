@@ -4,8 +4,14 @@ import {Button, Card, DatePicker, Divider, Modal, Space} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import { DateGranularity } from "../../api/value-history/DTOs/DateGranularity";
 import {EntityColumnDto, EntityTableDto, ValueHistoryRecordDto} from "../../api/value-history/DTOs/EntityTableDto";
-import {Column, ColumnGroup, ExtendableTable} from "../table/ExtendableTable";
-import {buildComponentsColumns, buildDateColumn, buildDeleteColumn, buildSummaryColumn} from "../table/ColumnBuilder";
+import {ExtendableTable} from "../table/ExtendableTable";
+import {
+    buildComponentsColumns,
+    buildDateColumn,
+    buildDeleteColumn, buildInflationColumn,
+    buildSummaryColumn,
+    buildTargetColumn
+} from "../table/ColumnBuilder";
 import DateGranularityPicker from "../DateGranularityPicker";
 import MoneyCharts from "../charts/custom/MoneyCharts";
 import CompositionChart from "../charts/custom/CompositionChart";
@@ -19,8 +25,8 @@ interface EditableMoneyComponentProps {
     getData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<EntityTableDto>;
     showInferredValues: boolean;
     showCompositionChart: boolean;
-    buildExtraColumns?: (granularity: DateGranularity, refreshCallback: () => Promise<void>) => (Column<ValueHistoryRecordDto> | ColumnGroup<ValueHistoryRecordDto>)[];
     editable?: EditableProps;
+    setInflation?: (year: number, month: number, value: number, confirmed: boolean) => Promise<void>;
     extra?: (data: EntityTableDto) => React.ReactNode;
     allowedGranularities?: DateGranularity[];
     defaultGranularity?: DateGranularity;
@@ -29,6 +35,7 @@ interface EditableMoneyComponentProps {
 interface EditableProps {
     onUpdate: (id: string, date: Dayjs, value: MoneyDto, physicalAllocationId?: string) => Promise<void>;
     onDelete?: (date: Dayjs) => Promise<void>;
+    setTarget?: (date: Dayjs, value: number) => Promise<void>
 } 
 
 const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props: EditableMoneyComponentProps) => {
@@ -85,10 +92,17 @@ const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props: Editable
             physicalAllocations
         ),
         buildSummaryColumn(),
-        ...(props.buildExtraColumns
-            ? props.buildExtraColumns!(granularity, onUpdateCallback)
-            : []
-        )
+        buildTargetColumn(
+            granularity,
+            async (date, value) => {
+                await props.editable?.setTarget?.(date, value);
+                await onUpdateCallback();
+            }
+        ),
+        buildInflationColumn(granularity, async (year: number, month: number, value: number, confirmed: boolean) => {
+            await props.setInflation?.(year, month, value, confirmed);
+            await onUpdateCallback();
+        })
     ]
     
     if (props.editable?.onDelete !== undefined && granularity === DateGranularity.Day) {

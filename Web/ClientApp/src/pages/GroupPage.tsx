@@ -5,7 +5,6 @@ import {
     getGroupValueHistory,
     setGroupComponentValue, setGroupTarget
 } from "../api/value-history/Client";
-import {buildTargetColumn} from "../components/table/ColumnBuilder";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 import {Dayjs} from "dayjs";
 import {
@@ -23,20 +22,6 @@ const GroupPage: FC<GroupPageProps> = (props) => {
     const getData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) =>
         await getGroupValueHistory(props.groupId, granularity, from, to)
 
-    const buildExtraColumns = (granularity: DateGranularity, refreshCallback: () => void) => {
-        return props.showTargets
-            ? [
-                buildTargetColumn(
-                    granularity,
-                    async (date, value) => {
-                        await setGroupTarget(props.groupId, date, value);
-                        await refreshCallback();
-                    }
-                )
-            ]
-            : [];
-    }
-
     const buildExtra = (data: EntityTableDto) => props.showTargets
         ? <TargetChart data={data.rows}/>
         : undefined;
@@ -49,9 +34,9 @@ const GroupPage: FC<GroupPageProps> = (props) => {
             editable={{
                 onUpdate: setGroupComponentValue,
                 onDelete: date => deleteGroupValues(props.groupId, date),
+                setTarget: async (date, value) => await setGroupTarget(props.groupId, date, value)
             }}
             showInferredValues={true}
-            buildExtraColumns={buildExtraColumns}
             extra={buildExtra}
         />
     );
