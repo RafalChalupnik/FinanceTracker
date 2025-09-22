@@ -3,9 +3,7 @@ import React, {ReactNode} from "react";
 import {Popconfirm, Space, Tooltip, Typography} from "antd";
 import {
     EntityColumnDto,
-    ValueHistoryRecordDto,
-    WalletComponentsValueHistoryRecordDto,
-    WalletValueHistoryRecordDto
+    ValueHistoryRecordDto
 } from "../../api/value-history/DTOs/EntityTableDto";
 import {MoneyDto} from "../../api/value-history/DTOs/Money";
 import {EntityValueSnapshotDto, ValueSnapshotDto} from "../../api/value-history/DTOs/ValueSnapshotDto";
@@ -21,7 +19,7 @@ import TargetForm from "../money/TargetForm";
 
 const {Text} = Typography;
 
-export function buildDateColumn<T extends ValueHistoryRecordDto>(): Column<T> {
+export function buildDateColumn(): Column<ValueHistoryRecordDto> {
     return {
         key: 'date',
         title: 'Date',
@@ -89,10 +87,10 @@ export function buildDeleteColumn<T>(
     }
 }
 
-export function buildTargetColumn<T extends WalletComponentsValueHistoryRecordDto>(
+export function buildTargetColumn(
     granularity: DateGranularity,
     onUpdate: (date: Dayjs, value: number) => Promise<void>
-): Column<T> {
+): Column<ValueHistoryRecordDto> {
     const formatter = (amount: number) =>
         new Intl.NumberFormat('pl-PL', {
             style: 'currency',
@@ -130,10 +128,10 @@ export function buildTargetColumn<T extends WalletComponentsValueHistoryRecordDt
     }
 }
 
-export function buildInflationColumn<T extends WalletValueHistoryRecordDto>(
+export function buildInflationColumn(
     granularity: DateGranularity,
     onUpdate: (year: number, month: number, value: number, confirmed: boolean) => Promise<void>
-): ColumnGroup<T> {
+): ColumnGroup<ValueHistoryRecordDto> {
     return {
         title: 'Score',
         children: [
@@ -141,7 +139,7 @@ export function buildInflationColumn<T extends WalletValueHistoryRecordDto>(
                 key: 'change-percent',
                 title: 'Change (%)',
                 fixed: 'right',
-                render: record => <ColoredPercent value={record.yield.changePercent} colorCoding={true}/>
+                render: record => <ColoredPercent value={record.score?.changePercent} colorCoding={true}/>
             },
             {
                 key: 'inflation',
@@ -149,9 +147,9 @@ export function buildInflationColumn<T extends WalletValueHistoryRecordDto>(
                 fixed: 'right',
                 render: record => (
                     <ColoredPercent 
-                        value={record.yield.inflation?.value} 
+                        value={record.score?.inflation?.value} 
                         colorCoding={false} 
-                        extra={record.yield.inflation?.confirmed == false && (
+                        extra={record.score?.inflation?.confirmed == false && (
                             <Tooltip title='Inflation value not yet confirmed'>
                                 <ExclamationCircleOutlined style={{ color: '#faad14', fontSize: '16px' }}/>
                             </Tooltip>
@@ -167,7 +165,7 @@ export function buildInflationColumn<T extends WalletValueHistoryRecordDto>(
                             <InflationForm
                                 year={date.year()}
                                 month={date.month() + 1}
-                                initialValue={row.yield.inflation}
+                                initialValue={row.score?.inflation}
                                 onUpdate={onUpdate}
                                 closeCallback={closeCallback}
                             />
@@ -179,7 +177,7 @@ export function buildInflationColumn<T extends WalletValueHistoryRecordDto>(
                 key: 'total-score',
                 title: 'Total score (%)',
                 fixed: 'right',
-                render: record => <ColoredPercent value={record.yield.totalChangePercent} colorCoding={true}/>
+                render: record => <ColoredPercent value={record.score?.totalChangePercent} colorCoding={true}/>
             }
         ]
     }
@@ -194,14 +192,14 @@ function renderComponentTitle(walletName: string, componentName: string) {
     );
 }
 
-function buildComponentColumns<T extends ValueHistoryRecordDto>(
+function buildComponentColumns(
     key: string,
     title: string | ReactNode,
-    selector: (record: T) => ValueSnapshotDto | undefined,
+    selector: (record: ValueHistoryRecordDto) => ValueSnapshotDto | undefined,
     showInferredValues: boolean,
-    editableValue?: CustomEditableColumn<T>,
+    editableValue?: CustomEditableColumn<ValueHistoryRecordDto>,
     fixed?: 'right' | undefined,
-): ColumnGroup<T> {
+): ColumnGroup<ValueHistoryRecordDto> {
     return {
         title: title,
         children: [
@@ -234,20 +232,20 @@ function buildComponentColumns<T extends ValueHistoryRecordDto>(
     }
 }
 
-function buildMoneyColumn<T extends ValueHistoryRecordDto>(
+function buildMoneyColumn(
     key: string,
     title: string,
-    selector: (record: T) => MoneyDto | undefined,
+    selector: (record: ValueHistoryRecordDto) => MoneyDto | undefined,
     colorCoding: boolean,
-    isInferred: (record: T) => boolean,
+    isInferred: (record: ValueHistoryRecordDto) => boolean,
     fixed: 'right' | undefined,
-    editable?: CustomEditableColumn<T>
-): Column<T> {
+    editable?: CustomEditableColumn<ValueHistoryRecordDto>
+): Column<ValueHistoryRecordDto> {
     return {
         key: key,
         title: title,
         fixed: fixed,
-        render: (record: T) => (
+        render: (record: ValueHistoryRecordDto) => (
             <Money
                 value={selector(record)}
                 colorCoding={colorCoding}

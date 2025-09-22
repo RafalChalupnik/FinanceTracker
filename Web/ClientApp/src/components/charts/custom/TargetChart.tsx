@@ -1,15 +1,15 @@
 import {Typography} from "antd";
-import {WalletComponentsValueHistoryRecordDto} from "../../../api/value-history/DTOs/EntityTableDto";
+import {ValueHistoryRecordDto} from "../../../api/value-history/DTOs/EntityTableDto";
 import React, {FC} from "react";
 import CustomLineChart from "../CustomLineChart";
 
 const {Title} = Typography;
 
-interface WalletTargetChartProps {
-    data: WalletComponentsValueHistoryRecordDto[]
+interface TargetChartProps {
+    data: ValueHistoryRecordDto[]
 }
 
-const WalletTargetChart: FC<WalletTargetChartProps> = (props) => {
+const TargetChart: FC<TargetChartProps> = (props) => {
     let series = [
         {
             name: 'Wallet',
@@ -49,4 +49,4 @@ const WalletTargetChart: FC<WalletTargetChartProps> = (props) => {
     );
 }
 
-export default WalletTargetChart;
+export default TargetChart;

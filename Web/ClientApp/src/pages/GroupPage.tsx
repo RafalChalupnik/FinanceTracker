@@ -1,5 +1,5 @@
 import React, {FC, useEffect, useState} from "react";
-import {EditableMoneyComponent} from "../components/money/EditableMoneyComponent";
+import EditableMoneyComponent from "../components/money/EditableMoneyComponent";
 import {
     deleteGroupValues,
     getGroupValueHistory,
@@ -9,14 +9,14 @@ import {buildComponentsColumns, buildTargetColumn} from "../components/table/Col
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 import {Dayjs} from "dayjs";
 import {
-    EntityColumnDto, EntityTableDto,
-    ValueHistoryRecordDto,
-    WalletComponentsValueHistoryRecordDto
+    EntityColumnDto, 
+    EntityTableDto,
+    ValueHistoryRecordDto
 } from "../api/value-history/DTOs/EntityTableDto";
 import {ColumnGroup} from "../components/table/ExtendableTable";
 import {OrderableEntityDto} from "../api/configuration/DTOs/ConfigurationDto";
 import {getPhysicalAllocations} from "../api/configuration/Client";
-import WalletTargetChart from "../components/charts/custom/WalletTargetChart";
+import TargetChart from "../components/charts/custom/TargetChart";
 
 interface GroupPageProps {
     groupId: string,
@@ -66,8 +66,8 @@ const GroupPage: FC<GroupPageProps> = (props) => {
             : [];
     }
 
-    const buildExtra = (data: EntityTableDto<WalletComponentsValueHistoryRecordDto>) => props.showTargets
-        ? <WalletTargetChart data={data.rows}/>
+    const buildExtra = (data: EntityTableDto) => props.showTargets
+        ? <TargetChart data={data.rows}/>
         : undefined;
     
     return (
@@ -76,15 +76,6 @@ const GroupPage: FC<GroupPageProps> = (props) => {
             getData={getData}
             showCompositionChart={true}
             editable={{
-                createEmptyRow: (date, columns) => {
-                    return {
-                        key: date.format("YYYY-MM-DD"),
-                        entities: columns.map(_ => undefined),
-                        summary: undefined,
-                        target: undefined,
-                        newEntry: true
-                    }
-                },
                 onDelete: date => deleteGroupValues(props.groupId, date),
             }}
             buildComponentColumns={buildComponentColumns}

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {FC, useEffect, useState} from "react";
 import dayjs, {Dayjs} from "dayjs";
 import {Button, Card, DatePicker, Divider, Modal, Space} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
@@ -11,24 +11,23 @@ import MoneyCharts from "../charts/custom/MoneyCharts";
 import CompositionChart from "../charts/custom/CompositionChart";
 import EmptyConfig from "../EmptyConfig";
 
-interface EditableMoneyComponentProps<T extends ValueHistoryRecordDto> {
+interface EditableMoneyComponentProps {
     title: string;
-    getData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<EntityTableDto<T>>;
-    buildComponentColumns: (components: EntityColumnDto[], granularity: DateGranularity, updateCallback: () => Promise<void>) => ColumnGroup<T>[];
+    getData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<EntityTableDto>;
+    buildComponentColumns: (components: EntityColumnDto[], granularity: DateGranularity, updateCallback: () => Promise<void>) => ColumnGroup<ValueHistoryRecordDto>[];
     showCompositionChart: boolean;
-    buildExtraColumns?: (granularity: DateGranularity, refreshCallback: () => Promise<void>) => (Column<T> | ColumnGroup<T>)[];
-    editable?: EditableProps<T>;
-    extra?: (data: EntityTableDto<T>) => React.ReactNode;
+    buildExtraColumns?: (granularity: DateGranularity, refreshCallback: () => Promise<void>) => (Column<ValueHistoryRecordDto> | ColumnGroup<ValueHistoryRecordDto>)[];
+    editable?: EditableProps;
+    extra?: (data: EntityTableDto) => React.ReactNode;
     allowedGranularities?: DateGranularity[];
     defaultGranularity?: DateGranularity;
 }
 
-interface EditableProps<T> {
-    createEmptyRow: (date: Dayjs, columns: EntityColumnDto[]) => T;
+interface EditableProps {
     onDelete?: (date: Dayjs) => Promise<void>;
 } 
 
-export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: EditableMoneyComponentProps<T>) {
+const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props: EditableMoneyComponentProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Dayjs | undefined>(undefined);
     const [newEntryDate, setNewEntryDate] = useState<Dayjs | undefined>(undefined);
@@ -36,9 +35,9 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
     const [fromDate, setFromDate] = useState<Dayjs | undefined>(undefined);
     const [toDate, setToDate] = useState<Dayjs | undefined>(undefined);
 
-    const [data, setData] = useState<EntityTableDto<T>>({
+    const [data, setData] = useState<EntityTableDto>({
         columns: [] as EntityColumnDto[],
-        rows: [] as T[]
+        rows: [] as ValueHistoryRecordDto[]
     });
 
     const populateData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => {
@@ -101,8 +100,15 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
             return data.rows;
         }
         
-        let newRow = props.editable!.createEmptyRow(newEntryDate, data.columns)
-
+        let newRow = {
+            key: newEntryDate.format("YYYY-MM-DD"),
+            entities: columns.map(_ => undefined),
+            summary: undefined,
+            target: undefined,
+            score: undefined,
+            newEntry: true
+        }
+        
         let newData = [
             ...data.rows,
             newRow
@@ -169,3 +175,5 @@ export function EditableMoneyComponent<T extends ValueHistoryRecordDto>(props: E
         </EmptyConfig>
     );
 }
+
+export default EditableMoneyComponent;

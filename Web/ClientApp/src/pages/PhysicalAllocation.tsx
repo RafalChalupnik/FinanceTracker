@@ -4,7 +4,7 @@ import {
     setGroupComponentValue
 } from "../api/value-history/Client";
 import React, {FC} from "react";
-import {EditableMoneyComponent} from "../components/money/EditableMoneyComponent";
+import EditableMoneyComponent from "../components/money/EditableMoneyComponent";
 import {Dayjs} from "dayjs";
 import {EntityColumnDto, ValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
 import {ColumnGroup} from "../components/table/ExtendableTable";
@@ -42,16 +42,6 @@ const PhysicalAllocation: FC<PhysicalAllocationProps> = (props) => {
             getData={getData}
             showCompositionChart={true}
             defaultGranularity={DateGranularity.Day}
-            editable={{
-                createEmptyRow: (date, columns) => {
-                    return {
-                        key: date.format("YYYY-MM-DD"),
-                        entities: columns.map(_ => undefined),
-                        summary: undefined,
-                        target: undefined,
-                    }
-                }
-            }}
             buildComponentColumns={buildComponentColumns}
         />
     );

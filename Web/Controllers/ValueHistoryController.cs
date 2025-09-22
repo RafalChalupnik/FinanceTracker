@@ -1,7 +1,5 @@
-using FinanceTracker.Core;
 using FinanceTracker.Core.Commands;
 using FinanceTracker.Core.Commands.DTOs;
-using FinanceTracker.Core.Primitives;
 using FinanceTracker.Core.Queries;
 using FinanceTracker.Core.Queries.DTOs;
 using FinanceTracker.Web.DTOs;
@@ -20,7 +18,7 @@ public class ValueHistoryController(
     ) : ControllerBase
 {
     [HttpGet("groups/{groupId:guid}")]
-    public EntityTableDto<WalletComponentsValueHistoryRecordDto> GetGroupValueHistory(
+    public EntityTableDto GetGroupValueHistory(
         Guid groupId,
         [FromQuery] DateGranularity? granularity,
         [FromQuery] DateOnly? from,
@@ -59,7 +57,7 @@ public class ValueHistoryController(
     }
     
     [HttpGet("physical-allocations/{allocationId:guid}")]
-    public EntityTableDto<ValueHistoryRecordDto> GetPhysicalAllocationValueHistory(
+    public EntityTableDto GetPhysicalAllocationValueHistory(
         Guid allocationId,
         [FromQuery] DateGranularity? granularity, 
         [FromQuery] DateOnly? from, 
@@ -68,7 +66,7 @@ public class ValueHistoryController(
         => query.ForPhysicalAllocations(allocationId, granularity, from: from, to: to);
     
     [HttpGet("portfolio")]
-    public EntityTableDto<ValueHistoryRecordDto> GetPortfolioValueHistory(
+    public EntityTableDto GetPortfolioValueHistory(
         [FromQuery] DateGranularity? granularity, 
         [FromQuery] DateOnly? from, 
         [FromQuery] DateOnly? to
@@ -76,7 +74,7 @@ public class ValueHistoryController(
         => query.ForEntirePortfolio(granularity, from: from, to: to);
     
     [HttpGet("wallets")]
-    public EntityTableDto<WalletValueHistoryRecordDto> GetWalletsValueHistory(
+    public EntityTableDto GetWalletsValueHistory(
         [FromQuery] DateGranularity? granularity, 
         [FromQuery] DateOnly? from, 
         [FromQuery] DateOnly? to

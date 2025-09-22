@@ -1,14 +1,14 @@
 import {EntityValueSnapshotDto, ValueSnapshotDto} from "./ValueSnapshotDto";
 
-export type EntityTableDto<T extends ValueHistoryRecordDto> = {
+export type EntityTableDto = {
     columns: EntityColumnDto[],
-    rows: T[]
+    rows: ValueHistoryRecordDto[]
 }
 
 export type EntityColumnDto = {
+    id: string,
     name: string,
     parentName: string | undefined,
-    id: string | undefined,
     defaultPhysicalAllocationId: string | undefined
 }
 
@@ -16,15 +16,18 @@ export type ValueHistoryRecordDto = {
     key: string,
     entities: (EntityValueSnapshotDto | undefined)[],
     summary: ValueSnapshotDto | undefined
+    target: TargetDto | undefined,
+    score: ScoreDto | undefined,
     // Used internally
     newEntry?: boolean,
 }
 
-export type WalletValueHistoryRecordDto = ValueHistoryRecordDto & {
-    yield: YieldDto
+export type TargetDto = {
+    targetInMainCurrency: number,
+    percentage: number,
 }
 
-export type YieldDto = {
+export type ScoreDto = {
     changePercent: number,
     inflation: InflationDto | undefined,
     totalChangePercent: number
@@ -33,13 +36,4 @@ export type YieldDto = {
 export type InflationDto = {
     value: number,
     confirmed: boolean
-}
-
-export type WalletComponentsValueHistoryRecordDto = ValueHistoryRecordDto & {
-    target: WalletTargetDto | undefined;
-}
-
-export type WalletTargetDto = {
-    targetInMainCurrency: number,
-    percentage: number,
 }

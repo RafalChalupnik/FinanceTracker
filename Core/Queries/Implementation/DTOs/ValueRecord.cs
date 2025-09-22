@@ -1,3 +1,4 @@
+using FinanceTracker.Core.Entities;
 using FinanceTracker.Core.Queries.DTOs;
 
 namespace FinanceTracker.Core.Queries.Implementation.DTOs;
@@ -8,29 +9,49 @@ internal record ValueRecord(
     ValueSnapshotDto Summary
 )
 {
-    public ValueHistoryRecordDto ToValueHistoryRecord() =>
-        new ValueHistoryRecordDto(
-            Key: DateRange.Representation,
-            Entities: Entities,
-            Summary: Summary
-        );
-
-    public WalletValueHistoryRecordDto ToWalletValueHistoryRecord(YieldDto yield) =>
-        new WalletValueHistoryRecordDto(
+    public ValueHistoryRecordDto ToValueHistoryRecord(
+        HistoricTarget? target = null,
+        InflationDto? inflation = null
+        ) =>
+        new(
             Key: DateRange.Representation,
             Entities: Entities,
             Summary: Summary,
-            Yield: yield
+            Target: BuildTargetData(target),
+            Score: BuildScoreDto(inflation)
         );
     
-    public WalletComponentsValueHistoryRecordDto ToWalletComponentsValueHistoryRecord(
-        WalletTargetDto? target)
+    private TargetDto? BuildTargetData(HistoricTarget? target)
     {
-        return new WalletComponentsValueHistoryRecordDto(
-            Key: DateRange.Representation,
-            Entities: Entities,
-            Summary: Summary,
-            Target: target
+        if (target == null || target.ValueInMainCurrency == 0)
+        {
+            return null;
+        }
+        
+        var percentage = Summary.Value.AmountInMainCurrency / target.ValueInMainCurrency;
+        
+        return new TargetDto(
+            TargetInMainCurrency: target.ValueInMainCurrency,
+            Percentage: decimal.Round(percentage * 100, decimals: 2)
+        );
+    }
+    
+    private ScoreDto? BuildScoreDto(InflationDto? inflation)
+    {
+        if (inflation == null)
+        {
+            return null;
+        }
+        
+        var previousValue = Summary.Value.AmountInMainCurrency - Summary.Change.AmountInMainCurrency;
+        var currentValue = Summary.Value.AmountInMainCurrency;
+
+        var changePercent = decimal.Round(currentValue * 100 / previousValue, decimals: 2) - 100;
+        
+        return new ScoreDto(
+            ChangePercent: changePercent,
+            Inflation: inflation,
+            TotalChangePercent: changePercent - (inflation?.Value ?? 0)
         );
     }
 }

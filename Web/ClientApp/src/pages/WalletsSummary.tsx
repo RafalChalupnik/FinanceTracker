@@ -1,5 +1,5 @@
 import {buildComponentsColumns, buildInflationColumn} from "../components/table/ColumnBuilder";
-import {EditableMoneyComponent} from "../components/money/EditableMoneyComponent";
+import EditableMoneyComponent from "../components/money/EditableMoneyComponent";
 import React from "react";
 import {getWalletsValueHistory, setInflation} from "../api/value-history/Client";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
