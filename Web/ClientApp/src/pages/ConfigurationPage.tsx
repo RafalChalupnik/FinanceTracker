@@ -173,7 +173,11 @@ const ConfigurationPage: React.FC = () => {
                                 {
                                     title: 'Show targets',
                                     dataIndex: 'showTargets',
-                                    render: (showTargets: boolean) => <Switch value={showTargets} disabled />,
+                                    render: (showTargets: boolean) => <Switch value={showTargets} disabled style={{
+                                        opacity: 0.5,           // faded
+                                        backgroundColor: "#d9d9d9", // gray background
+                                        borderColor: "#d9d9d9"
+                                    }}/>,
                                     width: '20%',
                                     editable: true,
                                     renderEditor: (

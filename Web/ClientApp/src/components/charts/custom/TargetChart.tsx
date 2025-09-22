@@ -1,35 +1,40 @@
 import {Typography} from "antd";
-import {WalletComponentsValueHistoryRecordDto} from "../../../api/value-history/DTOs/EntityTableDto";
+import {ValueHistoryRecordDto} from "../../../api/value-history/DTOs/EntityTableDto";
 import React, {FC} from "react";
 import CustomLineChart from "../CustomLineChart";
 
 const {Title} = Typography;
 
-interface WalletTargetChartProps {
-    data: WalletComponentsValueHistoryRecordDto[]
+interface TargetChartProps {
+    data: ValueHistoryRecordDto[]
 }
 
-const WalletTargetChart: FC<WalletTargetChartProps> = (props) => {
+const TargetChart: FC<TargetChartProps> = (props) => {
+    let currencyFormatter = new Intl.NumberFormat('pl-PL', {
+        style: 'currency',
+        currency: 'PLN',
+    })
+    
     let series = [
         {
             name: 'Wallet',
             data: props.data
-                .filter(dataPoint => dataPoint.target?.percentage !== undefined)
+                .filter(dataPoint => dataPoint.target?.targetInMainCurrency !== undefined)
                 .map(dataPoint => {
                     return {
                         date: dataPoint.key,
-                        value: dataPoint.target?.percentage
+                        value: dataPoint.summary?.value.amountInMainCurrency
                     }
                 })
         },
         {
             name: 'Target',
             data: props.data
-                .filter(dataPoint => dataPoint.target?.percentage !== undefined)
+                .filter(dataPoint => dataPoint.target?.targetInMainCurrency !== undefined)
                 .map(dataPoint => {
                     return {
                         date: dataPoint.key,
-                        value: 100
+                        value: dataPoint.target?.targetInMainCurrency
                     }
                 })
         }
@@ -42,11 +47,11 @@ const WalletTargetChart: FC<WalletTargetChartProps> = (props) => {
                 series={series}
                 xDataKey='date'
                 yDataKey='value'
-                yAxisFormatter={value => `${value.toFixed(2)}%`}
-                tooltipFormatter={(value: any, name: string) => [`${value.toFixed(2)}%`, name]}
+                yAxisFormatter={currencyFormatter.format}
+                tooltipFormatter={(value: any, name: string) => [currencyFormatter.format(value), name]}
             />
         </>
     );
 }
 
-export default WalletTargetChart;
+export default TargetChart;

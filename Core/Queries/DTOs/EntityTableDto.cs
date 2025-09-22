@@ -1,31 +1,32 @@
 namespace FinanceTracker.Core.Queries.DTOs;
 
-public record EntityTableDto<T>(
+public record EntityTableDto(
     IReadOnlyCollection<EntityColumnDto> Columns,
-    IReadOnlyCollection<T> Rows
-) where T : ValueHistoryRecordDto;
+    IReadOnlyCollection<ValueHistoryRecordDto> Rows
+);
 
 public record EntityColumnDto(
+    Guid Id,
     string Name,
     string? ParentName,
-    Guid? Id,
     Guid? DefaultPhysicalAllocationId
 );
 
 public record ValueHistoryRecordDto(
     string Key,
     IReadOnlyCollection<EntityValueSnapshotDto?> Entities,
-    ValueSnapshotDto Summary
+    ValueSnapshotDto Summary,
+    // Extras
+    TargetDto? Target = null,
+    ScoreDto? Score = null
 );
 
-public record WalletValueHistoryRecordDto(
-    string Key,
-    IReadOnlyCollection<EntityValueSnapshotDto?> Entities,
-    ValueSnapshotDto Summary,
-    YieldDto Yield
-) : ValueHistoryRecordDto(Key, Entities, Summary);
+public record TargetDto(
+    decimal TargetInMainCurrency,
+    decimal Percentage
+);
 
-public record YieldDto(
+public record ScoreDto(
     decimal ChangePercent,
     InflationDto? Inflation,
     decimal TotalChangePercent
@@ -34,16 +35,4 @@ public record YieldDto(
 public record InflationDto(
     decimal Value,
     bool Confirmed
-);
-
-public record WalletComponentsValueHistoryRecordDto(
-    string Key,
-    IReadOnlyCollection<EntityValueSnapshotDto?> Entities,
-    ValueSnapshotDto Summary,
-    WalletTargetDto? Target
-) : ValueHistoryRecordDto(Key, Entities, Summary);
-
-public record WalletTargetDto(
-    decimal TargetInMainCurrency,
-    decimal Percentage
 );

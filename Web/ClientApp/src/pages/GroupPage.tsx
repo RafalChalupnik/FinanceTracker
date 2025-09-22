@@ -1,22 +1,13 @@
-import React, {FC, useEffect, useState} from "react";
-import {EditableMoneyComponent} from "../components/money/EditableMoneyComponent";
+import React, {FC} from "react";
 import {
     deleteGroupValues,
     getGroupValueHistory,
-    setGroupComponentValue, setGroupTarget
+    setGroupComponentValue, 
+    setGroupTarget
 } from "../api/value-history/Client";
-import {buildComponentsColumns, buildTargetColumn} from "../components/table/ColumnBuilder";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 import {Dayjs} from "dayjs";
-import {
-    EntityColumnDto, EntityTableDto,
-    ValueHistoryRecordDto,
-    WalletComponentsValueHistoryRecordDto
-} from "../api/value-history/DTOs/EntityTableDto";
-import {ColumnGroup} from "../components/table/ExtendableTable";
-import {OrderableEntityDto} from "../api/configuration/DTOs/ConfigurationDto";
-import {getPhysicalAllocations} from "../api/configuration/Client";
-import WalletTargetChart from "../components/charts/custom/WalletTargetChart";
+import MoneyPage from "./MoneyPage";
 
 interface GroupPageProps {
     groupId: string,
@@ -25,71 +16,22 @@ interface GroupPageProps {
 }
 
 const GroupPage: FC<GroupPageProps> = (props) => {
-    const [physicalAllocations, setPhysicalAllocations] = useState<OrderableEntityDto[]>([]);
-
-    const populateData = async () => {
-        const physicalAllocationsResponse = await getPhysicalAllocations();
-        setPhysicalAllocations(physicalAllocationsResponse);
-    }
-
-    useEffect(() => {
-        populateData()
-    }, [])
-    
     const getData = async (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) =>
         await getGroupValueHistory(props.groupId, granularity, from, to)
 
-    let buildComponentColumns = (components: EntityColumnDto[], granularity: DateGranularity, updateCallback: () => Promise<void>): ColumnGroup<ValueHistoryRecordDto>[] => {
-        return buildComponentsColumns(
-            components,
-            granularity,
-            true,
-            async (entityId, date, value) => {
-                await setGroupComponentValue(entityId, date, value);
-                await updateCallback();
-            },
-            physicalAllocations
-        )
-    }
-    
-    const buildExtraColumns = (granularity: DateGranularity, refreshCallback: () => void) => {
-        return props.showTargets
-            ? [
-                buildTargetColumn(
-                    granularity,
-                    async (date, value) => {
-                        await setGroupTarget(props.groupId, date, value);
-                        await refreshCallback();
-                    }
-                )
-            ]
-            : [];
-    }
-
-    const buildExtra = (data: EntityTableDto<WalletComponentsValueHistoryRecordDto>) => props.showTargets
-        ? <WalletTargetChart data={data.rows}/>
-        : undefined;
-    
     return (
-        <EditableMoneyComponent
+        <MoneyPage
             title={props.name}
             getData={getData}
             showCompositionChart={true}
             editable={{
-                createEmptyRow: (date, columns) => {
-                    return {
-                        key: date.format("YYYY-MM-DD"),
-                        entities: columns.map(_ => undefined),
-                        summary: undefined,
-                        target: undefined,
-                        newEntry: true
-                    }
-                },
+                onUpdate: setGroupComponentValue,
                 onDelete: date => deleteGroupValues(props.groupId, date),
+                setTarget: props.showTargets
+                    ? async (date, value) => await setGroupTarget(props.groupId, date, value)
+                    : undefined
             }}
-            buildComponentColumns={buildComponentColumns}
-            buildExtraColumns={buildExtraColumns}
-            extra={buildExtra}
+            showInferredValues={true}
         />
     );
 }

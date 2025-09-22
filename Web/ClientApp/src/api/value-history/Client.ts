@@ -1,11 +1,6 @@
 import {Dayjs} from "dayjs";
 import {DateGranularity} from "./DTOs/DateGranularity";
-import {
-    EntityTableDto,
-    ValueHistoryRecordDto,
-    WalletComponentsValueHistoryRecordDto,
-    WalletValueHistoryRecordDto
-} from "./DTOs/EntityTableDto";
+import {EntityTableDto} from "./DTOs/EntityTableDto";
 import {MoneyDto} from "./DTOs/Money";
 import {sendDelete, sendPut} from "../shared/HttpClient";
 
@@ -14,7 +9,7 @@ export async function getGroupValueHistory(
     granularity?: DateGranularity,
     from?: Dayjs,
     to?: Dayjs
-) : Promise<EntityTableDto<WalletComponentsValueHistoryRecordDto>> {
+) : Promise<EntityTableDto> {
     return await sendGet(`api/value-history/groups/${groupId}`, granularity, from, to);
 }
 
@@ -41,7 +36,7 @@ export async function getPhysicalAllocationValueHistory(
     granularity?: DateGranularity,
     from?: Dayjs,
     to?: Dayjs
-) : Promise<EntityTableDto<ValueHistoryRecordDto>> {
+) : Promise<EntityTableDto> {
     return await sendGet(`api/value-history/physical-allocations/${allocationId}`, granularity, from, to);
 }
 
@@ -49,7 +44,7 @@ export async function getPortfolioValueHistory(
     granularity?: DateGranularity,
     from?: Dayjs,
     to?: Dayjs
-) : Promise<EntityTableDto<ValueHistoryRecordDto>> {
+) : Promise<EntityTableDto> {
     return await sendGet('api/value-history/portfolio', granularity, from, to);
 }
 
@@ -57,7 +52,7 @@ export async function getWalletsValueHistory(
     granularity?: DateGranularity,
     from?: Dayjs,
     to?: Dayjs
-) : Promise<EntityTableDto<WalletValueHistoryRecordDto>> {
+) : Promise<EntityTableDto> {
     return await sendGet('api/value-history/wallets', granularity, from, to);
 }
 

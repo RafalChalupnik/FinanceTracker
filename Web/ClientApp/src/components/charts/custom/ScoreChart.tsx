@@ -1,4 +1,4 @@
-import {WalletValueHistoryRecordDto} from "../../../api/value-history/DTOs/EntityTableDto";
+import {ValueHistoryRecordDto} from "../../../api/value-history/DTOs/EntityTableDto";
 import React, {FC} from "react";
 import {Typography} from "antd";
 import CustomLineChart from "../CustomLineChart";
@@ -6,7 +6,7 @@ import CustomLineChart from "../CustomLineChart";
 const {Title} = Typography;
 
 interface ScoreChartProps {
-    data: WalletValueHistoryRecordDto[],
+    data: ValueHistoryRecordDto[],
 }
 
 const ScoreChart: FC<ScoreChartProps> = (props) => {
@@ -17,7 +17,7 @@ const ScoreChart: FC<ScoreChartProps> = (props) => {
                 .map(dataPoint => {
                     return {
                         date: dataPoint.key,
-                        value: dataPoint.yield.changePercent
+                        value: dataPoint.score?.changePercent
                     }
                 })
         },
@@ -27,7 +27,7 @@ const ScoreChart: FC<ScoreChartProps> = (props) => {
                 .map(dataPoint => {
                     return {
                         date: dataPoint.key,
-                        value: dataPoint.yield.inflation?.value
+                        value: dataPoint.score?.inflation?.value
                     }
                 })
         },
@@ -37,7 +37,7 @@ const ScoreChart: FC<ScoreChartProps> = (props) => {
                 .map(dataPoint => {
                     return {
                         date: dataPoint.key,
-                        value: dataPoint.yield.totalChangePercent
+                        value: dataPoint.score?.totalChangePercent
                     }
                 })
         }

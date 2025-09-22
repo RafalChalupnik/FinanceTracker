@@ -5,9 +5,9 @@ namespace FinanceTracker.Core.Queries.DTOs;
 public record EntityValueSnapshotDto(
     Money Value,
     bool Inferred,
-    Guid? PhysicalAllocationId,
     Money? Change = null,
-    Money? CumulativeChange = null
+    Money? CumulativeChange = null,
+    Guid? PhysicalAllocationId = null
 ) : ValueSnapshotDto(Value, Change, CumulativeChange);
 
 public record ValueSnapshotDto
@@ -52,11 +52,11 @@ public static class ValueSnapshotDtoExtensions
 {
     public static EntityValueSnapshotDto? ToEntityValueSnapshotDto(this Money? value) => 
         value != null
-            ? new EntityValueSnapshotDto(value, Inferred: true, null)
+            ? new EntityValueSnapshotDto(value, Inferred: true)
             : null;
     
     public static EntityValueSnapshotDto? ToEntityValueSnapshotDto(this MoneyValue? value) => 
         value != null
-            ? new EntityValueSnapshotDto(value.Value, Inferred: !value.ExactDate, value.PhysicalAllocationId)
+            ? new EntityValueSnapshotDto(value.Value, Inferred: !value.ExactDate, PhysicalAllocationId: value.PhysicalAllocationId)
             : null;
 }
