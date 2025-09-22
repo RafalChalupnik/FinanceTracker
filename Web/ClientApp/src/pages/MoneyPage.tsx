@@ -2,20 +2,20 @@ import React, {FC, useEffect, useState} from "react";
 import dayjs, {Dayjs} from "dayjs";
 import {Button, Card, DatePicker, Divider, Modal, Space} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
-import { DateGranularity } from "../../api/value-history/DTOs/DateGranularity";
-import {EntityColumnDto, EntityTableDto, ValueHistoryRecordDto} from "../../api/value-history/DTOs/EntityTableDto";
-import DateGranularityPicker from "../DateGranularityPicker";
-import MoneyCharts from "../charts/custom/MoneyCharts";
-import CompositionChart from "../charts/custom/CompositionChart";
-import EmptyConfig from "../EmptyConfig";
-import {OrderableEntityDto} from "../../api/configuration/DTOs/ConfigurationDto";
-import {getPhysicalAllocations} from "../../api/configuration/Client";
-import {MoneyDto} from "../../api/value-history/DTOs/Money";
-import TargetChart from "../charts/custom/TargetChart";
-import ScoreChart from "../charts/custom/ScoreChart";
-import EditableMoneyTable from "./EditableMoneyTable";
+import { DateGranularity } from "../api/value-history/DTOs/DateGranularity";
+import {EntityColumnDto, EntityTableDto, ValueHistoryRecordDto} from "../api/value-history/DTOs/EntityTableDto";
+import DateGranularityPicker from "../components/DateGranularityPicker";
+import MoneyCharts from "../components/charts/custom/MoneyCharts";
+import CompositionChart from "../components/charts/custom/CompositionChart";
+import EmptyConfig from "../components/EmptyConfig";
+import {OrderableEntityDto} from "../api/configuration/DTOs/ConfigurationDto";
+import {getPhysicalAllocations} from "../api/configuration/Client";
+import {MoneyDto} from "../api/value-history/DTOs/Money";
+import TargetChart from "../components/charts/custom/TargetChart";
+import ScoreChart from "../components/charts/custom/ScoreChart";
+import EditableMoneyTable from "../components/money/EditableMoneyTable";
 
-interface EditableMoneyComponentProps {
+interface MoneyPageProps {
     title: string;
     getData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<EntityTableDto>;
     showInferredValues: boolean;
@@ -32,7 +32,7 @@ interface EditableProps {
     setTarget?: (date: Dayjs, value: number) => Promise<void>
 } 
 
-const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props: EditableMoneyComponentProps) => {
+const MoneyPage: FC<MoneyPageProps> = (props: MoneyPageProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Dayjs | undefined>(undefined);
     const [newEntryDate, setNewEntryDate] = useState<Dayjs | undefined>(undefined);
@@ -204,4 +204,4 @@ const EditableMoneyComponent: FC<EditableMoneyComponentProps> = (props: Editable
     );
 }
 
-export default EditableMoneyComponent;
+export default MoneyPage;

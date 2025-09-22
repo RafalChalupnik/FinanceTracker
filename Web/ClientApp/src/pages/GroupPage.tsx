@@ -1,12 +1,13 @@
 import React, {FC} from "react";
-import EditableMoneyComponent from "../components/money/EditableMoneyComponent";
 import {
     deleteGroupValues,
     getGroupValueHistory,
-    setGroupComponentValue, setGroupTarget
+    setGroupComponentValue, 
+    setGroupTarget
 } from "../api/value-history/Client";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 import {Dayjs} from "dayjs";
+import MoneyPage from "./MoneyPage";
 
 interface GroupPageProps {
     groupId: string,
@@ -19,7 +20,7 @@ const GroupPage: FC<GroupPageProps> = (props) => {
         await getGroupValueHistory(props.groupId, granularity, from, to)
 
     return (
-        <EditableMoneyComponent
+        <MoneyPage
             title={props.name}
             getData={getData}
             showCompositionChart={true}

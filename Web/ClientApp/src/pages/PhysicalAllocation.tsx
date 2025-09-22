@@ -4,8 +4,8 @@ import {
     setGroupComponentValue
 } from "../api/value-history/Client";
 import React, {FC} from "react";
-import EditableMoneyComponent from "../components/money/EditableMoneyComponent";
 import {Dayjs} from "dayjs";
+import MoneyPage from "./MoneyPage";
 
 interface PhysicalAllocationProps {
     allocationId: string,
@@ -22,7 +22,7 @@ const PhysicalAllocation: FC<PhysicalAllocationProps> = (props) => {
     )
 
     return (
-        <EditableMoneyComponent
+        <MoneyPage
             title={props.name}
             getData={getData}
             showCompositionChart={true}
