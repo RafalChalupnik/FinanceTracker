@@ -71,7 +71,7 @@
     "eject": "react-scripts eject",
     "lint": "eslint ./src/",
     "postinstall": "electron-builder install-app-deps",
-    "electron:dev": "concurrently -k \"cross-env BROWSER=none npm start\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron:dev": "concurrently -k \"dotnet run --project ../\" \"wait-on https://localhost:7235 && electron .\"",
     "electron:build": "npm run build && electron-builder"
   },
   "eslintConfig": {

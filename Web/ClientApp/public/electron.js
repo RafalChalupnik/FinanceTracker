@@ -4,6 +4,11 @@ const url = require('url');
 
 let mainWindow;
 
+// For development, we need to ignore certificate errors because of the self-signed certificate.
+if (!app.isPackaged) {
+    app.commandLine.appendSwitch('ignore-certificate-errors');
+}
+
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1200,
@@ -20,7 +25,7 @@ function createWindow() {
             protocol: 'file:',
             slashes: true,
         })
-        : 'http://localhost:3000';
+        : 'https://localhost:7235';
 
     mainWindow.loadURL(startUrl);
 
