@@ -5,7 +5,6 @@
   "description": "Finance Tracker",
   "author": "Rafał Chałupnik",
   "main": "public/electron.js",
-  "homepage": "./",
   "dependencies": {
     "@ant-design/icons": "^5.6.1",
     "@types/react-router-dom": "^5.3.3",

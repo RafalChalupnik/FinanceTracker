@@ -53,6 +53,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 // app.UseHttpsRedirection(); // Disabled for HTTP-only
+app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseRouting();
 
@@ -60,6 +61,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
 
-app.MapFallbackToFile("index.html");
+// app.MapFallbackToFile("index.html");
 
 app.Run();
