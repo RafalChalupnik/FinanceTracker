@@ -49,8 +49,10 @@ function createWindow() {
 
 app.on('ready', () => {
     if (app.isPackaged) {
-        const backendDir = path.join(process.resourcesPath, 'backend');
+        const resourcesPath = process.resourcesPath;
+        const backendDir = path.join(resourcesPath, 'backend');
         const backendPath = path.join(backendDir, process.platform === 'win32' ? 'FinanceTracker.Web.exe' : 'FinanceTracker.Web');
+        const frontendPath = path.join(resourcesPath, 'frontend'); // The correct path to our UI files
 
         const userDataPath = app.getPath('userData');
         const logPath = path.join(userDataPath, 'backend.log');
@@ -60,14 +62,13 @@ app.on('ready', () => {
 
         try {
             const dbConnectionString = `DataSource=${path.join(userDataPath, 'app.db')}`;
-            // Use environment variables for the connection string (more reliable)
             const env = { ...process.env, 'ConnectionStrings__DefaultConnection': dbConnectionString };
 
             logStream.write(`Starting backend: ${backendPath}\n`);
-            logStream.write(`Working directory: ${backendDir}\n`);
+            logStream.write(`Setting web root to: ${frontendPath}\n`);
 
-            // Spawn the process without any command-line arguments, relying on its published structure
-            backendProcess = spawn(backendPath, [], { cwd: backendDir, env });
+            // Spawn the process, telling it where to find the frontend files
+            backendProcess = spawn(backendPath, [`--webroot=${frontendPath}`], { cwd: backendDir, env });
 
             // --- Comprehensive Logging ---
             backendProcess.stdout.on('data', (data) => logStream.write(`STDOUT: ${data.toString()}`));
