@@ -10,14 +10,6 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddCoreServices(builder.Configuration);
 
-// Get the web root path from a command-line argument
-var webRoot = builder.Configuration.GetValue<string>("webroot");
-if (!string.IsNullOrEmpty(webRoot))
-{
-    // Use the path to locate the static UI files
-    builder.WebHost.UseWebRoot(webRoot);
-}
-
 // This ensures that your production app always listens on this URL
 builder.WebHost.UseUrls("http://localhost:5288");
 

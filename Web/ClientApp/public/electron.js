@@ -49,47 +49,46 @@ function createWindow() {
 
 app.on('ready', () => {
     if (app.isPackaged) {
-        const backendExecutableName = process.platform === 'win32' ? 'FinanceTracker.Web.exe' : 'FinanceTracker.Web';
         const backendDir = path.join(process.resourcesPath, 'backend');
-        const backendPath = path.join(backendDir, backendExecutableName);
+        const backendPath = path.join(backendDir, process.platform === 'win32' ? 'FinanceTracker.Web.exe' : 'FinanceTracker.Web');
 
         const userDataPath = app.getPath('userData');
-        const dbPath = path.join(userDataPath, 'app.db');
         const logPath = path.join(userDataPath, 'backend.log');
-        const frontendPath = path.join(app.getAppPath(), '..', 'app.asar.unpacked', 'build');
-
-        // Create a writable stream for the log file
         const logStream = fs.createWriteStream(logPath, { flags: 'a' });
 
+        logStream.write(`--- NEW SESSION: ${new Date().toISOString()} ---\n`);
+
         try {
-            console.log('--- Starting Backend ---');
-            console.log(`Executable: ${backendPath}`);
-            console.log(`Working Dir: ${backendDir}`);
-            console.log(`Web Root: ${frontendPath}`);
-            console.log(`Database: ${dbPath}`);
-            console.log(`Log File: ${logPath}`);
+            const dbConnectionString = `DataSource=${path.join(userDataPath, 'app.db')}`;
+            // Use environment variables for the connection string (more reliable)
+            const env = { ...process.env, 'ConnectionStrings__DefaultConnection': dbConnectionString };
 
-            backendProcess = spawn(backendPath, [
-                `--webroot=${frontendPath}`,
-                `--ConnectionStrings:DefaultConnection=DataSource=${dbPath}`
-            ], { cwd: backendDir }); // Set the working directory
+            logStream.write(`Starting backend: ${backendPath}\n`);
+            logStream.write(`Working directory: ${backendDir}\n`);
 
-            // Pipe backend output to the log file and to the console
-            backendProcess.stdout.pipe(logStream);
-            backendProcess.stderr.pipe(logStream);
-            backendProcess.stdout.on('data', (data) => console.log(`BACKEND: ${data}`));
-            backendProcess.stderr.on('data', (data) => console.error(`BACKEND_ERROR: ${data}`));
+            // Spawn the process without any command-line arguments, relying on its published structure
+            backendProcess = spawn(backendPath, [], { cwd: backendDir, env });
+
+            // --- Comprehensive Logging ---
+            backendProcess.stdout.on('data', (data) => logStream.write(`STDOUT: ${data.toString()}`));
+            backendProcess.stderr.on('data', (data) => logStream.write(`STDERR: ${data.toString()}`));
+
+            backendProcess.on('error', (err) => {
+                logStream.write(`SPAWN_ERROR: ${err.toString()}\n`);
+            });
+
+            backendProcess.on('exit', (code) => {
+                logStream.write(`EXIT_CODE: ${code}\n`);
+            });
 
         } catch (error) {
-            console.error('Failed to start backend process.', error);
-            dialog.showErrorBox('Backend Error', `Could not start the backend service. See log for details: ${logPath}`);
-            logStream.write(`Failed to spawn backend process: ${error.toString()}`);
+            logStream.write(`FATAL_LAUNCH_ERROR: ${error.toString()}\n`);
+            dialog.showErrorBox('Backend Error', `Could not start the backend. See log for details: ${logPath}`);
             app.quit();
         }
     }
     createWindow();
 });
-
 
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
