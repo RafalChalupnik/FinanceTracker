@@ -13,11 +13,9 @@ builder.Services.AddCoreServices(builder.Configuration);
 // Get the web root path from a command-line argument for production
 if (!builder.Environment.IsDevelopment())
 {
-    var webRoot = builder.Configuration.GetValue<string>("webroot");
-    if (!string.IsNullOrEmpty(webRoot))
-    {
-        builder.WebHost.UseWebRoot(webRoot);
-    }
+    // When packaged, the frontend is in a 'frontend' folder sibling to the 'backend' folder where this executable is running.
+    var webRoot = Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, "..", "frontend"));
+    builder.WebHost.UseWebRoot(webRoot);
 }
 
 // This ensures that your production app always listens on this URL

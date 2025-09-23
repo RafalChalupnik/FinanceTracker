@@ -65,10 +65,10 @@ app.on('ready', () => {
             const env = { ...process.env, 'ConnectionStrings__DefaultConnection': dbConnectionString };
 
             logStream.write(`Starting backend: ${backendPath}\n`);
-            logStream.write(`Setting web root to: ${frontendPath}\n`);
+            logStream.write(`Working directory: ${backendDir}\n`);
 
-            // Spawn the process, telling it where to find the frontend files
-            backendProcess = spawn(backendPath, [`--webroot=${frontendPath}`], { cwd: backendDir, env });
+            // Spawn the process. It will find the frontend on its own now.
+            backendProcess = spawn(backendPath, [], { cwd: backendDir, env });
 
             // --- Comprehensive Logging ---
             backendProcess.stdout.on('data', (data) => logStream.write(`STDOUT: ${data.toString()}`));
