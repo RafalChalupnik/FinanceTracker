@@ -72,7 +72,8 @@
     "lint": "eslint ./src/",
     "postinstall": "electron-builder install-app-deps",
     "electron:dev": "concurrently -k \"dotnet run --project ../\" \"wait-on https://localhost:7235 && electron .\"",
-    "electron:build": "npm run build && electron-builder"
+    "build:backend": "dotnet publish ../FinanceTracker.Web.csproj -c Release -o ./publish/backend",
+    "electron:build": "npm run build && npm run build:backend && electron-builder"
   },
   "eslintConfig": {
     "extends": [
@@ -92,12 +93,19 @@
     ]
   },
   "build": {
-    "appId": "com.company.financetracker",
-    "productName": "FinanceTracker",
+    "appId": "dev.chalupnik.financetracker",
+    "productName": "Finance Tracker",
     "copyright": "Copyright © 2024 ${author}",
     "files": [
       "build/**/*",
-      "node_modules/**/*"
+      "node_modules/**/*",
+      "public/electron.js"
+    ],
+    "extraResources": [
+      {
+        "from": "./publish/backend",
+        "to": "backend"
+      }
     ],
     "mac": {
       "target": "dmg"

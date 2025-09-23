@@ -12,6 +12,10 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddCoreServices(builder.Configuration);
 
+// This ensures that your production app always listens on these URLs
+// TODO: Move it to prod appsettings.json?
+builder.WebHost.UseUrls("https://localhost:7235", "http://localhost:5288");
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
