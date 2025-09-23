@@ -6,9 +6,10 @@ const { spawn } = require('child_process');
 let mainWindow;
 let backendProcess = null;
 
-if (!app.isPackaged) {
-    app.commandLine.appendSwitch('ignore-certificate-errors');
-}
+// No longer needed as we are using HTTP
+// if (!app.isPackaged) {
+//     app.commandLine.appendSwitch('ignore-certificate-errors');
+// }
 
 function createWindow() {
     mainWindow = new BrowserWindow({
@@ -20,7 +21,7 @@ function createWindow() {
         }
     });
 
-    const startUrl = 'https://localhost:7235';
+    const startUrl = 'http://localhost:5288';
 
     // Retry logic to give the backend time to start
     const loadUrlWithRetry = (retries = 5) => {

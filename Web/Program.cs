@@ -12,9 +12,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddCoreServices(builder.Configuration);
 
-// This ensures that your production app always listens on these URLs
-// TODO: Move it to prod appsettings.json?
-builder.WebHost.UseUrls("https://localhost:7235", "http://localhost:5288");
+// This ensures that your production app always listens on this URL
+builder.WebHost.UseUrls("http://localhost:5288");
 
 var app = builder.Build();
 
@@ -22,7 +21,7 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    // app.UseHsts(); // Disabled for HTTP-only
 }
 
 using (var scope = app.Services.CreateScope())
@@ -35,7 +34,7 @@ using (var scope = app.Services.CreateScope())
     await Seeder.SeedDataIfNecessary(context);
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection(); // Disabled for HTTP-only
 app.UseStaticFiles();
 app.UseRouting();
 
