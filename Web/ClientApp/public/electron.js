@@ -52,12 +52,28 @@ app.on('ready', () => {
         const backendExecutableName = process.platform === 'win32' ? 'FinanceTracker.Web.exe' : 'FinanceTracker.Web';
         const backendPath = path.join(process.resourcesPath, 'backend', backendExecutableName);
 
+        // Define a user-specific, writable path for the database
+        const userDataPath = app.getPath('userData');
+        const dbPath = path.join(userDataPath, 'app.db');
+
+        // Define the path to the bundled frontend assets
+        const frontendPath = path.join(app.getAppPath(), 'build');
+
         try {
-            backendProcess = spawn(backendPath);
+            // Launch the backend with the correct paths for the UI and database
+            backendProcess = spawn(backendPath, [
+                `--webroot=${frontendPath}`,
+                `--ConnectionStrings:DefaultConnection=DataSource=${dbPath}`
+            ]);
+
             console.log(`Started backend process from ${backendPath}`);
+            console.log(`  - Web Root: ${frontendPath}`);
+            console.log(`  - Database: ${dbPath}`);
+
         } catch (error) {
             console.error('Failed to start backend process.', error);
             dialog.showErrorBox('Backend Error', 'Could not start the backend service.');
+            app.quit();
         }
     }
     createWindow();
