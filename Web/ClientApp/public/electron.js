@@ -40,9 +40,9 @@ function createWindow() {
 
     loadUrlWithRetry();
 
-    // if (!app.isPackaged) {
+    if (!app.isPackaged) {
         mainWindow.webContents.openDevTools();
-    // }
+    }
 
     mainWindow.on('closed', function () {
         mainWindow = null;
