@@ -52,7 +52,11 @@ using (var scope = app.Services.CreateScope())
     await Seeder.SeedDataIfNecessary(context);
 }
 
-// app.UseHttpsRedirection(); // Disabled for HTTP-only
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection(); // Disabled for HTTP-only
+}
+
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseRouting();
@@ -61,6 +65,9 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
 
-// app.MapFallbackToFile("index.html");
+if (app.Environment.IsDevelopment())
+{
+    app.MapFallbackToFile("index.html");
+}
 
 app.Run();

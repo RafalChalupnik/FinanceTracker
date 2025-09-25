@@ -1,6 +1,6 @@
-import React, {FC, ReactNode, useState} from "react";
+import React, {FC, ReactNode} from "react";
 import {Column, ColumnGroup, CustomEditableColumn, ExtendableTable} from "../table/ExtendableTable";
-import {EntityColumnDto, EntityTableDto, ValueHistoryRecordDto} from "../../api/value-history/DTOs/EntityTableDto";
+import {EntityColumnDto, ValueHistoryRecordDto} from "../../api/value-history/DTOs/EntityTableDto";
 import dayjs, {Dayjs} from "dayjs";
 import {ValueSnapshotDto} from "../../api/value-history/DTOs/ValueSnapshotDto";
 import Money from "./Money";
@@ -83,13 +83,13 @@ const buildComponentsColumnGroups = (
     physicalAllocations?: OrderableEntityDto[]
 ): ColumnGroup<ValueHistoryRecordDto>[] => {
     let areAllComponentsInSameGroup = components
-        .every(component => component.parentName == components[0].parentName);
+        .every(component => component.parentName === components[0].parentName);
 
     return components.map((component, index) => {
         let editable = onUpdate !== undefined
             ? (
                 {
-                    isEditable: granularity == DateGranularity.Day,
+                    isEditable: granularity === DateGranularity.Day,
                     renderEditable: (record, closeCallback) => {
                         let initialPhysicalAllocationId = record.newEntry
                             ? component.defaultPhysicalAllocationId
@@ -164,7 +164,7 @@ const buildTargetColumn = (
                 </Space>
             ),
         editable: {
-            isEditable: granularity == DateGranularity.Day,
+            isEditable: granularity === DateGranularity.Day,
             renderEditable: (row, closeCallback) =>
                 (
                     <TargetForm
@@ -201,7 +201,7 @@ const buildInflationColumnGroup = (
                     <ColoredPercent
                         value={record.score?.inflation?.value}
                         colorCoding={false}
-                        extra={record.score?.inflation?.confirmed == false && (
+                        extra={record.score?.inflation?.confirmed === false && (
                             <Tooltip title='Inflation value not yet confirmed'>
                                 <ExclamationCircleOutlined style={{ color: '#faad14', fontSize: '16px' }}/>
                             </Tooltip>
@@ -209,7 +209,7 @@ const buildInflationColumnGroup = (
                     />
                 ),
                 editable: {
-                    isEditable: granularity == DateGranularity.Month,
+                    isEditable: granularity === DateGranularity.Month,
                     renderEditable: (row, closeCallback) => {
                         let date = dayjs(row.key);
 

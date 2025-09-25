@@ -1,5 +1,5 @@
 import React, {FC, useEffect, useState} from "react";
-import {Button, Space, Card, Row, Col, Divider, Checkbox, Switch} from "antd";
+import {Button, Space, Card, Row, Col, Divider, Switch} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import {
     GroupConfigDto,

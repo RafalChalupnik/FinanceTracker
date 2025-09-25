@@ -1,5 +1,5 @@
 import React, {FC, ReactNode} from "react";
-import {Button, Input, Popconfirm, Space, Table} from "antd";
+import {Button, Input, Space, Table} from "antd";
 import type {ColumnGroupType, ColumnType} from "antd/es/table";
 import {EditOutlined} from "@ant-design/icons";
 import SaveCancelButtons from "../SaveCancelButtons";
@@ -66,7 +66,7 @@ export function ExtendableTable<T extends {key: React.Key}>(props: ExtendableTab
     const [currentlyEditedRow, setCurrentlyEditedRow] = React.useState<React.Key | undefined>(undefined);
     
     const isCellBeingEdited = (rowKey: React.Key, column: string) => 
-        currentlyEditedColumn == column && currentlyEditedRow == rowKey
+        currentlyEditedColumn === column && currentlyEditedRow === rowKey
 
     const setCurrentlyEditedCell = (rowKey: React.Key, columnKey: string) => {
         setCurrentlyEditedColumn(columnKey);

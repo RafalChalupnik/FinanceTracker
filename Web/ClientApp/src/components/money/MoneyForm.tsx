@@ -52,7 +52,7 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
         let money = {
             amount: amount,
             currency: currency ?? MAIN_CURRENCY,
-            amountInMainCurrency: currency != MAIN_CURRENCY
+            amountInMainCurrency: currency !== MAIN_CURRENCY
                 ? amountInMainCurrency ?? amount
                 : amount,
         }
@@ -69,7 +69,7 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
                     onChange: currency => {
                         setCurrency(currency);
 
-                        if (currency != MAIN_CURRENCY && amountInMainCurrency === undefined) {
+                        if (currency !== MAIN_CURRENCY && amountInMainCurrency === undefined) {
                             setAmountInMainCurrency(0);
                         }
                     },
@@ -77,7 +77,7 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
                 }}
                 error={alertVisible ? 'Amount is required' : undefined}
             />
-            {currency != MAIN_CURRENCY && <InputCurrency
+            {currency !== MAIN_CURRENCY && <InputCurrency
                 onValueChange={setAmountInMainCurrency}
                 initialValue={amountInMainCurrency}
                 currency={{

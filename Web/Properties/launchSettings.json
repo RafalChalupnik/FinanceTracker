@@ -11,7 +11,7 @@
     "FinanceTracker.Web": {
       "commandName": "Project",
       "launchBrowser": false,
-      "applicationUrl": "https://localhost:7235;http://localhost:5288",
+      "applicationUrl": "http://localhost:5288",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
