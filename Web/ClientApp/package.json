@@ -92,9 +92,10 @@
     ]
   },
   "build": {
+    "publish": null,
     "appId": "dev.chalupnik.financetracker",
     "productName": "Finance Tracker",
-    "copyright": "Copyright © 2024 ${author}",
+    "copyright": "Copyright © 2025 ${author}",
     "files": [
       "public/electron.js",
       "node_modules/**/*"
