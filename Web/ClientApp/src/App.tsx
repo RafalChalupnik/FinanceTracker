@@ -13,6 +13,7 @@ import {getConfiguration} from "./api/configuration/Client";
 import PhysicalAllocation from "./pages/PhysicalAllocation";
 import GroupPage from "./pages/GroupPage";
 import DynamicIcon from "./components/DynamicIcon";
+// import icon from "../public/icon.png";
 
 const { Header, Content } = Layout;
 
@@ -143,7 +144,20 @@ const App: React.FC = () => {
             <Header style={{ display: 'flex', alignItems: 'center' }}>
                 <Space>
                     <Typography.Title level={3} style={{ margin: 0, color: 'lightgray' }}>
-                        <EuroCircleOutlined style={{ margin: 0, color: 'lightgray', paddingRight: '10px' }}/>
+                        <img
+                            src='/icon.png'
+                            alt="Finance Icon"
+                            style={{
+                                width: "1em",          // same scale as AntD icons
+                                height: "1em",
+                                transform: "scale(1.5)", // zoom to 150%
+                                transformOrigin: "center",
+                                verticalAlign: "middle",
+                                marginBottom: "5px",
+                                marginRight: "10px",   // replaces paddingRight
+                                filter: "grayscale(1) brightness(1.2)", // optional: tint to lightgray like your original icon
+                            }}
+                        />
                         Finance Tracker
                     </Typography.Title>
                 </Space>
