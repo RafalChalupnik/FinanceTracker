@@ -1,7 +1,7 @@
 import React, {ReactNode, useEffect, useState} from 'react';
 import {Layout, Menu, MenuProps, Space, Typography} from 'antd';
 import {
-    EuroCircleOutlined, LineChartOutlined,
+    LineChartOutlined,
     SettingOutlined,
     WalletOutlined
 } from "@ant-design/icons";
