@@ -96,6 +96,7 @@
     "appId": "dev.chalupnik.financetracker",
     "productName": "Finance Tracker",
     "copyright": "Copyright © 2025 ${author}",
+    "icon": "public/icon.png",
     "files": [
       "public/electron.js",
       "node_modules/**/*"

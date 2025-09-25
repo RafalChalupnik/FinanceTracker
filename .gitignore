@@ -422,3 +422,6 @@ FodyWeavers.xsd
 
 # Rider
 .idea
+
+# Node build files
+**/dist
