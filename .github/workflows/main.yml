@@ -28,17 +28,17 @@ jobs:
         with:
           node-version: '20.x'
           cache: 'npm'
-          cache-dependency-path: 'FinanceTracker.Web/ClientApp/package-lock.json'
+          cache-dependency-path: 'Web/ClientApp/package-lock.json'
 
       - name: Install frontend dependencies
         run: npm install
-        working-directory: ./FinanceTracker.Web/ClientApp
+        working-directory: ./Web/ClientApp
 
       - name: Build and package application
         # This runs the "electron:build" script from your package.json
         # The '--publish never' flag prevents it from trying to create a GitHub Release
         run: npm run electron:build -- --publish never
-        working-directory: ./FinanceTracker.Web/ClientApp
+        working-directory: ./Web/ClientApp
         env:
           # The GITHUB_TOKEN is required by electron-builder for some platforms
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -49,4 +49,4 @@ jobs:
           # The name of the artifact will include the OS (e.g., "finance-tracker-windows-latest")
           name: finance-tracker-${{ matrix.os }}
           # The build output is located in the "dist" folder inside your frontend project
-          path: FinanceTracker.Web/ClientApp/dist/
+          path: Web/ClientApp/dist/
