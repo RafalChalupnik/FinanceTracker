@@ -2,6 +2,9 @@
   "name": "financetracker.web",
   "version": "0.1.0",
   "private": true,
+  "description": "Finance Tracker",
+  "author": "Rafał Chałupnik",
+  "main": "public/electron.js",
   "dependencies": {
     "@ant-design/icons": "^5.6.1",
     "@types/react-router-dom": "^5.3.3",
@@ -40,7 +43,10 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "ajv": "^8.12.0",
+    "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
+    "electron": "^37.3.1",
+    "electron-builder": "^26.0.12",
     "eslint": "^8.39.0",
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-flowtype": "^8.0.3",
@@ -48,7 +54,8 @@
     "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-react": "^7.32.2",
     "nan": "^2.17.0",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "wait-on": "^7.2.0"
   },
   "overrides": {
     "autoprefixer": "10.4.5",
@@ -61,7 +68,11 @@
     "build": "react-scripts build",
     "test": "cross-env CI=true react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "lint": "eslint ./src/"
+    "lint": "eslint ./src/",
+    "postinstall": "electron-builder install-app-deps",
+    "electron:dev": "concurrently -k \"dotnet run --project ../\" \"wait-on http://localhost:5288 && electron .\"",
+    "build:backend": "dotnet publish ../ -c Release -o ../publish",
+    "electron:build": "npm run build && npm run build:backend && electron-builder"
   },
   "eslintConfig": {
     "extends": [
@@ -79,5 +90,35 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "build": {
+    "publish": null,
+    "appId": "dev.chalupnik.financetracker",
+    "productName": "Finance Tracker",
+    "copyright": "Copyright © 2025 ${author}",
+    "icon": "public/icon.png",
+    "files": [
+      "public/electron.js",
+      "node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../publish",
+        "to": "backend"
+      },
+      {
+        "from": "./build",
+        "to": "frontend"
+      }
+    ],
+    "mac": {
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   }
 }

@@ -16,8 +16,9 @@ public static class Bootstrap
         services
             // Database
             .AddDbContext<FinanceTrackerContext>(options => options.UseSqlite(
-                configuration.GetConnectionString("FinanceTracker")
-                // builder => builder.MigrationsAssembly(typeof(FinanceTrackerContext).Assembly.GetName().Name)
+                Environment.ExpandEnvironmentVariables(
+                    configuration.GetConnectionString("FinanceTracker")!
+                )
             ))
             // Commands
             .AddScoped<DeleteValuesForDate>()

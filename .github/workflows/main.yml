@@ -1,0 +1,52 @@
+name: Build Electron app
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ macos-latest ]
+        node-version: [20.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x' 
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          cache-dependency-path: 'Web/ClientApp/package-lock.json'
+
+      - name: Install frontend dependencies
+        run: npm install
+        working-directory: ./Web/ClientApp
+
+      - name: Build and package application
+        # This runs the "electron:build" script from your package.json
+        # The '--publish never' flag prevents it from trying to create a GitHub Release
+        run: npm run electron:build -- --publish never
+        working-directory: ./Web/ClientApp
+        env:
+          # The GITHUB_TOKEN is required by electron-builder for some platforms
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          # The name of the artifact will include the OS (e.g., "finance-tracker-windows-latest")
+          name: finance-tracker-${{ matrix.os }}
+          # The build output is located in the "dist" folder inside your frontend project
+          path: Web/ClientApp/dist/mac-arm64

@@ -1,6 +1,5 @@
 import React, {FC, ReactNode} from "react";
 import {Space, Tooltip, Typography} from "antd";
-import {ExclamationCircleOutlined, InfoCircleOutlined} from "@ant-design/icons";
 
 const { Text } = Typography;
 

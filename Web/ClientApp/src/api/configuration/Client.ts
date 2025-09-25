@@ -1,5 +1,5 @@
 import {ConfigurationDto, OrderableEntityDto, WalletComponentDataDto} from "./DTOs/ConfigurationDto";
-import {GroupDto, GroupTypeDto, GroupTypeDtoWithGroups} from "./DTOs/GroupDto";
+import {GroupDto, GroupTypeDto} from "./DTOs/GroupDto";
 
 export async function getConfiguration() : Promise<ConfigurationDto> {
     return await sendGet('api/configuration');

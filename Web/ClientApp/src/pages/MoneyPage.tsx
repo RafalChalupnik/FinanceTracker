@@ -66,6 +66,7 @@ const MoneyPage: FC<MoneyPageProps> = (props: MoneyPageProps) => {
 
     useEffect(() => {
         populateData(granularity, fromDate, toDate);
+        // eslint-disable-next-line
     }, []);
 
     let onUpdateCallback = async () => {
