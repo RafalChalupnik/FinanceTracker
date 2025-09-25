@@ -4,6 +4,8 @@ const url = require('url');
 const { spawn } = require('child_process');
 const fs = require('fs');
 
+app.setName('Finance Tracker');
+
 let mainWindow;
 let backendProcess = null;
 
