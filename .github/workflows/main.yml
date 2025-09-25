@@ -49,4 +49,4 @@ jobs:
           # The name of the artifact will include the OS (e.g., "finance-tracker-windows-latest")
           name: finance-tracker-${{ matrix.os }}
           # The build output is located in the "dist" folder inside your frontend project
-          path: Web/ClientApp/dist/
+          path: Web/ClientApp/dist/mac-arm64
