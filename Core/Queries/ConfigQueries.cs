@@ -19,6 +19,7 @@ public class ConfigQueries(FinanceTrackerContext dbContext)
                     Name: groupType.Name,
                     DisplaySequence: groupType.DisplaySequence,
                     Icon: groupType.IconName,
+                    ShowScore: groupType.ShowScore,
                     Groups: groupType.Groups
                         .OrderBy(group => group.DisplaySequence)
                         .Select(group => new GroupConfigDto(

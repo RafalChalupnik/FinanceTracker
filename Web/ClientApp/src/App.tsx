@@ -87,12 +87,12 @@ const App: React.FC = () => {
             return ({
                 label: groupType.name,
                 icon: <DynamicIcon name={groupType.icon} />,
-                component: <GroupTypePage groupTypeId={groupType.key} name={groupType.name} />,
+                component: <GroupTypePage key={groupType.key} groupType={groupType} />,
                 children: {
                     ...({
                         [`/groups:${groupType.key}`]: {
                             label: 'Summary',
-                            component: <GroupTypePage key={groupType.key} groupTypeId={groupType.key} name={groupType.name} />,
+                            component: <GroupTypePage key={groupType.key} groupType={groupType} />,
                         },
                     }),
                     ...groupType.groups.reduce((childAcc, group) => {

@@ -124,6 +124,20 @@ const ConfigurationPage: React.FC = () => {
                                     width: '25%',
                                     editable: true,
                                     renderEditor: <IconPicker value="" onChange={() => {}} />
+                                },
+                                {
+                                    title: 'Show score in summary',
+                                    dataIndex: 'showScore',
+                                    render: (showScore: boolean) => <Switch value={showScore} disabled style={{
+                                        opacity: 0.5,           // faded
+                                        backgroundColor: "#d9d9d9", // gray background
+                                        borderColor: "#d9d9d9"
+                                    }}/>,
+                                    width: '20%',
+                                    editable: true,
+                                    renderEditor: (
+                                        <Switch />
+                                    )
                                 }
                             ]}
                             onRowSave={async groupType => {

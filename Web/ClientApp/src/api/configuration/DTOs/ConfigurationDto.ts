@@ -5,6 +5,7 @@ export type ConfigurationDto = {
 
 export type GroupTypeConfigDto = OrderableEntityDto & {
     icon: string,
+    showScore: boolean,
     groups: GroupConfigDto[]
 }
 
