@@ -23,6 +23,55 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
         return BuildEntityTableDto(entities, granularity, from, to);
     }
     
+    public EntityTableDto ForGroupType(Guid groupTypeId, DateGranularity? granularity, DateOnly? from, DateOnly? to)
+    {
+        if (granularity is DateGranularity.Date or DateGranularity.Week)
+        {
+            throw new ArgumentException("Granularity must be greater or equal to month.", nameof(granularity));
+        }
+        
+        var groupType = dbContext.GroupTypes
+            .Include(groupType => groupType.Groups)
+            .ThenInclude(group => group.Components)
+            .ThenInclude(component => component.ValueHistory)
+            .First(groupType => groupType.Id == groupTypeId);
+        
+        var orderedEntities = groupType.Groups
+            .OrderBy(group => group.DisplaySequence)
+            .AsEnumerable()
+            .Select(EntityData.FromGroup)
+            .ToArray();
+
+        var inflationValues = groupType.ShowScore
+            ? dbContext.InflationValues
+            : null;
+        
+        return BuildEntityTableDto(orderedEntities, granularity, from, to, null, inflationValues);
+    }
+    
+    public EntityTableDto ForGroup(Guid groupId, DateGranularity? granularity, DateOnly? from,
+        DateOnly? to)
+    {
+        var group = dbContext.Groups
+            .Include(group => group.Targets)
+            .Include(group => group.Components)
+            .ThenInclude(component => component.ValueHistory)
+            .First(group => group.Id == groupId);
+        
+        var orderedComponents = group.Components
+            .OrderBy(component => component.DisplaySequence)
+            .Select(EntityData.FromComponent)
+            .ToArray();
+        
+        var targets = group.ShowTargets
+            ? group.Targets
+                .OrderByDescending(x => x.Date)
+                .ToArray()
+            : [];
+        
+        return BuildEntityTableDto(orderedComponents, granularity, from, to, targets);
+    }
+    
     public EntityTableDto ForPhysicalAllocations(
         Guid physicalAllocationId, 
         DateGranularity? granularity, 
@@ -50,53 +99,7 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
 
         return BuildEntityTableDto(orderedEntities, granularity, from, to);
     }
-    
-    public EntityTableDto ForGroup(Guid groupId, DateGranularity? granularity, DateOnly? from,
-        DateOnly? to)
-    {
-        var group = dbContext.Groups
-            .Include(group => group.Targets)
-            .Include(group => group.Components)
-            .ThenInclude(component => component.ValueHistory)
-            .First(group => group.Id == groupId);
-        
-        var orderedComponents = group.Components
-            .OrderBy(component => component.DisplaySequence)
-            .Select(EntityData.FromComponent)
-            .ToArray();
-        
-        var targets = group.ShowTargets
-            ? group.Targets
-                .OrderByDescending(x => x.Date)
-                .ToArray()
-            : [];
-        
-        return BuildEntityTableDto(orderedComponents, granularity, from, to, targets);
-    }
 
-    public EntityTableDto ForWallets(DateGranularity? granularity, DateOnly? from, DateOnly? to)
-    {
-        if (granularity is DateGranularity.Date or DateGranularity.Week)
-        {
-            throw new ArgumentException("Granularity must be greater or equal to month.", nameof(granularity));
-        }
-
-        var orderedEntities = dbContext.GroupTypes
-            .Where(groupType => groupType.Name == "Wallets")
-            .Include(groupType => groupType.Groups)
-            .ThenInclude(group => group.Components)
-            .ThenInclude(component => component.ValueHistory)
-            .SelectMany(groupType => groupType.Groups)
-            .OrderBy(group => group.DisplaySequence)
-            .AsEnumerable()
-            .Select(EntityData.FromGroup)
-            .ToArray();
-        
-        var inflationValues = dbContext.InflationValues;
-
-        return BuildEntityTableDto(orderedEntities, granularity, from, to, null, inflationValues);
-    }
-    
     private static EntityTableDto BuildEntityTableDto(
         IReadOnlyList<EntityData> entities, 
         DateGranularity? granularity, DateOnly? from, DateOnly? to,

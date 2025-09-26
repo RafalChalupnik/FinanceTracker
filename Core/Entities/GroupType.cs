@@ -20,6 +20,11 @@ public class GroupType : IOrderableEntity
     public required string IconName { get; set; }
     
     /// <summary>
+    /// Determines whether to include <see cref="InflationHistoricValue"/> in the summary.
+    /// </summary>
+    public bool ShowScore { get; set; }
+    
+    /// <summary>
     /// <see cref="Group"/>s that belong to this <see cref="GroupType"/>.
     /// </summary>
     public IReadOnlyCollection<Group> Groups { get; set; } = new List<Group>();

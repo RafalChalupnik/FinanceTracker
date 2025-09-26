@@ -7,13 +7,13 @@ import {
 } from "@ant-design/icons";
 
 import PortfolioSummary from "./pages/PortfolioSummary";
-import WalletsSummary from './pages/WalletsSummary';
 import ConfigurationPage from "./pages/ConfigurationPage";
 import {getConfiguration} from "./api/configuration/Client";
 import PhysicalAllocation from "./pages/PhysicalAllocation";
 import GroupPage from "./pages/GroupPage";
 import DynamicIcon from "./components/DynamicIcon";
-// import icon from "../public/icon.png";
+import GroupTypePage from "./pages/GroupTypePage";
+import {GroupTypeConfigDto} from "./api/configuration/DTOs/ConfigurationDto";
 
 const { Header, Content } = Layout;
 
@@ -29,11 +29,6 @@ const navBarBeforeGroups: { [key: string]: NavBarItem} = {
         label: 'Portfolio Summary',
         icon: <LineChartOutlined />,
         component: <PortfolioSummary/>
-    },
-    '/wallets-summary': {
-        label: 'Wallets Summary',
-        icon: <LineChartOutlined />,
-        component: <WalletsSummary/>
     }
 }
 
@@ -66,13 +61,35 @@ const App: React.FC = () => {
 
     const populateData = async () => {
         const config = await getConfiguration();
-
-        const groupTypesItems: { [key: string]: NavBarItem } = config.groupTypes.reduce(
-            (acc, groupType) => {
-                acc[groupType.name] = {
+        
+        const mapGroupTypeChildren = (groupType: GroupTypeConfigDto) => {
+            if (groupType.groups.length === 1) {
+                let group = groupType.groups[0];
+                
+                return ({
                     label: groupType.name,
                     icon: <DynamicIcon name={groupType.icon} />,
-                    children: groupType.groups.reduce((childAcc, group) => {
+                    component: <GroupPage
+                        key={group.key}
+                        groupId={group.key}
+                        name={group.name}
+                        showTargets={group.showTargets}
+                    />
+                });
+            }
+            
+            return ({
+                label: groupType.name,
+                icon: <DynamicIcon name={groupType.icon} />,
+                component: <GroupTypePage key={groupType.key} groupType={groupType} />,
+                children: {
+                    ...({
+                        [`/groups:${groupType.key}`]: {
+                            label: 'Summary',
+                            component: <GroupTypePage key={groupType.key} groupType={groupType} />,
+                        },
+                    }),
+                    ...groupType.groups.reduce((childAcc, group) => {
                         childAcc[`/groups:${group.key}`] = {
                             label: group.name,
                             component: (
@@ -85,8 +102,14 @@ const App: React.FC = () => {
                             ),
                         };
                         return childAcc;
-                    }, {} as Record<string, NavBarItem>),
-                };
+                    }, {} as Record<string, NavBarItem>)
+                },
+            });
+        }
+
+        const groupTypesItems: { [key: string]: NavBarItem } = config.groupTypes.reduce(
+            (acc, groupType) => {
+                acc[groupType.name] = mapGroupTypeChildren(groupType)
                 return acc;
             },
             {} as Record<string, NavBarItem>

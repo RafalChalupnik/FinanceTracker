@@ -5,9 +5,6 @@ export type GroupDto = OrderableEntityDto & {
 }
 
 export type GroupTypeDto = OrderableEntityDto & {
-    icon: string
-}
-
-export type GroupTypeDtoWithGroups = GroupTypeDto & {
-    groups: GroupDto[]
+    icon: string,
+    showScore: boolean
 }

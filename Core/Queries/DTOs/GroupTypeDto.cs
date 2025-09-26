@@ -6,7 +6,8 @@ public record GroupTypeDto(
     Guid Key,
     string Name,
     int DisplaySequence,
-    string Icon
+    string Icon,
+    bool ShowScore
 ) : OrderableEntityDto(
     Key,
     Name,
@@ -19,7 +20,8 @@ public record GroupTypeDto(
             Id = Key,
             Name = Name,
             IconName = Icon,
-            DisplaySequence = DisplaySequence
+            DisplaySequence = DisplaySequence,
+            ShowScore = ShowScore
         };
 }
 

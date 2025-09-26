@@ -1,6 +1,6 @@
 import React, {FC, useEffect, useState} from "react";
 import {Button, Space, Card, Row, Col, Divider, Switch} from "antd";
-import {PlusOutlined} from "@ant-design/icons";
+import {CheckOutlined, CloseOutlined, PlusOutlined} from "@ant-design/icons";
 import {
     GroupConfigDto,
     GroupTypeConfigDto,
@@ -97,6 +97,10 @@ const ConfigurationPage: React.FC = () => {
         await populateData();
     }
     
+    let renderEnabledIcon = (enabled: boolean) => enabled
+        ? <CheckOutlined/>
+        : <CloseOutlined/>;
+    
     return (
         <Space direction="vertical" style={{ width: "100%" }} size="large">
             <Row gutter={16} style={{ alignItems: "stretch" }}>
@@ -108,22 +112,30 @@ const ConfigurationPage: React.FC = () => {
                                 {
                                     title: 'Name',
                                     dataIndex: 'name',
-                                    width: '50%',
+                                    width: '40%',
                                     editable: true,
                                 },
                                 {
                                     title: 'Sequence',
                                     dataIndex: 'displaySequence',
-                                    width: '25%',
+                                    width: '20%',
                                     editable: true,
                                 },
                                 {
                                     title: 'Icon',
                                     dataIndex: 'icon',
                                     render: (iconName: string) => <DynamicIcon name={iconName} />,
-                                    width: '25%',
+                                    width: '20%',
                                     editable: true,
                                     renderEditor: <IconPicker value="" onChange={() => {}} />
+                                },
+                                {
+                                    title: 'Show score in summary',
+                                    dataIndex: 'showScore',
+                                    render: renderEnabledIcon,
+                                    width: '20%',
+                                    editable: true,
+                                    renderEditor: <Switch />
                                 }
                             ]}
                             onRowSave={async groupType => {
@@ -173,16 +185,10 @@ const ConfigurationPage: React.FC = () => {
                                 {
                                     title: 'Show targets',
                                     dataIndex: 'showTargets',
-                                    render: (showTargets: boolean) => <Switch value={showTargets} disabled style={{
-                                        opacity: 0.5,           // faded
-                                        backgroundColor: "#d9d9d9", // gray background
-                                        borderColor: "#d9d9d9"
-                                    }}/>,
+                                    render: renderEnabledIcon,
                                     width: '20%',
                                     editable: true,
-                                    renderEditor: (
-                                        <Switch />
-                                    )
+                                    renderEditor: <Switch />
                                 }
                             ]}
                             onRowSave={async group => {

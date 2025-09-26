@@ -12,6 +12,7 @@ public record GroupTypeConfigDto(
     string Name,
     int DisplaySequence,
     string Icon,
+    bool ShowScore,
     IReadOnlyCollection<GroupConfigDto> Groups
 ) : OrderableEntityDto(
     Key: Key,
