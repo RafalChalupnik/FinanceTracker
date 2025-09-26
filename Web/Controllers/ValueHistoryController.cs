@@ -17,6 +17,14 @@ public class ValueHistoryController(
     SetInflationValueCommand setInflationValueCommand
     ) : ControllerBase
 {
+    [HttpGet("group-types/{groupTypeId:guid}")]
+    public EntityTableDto GetGroupTypeSummary(
+        Guid groupTypeId,
+        [FromQuery] DateGranularity? granularity,
+        [FromQuery] DateOnly? from,
+        [FromQuery] DateOnly? to)
+        => query.ForGroupType(groupTypeId, granularity, from, to);
+    
     [HttpGet("groups/{groupId:guid}")]
     public EntityTableDto GetGroupValueHistory(
         Guid groupId,

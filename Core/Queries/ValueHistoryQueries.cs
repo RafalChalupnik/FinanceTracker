@@ -74,6 +74,27 @@ public class ValueHistoryQueries(FinanceTrackerContext dbContext)
         return BuildEntityTableDto(orderedComponents, granularity, from, to, targets);
     }
 
+    public EntityTableDto ForGroupType(Guid groupTypeId, DateGranularity? granularity, DateOnly? from, DateOnly? to)
+    {
+        if (granularity is DateGranularity.Date or DateGranularity.Week)
+        {
+            throw new ArgumentException("Granularity must be greater or equal to month.", nameof(granularity));
+        }
+        
+        var orderedEntities = dbContext.GroupTypes
+            .Where(groupType => groupType.Id == groupTypeId)
+            .Include(groupType => groupType.Groups)
+            .ThenInclude(group => group.Components)
+            .ThenInclude(component => component.ValueHistory)
+            .SelectMany(groupType => groupType.Groups)
+            .OrderBy(group => group.DisplaySequence)
+            .AsEnumerable()
+            .Select(EntityData.FromGroup)
+            .ToArray();
+        
+        return BuildEntityTableDto(orderedEntities, granularity, from, to);
+    }
+
     public EntityTableDto ForWallets(DateGranularity? granularity, DateOnly? from, DateOnly? to)
     {
         if (granularity is DateGranularity.Date or DateGranularity.Week)

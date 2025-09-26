@@ -4,6 +4,15 @@ import {EntityTableDto} from "./DTOs/EntityTableDto";
 import {MoneyDto} from "./DTOs/Money";
 import {sendDelete, sendPut} from "../shared/HttpClient";
 
+export async function getGroupTypeSummary(
+    groupTypeId: string,
+    granularity?: DateGranularity,
+    from?: Dayjs,
+    to?: Dayjs
+) : Promise<EntityTableDto> {
+    return await sendGet(`api/value-history/group-types/${groupTypeId}`, granularity, from, to);
+}
+
 export async function getGroupValueHistory(
     groupId: string,
     granularity?: DateGranularity,
