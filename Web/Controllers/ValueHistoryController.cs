@@ -81,14 +81,6 @@ public class ValueHistoryController(
         ) 
         => query.ForEntirePortfolio(granularity, from: from, to: to);
     
-    [HttpGet("wallets")]
-    public EntityTableDto GetWalletsValueHistory(
-        [FromQuery] DateGranularity? granularity, 
-        [FromQuery] DateOnly? from, 
-        [FromQuery] DateOnly? to
-        ) 
-        => query.ForWallets(granularity, from: from, to: to);
-
     [HttpPut("inflation")]
     public async Task<IActionResult> SetInflation([FromBody] InflationUpdateDto update)
     {

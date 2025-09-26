@@ -7,7 +7,6 @@ import {
 } from "@ant-design/icons";
 
 import PortfolioSummary from "./pages/PortfolioSummary";
-import WalletsSummary from './pages/WalletsSummary';
 import ConfigurationPage from "./pages/ConfigurationPage";
 import {getConfiguration} from "./api/configuration/Client";
 import PhysicalAllocation from "./pages/PhysicalAllocation";
@@ -30,11 +29,6 @@ const navBarBeforeGroups: { [key: string]: NavBarItem} = {
         label: 'Portfolio Summary',
         icon: <LineChartOutlined />,
         component: <PortfolioSummary/>
-    },
-    '/wallets-summary': {
-        label: 'Wallets Summary',
-        icon: <LineChartOutlined />,
-        component: <WalletsSummary/>
     }
 }
 

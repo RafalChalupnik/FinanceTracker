@@ -57,14 +57,6 @@ export async function getPortfolioValueHistory(
     return await sendGet('api/value-history/portfolio', granularity, from, to);
 }
 
-export async function getWalletsValueHistory(
-    granularity?: DateGranularity,
-    from?: Dayjs,
-    to?: Dayjs
-) : Promise<EntityTableDto> {
-    return await sendGet('api/value-history/wallets', granularity, from, to);
-}
-
 export async function setInflation(year: number, month: number, value: number, confirmed: boolean) : Promise<void> {
     await sendPut(`api/value-history/inflation`, {
         year: year,
