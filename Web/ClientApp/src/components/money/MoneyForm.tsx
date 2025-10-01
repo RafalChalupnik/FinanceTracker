@@ -21,7 +21,7 @@ const MoneyForm: FC<MoneyFormProps> = (props) => {
     const [amount, setAmount] = useState(props?.initialValue?.amount);
     const [currency, setCurrency] = useState(props?.initialValue?.currency ?? 'PLN');
     const [amountInMainCurrency, setAmountInMainCurrency] = useState<number | undefined>(props?.initialValue?.amountInMainCurrency);
-    const [physicalAllocationId, setPhysicalAllocationId] = useState<string | undefined>(undefined);
+    const [physicalAllocationId, setPhysicalAllocationId] = useState<string | undefined>(props.defaultPhysicalAllocation);
     const [alertVisible, setAlertVisible] = useState(false);
 
     // TODO: Move
