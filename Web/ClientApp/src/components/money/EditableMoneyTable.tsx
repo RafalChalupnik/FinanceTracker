@@ -113,7 +113,7 @@ const buildComponentsColumnGroups = (
             : undefined;
 
         return buildComponentColumnGroup(
-            component.name,
+            component.id,
             areAllComponentsInSameGroup
                 ? component.name
                 : (
