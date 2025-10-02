@@ -1,5 +1,5 @@
 import React, {FC, useEffect, useState} from "react";
-import {Button, Space, Card, Row, Col, Divider, Switch} from "antd";
+import {Button, Space, Card, Row, Col, Divider, Switch, Modal} from "antd";
 import {CheckOutlined, CloseOutlined, PlusOutlined} from "@ant-design/icons";
 import {
     GroupConfigDto,
@@ -18,6 +18,7 @@ import IconPicker from "../components/IconPicker";
 import {EditableRowsTable} from "../components/table/EditableRowsTable";
 import DynamicIcon from "../components/DynamicIcon";
 import SimpleDropdown from "../components/SimpleDropdown";
+import DeleteModal from "../components/DeleteModal";
 
 interface TableCardProps {
     title: string,
@@ -106,47 +107,55 @@ const ConfigurationPage: React.FC = () => {
             <Row gutter={16} style={{ alignItems: "stretch" }}>
                 <Col span={12} style={{ display: "flex", flexDirection: "column" }}>
                     <TableCard title={'Group Types'} onAdd={addNewGroupTypeDto}>
-                        <EditableRowsTable
-                            data={groupTypes}
-                            columns={[
-                                {
-                                    title: 'Name',
-                                    dataIndex: 'name',
-                                    width: '40%',
-                                    editable: true,
-                                },
-                                {
-                                    title: 'Sequence',
-                                    dataIndex: 'displaySequence',
-                                    width: '20%',
-                                    editable: true,
-                                },
-                                {
-                                    title: 'Icon',
-                                    dataIndex: 'icon',
-                                    render: (iconName: string) => <DynamicIcon name={iconName} />,
-                                    width: '20%',
-                                    editable: true,
-                                    renderEditor: <IconPicker value="" onChange={() => {}} />
-                                },
-                                {
-                                    title: 'Show score in summary',
-                                    dataIndex: 'showScore',
-                                    render: renderEnabledIcon,
-                                    width: '20%',
-                                    editable: true,
-                                    renderEditor: <Switch />
-                                }
-                            ]}
-                            onRowSave={async groupType => {
-                                await upsertGroupType(groupType);
-                                await populateData();
-                            }}
-                            onRowDelete={async groupType => {
-                                await deleteGroupType(groupType.key);
-                                await populateData();
-                            }}
+                        <DeleteModal 
+                            open={true}
+                            title={'Deleting Group Type'}
+                            description={'Lorem ipsum'}
+                            deletedName={'Wallest'}
+                            onConfirm={() => alert('Yeet!')}
+                            onCancel={() => alert('Nope :(')}
                         />
+                        {/*<EditableRowsTable*/}
+                        {/*    data={groupTypes}*/}
+                        {/*    columns={[*/}
+                        {/*        {*/}
+                        {/*            title: 'Name',*/}
+                        {/*            dataIndex: 'name',*/}
+                        {/*            width: '40%',*/}
+                        {/*            editable: true,*/}
+                        {/*        },*/}
+                        {/*        {*/}
+                        {/*            title: 'Sequence',*/}
+                        {/*            dataIndex: 'displaySequence',*/}
+                        {/*            width: '20%',*/}
+                        {/*            editable: true,*/}
+                        {/*        },*/}
+                        {/*        {*/}
+                        {/*            title: 'Icon',*/}
+                        {/*            dataIndex: 'icon',*/}
+                        {/*            render: (iconName: string) => <DynamicIcon name={iconName} />,*/}
+                        {/*            width: '20%',*/}
+                        {/*            editable: true,*/}
+                        {/*            renderEditor: <IconPicker value="" onChange={() => {}} />*/}
+                        {/*        },*/}
+                        {/*        {*/}
+                        {/*            title: 'Show score in summary',*/}
+                        {/*            dataIndex: 'showScore',*/}
+                        {/*            render: renderEnabledIcon,*/}
+                        {/*            width: '20%',*/}
+                        {/*            editable: true,*/}
+                        {/*            renderEditor: <Switch />*/}
+                        {/*        }*/}
+                        {/*    ]}*/}
+                        {/*    onRowSave={async groupType => {*/}
+                        {/*        await upsertGroupType(groupType);*/}
+                        {/*        await populateData();*/}
+                        {/*    }}*/}
+                        {/*    onRowDelete={async groupType => {*/}
+                        {/*        await deleteGroupType(groupType.key);*/}
+                        {/*        await populateData();*/}
+                        {/*    }}*/}
+                        {/*/>*/}
                     </TableCard>
                 </Col>
 
