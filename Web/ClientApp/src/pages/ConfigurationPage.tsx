@@ -2,23 +2,27 @@ import React, {FC, useEffect, useState} from "react";
 import {Button, Space, Card, Row, Col, Divider, Switch} from "antd";
 import {CheckOutlined, CloseOutlined, PlusOutlined} from "@ant-design/icons";
 import {
+    ComponentConfigDto,
     GroupConfigDto,
     GroupTypeConfigDto,
     OrderableEntityDto
 } from "../api/configuration/DTOs/ConfigurationDto";
 import {
     deleteComponent,
-    deleteGroup,
+    deleteGroup, deleteGroupType,
     deletePhysicalAllocation,
-    getConfiguration, 
+    getConfiguration,
     upsertComponent,
     upsertGroup,
-    upsertGroupType, 
+    upsertGroupType,
     upsertPhysicalAllocation
 } from "../api/configuration/Client";
 import {EditableRowsTable} from "../components/table/EditableRowsTable";
 import SimpleDropdown from "../components/SimpleDropdown";
 import DeleteModal from "../components/DeleteModal";
+import IconPicker from "../components/IconPicker";
+import DynamicIcon from "../components/DynamicIcon";
+import {GroupDto} from "../api/configuration/DTOs/GroupDto";
 
 interface TableCardProps {
     title: string,
@@ -102,58 +106,97 @@ const ConfigurationPage: React.FC = () => {
         ? <CheckOutlined/>
         : <CloseOutlined/>;
     
+    let buildGroupTypeDeleteModal = (groupType: GroupTypeConfigDto) => (
+        <DeleteModal
+            title={`Deleting '${groupType.name}'`}
+            description={'Deleting Group Type will irreversibly delete all Groups, Components, and value history within it. Are you sure you want to delete this Group Type?'}
+            deletedName={groupType.name}
+            onConfirm={async () => {
+                await deleteGroupType(groupType.key);
+                await populateData();
+            }}
+        />
+    )
+
+    let buildGroupDeleteModal = (group: GroupDto) => (
+        <DeleteModal
+            title={`Deleting '${group.name}'`}
+            description={'Deleting Group will irreversibly delete all Components and value history within it. Are you sure you want to delete this Group?'}
+            deletedName={group.name}
+            onConfirm={async () => {
+                await deleteGroup(group.key);
+                await populateData();
+            }}
+        />
+    )
+
+    let buildComponentDeleteModal = (component: ComponentConfigDto) => (
+        <DeleteModal
+            title={`Deleting '${component.name}'`}
+            description={'Deleting Component will irreversibly delete all value history within it. Are you sure you want to delete this Component?'}
+            deletedName={component.name}
+            onConfirm={async () => {
+                await deleteComponent(component.key);
+                await populateData();
+            }}
+        />
+    )
+
+    let buildPhysicalAllocationDeleteModal = (physicalAllocation: OrderableEntityDto) => (
+        <DeleteModal
+            title={`Deleting '${physicalAllocation.name}'`}
+            description={'Deleting Physical Allocation will irreversibly delete all associations with value history within it. Are you sure you want to delete this Physical Allocation?'}
+            deletedName={physicalAllocation.name}
+            onConfirm={async () => {
+                await deletePhysicalAllocation(physicalAllocation.key);
+                await populateData();
+            }}
+        />
+    )
+    
     return (
         <Space direction="vertical" style={{ width: "100%" }} size="large">
             <Row gutter={16} style={{ alignItems: "stretch" }}>
                 <Col span={12} style={{ display: "flex", flexDirection: "column" }}>
                     <TableCard title={'Group Types'} onAdd={addNewGroupTypeDto}>
-                        <DeleteModal 
-                            title={'Deleting Group Type'}
-                            description={'Lorem ipsum'}
-                            deletedName={'Wallest'}
-                            onConfirm={() => alert('Yeet!')}
+                        <EditableRowsTable
+                            data={groupTypes}
+                            columns={[
+                                {
+                                    title: 'Name',
+                                    dataIndex: 'name',
+                                    width: '40%',
+                                    editable: true,
+                                },
+                                {
+                                    title: 'Sequence',
+                                    dataIndex: 'displaySequence',
+                                    width: '20%',
+                                    editable: true,
+                                },
+                                {
+                                    title: 'Icon',
+                                    dataIndex: 'icon',
+                                    render: (iconName: string) => <DynamicIcon name={iconName} />,
+                                    width: '20%',
+                                    editable: true,
+                                    renderEditor: <IconPicker value="" onChange={() => {}} />
+                                },
+                                {
+                                    title: 'Show score in summary',
+                                    dataIndex: 'showScore',
+                                    render: renderEnabledIcon,
+                                    width: '20%',
+                                    editable: true,
+                                    renderEditor: <Switch />
+                                }
+                            ]}
+                            onRowSave={async groupType => {
+                                await upsertGroupType(groupType);
+                                await populateData();
+                            }}
+                            renderDeleteButton={buildGroupTypeDeleteModal}
                         />
-                        {/*<EditableRowsTable*/}
-                        {/*    data={groupTypes}*/}
-                        {/*    columns={[*/}
-                        {/*        {*/}
-                        {/*            title: 'Name',*/}
-                        {/*            dataIndex: 'name',*/}
-                        {/*            width: '40%',*/}
-                        {/*            editable: true,*/}
-                        {/*        },*/}
-                        {/*        {*/}
-                        {/*            title: 'Sequence',*/}
-                        {/*            dataIndex: 'displaySequence',*/}
-                        {/*            width: '20%',*/}
-                        {/*            editable: true,*/}
-                        {/*        },*/}
-                        {/*        {*/}
-                        {/*            title: 'Icon',*/}
-                        {/*            dataIndex: 'icon',*/}
-                        {/*            render: (iconName: string) => <DynamicIcon name={iconName} />,*/}
-                        {/*            width: '20%',*/}
-                        {/*            editable: true,*/}
-                        {/*            renderEditor: <IconPicker value="" onChange={() => {}} />*/}
-                        {/*        },*/}
-                        {/*        {*/}
-                        {/*            title: 'Show score in summary',*/}
-                        {/*            dataIndex: 'showScore',*/}
-                        {/*            render: renderEnabledIcon,*/}
-                        {/*            width: '20%',*/}
-                        {/*            editable: true,*/}
-                        {/*            renderEditor: <Switch />*/}
-                        {/*        }*/}
-                        {/*    ]}*/}
-                        {/*    onRowSave={async groupType => {*/}
-                        {/*        await upsertGroupType(groupType);*/}
-                        {/*        await populateData();*/}
-                        {/*    }}*/}
-                        {/*    onRowDelete={async groupType => {*/}
-                        {/*        await deleteGroupType(groupType.key);*/}
-                        {/*        await populateData();*/}
-                        {/*    }}*/}
-                        {/*/>*/}
                     </TableCard>
                 </Col>
 
@@ -203,10 +246,7 @@ const ConfigurationPage: React.FC = () => {
                                 await upsertGroup(group);
                                 await populateData();
                             }}
-                            onRowDelete={async group => {
-                                await deleteGroup(group.key);
-                                await populateData();
-                            }}
+                            renderDeleteButton={buildGroupDeleteModal}
                         />
                     </TableCard>
                 </Col>
@@ -216,7 +256,7 @@ const ConfigurationPage: React.FC = () => {
             <Divider/>
 
             {groups.map(group => (
-                <TableCard title={group.name} onAdd={() => {addNewComponent(group)}}>
+                <TableCard title={group.name} onAdd={() => addNewComponent(group)}>
                     <EditableRowsTable
                         data={group.components}
                         columns={[
@@ -273,10 +313,7 @@ const ConfigurationPage: React.FC = () => {
                             await upsertComponent(component);
                             await populateData();
                         }}
-                        onRowDelete={async component => {
-                            await deleteComponent(component.key);
-                            await populateData();
-                        }}
+                        renderDeleteButton={buildComponentDeleteModal}
                     />
                 </TableCard>
             ))}
@@ -301,10 +338,7 @@ const ConfigurationPage: React.FC = () => {
                         await upsertPhysicalAllocation(physicalAllocation);
                         await populateData();
                     }}
-                    onRowDelete={async physicalAllocation => {
-                        await deletePhysicalAllocation(physicalAllocation.key);
-                        await populateData();
-                    }}
+                    renderDeleteButton={buildPhysicalAllocationDeleteModal}
                 />
             </TableCard>
         </Space>

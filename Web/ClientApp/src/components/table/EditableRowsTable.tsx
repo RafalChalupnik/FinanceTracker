@@ -15,7 +15,7 @@ interface EditableRowsTableProps<T> {
     data: T[];
     columns: EditableColumnType<T>[];
     onRowSave: (row: T) => void | Promise<void>;
-    onRowDelete: (row: T) => void | Promise<void>;
+    renderDeleteButton: (row: T) => React.ReactNode;
 }
 
 export function EditableRowsTable<T extends { key: React.Key }>(props: EditableRowsTableProps<T>) {
@@ -58,15 +58,7 @@ export function EditableRowsTable<T extends { key: React.Key }>(props: EditableR
                 : (
                     <Space direction='horizontal'>
                         <EditOutlined onClick={() => edit(record)} />
-                        <Popconfirm
-                            title='Sure to delete?'
-                            okText={'Yes'}
-                            cancelText={'No'}
-                            okButtonProps={{ danger: true }}
-                            onConfirm={async () => await props.onRowDelete(record)}
-                        >
-                            <DeleteOutlined />
-                        </Popconfirm>
+                        {props.renderDeleteButton(record)}
                     </Space>
                 );
         },
