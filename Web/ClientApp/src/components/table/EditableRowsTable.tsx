@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import {Form, Input, Popconfirm, Space, Table} from 'antd';
+import {Form, Input, Space, Table} from 'antd';
 import type { FormRule } from 'antd';
 import { ColumnType } from "antd/es/table";
 import SaveCancelButtons from "../SaveCancelButtons";
-import {DeleteOutlined, EditOutlined} from "@ant-design/icons";
+import {EditOutlined} from "@ant-design/icons";
 
 export interface EditableColumnType<T> extends ColumnType<T> {
     editable?: boolean;
