@@ -134,6 +134,11 @@ const MoneyPage: FC<MoneyPageProps> = (props: MoneyPageProps) => {
         }
         : undefined;
     
+    let openModal = () => {
+        setIsModalOpen(true);
+        setSelectedDate(dayjs());
+    }
+    
     return (
         <EmptyConfig enabled={data.columns.length === 0}>
             <div style={{ width: '95vw' }}>
@@ -157,7 +162,7 @@ const MoneyPage: FC<MoneyPageProps> = (props: MoneyPageProps) => {
                             />
                             {props.editable && <Button
                                 icon={<PlusOutlined />}
-                                onClick={() => setIsModalOpen(true)}
+                                onClick={openModal}
                             >
                                 Add new entry
                             </Button>}

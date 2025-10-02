@@ -38,7 +38,7 @@ public record EntityData(
             Id: component.Id,
             Name: component.Name,
             ParentName: component.Group?.Name,
-            DefaultPhysicalAllocationId: null,
+            DefaultPhysicalAllocationId: component.DefaultPhysicalAllocationId,
             Dates: orderedValues.Select(x => x.Date).Distinct().ToArray(),
             GetValueForDate: date =>
             {

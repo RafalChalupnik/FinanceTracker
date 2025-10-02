@@ -8,7 +8,7 @@ internal static class Seeder
 {
     public static async ValueTask SeedDataIfNecessary(FinanceTrackerContext context)
     {
-        if (context.GroupTypes.Any() == false)
+        if (context.HistoricValues.Any() == false)
         {
             await SeedData(context);
         }
@@ -19,22 +19,39 @@ internal static class Seeder
         var endDate = DateOnly.FromDateTime(DateTime.Today);
         var startYear = endDate.Year - 2;
 
+        FixGroupTypes(context);
         var bankAccountAllocationId = await SeedPhysicalAllocation(context, "Bank Account", displaySequence: 1);
-        
-        var walletsGroupTypeId = await SeedGroupType(context, "Wallets", displaySequence: 1);
-        var assetsGroupTypeId = await SeedGroupType(context, "Assets", displaySequence: 2);
-        var debtsGroupTypeId = await SeedGroupType(context, "Debts", displaySequence: 3);
+
+        var walletsGroupTypeId = GetGroupTypeId(context, "Wallets");
         
         await SeedEmergencyFund(context, walletsGroupTypeId, startYear, endDate, bankAccountAllocationId);
         await SeedLongTermWallet(context, walletsGroupTypeId, startYear, endDate, bankAccountAllocationId);
 
         await SeedInflationValues(context, startYear, endDate);
         
-        await SeedAssets(context, assetsGroupTypeId, startYear, endDate);
-        await SeedDebts(context, debtsGroupTypeId, startYear, endDate);
+        await SeedAssets(context, startYear, endDate);
+        await SeedDebts(context, startYear, endDate);
 
         await context.SaveChangesAsync();
     }
+
+    private static void FixGroupTypes(FinanceTrackerContext context)
+    {
+        var wallets = context.GroupTypes.Single(groupType => groupType.Name == "Wallets");
+        wallets.DisplaySequence = 1;
+        wallets.IconName = "WalletOutlined";
+        
+        var assets = context.GroupTypes.Single(groupType => groupType.Name == "Assets");
+        assets.DisplaySequence = 2;
+        assets.IconName = "PlusSquareOutlined";
+        
+        var debts = context.GroupTypes.Single(groupType => groupType.Name == "Debts");
+        debts.DisplaySequence = 3;
+        debts.IconName = "MinusSquareOutlined";
+    }
+    
+    private static Guid GetGroupTypeId(FinanceTrackerContext context, string name) =>
+        context.GroupTypes.Single(groupType => groupType.Name == name).Id;
     
     private static async ValueTask SeedEmergencyFund(
         FinanceTrackerContext context, 
@@ -199,20 +216,6 @@ internal static class Seeder
         );
     }
     
-    private static async ValueTask<Guid> SeedGroupType(FinanceTrackerContext context, string name, int displaySequence)
-    {
-        var groupType = new GroupType
-        {
-            Name = name,
-            DisplaySequence = displaySequence,
-            IconName = ""
-        };
-        
-        await context.GroupTypes.AddAsync(groupType);
-
-        return groupType.Id;
-    }
-
     private static async ValueTask<Guid> SeedPhysicalAllocation(FinanceTrackerContext context, string name, int displaySequence)
     {
         var physicalAllocation = new PhysicalAllocation
@@ -254,23 +257,24 @@ internal static class Seeder
 
     private static async ValueTask SeedAssets(
         FinanceTrackerContext context, 
-        Guid groupTypeId,
         int startYear, 
         DateOnly endDate
         )
     {
-        var home = new Group
+        var assetsGroupId = context.Groups.Single(group => group.Name == "Assets").Id;
+        
+        var home = new Component
         {
             Name = "Home",
             DisplaySequence = 1,
-            GroupTypeId = groupTypeId
+            GroupId = assetsGroupId
         };
 
-        var car = new Group
+        var car = new Component
         {
             Name = "Car",
             DisplaySequence = 2,
-            GroupTypeId = groupTypeId
+            GroupId = assetsGroupId
         };
 
         var homeValueHistory = GenerateValues(
@@ -289,7 +293,7 @@ internal static class Seeder
             maxValue: 75_000
         );
 
-        await context.Groups.AddRangeAsync(home, car);
+        await context.Components.AddRangeAsync(home, car);
         
         await context.HistoricValues.AddRangeAsync(
             homeValueHistory
@@ -300,23 +304,24 @@ internal static class Seeder
     }
     
     private static async ValueTask SeedDebts(
-        FinanceTrackerContext context, 
-        Guid groupTypeId,
+        FinanceTrackerContext context,
         int startYear, 
         DateOnly endDate)
     {
-        var mortgage = new Group
+        var debtsGroupId = context.Groups.Single(group => group.Name == "Debts").Id;
+        
+        var mortgage = new Component
         {
             Name = "Mortgage",
             DisplaySequence = 1,
-            GroupTypeId = groupTypeId
+            GroupId = debtsGroupId
         };
 
-        var carPayment = new Group
+        var carPayment = new Component
         {
             Name = "Car Payment",
             DisplaySequence = 2,
-            GroupTypeId = groupTypeId
+            GroupId = debtsGroupId
         };
 
         var mortgageHistory = GenerateValues(
@@ -335,7 +340,7 @@ internal static class Seeder
             maxValue: -5_000
         );
 
-        await context.Groups.AddRangeAsync(mortgage, carPayment);
+        await context.Components.AddRangeAsync(mortgage, carPayment);
         
         await context.HistoricValues.AddRangeAsync(
             mortgageHistory

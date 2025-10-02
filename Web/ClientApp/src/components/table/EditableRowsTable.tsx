@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import {Form, Input, Popconfirm, Space, Table} from 'antd';
+import {Form, Input, Space, Table} from 'antd';
 import type { FormRule } from 'antd';
 import { ColumnType } from "antd/es/table";
 import SaveCancelButtons from "../SaveCancelButtons";
-import {DeleteOutlined, EditOutlined} from "@ant-design/icons";
+import {EditOutlined} from "@ant-design/icons";
 
 export interface EditableColumnType<T> extends ColumnType<T> {
     editable?: boolean;
@@ -15,7 +15,7 @@ interface EditableRowsTableProps<T> {
     data: T[];
     columns: EditableColumnType<T>[];
     onRowSave: (row: T) => void | Promise<void>;
-    onRowDelete: (row: T) => void | Promise<void>;
+    renderDeleteButton: (row: T) => React.ReactNode;
 }
 
 export function EditableRowsTable<T extends { key: React.Key }>(props: EditableRowsTableProps<T>) {
@@ -58,15 +58,7 @@ export function EditableRowsTable<T extends { key: React.Key }>(props: EditableR
                 : (
                     <Space direction='horizontal'>
                         <EditOutlined onClick={() => edit(record)} />
-                        <Popconfirm
-                            title='Sure to delete?'
-                            okText={'Yes'}
-                            cancelText={'No'}
-                            okButtonProps={{ danger: true }}
-                            onConfirm={async () => await props.onRowDelete(record)}
-                        >
-                            <DeleteOutlined />
-                        </Popconfirm>
+                        {props.renderDeleteButton(record)}
                     </Space>
                 );
         },

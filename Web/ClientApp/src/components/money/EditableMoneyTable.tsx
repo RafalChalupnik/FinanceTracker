@@ -113,7 +113,7 @@ const buildComponentsColumnGroups = (
             : undefined;
 
         return buildComponentColumnGroup(
-            component.name,
+            component.id,
             areAllComponentsInSameGroup
                 ? component.name
                 : (
@@ -203,7 +203,7 @@ const buildInflationColumnGroup = (
                         colorCoding={false}
                         extra={record.score?.inflation?.confirmed === false && (
                             <Tooltip title='Inflation value not yet confirmed'>
-                                <ExclamationCircleOutlined style={{ color: '#faad14', fontSize: '16px' }}/>
+                                <ExclamationCircleOutlined style={{ color: '#faad14', fontSize: '16px', marginRight: '5px' }}/>
                             </Tooltip>
                         )}
                     />
