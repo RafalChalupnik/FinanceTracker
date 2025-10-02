@@ -1,5 +1,5 @@
 import React, {FC, useEffect, useState} from "react";
-import {Button, Space, Card, Row, Col, Divider, Switch, Modal} from "antd";
+import {Button, Space, Card, Row, Col, Divider, Switch} from "antd";
 import {CheckOutlined, CloseOutlined, PlusOutlined} from "@ant-design/icons";
 import {
     GroupConfigDto,
@@ -9,14 +9,14 @@ import {
 import {
     deleteComponent,
     deleteGroup,
-    deleteGroupType, deletePhysicalAllocation,
-    getConfiguration, upsertComponent,
+    deletePhysicalAllocation,
+    getConfiguration, 
+    upsertComponent,
     upsertGroup,
-    upsertGroupType, upsertPhysicalAllocation
+    upsertGroupType, 
+    upsertPhysicalAllocation
 } from "../api/configuration/Client";
-import IconPicker from "../components/IconPicker";
 import {EditableRowsTable} from "../components/table/EditableRowsTable";
-import DynamicIcon from "../components/DynamicIcon";
 import SimpleDropdown from "../components/SimpleDropdown";
 import DeleteModal from "../components/DeleteModal";
 
@@ -108,12 +108,10 @@ const ConfigurationPage: React.FC = () => {
                 <Col span={12} style={{ display: "flex", flexDirection: "column" }}>
                     <TableCard title={'Group Types'} onAdd={addNewGroupTypeDto}>
                         <DeleteModal 
-                            open={true}
                             title={'Deleting Group Type'}
                             description={'Lorem ipsum'}
                             deletedName={'Wallest'}
                             onConfirm={() => alert('Yeet!')}
-                            onCancel={() => alert('Nope :(')}
                         />
                         {/*<EditableRowsTable*/}
                         {/*    data={groupTypes}*/}
