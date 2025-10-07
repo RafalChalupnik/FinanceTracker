@@ -1,6 +1,7 @@
 using FinanceTracker.Core;
 using FinanceTracker.Web;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 // --- Start of the fix ---
 
@@ -35,11 +36,27 @@ builder.WebHost.UseUrls("http://localhost:5288");
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// --- ADD THIS BLOCK ---
+// In production, we need to serve the static files from our 'frontend' folder.
 if (!app.Environment.IsDevelopment())
 {
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    // app.UseHsts(); // Disabled for HTTP-only
+    // The path to the static files is relative to the backend executable.
+    // In the packaged app, the structure is:
+    //   - backend/ (where the .exe runs)
+    //   - frontend/ (where the vite build output is)
+    var frontendPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../frontend"));
+    
+    // Serve index.html for the root path
+    app.UseDefaultFiles(new DefaultFilesOptions
+    {
+        FileProvider = new PhysicalFileProvider(frontendPath)
+    });
+
+    // Serve all other static files (js, css, etc.)
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(frontendPath)
+    });
 }
 
 using (var scope = app.Services.CreateScope())

@@ -1,6 +1,6 @@
 const { app, BrowserWindow, dialog } = require('electron');
 const path = require('path');
-const url = require('url');
+// The url module is unused.
 const { spawn } = require('child_process');
 const fs = require('fs');
 
@@ -19,7 +19,13 @@ function createWindow() {
         }
     });
 
-    const startUrl = 'http://localhost:3000';
+    // --- CORRECTED LOGIC ---
+    // In development, we load from the Vite server.
+    // In production, we load from the ASP.NET Core server that we start.
+    const startUrl = app.isPackaged
+        ? 'http://localhost:5288'
+        : 'http://localhost:3000';
+    // -----------------------
 
     const loadUrlWithRetry = (retries = 5) => {
         mainWindow.loadURL(startUrl).catch(err => {
@@ -27,12 +33,10 @@ function createWindow() {
                 console.log(`Failed to load URL, retries left: ${retries - 1}`);
                 setTimeout(() => loadUrlWithRetry(retries - 1), 2000);
             } else {
-                const userDataPath = app.getPath('userData');
-                const logPath = path.join(userDataPath, 'backend.log');
-                dialog.showErrorBox(
-                    'Application Load Error',
-                    `Failed to connect to the backend at ${startUrl}. Please check the log file for details: ${logPath}`
-                );
+                const errorMessage = app.isPackaged
+                    ? `Failed to connect to the backend at ${startUrl}.`
+                    : `Failed to connect to the Vite dev server at ${startUrl}. Please ensure it is running.`;
+                dialog.showErrorBox('Application Load Error', errorMessage);
                 app.quit();
             }
         });
@@ -49,12 +53,12 @@ function createWindow() {
     });
 }
 
+// The rest of your file remains exactly the same.
 app.on('ready', () => {
     if (app.isPackaged) {
         const resourcesPath = process.resourcesPath;
         const backendDir = path.join(resourcesPath, 'backend');
         const backendPath = path.join(backendDir, process.platform === 'win32' ? 'FinanceTracker.Web.exe' : 'FinanceTracker.Web');
-        const frontendPath = path.join(resourcesPath, 'frontend'); // The correct path to our UI files
 
         const userDataPath = app.getPath('userData');
         const logPath = path.join(userDataPath, 'backend.log');
@@ -69,20 +73,12 @@ app.on('ready', () => {
             logStream.write(`Starting backend: ${backendPath}\n`);
             logStream.write(`Working directory: ${backendDir}\n`);
 
-            // Spawn the process. It will find the frontend on its own now.
             backendProcess = spawn(backendPath, [], { cwd: backendDir, env });
 
-            // --- Comprehensive Logging ---
             backendProcess.stdout.on('data', (data) => logStream.write(`STDOUT: ${data.toString()}`));
             backendProcess.stderr.on('data', (data) => logStream.write(`STDERR: ${data.toString()}`));
-
-            backendProcess.on('error', (err) => {
-                logStream.write(`SPAWN_ERROR: ${err.toString()}\n`);
-            });
-
-            backendProcess.on('exit', (code) => {
-                logStream.write(`EXIT_CODE: ${code}\n`);
-            });
+            backendProcess.on('error', (err) => logStream.write(`SPAWN_ERROR: ${err.toString()}\n`));
+            backendProcess.on('exit', (code) => logStream.write(`EXIT_CODE: ${code}\n`));
 
         } catch (error) {
             logStream.write(`FATAL_LAUNCH_ERROR: ${error.toString()}\n`);
