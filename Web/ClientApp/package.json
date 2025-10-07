@@ -27,7 +27,6 @@
     "eslint-plugin-react": "^7.32.2",
     "typescript": "^5.5.3",
     "vite": "^6.3.6",
-    "vite-plugin-mkcert": "^1.17.5",
     "vite-tsconfig-paths": "^4.3.2",
     "wait-on": "^7.2.0"
   },
@@ -37,7 +36,7 @@
     "test": "vitest",
     "lint": "eslint ./src/",
     "postinstall": "electron-builder install-app-deps",
-    "electron:dev": "concurrently -k \"npm:start\" \"dotnet run --project ../\" \"wait-on https://localhost:3000 && electron .\"",
+    "electron:dev": "concurrently -k \"npm:start\" \"dotnet run --project ../\" \"wait-on http://localhost:3000 && electron .\"",
     "build:backend": "dotnet publish ../ -c Release -o ../publish",
     "electron:build": "npm run build && npm run build:backend && electron-builder"
   },

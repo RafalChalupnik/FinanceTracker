@@ -19,7 +19,7 @@ function createWindow() {
         }
     });
 
-    const startUrl = 'https://localhost:3000';
+    const startUrl = 'http://localhost:3000';
 
     const loadUrlWithRetry = (retries = 5) => {
         mainWindow.loadURL(startUrl).catch(err => {
