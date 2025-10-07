@@ -15,7 +15,6 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.11.0",
-    "react-scripts": "^5.0.1",
     "recharts": "^3.1.0",
     "rimraf": "^5.0.0",
     "web-vitals": "^3.3.1",
@@ -28,6 +27,7 @@
   "devDependencies": {
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.3.1",
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
     "electron": "^37.3.1",
@@ -35,7 +35,10 @@
     "eslint": "^8.39.0",
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-react": "^7.32.2",
-    "typescript": "^4.9.5"
+    "typescript": "^5.2.2",
+    "vite": "^5.3.5",
+    "vite-plugin-mkcert": "^1.17.5",
+    "vite-tsconfig-paths": "^4.3.2"
   },
   "overrides": {
     "autoprefixer": "10.4.5",
@@ -43,14 +46,12 @@
     "webpack": "5.81.0"
   },
   "scripts": {
-    "prestart": "node aspnetcore-https && node aspnetcore-react",
-    "start": "rimraf ./build && react-scripts start",
-    "build": "react-scripts build",
-    "test": "cross-env CI=true react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
+    "start": "vite",
+    "build": "vite build",
+    "test": "vitest",
     "lint": "eslint ./src/",
     "postinstall": "electron-builder install-app-deps",
-    "electron:dev": "concurrently -k \"dotnet run --project ../\" \"wait-on http://localhost:5288 && electron .\"",
+    "electron:dev": "concurrently -k \"dotnet run --project ../\" \"wait-on https://localhost:3000 && electron .\"",
     "build:backend": "dotnet publish ../ -c Release -o ../publish",
     "electron:build": "npm run build && npm run build:backend && electron-builder"
   },
