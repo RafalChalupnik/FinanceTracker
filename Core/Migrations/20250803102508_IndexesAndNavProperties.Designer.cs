@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using FinanceTracker.Core;
-using FinanceTracker.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
