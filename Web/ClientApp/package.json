@@ -34,7 +34,10 @@
     "test": "vitest",
     "lint": "eslint ./src/",
     "postinstall": "electron-builder install-app-deps",
-    "electron:dev": "concurrently -k \"npm:start\" \"dotnet run --project ../\" \"wait-on http://localhost:3000 && electron .\"",
+    "dev:frontend": "vite",
+    "dev:backend": "dotnet run --project ../",
+    "dev:electron": "wait-on http://localhost:3000 && electron .",
+    "electron:dev": "concurrently -k \"npm run dev:frontend\" \"npm run dev:backend\" \"npm run dev:electron\"",
     "build:backend": "dotnet publish ../ -c Release -o ../publish",
     "electron:build": "npm run build && npm run build:backend && electron-builder"
   },
