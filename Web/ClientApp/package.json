@@ -7,89 +7,39 @@
   "main": "public/electron.js",
   "dependencies": {
     "@ant-design/icons": "^5.6.1",
-    "@types/react-router-dom": "^5.3.3",
     "antd": "^5.26.6",
-    "antd-style": "^3.7.1",
-    "bootstrap": "^5.2.3",
     "dayjs": "^1.11.13",
-    "http-proxy-middleware": "^2.0.6",
-    "jquery": "^3.6.4",
-    "merge": "^2.1.1",
-    "oidc-client": "^1.11.5",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-bootstrap": "^0.26.2",
-    "react-router-dom": "^6.11.0",
-    "react-scripts": "^5.0.1",
-    "reactstrap": "^9.1.9",
-    "recharts": "^3.1.0",
-    "rimraf": "^5.0.0",
-    "web-vitals": "^3.3.1",
-    "workbox-background-sync": "^6.5.4",
-    "workbox-broadcast-update": "^6.5.4",
-    "workbox-cacheable-response": "^6.5.4",
-    "workbox-core": "^6.5.4",
-    "workbox-expiration": "^6.5.4",
-    "workbox-google-analytics": "^6.5.4",
-    "workbox-navigation-preload": "^6.5.4",
-    "workbox-precaching": "^6.5.4",
-    "workbox-range-requests": "^6.5.4",
-    "workbox-routing": "^6.5.4",
-    "workbox-strategies": "^6.5.4",
-    "workbox-streams": "^6.5.4"
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^6.25.1",
+    "recharts": "^3.1.0"
   },
   "devDependencies": {
-    "@types/jest": "^30.0.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
-    "ajv": "^8.12.0",
+    "@vitejs/plugin-react": "^4.3.1",
     "concurrently": "^8.2.2",
-    "cross-env": "^7.0.3",
     "electron": "^37.3.1",
     "electron-builder": "^26.0.12",
     "eslint": "^8.39.0",
-    "eslint-config-react-app": "^7.0.1",
-    "eslint-plugin-flowtype": "^8.0.3",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-react": "^7.32.2",
-    "nan": "^2.17.0",
-    "typescript": "^4.9.5",
+    "typescript": "^5.5.3",
+    "vite": "^6.3.6",
+    "vite-tsconfig-paths": "^4.3.2",
     "wait-on": "^7.2.0"
   },
-  "overrides": {
-    "autoprefixer": "10.4.5",
-    "nth-check": "2.1.1",
-    "webpack": "5.81.0"
-  },
   "scripts": {
-    "prestart": "node aspnetcore-https && node aspnetcore-react",
-    "start": "rimraf ./build && react-scripts start",
-    "build": "react-scripts build",
-    "test": "cross-env CI=true react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
+    "start": "vite",
+    "build": "vite build",
+    "test": "vitest",
     "lint": "eslint ./src/",
     "postinstall": "electron-builder install-app-deps",
-    "electron:dev": "concurrently -k \"dotnet run --project ../\" \"wait-on http://localhost:5288 && electron .\"",
+    "dev:frontend": "vite",
+    "dev:backend": "dotnet run --project ../",
+    "dev:electron": "wait-on http://localhost:3000 && electron .",
+    "electron:dev": "concurrently -k \"npm run dev:frontend\" \"npm run dev:backend\" \"npm run dev:electron\"",
     "build:backend": "dotnet publish ../ -c Release -o ../publish",
     "electron:build": "npm run build && npm run build:backend && electron-builder"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   },
   "build": {
     "publish": null,

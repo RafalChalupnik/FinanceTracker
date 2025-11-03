@@ -230,3 +230,12 @@ _Pvt_Extensions
 
 # FAKE - F# Make
 .fake/
+
+# Build folder
+**/build/*
+
+# Publish folder
+**/publish/*
+
+# Dist folder
+**/dist/*
