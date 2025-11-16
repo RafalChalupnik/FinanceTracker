@@ -47,7 +47,7 @@ public class ConfigurationController(
     }
 
     [HttpGet("components")]
-    public IReadOnlyCollection<ComponentConfigDto> GetComponents([FromBody] ComponentConfigDto component)
+    public IReadOnlyCollection<ComponentConfigDto> GetComponents()
         => query.GetComponents();
     
     [HttpPost("components")]
