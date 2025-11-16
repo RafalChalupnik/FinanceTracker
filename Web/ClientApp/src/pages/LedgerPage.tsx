@@ -1,10 +1,13 @@
 import React from 'react';
-import {FloatButton, List, Space} from 'antd';
+import {FloatButton, List, Popconfirm, Space, Typography} from 'antd';
 import dayjs, {Dayjs} from "dayjs";
 import {MoneyDto} from "../api/value-history/DTOs/Money";
-import {ArrowRightOutlined} from "@ant-design/icons";
+import {ArrowRightOutlined, DeleteOutlined} from "@ant-design/icons";
 import Money from "../components/money/Money";
 import {Column, ExtendableTable} from "../components/table/ExtendableTable";
+import MoneyForm from "../components/money/MoneyForm";
+
+const { Text } = Typography;
 
 interface Transaction {
     key: string;
@@ -100,6 +103,23 @@ const data: Transaction[] = [
     }
 ];
 
+const renderComponent = (entry: LedgerEntry | undefined) => {
+    if (entry === undefined ) {
+        return (<></>);
+    }
+    
+    let physicalAllocationText = entry.physicalAllocationId !== undefined
+        ? (<Text style={{ color: 'rgba(0, 0, 0, 0.25)' }}>{entry.physicalAllocationId}</Text>)
+        : (<></>);
+    
+    return (
+        <Space direction={"vertical"}>
+            <Text>{entry.componentId}</Text>
+            {physicalAllocationText}
+        </Space>
+    );
+}
+
 const columns: Column<Transaction>[] = [
     {
         key: 'date',
@@ -107,9 +127,28 @@ const columns: Column<Transaction>[] = [
         render: transaction => transaction.date.format('YYYY-MM-DD')
     },
     {
-        key: 'from',
+        key: 'from-component',
         title: 'From',
-        render: transaction => transaction.debit?.componentId // TODO: Add physical alloc
+        render: transaction => renderComponent(transaction.debit)
+    },
+    {
+        key: 'from-value',
+        title: '',
+        render: transaction => (
+            <Money value={transaction.debit?.value} colorCoding={true} isInferred={false} />
+        ),
+        editable: {
+            renderEditable: (transaction, closeCallback) => (
+                <MoneyForm
+                    initialValue={transaction.debit?.value}
+                    onSave={function(value: MoneyDto, physicalAllocationId?: string): (void | Promise<void>) {
+                        closeCallback();
+                    }}
+                    onCancel={function(): void {
+                        closeCallback();
+                    } }/>
+            )
+        }
     },
     {
         key: 'divider',
@@ -117,10 +156,45 @@ const columns: Column<Transaction>[] = [
         render: _ => <ArrowRightOutlined />
     },
     {
-        key: 'to',
+        key: 'to-component',
         title: 'To',
-        render: transaction => transaction.credit?.componentId // TODO: Add physical alloc
+        render: transaction => renderComponent(transaction.credit)
     },
+    {
+        key: 'to-value',
+        title: '',
+        render: transaction => (
+            <Money value={transaction.credit?.value} colorCoding={true} isInferred={false} />
+        ),
+        editable: {
+            renderEditable: (transaction, closeCallback) => (
+                <MoneyForm 
+                    initialValue={transaction.credit?.value} 
+                    onSave={function(value: MoneyDto, physicalAllocationId?: string): (void | Promise<void>) {
+                        
+                    }} 
+                    onCancel={function(): void {
+                        
+                    } }/>
+            )
+        }
+    },
+    {
+        key: 'delete',
+        title: '',
+        fixed: 'right',
+        render: transaction => (
+            <Popconfirm
+                title='Sure to delete?'
+                okText={'Yes'}
+                cancelText={'No'}
+                okButtonProps={{ danger: true }}
+                // onConfirm={async () => await onDeleteRow(row)}
+            >
+                <DeleteOutlined />
+            </Popconfirm>
+        )
+    }
 ];
 
 const LedgerPage: React.FC = () => {
