@@ -1,5 +1,6 @@
 import {ConfigurationDto, OrderableEntityDto, WalletComponentDataDto} from "./DTOs/ConfigurationDto";
 import {GroupDto, GroupTypeDto} from "./DTOs/GroupDto";
+import {sendDelete, sendGet, sendPost} from "../shared/HttpClient";
 
 export async function getConfiguration() : Promise<ConfigurationDto> {
     return await sendGet('api/configuration');
@@ -42,36 +43,4 @@ export async function upsertPhysicalAllocation(physicalAllocation: OrderableEnti
 
 export async function deletePhysicalAllocation(physicalAllocationId: string) : Promise<void> {
     await sendDelete(`api/configuration/physical-allocations/${physicalAllocationId}`);
-}
-
-async function sendGet<T>(path: string) : Promise<T> {
-    let response = await fetch(path);
-    return await response.json();
-}
-
-async function sendPost(path: string, body: any) : Promise<void> {
-    let response = await fetch(path, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-    });
-
-    if (!response.ok) {
-        throw new Error(`Failed to POST to ${path}`);
-    }
-}
-
-async function sendDelete(path: string) : Promise<void> {
-    let response = await fetch(path, {
-        method: "DELETE",
-        headers: {
-            "Content-Type": "application/json",
-        }
-    });
-
-    if (!response.ok) {
-        throw new Error(`Failed to DELETE ${path}`);
-    }
 }
