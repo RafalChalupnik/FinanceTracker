@@ -14,6 +14,7 @@ import GroupPage from "./pages/GroupPage";
 import DynamicIcon from "./components/DynamicIcon";
 import GroupTypePage from "./pages/GroupTypePage";
 import {GroupTypeConfigDto} from "./api/configuration/DTOs/ConfigurationDto";
+import LedgerPage from "./pages/LedgerPage";
 
 const { Header, Content } = Layout;
 
@@ -25,6 +26,11 @@ interface NavBarItem {
 }
 
 const navBarBeforeGroups: { [key: string]: NavBarItem} = {
+    '/ledger': {
+        label: 'Ledger',
+        icon: <WalletOutlined />,
+        component: <LedgerPage />
+    },
     '/': {
         label: 'Portfolio Summary',
         icon: <LineChartOutlined />,
