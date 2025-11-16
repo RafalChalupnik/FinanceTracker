@@ -4,7 +4,7 @@ import dayjs, {Dayjs} from "dayjs";
 import {MoneyDto} from "../api/value-history/DTOs/Money";
 import {ArrowRightOutlined, DeleteOutlined} from "@ant-design/icons";
 import Money from "../components/money/Money";
-import {Column, ExtendableTable} from "../components/table/ExtendableTable";
+import {Column, ColumnGroup, ExtendableTable} from "../components/table/ExtendableTable";
 import MoneyForm from "../components/money/MoneyForm";
 
 const { Text } = Typography;
@@ -120,65 +120,56 @@ const renderComponent = (entry: LedgerEntry | undefined) => {
     );
 }
 
-const columns: Column<Transaction>[] = [
+const buildEntryColumnGroup = (
+    name: string,
+    selector: (transaction: Transaction) => LedgerEntry | undefined
+): ColumnGroup<Transaction> => {
+    return (
+        {
+            title: name,
+            children: [
+                {
+                    key: `${name}-component`,
+                    title: 'Component',
+                    render: transaction => renderComponent(selector(transaction))
+                },
+                {
+                    key: `${name}-value`,
+                    title: 'Value',
+                    render: transaction => (
+                        <Money value={selector(transaction)?.value} colorCoding={true} isInferred={false}/>
+                    ),
+                    editable: {
+                        renderEditable: (transaction, closeCallback) => (
+                            <MoneyForm
+                                initialValue={selector(transaction)?.value}
+                                onSave={function (value: MoneyDto, physicalAllocationId?: string): (void | Promise<void>) {
+                                    closeCallback();
+                                }}
+                                onCancel={function (): void {
+                                    closeCallback();
+                                }}/>
+                        )
+                    }
+                }
+            ]
+        }
+    );
+};
+
+const columns: (Column<Transaction> | ColumnGroup<Transaction>)[] = [
     {
         key: 'date',
         title: 'Date',
         render: transaction => transaction.date.format('YYYY-MM-DD')
     },
-    {
-        key: 'from-component',
-        title: 'From',
-        render: transaction => renderComponent(transaction.debit)
-    },
-    {
-        key: 'from-value',
-        title: '',
-        render: transaction => (
-            <Money value={transaction.debit?.value} colorCoding={true} isInferred={false} />
-        ),
-        editable: {
-            renderEditable: (transaction, closeCallback) => (
-                <MoneyForm
-                    initialValue={transaction.debit?.value}
-                    onSave={function(value: MoneyDto, physicalAllocationId?: string): (void | Promise<void>) {
-                        closeCallback();
-                    }}
-                    onCancel={function(): void {
-                        closeCallback();
-                    } }/>
-            )
-        }
-    },
+    buildEntryColumnGroup('Debit', transaction => transaction.debit),
     {
         key: 'divider',
         title: '',
         render: _ => <ArrowRightOutlined />
     },
-    {
-        key: 'to-component',
-        title: 'To',
-        render: transaction => renderComponent(transaction.credit)
-    },
-    {
-        key: 'to-value',
-        title: '',
-        render: transaction => (
-            <Money value={transaction.credit?.value} colorCoding={true} isInferred={false} />
-        ),
-        editable: {
-            renderEditable: (transaction, closeCallback) => (
-                <MoneyForm 
-                    initialValue={transaction.credit?.value} 
-                    onSave={function(value: MoneyDto, physicalAllocationId?: string): (void | Promise<void>) {
-                        
-                    }} 
-                    onCancel={function(): void {
-                        
-                    } }/>
-            )
-        }
-    },
+    buildEntryColumnGroup('Credit', transaction => transaction.credit),
     {
         key: 'delete',
         title: '',
@@ -201,18 +192,6 @@ const LedgerPage: React.FC = () => {
     return (
         <>
             <ExtendableTable rows={data} columns={columns}/>
-            
-            <List
-                header={<div>Header</div>}
-                footer={<div>Footer</div>}
-                bordered
-                dataSource={data}
-                renderItem={(item) => (
-                    <List.Item>
-                        <LedgerEntryForm transaction={item} />
-                    </List.Item>
-                )}
-            />
             <FloatButton onClick={() => console.log('onClick')} />
         </>
     );
