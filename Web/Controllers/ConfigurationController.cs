@@ -45,6 +45,10 @@ public class ConfigurationController(
         repository.Delete<Group>(groupId);
         return NoContent();
     }
+
+    [HttpGet("components")]
+    public IReadOnlyCollection<ComponentConfigDto> GetComponents([FromBody] ComponentConfigDto component)
+        => query.GetComponents();
     
     [HttpPost("components")]
     public IActionResult UpsertComponent([FromBody] ComponentConfigDto component)

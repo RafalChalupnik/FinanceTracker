@@ -26,12 +26,6 @@ export type OrderableEntityDto = {
     displaySequence: number
 }
 
-// ---
-
-export type WalletDataDto = OrderableEntityDto & {
-    components: WalletComponentDataDto[]
-}
-
 export type WalletComponentDataDto = OrderableEntityDto & {
     defaultPhysicalAllocationId: string | undefined
 };

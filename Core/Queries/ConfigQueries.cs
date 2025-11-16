@@ -30,14 +30,7 @@ public class ConfigQueries(FinanceTrackerContext dbContext)
                                 GroupTypeId: groupType.Id,
                                 Components: group.Components
                                     .OrderBy(component => component.DisplaySequence)
-                                    .Select(component => new ComponentConfigDto(
-                                            Key: component.Id,
-                                            Name: component.Name,
-                                            DisplaySequence: component.DisplaySequence,
-                                            GroupId: component.GroupId,
-                                            DefaultPhysicalAllocationId: component.DefaultPhysicalAllocationId
-                                        )
-                                    )
+                                    .Select(ComponentConfigDto.FromComponent)
                                     .ToArray()
                             )
                         )
@@ -50,6 +43,11 @@ public class ConfigQueries(FinanceTrackerContext dbContext)
         
         return new ConfigurationDto(groupTypes, physicalAllocations);
     }
+
+    public ComponentConfigDto[] GetComponents() =>
+        dbContext.Components
+            .Select(ComponentConfigDto.FromComponent)
+            .ToArray();
 
     public OrderableEntityDto[] GetPhysicalAllocations()
         => GetOrderableEntities<PhysicalAllocation>();

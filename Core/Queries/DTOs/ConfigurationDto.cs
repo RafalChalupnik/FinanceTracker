@@ -45,6 +45,15 @@ public record ComponentConfigDto(
     DisplaySequence: DisplaySequence
 )
 {
+    public static ComponentConfigDto FromComponent(Component component) =>
+        new ComponentConfigDto(
+            Key: component.Id,
+            Name: component.Name,
+            DisplaySequence: component.DisplaySequence,
+            GroupId: component.GroupId,
+            DefaultPhysicalAllocationId: component.DefaultPhysicalAllocationId
+        );
+    
     public Component ToComponent() =>
         new()
         {
