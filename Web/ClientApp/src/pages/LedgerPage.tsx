@@ -6,6 +6,7 @@ import {ArrowRightOutlined, DeleteOutlined} from "@ant-design/icons";
 import Money from "../components/money/Money";
 import {Column, ColumnGroup, ExtendableTable} from "../components/table/ExtendableTable";
 import MoneyForm from "../components/money/MoneyForm";
+import {deleteTransaction, updateTransactionCreditAmount, updateTransactionDebitAmount} from "../api/ledger/Client";
 
 const { Text } = Typography;
 
@@ -122,7 +123,8 @@ const renderComponent = (entry: LedgerEntry | undefined) => {
 
 const buildEntryColumnGroup = (
     name: string,
-    selector: (transaction: Transaction) => LedgerEntry | undefined
+    selector: (transaction: Transaction) => LedgerEntry | undefined,
+    onSave: (transaction: Transaction, value: MoneyDto) => void | Promise<void>
 ): ColumnGroup<Transaction> => {
     return (
         {
@@ -144,6 +146,7 @@ const buildEntryColumnGroup = (
                             <MoneyForm
                                 initialValue={selector(transaction)?.value}
                                 onSave={function (value: MoneyDto, physicalAllocationId?: string): (void | Promise<void>) {
+                                    onSave(transaction, value);
                                     closeCallback();
                                 }}
                                 onCancel={function (): void {
@@ -163,13 +166,21 @@ const columns: (Column<Transaction> | ColumnGroup<Transaction>)[] = [
         title: 'Date',
         render: transaction => transaction.date.format('YYYY-MM-DD')
     },
-    buildEntryColumnGroup('Debit', transaction => transaction.debit),
+    buildEntryColumnGroup(
+        'Debit', 
+        transaction => transaction.debit,
+        (transaction, value) => updateTransactionDebitAmount(transaction.key, value)
+    ),
     {
         key: 'divider',
         title: '',
         render: _ => <ArrowRightOutlined />
     },
-    buildEntryColumnGroup('Credit', transaction => transaction.credit),
+    buildEntryColumnGroup(
+        'Credit',
+        transaction => transaction.credit,
+        (transaction, value) => updateTransactionCreditAmount(transaction.key, value)
+    ),
     {
         key: 'delete',
         title: '',
@@ -180,7 +191,7 @@ const columns: (Column<Transaction> | ColumnGroup<Transaction>)[] = [
                 okText={'Yes'}
                 cancelText={'No'}
                 okButtonProps={{ danger: true }}
-                // onConfirm={async () => await onDeleteRow(row)}
+                onConfirm={async () => await deleteTransaction(transaction.key)} // TODO: Update state
             >
                 <DeleteOutlined />
             </Popconfirm>
