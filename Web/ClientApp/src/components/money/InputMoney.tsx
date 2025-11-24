@@ -94,48 +94,63 @@ interface InputMoneyProps {
 const InputMoney : FC<InputMoneyProps> = (props) => {
     const MAIN_CURRENCY = 'PLN';
     const AVAILABLE_CURRENCIES = ["PLN", "CAD", "USD", "EUR", "GBP"];
+
+    const [amount, setAmount] = useState(props?.value?.amount);
+    const [currency, setCurrency] = useState(props?.value?.currency ?? MAIN_CURRENCY);
+    const [amountInMainCurrency, setAmountInMainCurrency] = useState(props?.value?.amountInMainCurrency);
     
-    let value = props.value ?? {
-        amount: 0,
-        currency: MAIN_CURRENCY,
-        amountInMainCurrency: 0
-    };
+    const onChange = (
+        amount: number | undefined, 
+        currency: string | undefined, 
+        amountInMainCurrency: number | undefined
+    ) => {
+        props.onChange?.({
+            amount: amount ?? 0,
+            currency: currency ?? MAIN_CURRENCY,
+            amountInMainCurrency: currency !== MAIN_CURRENCY
+                ? amountInMainCurrency ?? amount ?? 0
+                : amount ?? 0
+        })
+    }
+    
+    const amountChanged = (amount?: number)=> {
+        setAmount(amount);
+        onChange(amount, currency, amountInMainCurrency);
+    }
+    
+    const currencyChanged = (currency: string) => {
+        setCurrency(currency);
+        onChange(amount, currency, amountInMainCurrency);
+    }
+
+    const amountInMainCurrencyChanged = (amountInMainCurrency?: number)=> {
+        setAmountInMainCurrency(amountInMainCurrency);
+        onChange(amount, currency, amountInMainCurrency);
+    }
     
     const convertCurrency = async () => {
-        if (props.value !== undefined) {
-            const res = await fetch(`https://open.er-api.com/v6/latest/${props.value.currency}`);
-            const converted = (await res.json()).rates[MAIN_CURRENCY] * props.value.amount;
-            props.onChange?.({
-                ...props.value,
-                amountInMainCurrency: converted,
-            });
+        if (amount !== undefined) {
+            const res = await fetch(`https://open.er-api.com/v6/latest/${currency}`);
+            const converted = (await res.json()).rates[MAIN_CURRENCY] * amount;
+            amountInMainCurrencyChanged(converted);
         }
     }
     
     return (
         <Space direction='vertical'>
             <InputCurrency 
-                value={value.amount}
-                currency={value.currency}
+                value={amount}
+                currency={currency}
                 currencyOptions={AVAILABLE_CURRENCIES}
                 disableCurrencyPicker={false}
-                onValueChange={amount => props.onChange?.({
-                    ...value,
-                    amount: amount ?? 0
-                })}
-                onCurrencyChange={currency => props.onChange?.({
-                    ...value,
-                    currency: currency
-                })}
+                onValueChange={amountChanged}
+                onCurrencyChange={currencyChanged}
             />
-            {value.currency !== MAIN_CURRENCY && <InputCurrency
-                value={value?.amountInMainCurrency}
+            {currency !== MAIN_CURRENCY && <InputCurrency
+                value={amountInMainCurrency}
                 currency={MAIN_CURRENCY}
                 disableCurrencyPicker={true}
-                onValueChange={amount => props.onChange?.({
-                    ...value,
-                    amountInMainCurrency: amount ?? 0,
-                })}
+                onValueChange={amountInMainCurrencyChanged}
                 extra={<TransactionOutlined onClick={convertCurrency}/>}
             />}
         </Space>
