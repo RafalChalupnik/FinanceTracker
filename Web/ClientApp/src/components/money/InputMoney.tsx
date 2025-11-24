@@ -1,13 +1,14 @@
 import React, {FC, ReactNode, useState} from "react";
 import {InputNumber, Select, Space} from "antd";
 import {TransactionOutlined} from "@ant-design/icons";
+import {MoneyDto} from "../../api/value-history/DTOs/Money";
 
 const { Option } = Select;
 
 interface InputCurrencyProps {
     value?: number;
     currency?: string;
-    currencyOptions: string[];
+    currencyOptions?: string[];
     disableCurrencyPicker?: boolean;
     onValueChange: (value: number | undefined) => void;
     onCurrencyChange?: (currency: string) => void;
@@ -59,7 +60,7 @@ const InputCurrency: FC<InputCurrencyProps> = (props) => {
                 showSearch
                 optionFilterProp="children"
             >
-                {props.currencyOptions.map(c => (
+                {props.currencyOptions?.map(c => (
                     <Option key={c} value={c}>
                         {c}
                     </Option>
@@ -86,13 +87,14 @@ const InputCurrency: FC<InputCurrencyProps> = (props) => {
 }
 
 interface InputMoneyProps {
-    
+    value?: MoneyDto;
+    onChange?: (value: MoneyDto | undefined) => void;
 }
 
 const InputMoney : FC<InputMoneyProps> = (props) => {
     const MAIN_CURRENCY = 'PLN';
     const AVAILABLE_CURRENCIES = ["PLN", "CAD", "USD", "EUR", "GBP"];
-
+    
     const [amount, setAmount] = useState<number | undefined>(123);
     const [currency, setCurrency] = useState('PLN');
     const [amountInMainCurrency, setAmountInMainCurrency] = useState<number | undefined>(123);
@@ -118,10 +120,8 @@ const InputMoney : FC<InputMoneyProps> = (props) => {
             {currency !== MAIN_CURRENCY && <InputCurrency
                 value={amountInMainCurrency}
                 currency={MAIN_CURRENCY}
-                currencyOptions={[]}
                 disableCurrencyPicker={true}
                 onValueChange={setAmountInMainCurrency}
-                onCurrencyChange={() => {}}
                 extra={<TransactionOutlined onClick={convertCurrency}/>}
             />}
         </Space>
