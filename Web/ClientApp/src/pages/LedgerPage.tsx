@@ -17,6 +17,7 @@ import EmptyConfig from "../components/EmptyConfig";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 import {getComponents, getPhysicalAllocations} from "../api/configuration/Client";
 import {ComponentConfigDto, OrderableEntityDto} from "../api/configuration/DTOs/ConfigurationDto";
+import LedgerForm from "../components/LedgerForm";
 
 const { Text } = Typography;
 
@@ -158,6 +159,14 @@ const LedgerPage: React.FC = () => {
     return (
         <EmptyConfig enabled={data.length === 0}>
             <>
+                <LedgerForm 
+                    open={true} 
+                    onSubmit={() => {}} 
+                    onCancel={() => {}} 
+                    componentOptions={[]} 
+                    allocationOptions={[]} 
+                    currencyOptions={[]}
+                />
                 <ExtendableTable rows={data} columns={buildColumns(components, physicalAllocations)}/>
                 <FloatButton onClick={() => console.log('onClick')} />
             </>
