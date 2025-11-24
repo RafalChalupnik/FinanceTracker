@@ -71,7 +71,8 @@ const buildEntryColumnGroup = (
 
 const buildColumns = (
     components: ComponentConfigDto[],
-    physicalAllocations: OrderableEntityDto[]
+    physicalAllocations: OrderableEntityDto[],
+    onEdit: (transaction: Transaction) => void
 ): (ColumnType<Transaction> | ColumnGroupType<Transaction>)[] => [
     {
         key: 'date',
@@ -101,7 +102,7 @@ const buildColumns = (
         fixed: 'right',
         render: transaction => (
             <Space direction='horizontal'>
-                <EditOutlined onClick={() => {}} />
+                <EditOutlined onClick={() => onEdit(transaction)} />
                 <Popconfirm
                     title='Sure to delete?'
                     okText={'Yes'}
@@ -120,7 +121,9 @@ const LedgerPage: React.FC = () => {
     const [data, setData] = React.useState<Transaction[]>([]);
     const [components, setComponents] = React.useState<ComponentConfigDto[]>([]);
     const [physicalAllocations, setPhysicalAllocations] = React.useState<OrderableEntityDto[]>([]);
+    
     const [formOpen, setFormOpen] = React.useState(false);
+    const [initialValue, setInitialValue] = React.useState<Transaction>();
     
     const populateData = async () => {
         const dataResponse = getTransactions();
@@ -143,6 +146,7 @@ const LedgerPage: React.FC = () => {
             <>
                 <LedgerForm 
                     open={formOpen} 
+                    initialValue={initialValue}
                     onSubmit={() => {
                         // TODO: Update
                         setFormOpen(false);
@@ -154,12 +158,18 @@ const LedgerPage: React.FC = () => {
                 <Table
                     bordered
                     dataSource={data}
-                    columns={buildColumns(components, physicalAllocations)}
+                    columns={buildColumns(components, physicalAllocations, transaction => {
+                        setInitialValue(transaction);
+                        setFormOpen(true);
+                    })}
                     pagination={false}
                     rowKey='key'
                     scroll={{ x: 'max-content' }}
                 />
-                <FloatButton onClick={() => setFormOpen(true)} />
+                <FloatButton onClick={() => {
+                    setInitialValue(undefined);
+                    setFormOpen(true);
+                }} />
             </>
         </EmptyConfig>
     );

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {Modal, Form, DatePicker, Select, Row, Col, Typography, Space, Checkbox, Divider} from "antd";
 import { Transaction } from "../api/ledger/DTOs/Transaction";
 import dayjs from "dayjs";
@@ -9,6 +9,7 @@ const { Title } = Typography;
 // Component props
 interface LedgerFormProps {
     open: boolean;
+    initialValue?: Transaction;
     onSubmit: (t: Transaction) => void;
     onCancel: () => void;
     componentOptions: { label: string; value: string }[];
@@ -19,6 +20,18 @@ const LedgerForm : React.FC<LedgerFormProps> = (props) => {
     const [form] = Form.useForm();
     const [showDebit, setShowDebit] = React.useState(false);
     const [showCredit, setShowCredit] = React.useState(false);
+
+    useEffect(() => {
+        if (props.initialValue) {
+            form.setFieldsValue(props.initialValue);
+            setShowDebit(props.initialValue.debit !== undefined);
+            setShowCredit(props.initialValue.credit !== undefined);
+        } else {
+            form.resetFields();
+            setShowDebit(false);
+            setShowCredit(false);
+        }
+    }, [props.initialValue, form]);
 
     const handleOk = () => {
         form
@@ -70,7 +83,10 @@ const LedgerForm : React.FC<LedgerFormProps> = (props) => {
         <Modal
             title="Add Ledger Transaction"
             open={props.open}
-            onCancel={props.onCancel}
+            onCancel={() => {
+                form.resetFields();
+                props.onCancel();
+            }}
             onOk={handleOk}
             okText="Save"
         >
@@ -83,7 +99,7 @@ const LedgerForm : React.FC<LedgerFormProps> = (props) => {
                     <Col xs={24} md={12}>
                         <Space direction="horizontal" align='center'>
                             <Title level={5} style={{ margin: 0 }}>Debit</Title>
-                            <Checkbox value={showDebit} onChange={(e) => setShowDebit(e.target.checked)} />
+                            <Checkbox checked={showDebit} onChange={(e) => setShowDebit(e.target.checked)} />
                         </Space>
                         <Divider/>
                         {showDebit && ledgerEntryFields("debit")}
@@ -91,7 +107,7 @@ const LedgerForm : React.FC<LedgerFormProps> = (props) => {
                     <Col xs={24} md={12}>
                         <Space direction="horizontal" align='center'>
                             <Title level={5} style={{ margin: 0 }}>Credit</Title>
-                            <Checkbox value={showCredit} onChange={(e) => setShowCredit(e.target.checked)} />
+                            <Checkbox checked={showCredit} onChange={(e) => setShowCredit(e.target.checked)} />
                         </Space>
                         <Divider/>
                         {showCredit && ledgerEntryFields("credit")}
