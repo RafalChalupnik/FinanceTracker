@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import {Modal, Form, DatePicker, Select, InputNumber, Button, Space, Row, Col, Typography} from "antd";
 import { Transaction } from "../api/ledger/DTOs/Transaction";
 import dayjs from "dayjs";
+import InputCurrency from "./money/InputCurrency";
+import MoneyForm from "./money/MoneyForm";
+import InputMoney from "./money/InputMoney";
 
 const { Title } = Typography;
 
@@ -57,7 +60,36 @@ const LedgerForm : React.FC<LedgerFormProps> = (props) => {
                 label="Amount"
                 rules={[{ required: true }]}
             >
-                <InputNumber style={{ width: "100%" }} min={0} />
+                <InputMoney/>
+                {/*<MoneyForm*/}
+                {/*    initialValue={{*/}
+                {/*        amount: 0,*/}
+                {/*        currency: 'PLN',*/}
+                {/*        amountInMainCurrency: 0*/}
+                {/*    }}*/}
+                {/*    onSave={async (money, physicalAllocationId) => {*/}
+                {/*        // await onUpdate(component.id, dayjs(record.key), money, physicalAllocationId);*/}
+                {/*        // closeCallback();*/}
+                {/*    }}*/}
+                {/*    onCancel={() => {}}*/}
+                {/*    physicalAllocations={[]}*/}
+                {/*    defaultPhysicalAllocation={undefined}*/}
+                {/*/>*/}
+                {/*<InputCurrency*/}
+                {/*    onValueChange={() => {}}*/}
+                {/*    initialValue={0}*/}
+                {/*    currency={{*/}
+                {/*        onChange: currency => {*/}
+                {/*            // setCurrency(currency);*/}
+                {/*            //*/}
+                {/*            // if (currency !== MAIN_CURRENCY && amountInMainCurrency === undefined) {*/}
+                {/*            //     setAmountInMainCurrency(0);*/}
+                {/*            // }*/}
+                {/*        },*/}
+                {/*        initialCurrency: 'PLN'*/}
+                {/*    }}*/}
+                {/*    error={undefined}*/}
+                {/*/>*/}
             </Form.Item>
 
             <Form.Item
