@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import {Modal, Form, DatePicker, Select, InputNumber, Button, Space, Row, Col, Typography} from "antd";
 import { Transaction } from "../api/ledger/DTOs/Transaction";
+import dayjs from "dayjs";
 
 const { Title } = Typography;
 
@@ -78,7 +79,7 @@ const LedgerForm : React.FC<LedgerFormProps> = (props) => {
             okText="Save"
         >
             <Form form={form} layout="vertical" requiredMark={false}>
-                <Form.Item name="date" label="Date" rules={[{ required: true, message: "Pick a date" }]}>
+                <Form.Item name="date" label="Date" initialValue={dayjs()} rules={[{ required: true, message: "Pick a date" }]}>
                     <DatePicker style={{ width: "100%" }} />
                 </Form.Item>
 
