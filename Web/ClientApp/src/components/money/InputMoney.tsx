@@ -10,7 +10,7 @@ interface InputCurrencyProps {
     currency?: string;
     currencyOptions?: string[];
     disableCurrencyPicker?: boolean;
-    onValueChange: (value: number | undefined) => void;
+    onValueChange: (value: number) => void;
     onCurrencyChange?: (currency: string) => void;
     extra?: ReactNode;
 }
@@ -77,7 +77,7 @@ const InputCurrency: FC<InputCurrencyProps> = (props) => {
             formatter={formatter}
             parser={parser}
             onChange={(val) => {
-                props.onValueChange(val ?? undefined);
+                props.onValueChange(val ?? 0);
             }}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
@@ -95,33 +95,47 @@ const InputMoney : FC<InputMoneyProps> = (props) => {
     const MAIN_CURRENCY = 'PLN';
     const AVAILABLE_CURRENCIES = ["PLN", "CAD", "USD", "EUR", "GBP"];
     
-    const [amount, setAmount] = useState<number | undefined>(123);
-    const [currency, setCurrency] = useState('PLN');
-    const [amountInMainCurrency, setAmountInMainCurrency] = useState<number | undefined>(123);
+    let value = props.value ?? {
+        amount: 0,
+        currency: MAIN_CURRENCY,
+        amountInMainCurrency: 0
+    };
     
     const convertCurrency = async () => {
-        if (amount !== undefined) {
-            const res = await fetch(`https://open.er-api.com/v6/latest/${currency}`);
-            const converted = (await res.json()).rates[MAIN_CURRENCY] * amount;
-            setAmountInMainCurrency(converted);
+        if (props.value !== undefined) {
+            const res = await fetch(`https://open.er-api.com/v6/latest/${props.value.currency}`);
+            const converted = (await res.json()).rates[MAIN_CURRENCY] * props.value.amount;
+            props.onChange?.({
+                ...props.value,
+                amountInMainCurrency: converted,
+            });
         }
     }
     
     return (
         <Space direction='vertical'>
             <InputCurrency 
-                value={amount}
-                currency={currency}
+                value={value.amount}
+                currency={value.currency}
                 currencyOptions={AVAILABLE_CURRENCIES}
                 disableCurrencyPicker={false}
-                onValueChange={setAmount}
-                onCurrencyChange={setCurrency}
+                onValueChange={amount => props.onChange?.({
+                    ...value,
+                    amount: amount ?? 0
+                })}
+                onCurrencyChange={currency => props.onChange?.({
+                    ...value,
+                    currency: currency
+                })}
             />
-            {currency !== MAIN_CURRENCY && <InputCurrency
-                value={amountInMainCurrency}
+            {value.currency !== MAIN_CURRENCY && <InputCurrency
+                value={value?.amountInMainCurrency}
                 currency={MAIN_CURRENCY}
                 disableCurrencyPicker={true}
-                onValueChange={setAmountInMainCurrency}
+                onValueChange={amount => props.onChange?.({
+                    ...value,
+                    amountInMainCurrency: amount ?? 0,
+                })}
                 extra={<TransactionOutlined onClick={convertCurrency}/>}
             />}
         </Space>

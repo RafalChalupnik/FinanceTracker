@@ -31,6 +31,7 @@ const LedgerForm : React.FC<LedgerFormProps> = (props) => {
                     debit: values.debit,
                     credit: values.credit,
                 };
+                console.log(transaction);
                 props.onSubmit(transaction);
                 form.resetFields();
             })
@@ -42,7 +43,7 @@ const LedgerForm : React.FC<LedgerFormProps> = (props) => {
             <Form.Item
                 name={[prefix, "componentId"]}
                 label="Component"
-                rules={[{ required: true }]}
+                rules={[{ required: false }]}
             >
                 <Select options={props.componentOptions} />
             </Form.Item>
@@ -50,15 +51,15 @@ const LedgerForm : React.FC<LedgerFormProps> = (props) => {
             <Form.Item
                 name={[prefix, "physicalAllocationId"]}
                 label="Allocation"
-                rules={[{ required: true }]}
+                rules={[{ required: false }]}
             >
                 <Select options={props.allocationOptions} />
             </Form.Item>
 
             <Form.Item
-                name={[prefix, "value", "amount"]}
+                name={[prefix, "value"]}
                 label="Amount"
-                rules={[{ required: true }]}
+                rules={[{ required: false }]}
             >
                 <InputMoney/>
                 {/*<MoneyForm*/}
@@ -95,7 +96,7 @@ const LedgerForm : React.FC<LedgerFormProps> = (props) => {
             <Form.Item
                 name={[prefix, "value", "currency"]}
                 label="Currency"
-                rules={[{ required: true }]}
+                rules={[{ required: false }]}
             >
                 <Select options={props.currencyOptions} />
             </Form.Item>
