@@ -1,23 +1,17 @@
 import React, {useEffect} from 'react';
-import {FloatButton, List, Popconfirm, Space, Typography} from 'antd';
-import dayjs, {Dayjs} from "dayjs";
-import {MoneyDto} from "../api/value-history/DTOs/Money";
+import {FloatButton, Popconfirm, Space, Table, Typography} from 'antd';
 import {ArrowRightOutlined, DeleteOutlined, EditOutlined} from "@ant-design/icons";
 import Money from "../components/money/Money";
-import {Column, ColumnGroup, ExtendableTable} from "../components/table/ExtendableTable";
-import MoneyForm from "../components/money/MoneyForm";
 import {
     deleteTransaction,
-    getTransactions,
-    updateTransactionCreditAmount,
-    updateTransactionDebitAmount
+    getTransactions
 } from "../api/ledger/Client";
 import {LedgerEntry, Transaction} from "../api/ledger/DTOs/Transaction";
 import EmptyConfig from "../components/EmptyConfig";
-import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 import {getComponents, getPhysicalAllocations} from "../api/configuration/Client";
 import {ComponentConfigDto, OrderableEntityDto} from "../api/configuration/DTOs/ConfigurationDto";
 import LedgerForm from "../components/LedgerForm";
+import type {ColumnGroupType, ColumnType} from "antd/es/table";
 
 const { Text } = Typography;
 
@@ -52,9 +46,8 @@ const buildEntryColumnGroup = (
     name: string,
     selector: (transaction: Transaction) => LedgerEntry | undefined,
     components: ComponentConfigDto[],
-    physicalAllocations: OrderableEntityDto[],
-    onSave: (transaction: Transaction, value: MoneyDto) => void | Promise<void>
-): ColumnGroup<Transaction> => {
+    physicalAllocations: OrderableEntityDto[]
+): ColumnGroupType<Transaction> => {
     return (
         {
             title: name,
@@ -69,20 +62,7 @@ const buildEntryColumnGroup = (
                     title: 'Value',
                     render: transaction => (
                         <Money value={selector(transaction)?.value} colorCoding={true} isInferred={false}/>
-                    ),
-                    editable: {
-                        renderEditable: (transaction, closeCallback) => (
-                            <MoneyForm
-                                initialValue={selector(transaction)?.value}
-                                onSave={function (value: MoneyDto, physicalAllocationId?: string): (void | Promise<void>) {
-                                    onSave(transaction, value);
-                                    closeCallback();
-                                }}
-                                onCancel={function (): void {
-                                    closeCallback();
-                                }}/>
-                        )
-                    }
+                    )
                 }
             ]
         }
@@ -92,7 +72,7 @@ const buildEntryColumnGroup = (
 const buildColumns = (
     components: ComponentConfigDto[],
     physicalAllocations: OrderableEntityDto[]
-): (Column<Transaction> | ColumnGroup<Transaction>)[] => [
+): (ColumnType<Transaction> | ColumnGroupType<Transaction>)[] => [
     {
         key: 'date',
         title: 'Date',
@@ -102,8 +82,7 @@ const buildColumns = (
         'Debit', 
         transaction => transaction.debit,
         components,
-        physicalAllocations,
-        (transaction, value) => updateTransactionDebitAmount(transaction.key, value)
+        physicalAllocations
     ),
     {
         key: 'divider',
@@ -114,8 +93,7 @@ const buildColumns = (
         'Credit',
         transaction => transaction.credit,
         components,
-        physicalAllocations,
-        (transaction, value) => updateTransactionCreditAmount(transaction.key, value)
+        physicalAllocations
     ),
     {
         key: 'delete',
@@ -173,7 +151,14 @@ const LedgerPage: React.FC = () => {
                     componentOptions={components.map(c => ({value: c.key, label: c.name}))}
                     allocationOptions={physicalAllocations.map(p => ({value: p.key, label: p.name}))}
                 />
-                <ExtendableTable rows={data} columns={buildColumns(components, physicalAllocations)}/>
+                <Table
+                    bordered
+                    dataSource={data}
+                    columns={buildColumns(components, physicalAllocations)}
+                    pagination={false}
+                    rowKey='key'
+                    scroll={{ x: 'max-content' }}
+                />
                 <FloatButton onClick={() => setFormOpen(true)} />
             </>
         </EmptyConfig>
