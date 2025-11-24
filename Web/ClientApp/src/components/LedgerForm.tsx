@@ -13,7 +13,6 @@ interface LedgerFormProps {
     onCancel: () => void;
     componentOptions: { label: string; value: string }[];
     allocationOptions: { label: string; value: string }[];
-    currencyOptions: { label: string; value: string }[];
 }
 
 const LedgerForm : React.FC<LedgerFormProps> = (props) => {

@@ -2,7 +2,7 @@ import React, {useEffect} from 'react';
 import {FloatButton, List, Popconfirm, Space, Typography} from 'antd';
 import dayjs, {Dayjs} from "dayjs";
 import {MoneyDto} from "../api/value-history/DTOs/Money";
-import {ArrowRightOutlined, DeleteOutlined} from "@ant-design/icons";
+import {ArrowRightOutlined, DeleteOutlined, EditOutlined} from "@ant-design/icons";
 import Money from "../components/money/Money";
 import {Column, ColumnGroup, ExtendableTable} from "../components/table/ExtendableTable";
 import MoneyForm from "../components/money/MoneyForm";
@@ -122,15 +122,18 @@ const buildColumns = (
         title: '',
         fixed: 'right',
         render: transaction => (
-            <Popconfirm
-                title='Sure to delete?'
-                okText={'Yes'}
-                cancelText={'No'}
-                okButtonProps={{ danger: true }}
-                onConfirm={async () => await deleteTransaction(transaction.key)} // TODO: Update state
-            >
-                <DeleteOutlined />
-            </Popconfirm>
+            <Space direction='horizontal'>
+                <EditOutlined onClick={() => {}} />
+                <Popconfirm
+                    title='Sure to delete?'
+                    okText={'Yes'}
+                    cancelText={'No'}
+                    okButtonProps={{ danger: true }}
+                    onConfirm={async () => await deleteTransaction(transaction.key)} // TODO: Update state
+                >
+                    <DeleteOutlined />
+                </Popconfirm>
+            </Space>
         )
     }
 ];
@@ -139,6 +142,7 @@ const LedgerPage: React.FC = () => {
     const [data, setData] = React.useState<Transaction[]>([]);
     const [components, setComponents] = React.useState<ComponentConfigDto[]>([]);
     const [physicalAllocations, setPhysicalAllocations] = React.useState<OrderableEntityDto[]>([]);
+    const [formOpen, setFormOpen] = React.useState(false);
     
     const populateData = async () => {
         const dataResponse = getTransactions();
@@ -160,15 +164,17 @@ const LedgerPage: React.FC = () => {
         <EmptyConfig enabled={data.length === 0}>
             <>
                 <LedgerForm 
-                    open={true} 
-                    onSubmit={() => {}} 
-                    onCancel={() => {}} 
-                    componentOptions={[]} 
-                    allocationOptions={[]} 
-                    currencyOptions={[]}
+                    open={formOpen} 
+                    onSubmit={() => {
+                        // TODO: Update
+                        setFormOpen(false);
+                    }} 
+                    onCancel={() => setFormOpen(false)} 
+                    componentOptions={components.map(c => ({value: c.key, label: c.name}))}
+                    allocationOptions={physicalAllocations.map(p => ({value: p.key, label: p.name}))}
                 />
                 <ExtendableTable rows={data} columns={buildColumns(components, physicalAllocations)}/>
-                <FloatButton onClick={() => console.log('onClick')} />
+                <FloatButton onClick={() => setFormOpen(true)} />
             </>
         </EmptyConfig>
     );
