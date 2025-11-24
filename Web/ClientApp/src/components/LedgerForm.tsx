@@ -1,9 +1,7 @@
-import React, { useState } from "react";
-import {Modal, Form, DatePicker, Select, InputNumber, Button, Space, Row, Col, Typography} from "antd";
+import React from "react";
+import {Modal, Form, DatePicker, Select, Row, Col, Typography, Space, Checkbox, Divider} from "antd";
 import { Transaction } from "../api/ledger/DTOs/Transaction";
 import dayjs from "dayjs";
-import InputCurrency from "./money/InputCurrency";
-import MoneyForm from "./money/MoneyForm";
 import InputMoney from "./money/InputMoney";
 
 const { Title } = Typography;
@@ -20,6 +18,8 @@ interface LedgerFormProps {
 
 const LedgerForm : React.FC<LedgerFormProps> = (props) => {
     const [form] = Form.useForm();
+    const [showDebit, setShowDebit] = React.useState(false);
+    const [showCredit, setShowCredit] = React.useState(false);
 
     const handleOk = () => {
         form
@@ -43,7 +43,7 @@ const LedgerForm : React.FC<LedgerFormProps> = (props) => {
             <Form.Item
                 name={[prefix, "componentId"]}
                 label="Component"
-                rules={[{ required: false }]}
+                rules={[{ required: true }]}
             >
                 <Select options={props.componentOptions} />
             </Form.Item>
@@ -59,46 +59,10 @@ const LedgerForm : React.FC<LedgerFormProps> = (props) => {
             <Form.Item
                 name={[prefix, "value"]}
                 label="Amount"
-                rules={[{ required: false }]}
+                rules={[{ required: true }]}
+                initialValue={undefined}
             >
                 <InputMoney/>
-                {/*<MoneyForm*/}
-                {/*    initialValue={{*/}
-                {/*        amount: 0,*/}
-                {/*        currency: 'PLN',*/}
-                {/*        amountInMainCurrency: 0*/}
-                {/*    }}*/}
-                {/*    onSave={async (money, physicalAllocationId) => {*/}
-                {/*        // await onUpdate(component.id, dayjs(record.key), money, physicalAllocationId);*/}
-                {/*        // closeCallback();*/}
-                {/*    }}*/}
-                {/*    onCancel={() => {}}*/}
-                {/*    physicalAllocations={[]}*/}
-                {/*    defaultPhysicalAllocation={undefined}*/}
-                {/*/>*/}
-                {/*<InputCurrency*/}
-                {/*    onValueChange={() => {}}*/}
-                {/*    initialValue={0}*/}
-                {/*    currency={{*/}
-                {/*        onChange: currency => {*/}
-                {/*            // setCurrency(currency);*/}
-                {/*            //*/}
-                {/*            // if (currency !== MAIN_CURRENCY && amountInMainCurrency === undefined) {*/}
-                {/*            //     setAmountInMainCurrency(0);*/}
-                {/*            // }*/}
-                {/*        },*/}
-                {/*        initialCurrency: 'PLN'*/}
-                {/*    }}*/}
-                {/*    error={undefined}*/}
-                {/*/>*/}
-            </Form.Item>
-
-            <Form.Item
-                name={[prefix, "value", "currency"]}
-                label="Currency"
-                rules={[{ required: false }]}
-            >
-                <Select options={props.currencyOptions} />
             </Form.Item>
         </>
     );
@@ -118,13 +82,20 @@ const LedgerForm : React.FC<LedgerFormProps> = (props) => {
 
                 <Row gutter={24}>
                     <Col xs={24} md={12}>
-                        <Title level={5}>Debit</Title>
-                        {ledgerEntryFields("debit")}
+                        <Space direction="horizontal" align='center'>
+                            <Title level={5} style={{ margin: 0 }}>Debit</Title>
+                            <Checkbox value={showDebit} onChange={(e) => setShowDebit(e.target.checked)} />
+                        </Space>
+                        <Divider/>
+                        {showDebit && ledgerEntryFields("debit")}
                     </Col>
-
                     <Col xs={24} md={12}>
-                        <Title level={5}>Credit</Title>
-                        {ledgerEntryFields("credit")}
+                        <Space direction="horizontal" align='center'>
+                            <Title level={5} style={{ margin: 0 }}>Credit</Title>
+                            <Checkbox value={showCredit} onChange={(e) => setShowCredit(e.target.checked)} />
+                        </Space>
+                        <Divider/>
+                        {showCredit && ledgerEntryFields("credit")}
                     </Col>
                 </Row>
             </Form>
