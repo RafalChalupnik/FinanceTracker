@@ -134,39 +134,26 @@ const MoneyPage: FC<MoneyPageProps> = (props: MoneyPageProps) => {
         }
         : undefined;
     
-    let openModal = () => {
-        setIsModalOpen(true);
-        setSelectedDate(dayjs());
-    }
-    
     return (
         <EmptyConfig enabled={data.columns.length === 0}>
             <div style={{ width: '95vw' }}>
                 <Card 
                     title={props.title} 
-                    extra={ 
-                        <Space direction='horizontal'>
-                            <DateGranularityPicker 
-                                allowedDateRange={data.rows.length === 0 ? undefined : {
-                                    start: dayjs(data.rows[0].key),
-                                    end: dayjs(data.rows[data.rows.length - 1].key)
-                                }}
-                                onChange={async (granularity, start, end) => {
-                                    setGranularity(granularity)
-                                    setFromDate(start);
-                                    setToDate(end);
-                                    await populateData(granularity, start, end);
-                                }}
-                                allowedModes={props.allowedGranularities}
-                                defaultMode={props.defaultGranularity}
-                            />
-                            {props.editable && <Button
-                                icon={<PlusOutlined />}
-                                onClick={openModal}
-                            >
-                                Add new entry
-                            </Button>}
-                        </Space>
+                    extra={
+                        <DateGranularityPicker
+                            allowedDateRange={data.rows.length === 0 ? undefined : {
+                                start: dayjs(data.rows[0].key),
+                                end: dayjs(data.rows[data.rows.length - 1].key)
+                            }}
+                            onChange={async (granularity, start, end) => {
+                                setGranularity(granularity)
+                                setFromDate(start);
+                                setToDate(end);
+                                await populateData(granularity, start, end);
+                            }}
+                            allowedModes={props.allowedGranularities}
+                            defaultMode={props.defaultGranularity}
+                        />
                     }
                     style={{ width: '100%' }}
                 >
@@ -176,8 +163,6 @@ const MoneyPage: FC<MoneyPageProps> = (props: MoneyPageProps) => {
                         granularity={granularity} 
                         showInferredValues={props.showInferredValues} 
                         physicalAllocations={physicalAllocations}
-                        onComponentUpdate={onComponentUpdate}
-                        onComponentDelete={onComponentDelete}
                         onTargetUpdate={onTargetUpdate}
                         onInflationUpdate={onInflationUpdate}
                     />

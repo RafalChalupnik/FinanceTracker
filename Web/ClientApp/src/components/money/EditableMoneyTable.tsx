@@ -1,17 +1,15 @@
 import React, {FC, ReactNode} from "react";
-import {Column, ColumnGroup, CustomEditableColumn, ExtendableTable} from "../table/ExtendableTable";
+import {Column, ColumnGroup, ExtendableTable} from "../table/ExtendableTable";
 import {EntityColumnDto, ValueHistoryRecordDto} from "../../api/value-history/DTOs/EntityTableDto";
 import dayjs, {Dayjs} from "dayjs";
 import {ValueSnapshotDto} from "../../api/value-history/DTOs/ValueSnapshotDto";
 import Money from "./Money";
 import {DateGranularity} from "../../api/value-history/DTOs/DateGranularity";
-import {MoneyDto} from "../../api/value-history/DTOs/Money";
-import MoneyForm from "./MoneyForm";
 import {OrderableEntityDto} from "../../api/configuration/DTOs/ConfigurationDto";
-import {Popconfirm, Space, Tooltip, Typography} from "antd";
+import {Space, Tooltip, Typography} from "antd";
 import TargetForm from "./TargetForm";
 import ColoredPercent from "../ColoredPercent";
-import {DeleteOutlined, ExclamationCircleOutlined} from "@ant-design/icons";
+import {ExclamationCircleOutlined} from "@ant-design/icons";
 import InflationForm from "./InflationForm";
 
 const {Text} = Typography;
@@ -28,8 +26,7 @@ const buildComponentColumnGroup = (
     title: string | ReactNode,
     selector: (record: ValueHistoryRecordDto) => ValueSnapshotDto | undefined,
     isInferred: (record: ValueHistoryRecordDto) => boolean,
-    fixed?: 'right' | undefined,
-    editable?: CustomEditableColumn<ValueHistoryRecordDto>
+    fixed?: 'right' | undefined
 ): ColumnGroup<ValueHistoryRecordDto> => {
     return ({
         title: title,
@@ -44,8 +41,7 @@ const buildComponentColumnGroup = (
                         colorCoding={false}
                         isInferred={isInferred(record)}
                     />
-                ),
-                editable: editable,
+                )
             },
             {
                 key: `${key}-change`,
@@ -77,42 +73,13 @@ const buildComponentColumnGroup = (
 
 const buildComponentsColumnGroups = (
     components: EntityColumnDto[],
-    granularity: DateGranularity,
-    showInferredValues: boolean,
-    onUpdate?: (entityId: string, date: Dayjs, value: MoneyDto, physicalAllocationId?: string) => Promise<void>,
-    physicalAllocations?: OrderableEntityDto[]
+    showInferredValues: boolean
 ): ColumnGroup<ValueHistoryRecordDto>[] => {
     let areAllComponentsInSameGroup = components
         .every(component => component.parentName === components[0].parentName);
 
-    return components.map((component, index) => {
-        let editable = onUpdate !== undefined
-            ? (
-                {
-                    isEditable: granularity === DateGranularity.Day,
-                    renderEditable: (record, closeCallback) => {
-                        let initialPhysicalAllocationId = record.newEntry
-                            ? component.defaultPhysicalAllocationId
-                            : record.entities[index]?.physicalAllocationId;
-
-                        return (
-                            <MoneyForm
-                                initialValue={record.entities[index]?.value}
-                                onSave={async (money, physicalAllocationId) => {
-                                    await onUpdate(component.id, dayjs(record.key), money, physicalAllocationId);
-                                    closeCallback();
-                                }}
-                                onCancel={closeCallback}
-                                physicalAllocations={physicalAllocations}
-                                defaultPhysicalAllocation={initialPhysicalAllocationId}
-                            />
-                        );
-                    }
-                } as CustomEditableColumn<ValueHistoryRecordDto>
-            )
-            : undefined;
-
-        return buildComponentColumnGroup(
+    return components.map((component, index) =>
+        buildComponentColumnGroup(
             component.id,
             areAllComponentsInSameGroup
                 ? component.name
@@ -124,10 +91,8 @@ const buildComponentsColumnGroups = (
                 ),
             record => record.entities[index],
             record => showInferredValues && (record.entities[index]?.inferred ?? false),
-            undefined,
-            editable
-        )
-    })
+            undefined
+        ))
 }
 
 const buildSummaryColumnGroup = (): ColumnGroup<ValueHistoryRecordDto> => buildComponentColumnGroup(
@@ -135,8 +100,7 @@ const buildSummaryColumnGroup = (): ColumnGroup<ValueHistoryRecordDto> => buildC
     'Summary',
     record => record.summary,
     record => false,
-    'right',
-    undefined
+    'right'
 );
 
 const buildTargetColumn = (
@@ -235,35 +199,12 @@ const buildInflationColumnGroup = (
     }
 }
 
-const buildDeleteColumn = (
-    onDeleteRow: (row: ValueHistoryRecordDto) => Promise<void>
-): Column<ValueHistoryRecordDto> => {
-    return {
-        key: 'delete',
-        title: '',
-        fixed: 'right',
-        render: (row: ValueHistoryRecordDto) => (
-            <Popconfirm
-                title='Sure to delete?'
-                okText={'Yes'}
-                cancelText={'No'}
-                okButtonProps={{ danger: true }}
-                onConfirm={async () => await onDeleteRow(row)}
-            >
-                <DeleteOutlined />
-            </Popconfirm>
-        )
-    }
-}
-
 interface EditableMoneyTableProps {
     columns: EntityColumnDto[],
     rows: ValueHistoryRecordDto[],
     granularity: DateGranularity,
     showInferredValues: boolean,
     physicalAllocations: OrderableEntityDto[],
-    onComponentUpdate?: (id: string, date: Dayjs, value: MoneyDto, physicalAllocationId?: string) => Promise<void>,
-    onComponentDelete?: (date: Dayjs) => Promise<void>,
     onTargetUpdate?: (date: Dayjs, value: number) => Promise<void>,
     onInflationUpdate?: (year: number, month: number, value: number, confirmed: boolean) => Promise<void>;
 }
@@ -273,10 +214,7 @@ const EditableMoneyTable: FC<EditableMoneyTableProps> = (props) => {
         buildDateColumn(),
         ...buildComponentsColumnGroups(
             props.columns,
-            props.granularity,
-            props.showInferredValues,
-            props.onComponentUpdate,
-            props.physicalAllocations
+            props.showInferredValues
         ),
         buildSummaryColumnGroup()
     ];
@@ -301,12 +239,6 @@ const EditableMoneyTable: FC<EditableMoneyTableProps> = (props) => {
         );
     }
 
-    if (props.onComponentDelete !== undefined && props.granularity === DateGranularity.Day) {
-        columns.push(
-            buildDeleteColumn(async row => await props.onComponentDelete!(dayjs(row.key)))
-        );
-    }
-    
     return (
         <ExtendableTable
             rows={props.rows}
