@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import {Modal, Form, DatePicker, Select, Row, Col, Typography, Space, Checkbox, Divider} from "antd";
+import {Modal, Form, DatePicker, Select, Row, Col, Typography, Space, Checkbox, Divider, Alert} from "antd";
 import { Transaction } from "../api/ledger/DTOs/Transaction";
 import dayjs from "dayjs";
 import InputMoney from "./money/InputMoney";
@@ -20,6 +20,14 @@ const LedgerForm : React.FC<LedgerFormProps> = (props) => {
     const [form] = Form.useForm();
     const [showDebit, setShowDebit] = React.useState(false);
     const [showCredit, setShowCredit] = React.useState(false);
+    const [alertVisible, setAlertVisible] = React.useState(false);
+    
+    const reset = () => {
+        form.resetFields();
+        setShowDebit(false);
+        setShowCredit(false);
+        setAlertVisible(false);
+    }
 
     useEffect(() => {
         if (props.initialValue) {
@@ -27,25 +35,32 @@ const LedgerForm : React.FC<LedgerFormProps> = (props) => {
             setShowDebit(props.initialValue.debit !== undefined);
             setShowCredit(props.initialValue.credit !== undefined);
         } else {
-            form.resetFields();
-            setShowDebit(false);
-            setShowCredit(false);
+            reset();
         }
     }, [props.initialValue, form]);
 
     const handleOk = () => {
+        if (!showDebit && !showCredit) {
+            setAlertVisible(true);
+            return;
+        }
+        
         form
             .validateFields()
             .then((values) => {
                 const transaction: Transaction = {
-                    key: crypto.randomUUID(),
+                    key: props.initialValue?.key ?? crypto.randomUUID(),
                     date: values.date,
-                    debit: values.debit,
-                    credit: values.credit,
+                    debit: showDebit
+                        ? values.debit
+                        : undefined,
+                    credit: showCredit
+                        ? values.credit
+                        : undefined,
                 };
                 console.log(transaction);
                 props.onSubmit(transaction);
-                form.resetFields();
+                reset();
             })
             .catch(() => {});
     };
@@ -84,12 +99,13 @@ const LedgerForm : React.FC<LedgerFormProps> = (props) => {
             title="Add Ledger Transaction"
             open={props.open}
             onCancel={() => {
-                form.resetFields();
+                reset();
                 props.onCancel();
             }}
             onOk={handleOk}
             okText="Save"
         >
+            {alertVisible && <Alert message="Select at least one from debit or credit" type="error" />}
             <Form form={form} layout="vertical" requiredMark={false}>
                 <Form.Item name="date" label="Date" initialValue={dayjs()} rules={[{ required: true, message: "Pick a date" }]}>
                     <DatePicker style={{ width: "100%" }} />

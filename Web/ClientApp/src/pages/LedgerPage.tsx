@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import {FloatButton, Popconfirm, Space, Table, Typography} from 'antd';
-import {ArrowRightOutlined, DeleteOutlined, EditOutlined} from "@ant-design/icons";
+import {ArrowRightOutlined, DeleteOutlined, EditOutlined, PlusOutlined} from "@ant-design/icons";
 import Money from "../components/money/Money";
 import {
     deleteTransaction,
@@ -166,7 +166,7 @@ const LedgerPage: React.FC = () => {
                     rowKey='key'
                     scroll={{ x: 'max-content' }}
                 />
-                <FloatButton onClick={() => {
+                <FloatButton icon={<PlusOutlined/>} onClick={() => {
                     setInitialValue(undefined);
                     setFormOpen(true);
                 }} />
