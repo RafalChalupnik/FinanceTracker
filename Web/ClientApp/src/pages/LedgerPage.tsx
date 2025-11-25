@@ -7,7 +7,6 @@ import {
     getTransactions, upsertTransaction
 } from "../api/ledger/Client";
 import {LedgerEntryDto, TransactionDto} from "../api/ledger/DTOs/TransactionDto";
-import EmptyConfig from "../components/EmptyConfig";
 import {getComponents, getPhysicalAllocations} from "../api/configuration/Client";
 import {ComponentConfigDto, OrderableEntityDto} from "../api/configuration/DTOs/ConfigurationDto";
 import LedgerForm from "../components/LedgerForm";

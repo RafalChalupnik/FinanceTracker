@@ -31,9 +31,14 @@ const LedgerForm : React.FC<LedgerFormProps> = (props) => {
 
     useEffect(() => {
         if (props.initialValue) {
-            form.setFieldsValue(props.initialValue);
-            setShowDebit(props.initialValue.debit !== undefined);
-            setShowCredit(props.initialValue.credit !== undefined);
+            form.setFieldsValue({
+                key: props.initialValue.key,
+                date: dayjs(props.initialValue.date),
+                debit: props.initialValue.debit,
+                credit: props.initialValue.credit,
+            });
+            setShowDebit(props.initialValue.debit !== null);
+            setShowCredit(props.initialValue.credit !== null);
         } else {
             reset();
         }
