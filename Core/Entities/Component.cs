@@ -44,19 +44,23 @@ public class Component : IEntityWithValueHistory, IOrderableEntity
     /// </summary>
     public MoneyValue? GetValueFor(DateOnly date)
     {
-        var historicValue = ValueHistory
-            .OrderByDescending(x => x.Date)
-            .FirstOrDefault(x => x.Date <= date);
+        var entries = ValueHistory
+            .Where(entry => entry.Date <= date)
+            .ToArray();
 
-        if (historicValue == null)
+        if (entries.Length == 0)
         {
             return null;
         }
-
+        
+        var value = entries
+            .Select(entry => entry.Value)
+            .Aggregate((value1, value2) => value1.Plus(value2, "PLN"));
+        
         return new MoneyValue(
-            Value: historicValue.Value,
-            ExactDate: historicValue.Date == date,
-            PhysicalAllocationId: historicValue.PhysicalAllocationId
+            Value: value,
+            ExactDate: entries.Last().Date == date,
+            PhysicalAllocationId: entries.Last().PhysicalAllocationId
         );
     }
 }
