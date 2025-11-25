@@ -57,12 +57,8 @@ export function getTransactions() : Transaction[] {
     ] 
 }
 
-export async function updateTransactionDebitAmount(transactionId: string, amount: MoneyDto) : Promise<void> {
-    alert(`Updated transaction ${transactionId} debit amount to ${amount.amount} ${amount.currency}`)
-}
-
-export async function updateTransactionCreditAmount(transactionId: string, amount: MoneyDto) : Promise<void> {
-    alert(`Updated transaction ${transactionId} credit amount to ${amount.amount} ${amount.currency}`)
+export async function upsertTransaction(transaction: Transaction) : Promise<void> {
+    alert(`Upserted transaction ${transaction.key}`);
 }
 
 export async function deleteTransaction(transactionId: string) : Promise<void> {

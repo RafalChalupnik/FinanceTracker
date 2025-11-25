@@ -4,7 +4,7 @@ import {ArrowRightOutlined, DeleteOutlined, EditOutlined, PlusOutlined} from "@a
 import Money from "../components/money/Money";
 import {
     deleteTransaction,
-    getTransactions
+    getTransactions, upsertTransaction
 } from "../api/ledger/Client";
 import {LedgerEntry, Transaction} from "../api/ledger/DTOs/Transaction";
 import EmptyConfig from "../components/EmptyConfig";
@@ -108,7 +108,7 @@ const buildColumns = (
                     okText={'Yes'}
                     cancelText={'No'}
                     okButtonProps={{ danger: true }}
-                    onConfirm={async () => await deleteTransaction(transaction.key)} // TODO: Update state
+                    onConfirm={async () => await deleteTransaction(transaction.key)}
                 >
                     <DeleteOutlined />
                 </Popconfirm>
@@ -147,8 +147,8 @@ const LedgerPage: React.FC = () => {
                 <LedgerForm 
                     open={formOpen} 
                     initialValue={initialValue}
-                    onSubmit={() => {
-                        // TODO: Update
+                    onSubmit={async transaction => {
+                        await upsertTransaction(transaction);
                         setFormOpen(false);
                     }} 
                     onCancel={() => setFormOpen(false)} 
