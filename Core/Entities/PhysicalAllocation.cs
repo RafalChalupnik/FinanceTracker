@@ -21,5 +21,5 @@ public class PhysicalAllocation : IOrderableEntity
     /// <summary>
     /// History of the value allocations.
     /// </summary>
-    public IReadOnlyList<HistoricValue> ValueHistory { get; init; } = new List<HistoricValue>();
+    public IReadOnlyList<LedgerEntry> ValueHistory { get; init; } = new List<LedgerEntry>();
 }

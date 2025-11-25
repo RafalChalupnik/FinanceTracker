@@ -12,6 +12,8 @@ public class LedgerEntry
     
     public Guid ComponentId { get; set; }
     
+    public Component? Component { get; init; }
+    
     public Guid? PhysicalAllocationId { get; set; }
     
     public required Money Value { get; set; }

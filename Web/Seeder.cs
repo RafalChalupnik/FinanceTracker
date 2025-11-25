@@ -8,7 +8,7 @@ internal static class Seeder
 {
     public static async ValueTask SeedDataIfNecessary(FinanceTrackerContext context)
     {
-        if (context.HistoricValues.Any() == false)
+        if (!context.Ledger.Any())
         {
             await SeedData(context);
         }
@@ -127,7 +127,7 @@ internal static class Seeder
 
         await context.Groups.AddAsync(emergencyFund);
         
-        await context.HistoricValues.AddRangeAsync(
+        await context.Ledger.AddRangeAsync(
             bankAccountHistory
                 .Select(value => value.ToComponentValue(bankAccount.Id, bankAccountAllocationId))
                 .Concat(cashPlnHistory
@@ -206,7 +206,7 @@ internal static class Seeder
         
         await context.Groups.AddAsync(longTermWallet);
         
-        await context.HistoricValues.AddRangeAsync(
+        await context.Ledger.AddRangeAsync(
             bankAccountHistory
                 .Select(value => value.ToComponentValue(bankAccount.Id, bankAccountAllocationId))
                 .Concat(bondsHistory
@@ -295,7 +295,7 @@ internal static class Seeder
 
         await context.Components.AddRangeAsync(home, car);
         
-        await context.HistoricValues.AddRangeAsync(
+        await context.Ledger.AddRangeAsync(
             homeValueHistory
                 .Select(value => value.ToComponentValue(home.Id))
                 .Concat(carValueHistory
@@ -342,7 +342,7 @@ internal static class Seeder
 
         await context.Components.AddRangeAsync(mortgage, carPayment);
         
-        await context.HistoricValues.AddRangeAsync(
+        await context.Ledger.AddRangeAsync(
             mortgageHistory
                 .Select(value => value.ToComponentValue(mortgage.Id))
                 .Concat(carPaymentHistory
@@ -392,9 +392,20 @@ internal static class Seeder
     private record DateValue(DateOnly Date, decimal Value)
     {
         private const string DefaultCurrency = "PLN";
-        
-        public HistoricValue ToComponentValue(Guid componentId, Guid? physicalAllocationId = null, string currency = DefaultCurrency)
-            => HistoricValue.CreateComponentValue(Date, ToMoney(Value, currency), componentId, physicalAllocationId);
+
+        public LedgerEntry ToComponentValue(
+            Guid componentId, 
+            Guid? physicalAllocationId = null,
+            string currency = DefaultCurrency
+            ) =>
+            new()
+            {
+                Date = Date,
+                TransactionId = Guid.NewGuid(),
+                ComponentId = componentId,
+                Value = ToMoney(Value, currency),
+                PhysicalAllocationId = physicalAllocationId
+            };
 
         public HistoricTarget ToHistoricTarget(Guid groupId) => new()
         {

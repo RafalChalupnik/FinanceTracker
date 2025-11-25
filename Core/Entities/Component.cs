@@ -34,7 +34,7 @@ public class Component : IEntityWithValueHistory, IOrderableEntity
     /// <summary>
     /// History of the value.
     /// </summary>
-    public IReadOnlyList<HistoricValue> ValueHistory { get; } = new List<HistoricValue>();
+    public IReadOnlyList<LedgerEntry> ValueHistory { get; } = new List<LedgerEntry>();
     
     public IEnumerable<DateOnly> GetEvaluationDates()
         => ValueHistory.Select(entry => entry.Date);

@@ -26,7 +26,7 @@ public record EntityData(
 
     public static EntityData FromComponentValues(
         Component component, 
-        IEnumerable<HistoricValue> values,
+        IEnumerable<LedgerEntry> values,
         Guid physicalAllocationId
         )
     {

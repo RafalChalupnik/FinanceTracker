@@ -29,17 +29,6 @@ export async function setGroupTarget(id: string, date: Dayjs, value: number) : P
     });
 }
 
-export async function setGroupComponentValue(id: string, date: Dayjs, value: MoneyDto, physicalAllocationId?: string) : Promise<void> {
-    await sendPut(`api/value-history/groups/components/${id}/${toDateString(date)}`, {
-        value: value,
-        physicalAllocationId: physicalAllocationId
-    });
-}
-
-export async function deleteGroupValues(groupId: string, date: Dayjs) : Promise<void> {
-    return await sendDelete(`api/value-history/groups/${groupId}/${toDateString(date)}`);
-}
-
 export async function getPhysicalAllocationValueHistory(
     allocationId: string,
     granularity?: DateGranularity,

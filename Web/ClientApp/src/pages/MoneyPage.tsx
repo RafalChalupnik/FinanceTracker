@@ -20,22 +20,13 @@ interface MoneyPageProps {
     getData: (granularity?: DateGranularity, from?: Dayjs, to?: Dayjs) => Promise<EntityTableDto>;
     showInferredValues: boolean;
     showCompositionChart: boolean;
-    editable?: EditableProps;
+    setTarget?: (date: Dayjs, value: number) => Promise<void>
     setInflation?: (year: number, month: number, value: number, confirmed: boolean) => Promise<void>;
     allowedGranularities?: DateGranularity[];
     defaultGranularity?: DateGranularity;
 }
 
-interface EditableProps {
-    onUpdate: (id: string, date: Dayjs, value: MoneyDto, physicalAllocationId?: string) => Promise<void>;
-    onDelete?: (date: Dayjs) => Promise<void>;
-    setTarget?: (date: Dayjs, value: number) => Promise<void>
-} 
-
 const MoneyPage: FC<MoneyPageProps> = (props: MoneyPageProps) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedDate, setSelectedDate] = useState<Dayjs | undefined>(undefined);
-    const [newEntryDate, setNewEntryDate] = useState<Dayjs | undefined>(undefined);
     const [granularity, setGranularity] = useState<DateGranularity>(props.defaultGranularity ?? DateGranularity.Day);
     const [fromDate, setFromDate] = useState<Dayjs | undefined>(undefined);
     const [toDate, setToDate] = useState<Dayjs | undefined>(undefined);
@@ -70,59 +61,12 @@ const MoneyPage: FC<MoneyPageProps> = (props: MoneyPageProps) => {
     }, []);
 
     let onUpdateCallback = async () => {
-        setNewEntryDate(undefined);
         await populateData(granularity, fromDate, toDate);
     }
     
-    const handleModalOk = () => {
-        if (!selectedDate) {
-            console.warn("No date selected");
-            return;
-        }
-
-        setNewEntryDate(dayjs(selectedDate))
-        setIsModalOpen(false);
-    };
-
-    const buildData = () => {
-        if (newEntryDate === undefined) {
-            return data.rows;
-        }
-        
-        let newRow = {
-            key: newEntryDate.format("YYYY-MM-DD"),
-            entities: data.columns.map(_ => undefined),
-            summary: undefined,
-            target: undefined,
-            score: undefined,
-            newEntry: true
-        }
-        
-        let newData = [
-            ...data.rows,
-            newRow
-        ]
-
-        return newData.sort((a, b) => dayjs(a.key).unix() - dayjs(b.key).unix());
-    }
-    
-    let onComponentUpdate = props.editable?.onUpdate
-        ? async (id: string, date: Dayjs, value: MoneyDto, physicalAllocationId?: string) => {
-            await props.editable!.onUpdate(id, date, value, physicalAllocationId);
-            await onUpdateCallback();
-        }
-        : undefined;
-    
-    let onComponentDelete = props.editable?.onDelete
-        ? async (date: Dayjs) => {
-            await props.editable!.onDelete!(date);
-            await onUpdateCallback();
-        }
-        : undefined;
-    
-    let onTargetUpdate = props.editable?.setTarget
+    let onTargetUpdate = props.setTarget
         ? async (date: Dayjs, value: number) => {
-            await props.editable!.setTarget!(date, value);
+            await props.setTarget!(date, value);
             await onUpdateCallback();
         }
         : undefined;
@@ -159,7 +103,7 @@ const MoneyPage: FC<MoneyPageProps> = (props: MoneyPageProps) => {
                 >
                     <EditableMoneyTable 
                         columns={data.columns}
-                        rows={buildData()}
+                        rows={data.rows}
                         granularity={granularity} 
                         showInferredValues={props.showInferredValues} 
                         physicalAllocations={physicalAllocations}
@@ -175,21 +119,13 @@ const MoneyPage: FC<MoneyPageProps> = (props: MoneyPageProps) => {
                         headers={data.columns}
                         records={data.rows}
                     />)}
-                    {props.editable?.setTarget && (
+                    {props.setTarget && (
                         <TargetChart data={data.rows}/>
                     )}
                     {props.setInflation && (
                         <ScoreChart data={data.rows}/>
                     )}
                 </Card>
-                <Modal
-                    title="Pick a date"
-                    open={isModalOpen}
-                    onOk={handleModalOk}
-                    onCancel={() => setIsModalOpen(false)}
-                >
-                    <DatePicker defaultValue={dayjs()} onChange={setSelectedDate} />
-                </Modal>
             </div>
         </EmptyConfig>
     );

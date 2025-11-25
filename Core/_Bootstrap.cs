@@ -21,9 +21,7 @@ public static class Bootstrap
                 )
             ))
             // Commands
-            .AddScoped<DeleteValuesForDate>()
             .AddScoped<LedgerCommands>()
-            .AddScoped<SetEntityValueCommand>()
             .AddScoped<SetInflationValueCommand>()
             .AddScoped<SetTargetCommand>()
             // Queries

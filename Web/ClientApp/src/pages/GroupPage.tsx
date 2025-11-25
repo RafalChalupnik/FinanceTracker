@@ -1,8 +1,6 @@
 import React, {FC} from "react";
 import {
-    deleteGroupValues,
     getGroupValueHistory,
-    setGroupComponentValue, 
     setGroupTarget
 } from "../api/value-history/Client";
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
@@ -24,13 +22,9 @@ const GroupPage: FC<GroupPageProps> = (props) => {
             title={props.name}
             getData={getData}
             showCompositionChart={true}
-            editable={{
-                onUpdate: setGroupComponentValue,
-                onDelete: date => deleteGroupValues(props.groupId, date),
-                setTarget: props.showTargets
-                    ? async (date, value) => await setGroupTarget(props.groupId, date, value)
-                    : undefined
-            }}
+            setTarget={props.showTargets
+                ? async (date, value) => await setGroupTarget(props.groupId, date, value)
+                : undefined}
             showInferredValues={true}
         />
     );

@@ -1,7 +1,6 @@
 import {DateGranularity} from "../api/value-history/DTOs/DateGranularity";
 import {
-    getPhysicalAllocationValueHistory, 
-    setGroupComponentValue
+    getPhysicalAllocationValueHistory
 } from "../api/value-history/Client";
 import React, {FC} from "react";
 import {Dayjs} from "dayjs";
@@ -26,9 +25,6 @@ const PhysicalAllocation: FC<PhysicalAllocationProps> = (props) => {
             title={props.name}
             getData={getData}
             showCompositionChart={true}
-            editable={{
-                onUpdate: setGroupComponentValue
-            }}
             defaultGranularity={DateGranularity.Day}
             showInferredValues={true}
         />

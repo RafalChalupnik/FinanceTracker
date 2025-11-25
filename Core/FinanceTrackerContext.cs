@@ -11,8 +11,6 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
     
     public DbSet<Component> Components { get; set; }
     
-    public DbSet<HistoricValue> HistoricValues { get; set; }
-    
     public DbSet<InflationHistoricValue> InflationValues { get; set; }
     
     public DbSet<LedgerEntry> Ledger { get; set; }
@@ -59,28 +57,12 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 b.HasIndex(x => new {x.Id, x.Name}).IsUnique();
                 b.Property(x => x.DisplaySequence);
                 
-                b.HasMany(x => x.ValueHistory)
-                    .WithOne(x => x.Component)
-                    .HasForeignKey(x => x.ComponentId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
                 b.HasOne<PhysicalAllocation>()
                     .WithMany()
                     .HasForeignKey(x => x.DefaultPhysicalAllocationId)
                     .OnDelete(DeleteBehavior.SetNull);
             });
         
-        modelBuilder.Entity<HistoricValue>(b =>
-        {
-            b.HasKey(x => x.Id);
-            b.Property(x => x.Date);
-            b.ComplexProperty(x => x.Value);
-
-            b.HasOne<PhysicalAllocation>()
-                .WithMany(x => x.ValueHistory)
-                .HasForeignKey(x => x.PhysicalAllocationId);
-        });
-
         modelBuilder.Entity<InflationHistoricValue>(b =>
             {
                 b.HasKey(x => x.Id);
@@ -95,14 +77,16 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
             b.Property(x => x.TransactionId);
             b.ComplexProperty(x => x.Value);
 
-            b.HasOne<Component>()
-                .WithMany()
+            b.HasOne(x => x.Component)
+                .WithMany(x => x.ValueHistory)
                 .HasForeignKey(x => x.ComponentId)
-                .IsRequired();
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
             b.HasOne<PhysicalAllocation>()
-                .WithMany()
-                .HasForeignKey(x => x.PhysicalAllocationId);
+                .WithMany(x => x.ValueHistory)
+                .HasForeignKey(x => x.PhysicalAllocationId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<PhysicalAllocation>(b =>
@@ -110,9 +94,6 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
             b.HasKey(x => x.Id);
             b.HasIndex(x => x.Name).IsUnique();
             b.Property(x => x.DisplaySequence);
-            b.HasMany(x => x.ValueHistory)
-                .WithOne()
-                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }

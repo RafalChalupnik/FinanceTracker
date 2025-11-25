@@ -11,9 +11,7 @@ namespace FinanceTracker.Web.Controllers;
 [Route("api/value-history")]
 public class ValueHistoryController(
     ValueHistoryQueries query,
-    SetEntityValueCommand setEntityValueCommand,
     SetTargetCommand setTargetCommand,
-    DeleteValuesForDate deleteValuesForDate,
     SetInflationValueCommand setInflationValueCommand
     ) : ControllerBase
 {
@@ -38,29 +36,6 @@ public class ValueHistoryController(
     public async Task<IActionResult> SetGroupTarget(Guid groupId, [FromBody] ValueUpdateDto update)
     {
         await setTargetCommand.SetTarget(groupId, update.Date, update.Value);
-        return NoContent();
-    }
-    
-    [HttpPut("groups/components/{componentId:guid}/{date}")]
-    public async Task<IActionResult> SetGroupComponentValue(
-        Guid componentId,
-        DateOnly date, 
-        [FromBody] WalletComponentValueUpdateDto update)
-    {
-        await setEntityValueCommand.SetGroupComponentValue(
-            componentId: componentId, 
-            date: date, 
-            value: update.Value,
-            physicalAllocationId: update.PhysicalAllocationId
-        );
-        
-        return NoContent();
-    }
-    
-    [HttpDelete("groups/{groupId:guid}/{date}")]
-    public async Task<IActionResult> DeleteGroupValues(Guid groupId, DateOnly date)
-    {
-        await deleteValuesForDate.DeleteGroupValues(groupId, date);
         return NoContent();
     }
     
