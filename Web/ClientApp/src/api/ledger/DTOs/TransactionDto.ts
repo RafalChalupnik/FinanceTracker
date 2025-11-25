@@ -3,7 +3,7 @@ import {MoneyDto} from "../../value-history/DTOs/Money";
 
 export type TransactionDto = {
     key: string;
-    date: Dayjs;
+    date: string;
     debit: LedgerEntryDto | undefined;
     credit: LedgerEntryDto | undefined;
 }

@@ -20,7 +20,7 @@ const renderComponent = (
     components: ComponentConfigDto[],
     physicalAllocations: OrderableEntityDto[]
 ) => {
-    if (entry === undefined ) {
+    if (entry === null ) {
         return (<></>);
     }
     
@@ -77,7 +77,7 @@ const buildColumns = (
     {
         key: 'date',
         title: 'Date',
-        render: transaction => transaction.date.format('YYYY-MM-DD')
+        render: transaction => transaction.date
     },
     buildEntryColumnGroup(
         'Debit', 

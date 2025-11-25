@@ -50,7 +50,7 @@ const LedgerForm : React.FC<LedgerFormProps> = (props) => {
             .then((values) => {
                 const transaction: TransactionDto = {
                     key: props.initialValue?.key ?? crypto.randomUUID(),
-                    date: values.date,
+                    date: dayjs(values.date).format("YYYY-MM-DD"),
                     debit: showDebit
                         ? values.debit
                         : undefined,

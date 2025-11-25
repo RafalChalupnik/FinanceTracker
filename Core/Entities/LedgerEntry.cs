@@ -10,9 +10,9 @@ public class LedgerEntry
     
     public Guid TransactionId { get; init; }
     
-    public Guid ComponentId { get; init; }
+    public Guid ComponentId { get; set; }
     
-    public Guid? PhysicalAllocationId { get; init; }
+    public Guid? PhysicalAllocationId { get; set; }
     
-    public required Money Value { get; init; }
+    public required Money Value { get; set; }
 }

@@ -1,6 +1,6 @@
 using FinanceTracker.Core.Primitives;
 
-namespace FinanceTracker.Core.Queries.DTOs;
+namespace FinanceTracker.Core.DTOs;
 
 public record TransactionDto(
     Guid Key,

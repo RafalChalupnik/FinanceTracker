@@ -1,14 +1,14 @@
 import {TransactionDto} from "./DTOs/TransactionDto";
-import {sendGet} from "../shared/HttpClient";
+import {sendDelete, sendGet, sendPost} from "../shared/HttpClient";
 
 export async function getTransactions() : Promise<TransactionDto[]> {
     return sendGet("api/ledger")
 }
 
 export async function upsertTransaction(transaction: TransactionDto) : Promise<void> {
-    alert(`Upserted transaction ${transaction.key}`);
+    await sendPost("api/ledger", transaction);
 }
 
 export async function deleteTransaction(transactionId: string) : Promise<void> {
-    alert(`Deleted transaction: ${transactionId}`)
+    await sendDelete(`api/ledger/${transactionId}`);
 }

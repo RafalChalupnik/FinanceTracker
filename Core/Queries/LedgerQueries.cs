@@ -1,3 +1,4 @@
+using FinanceTracker.Core.DTOs;
 using FinanceTracker.Core.Entities;
 using FinanceTracker.Core.Queries.DTOs;
 
