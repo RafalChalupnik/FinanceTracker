@@ -6,7 +6,7 @@ import {
     deleteTransaction,
     getTransactions, upsertTransaction
 } from "../api/ledger/Client";
-import {LedgerEntry, Transaction} from "../api/ledger/DTOs/Transaction";
+import {LedgerEntryDto, TransactionDto} from "../api/ledger/DTOs/TransactionDto";
 import EmptyConfig from "../components/EmptyConfig";
 import {getComponents, getPhysicalAllocations} from "../api/configuration/Client";
 import {ComponentConfigDto, OrderableEntityDto} from "../api/configuration/DTOs/ConfigurationDto";
@@ -16,7 +16,7 @@ import type {ColumnGroupType, ColumnType} from "antd/es/table";
 const { Text } = Typography;
 
 const renderComponent = (
-    entry: LedgerEntry | undefined,
+    entry: LedgerEntryDto | undefined,
     components: ComponentConfigDto[],
     physicalAllocations: OrderableEntityDto[]
 ) => {
@@ -44,10 +44,10 @@ const renderComponent = (
 
 const buildEntryColumnGroup = (
     name: string,
-    selector: (transaction: Transaction) => LedgerEntry | undefined,
+    selector: (transaction: TransactionDto) => LedgerEntryDto | undefined,
     components: ComponentConfigDto[],
     physicalAllocations: OrderableEntityDto[]
-): ColumnGroupType<Transaction> => {
+): ColumnGroupType<TransactionDto> => {
     return (
         {
             title: name,
@@ -72,8 +72,8 @@ const buildEntryColumnGroup = (
 const buildColumns = (
     components: ComponentConfigDto[],
     physicalAllocations: OrderableEntityDto[],
-    onEdit: (transaction: Transaction) => void
-): (ColumnType<Transaction> | ColumnGroupType<Transaction>)[] => [
+    onEdit: (transaction: TransactionDto) => void
+): (ColumnType<TransactionDto> | ColumnGroupType<TransactionDto>)[] => [
     {
         key: 'date',
         title: 'Date',
@@ -118,12 +118,12 @@ const buildColumns = (
 ];
 
 const LedgerPage: React.FC = () => {
-    const [data, setData] = React.useState<Transaction[]>([]);
+    const [data, setData] = React.useState<TransactionDto[]>([]);
     const [components, setComponents] = React.useState<ComponentConfigDto[]>([]);
     const [physicalAllocations, setPhysicalAllocations] = React.useState<OrderableEntityDto[]>([]);
     
     const [formOpen, setFormOpen] = React.useState(false);
-    const [initialValue, setInitialValue] = React.useState<Transaction>();
+    const [initialValue, setInitialValue] = React.useState<TransactionDto>();
     
     const populateData = async () => {
         const dataResponse = getTransactions();

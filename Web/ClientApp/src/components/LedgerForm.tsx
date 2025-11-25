@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import {Modal, Form, DatePicker, Select, Row, Col, Typography, Space, Checkbox, Divider, Alert} from "antd";
-import { Transaction } from "../api/ledger/DTOs/Transaction";
+import { TransactionDto } from "../api/ledger/DTOs/TransactionDto";
 import dayjs from "dayjs";
 import InputMoney from "./money/InputMoney";
 
@@ -9,8 +9,8 @@ const { Title } = Typography;
 // Component props
 interface LedgerFormProps {
     open: boolean;
-    initialValue?: Transaction;
-    onSubmit: (t: Transaction) => void;
+    initialValue?: TransactionDto;
+    onSubmit: (t: TransactionDto) => void;
     onCancel: () => void;
     componentOptions: { label: string; value: string }[];
     allocationOptions: { label: string; value: string }[];
@@ -48,7 +48,7 @@ const LedgerForm : React.FC<LedgerFormProps> = (props) => {
         form
             .validateFields()
             .then((values) => {
-                const transaction: Transaction = {
+                const transaction: TransactionDto = {
                     key: props.initialValue?.key ?? crypto.randomUUID(),
                     date: values.date,
                     debit: showDebit

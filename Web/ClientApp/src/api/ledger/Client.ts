@@ -1,8 +1,8 @@
 import {MoneyDto} from "../value-history/DTOs/Money";
-import {Transaction} from "./DTOs/Transaction";
+import {TransactionDto} from "./DTOs/TransactionDto";
 import dayjs from "dayjs";
 
-export function getTransactions() : Transaction[] {
+export function getTransactions() : TransactionDto[] {
     return [
         {
             key: 't1',
@@ -57,7 +57,7 @@ export function getTransactions() : Transaction[] {
     ] 
 }
 
-export async function upsertTransaction(transaction: Transaction) : Promise<void> {
+export async function upsertTransaction(transaction: TransactionDto) : Promise<void> {
     alert(`Upserted transaction ${transaction.key}`);
 }
 
