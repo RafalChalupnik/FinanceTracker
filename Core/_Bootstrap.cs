@@ -27,6 +27,7 @@ public static class Bootstrap
             .AddScoped<SetTargetCommand>()
             // Queries
             .AddScoped<ConfigQueries>()
+            .AddScoped<LedgerQueries>()
             .AddScoped<ValueHistoryQueries>()
             // Repositories
             .AddScoped<Repository>();

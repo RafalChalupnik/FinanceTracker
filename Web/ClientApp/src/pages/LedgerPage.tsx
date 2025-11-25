@@ -126,7 +126,7 @@ const LedgerPage: React.FC = () => {
     const [initialValue, setInitialValue] = React.useState<TransactionDto>();
     
     const populateData = async () => {
-        const dataResponse = getTransactions();
+        const dataResponse = await getTransactions();
         setData(dataResponse);
         
         const componentsResponse = await getComponents();
@@ -142,36 +142,34 @@ const LedgerPage: React.FC = () => {
     }, []);
     
     return (
-        <EmptyConfig enabled={data.length === 0}>
-            <>
-                <LedgerForm 
-                    open={formOpen} 
-                    initialValue={initialValue}
-                    onSubmit={async transaction => {
-                        await upsertTransaction(transaction);
-                        setFormOpen(false);
-                    }} 
-                    onCancel={() => setFormOpen(false)} 
-                    componentOptions={components.map(c => ({value: c.key, label: c.name}))}
-                    allocationOptions={physicalAllocations.map(p => ({value: p.key, label: p.name}))}
-                />
-                <Table
-                    bordered
-                    dataSource={data}
-                    columns={buildColumns(components, physicalAllocations, transaction => {
-                        setInitialValue(transaction);
-                        setFormOpen(true);
-                    })}
-                    pagination={false}
-                    rowKey='key'
-                    scroll={{ x: 'max-content' }}
-                />
-                <FloatButton icon={<PlusOutlined/>} onClick={() => {
-                    setInitialValue(undefined);
+        <>
+            <LedgerForm 
+                open={formOpen} 
+                initialValue={initialValue}
+                onSubmit={async transaction => {
+                    await upsertTransaction(transaction);
+                    setFormOpen(false);
+                }} 
+                onCancel={() => setFormOpen(false)} 
+                componentOptions={components.map(c => ({value: c.key, label: c.name}))}
+                allocationOptions={physicalAllocations.map(p => ({value: p.key, label: p.name}))}
+            />
+            <Table
+                bordered
+                dataSource={data}
+                columns={buildColumns(components, physicalAllocations, transaction => {
+                    setInitialValue(transaction);
                     setFormOpen(true);
-                }} />
-            </>
-        </EmptyConfig>
+                })}
+                pagination={false}
+                rowKey='key'
+                scroll={{ x: 'max-content' }}
+            />
+            <FloatButton icon={<PlusOutlined/>} onClick={() => {
+                setInitialValue(undefined);
+                setFormOpen(true);
+            }} />
+        </>
     );
 }
 
