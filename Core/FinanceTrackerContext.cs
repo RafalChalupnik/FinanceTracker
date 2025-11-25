@@ -15,6 +15,8 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
     
     public DbSet<InflationHistoricValue> InflationValues { get; set; }
     
+    public DbSet<LedgerEntry> Ledger { get; set; }
+    
     public DbSet<PhysicalAllocation> PhysicalAllocations { get; set; }
     
     public DbSet<HistoricTarget> HistoricTargets { get; set; }
@@ -85,6 +87,23 @@ public class FinanceTrackerContext(DbContextOptions<FinanceTrackerContext> optio
                 b.HasIndex(x => new {x.Year, x.Month}).IsUnique();
             }
             );
+
+        modelBuilder.Entity<LedgerEntry>(b =>
+        {
+            b.HasKey(x => x.Id);
+            b.Property(x => x.Date);
+            b.Property(x => x.TransactionId);
+            b.ComplexProperty(x => x.Value);
+
+            b.HasOne<Component>()
+                .WithMany()
+                .HasForeignKey(x => x.ComponentId)
+                .IsRequired();
+
+            b.HasOne<PhysicalAllocation>()
+                .WithMany()
+                .HasForeignKey(x => x.PhysicalAllocationId);
+        });
 
         modelBuilder.Entity<PhysicalAllocation>(b =>
         {

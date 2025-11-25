@@ -5,23 +5,17 @@ namespace FinanceTracker.Web.Controllers;
 
 [ApiController]
 [Route("api/ledger")]
-public class LedgerController
+public class LedgerController : ControllerBase
 {
     [HttpGet]
     public IReadOnlyCollection<TransactionDto> GetTransactions()
-    {
-        
-    }
-    
+        => [];
+
     [HttpPost]
-    public void UpsertTransaction(TransactionDto transaction)
-    {
-        
-    }
+    public IActionResult UpsertTransaction(TransactionDto transaction)
+        => NoContent();
     
     [HttpDelete("{transactionId:guid}")]
-    public void DeleteTransaction(Guid transactionId)
-    {
-        
-    }
+    public IActionResult DeleteTransaction(Guid transactionId)
+        => NoContent();
 }
