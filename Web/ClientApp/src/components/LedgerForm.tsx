@@ -57,10 +57,24 @@ const LedgerForm : React.FC<LedgerFormProps> = (props) => {
                     key: props.initialValue?.key ?? crypto.randomUUID(),
                     date: dayjs(values.date).format("YYYY-MM-DD"),
                     debit: showDebit
-                        ? values.debit
+                        ? ({
+                            ...values.debit,
+                            value: {
+                                amount: -Math.abs(values.debit.value.amount),
+                                currency: values.debit.value.currency,
+                                amountInMainCurrency: -Math.abs(values.debit.value.amountInMainCurrency),
+                            }
+                        })
                         : undefined,
                     credit: showCredit
-                        ? values.credit
+                        ? ({
+                            ...values.credit,
+                            value: {
+                                amount: Math.abs(values.credit.value.amount),
+                                currency: values.credit.value.currency,
+                                amountInMainCurrency: Math.abs(values.credit.value.amountInMainCurrency),
+                            }
+                        })
                         : undefined,
                 };
                 console.log(transaction);
