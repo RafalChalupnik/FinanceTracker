@@ -1,6 +1,6 @@
 import React from 'react';
 import Ledger from "../components/Ledger";
-import {Col, Row, Space} from "antd";
+import {Col, Row} from "antd";
 import LedgerSummary from "../components/LedgerSummary";
 
 const LedgerPage: React.FC = () => {
@@ -10,7 +10,7 @@ const LedgerPage: React.FC = () => {
                 height: "100vh",   // Row fills viewport
                 padding: 16
             }}
-            gutter={8}
+            gutter={16}
         >
             {/* Fixed column */}
             <Col flex="auto">

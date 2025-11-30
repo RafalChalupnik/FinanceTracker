@@ -1,26 +1,40 @@
 import {Space, Table, Typography} from "antd";
 import React from "react";
 import {ColumnsType} from "antd/es/table";
+import {MoneyDto} from "../api/value-history/DTOs/Money";
+import Money from "./money/Money";
 
 const {Title} = Typography;
 
 interface ComponentValue {
     name: string,
-    value: number
+    value: MoneyDto
 }
 
 let values: ComponentValue[] = [
     {
         name: 'CompA',
-        value: 123.45
+        value: {
+            amount: 123.45,
+            currency: 'PLN',
+            amountInMainCurrency: 123.45
+        }
     },
     {
         name: 'CompB',
-        value: 456.78
+        value: {
+            amount: -456.78,
+            currency: 'PLN',
+            amountInMainCurrency: -456.78
+        }
     },
     {
         name: 'CompC',
-        value: 420.69
+        value: {
+            amount: 420.69,
+            currency: 'EUR',
+            amountInMainCurrency: 2137.45
+        }
     }
 ]
 
@@ -36,7 +50,7 @@ const LedgerSummary: React.FC = () => {
         {
             key: 'value',
             title: 'Value',
-            render: value => value.value
+            render: value => <Money value={value.value} colorCoding={true} isInferred={false}/>
         }
     ]
     
