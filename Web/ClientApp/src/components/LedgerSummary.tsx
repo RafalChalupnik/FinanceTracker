@@ -1,47 +1,30 @@
 import {Space, Table, Typography} from "antd";
-import React from "react";
+import React, {useEffect} from "react";
 import {ColumnsType} from "antd/es/table";
-import {MoneyDto} from "../api/value-history/DTOs/Money";
 import Money from "./money/Money";
+import {getComponentValues, getPhysicalAllocationsValues, getTransactions} from "../api/ledger/Client";
+import {NameValueDto} from "../api/ledger/DTOs/NameValueDto";
 
 const {Title} = Typography;
 
-interface ComponentValue {
-    name: string,
-    value: MoneyDto
-}
-
-let values: ComponentValue[] = [
-    {
-        name: 'CompA',
-        value: {
-            amount: 123.45,
-            currency: 'PLN',
-            amountInMainCurrency: 123.45
-        }
-    },
-    {
-        name: 'CompB',
-        value: {
-            amount: -456.78,
-            currency: 'PLN',
-            amountInMainCurrency: -456.78
-        }
-    },
-    {
-        name: 'CompC',
-        value: {
-            amount: 420.69,
-            currency: 'EUR',
-            amountInMainCurrency: 2137.45
-        }
-    }
-]
-
-// ---
-
 const LedgerSummary: React.FC = () => {
-    let columns: ColumnsType<ComponentValue> = [
+    const [components, setComponents] = React.useState<NameValueDto[]>([]);
+    const [physicalAllocations, setPhysicalAllocations] = React.useState<NameValueDto[]>([]);
+    
+    const populateData = async () => {
+        const components = await getComponentValues();
+        setComponents(components);
+
+        const physicalAllocations = await getPhysicalAllocationsValues();
+        setPhysicalAllocations(physicalAllocations);
+    }
+    
+    useEffect(() => {
+        populateData();
+        // eslint-disable-next-line
+    }, []);
+    
+    let columns: ColumnsType<NameValueDto> = [
         {
             key: 'component',
             title: 'Component',
@@ -59,7 +42,7 @@ const LedgerSummary: React.FC = () => {
             <Title level={5}>Components</Title>
             <Table
                 bordered
-                dataSource={values}
+                dataSource={components}
                 columns={columns}
                 pagination={false}
                 rowKey='key'
@@ -68,7 +51,7 @@ const LedgerSummary: React.FC = () => {
             <Title level={5}>Physical Allocations</Title>
             <Table
                 bordered
-                dataSource={values}
+                dataSource={physicalAllocations}
                 columns={columns}
                 pagination={false}
                 rowKey='key'

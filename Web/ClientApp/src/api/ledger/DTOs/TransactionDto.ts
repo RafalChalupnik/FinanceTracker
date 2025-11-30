@@ -1,4 +1,3 @@
-import {Dayjs} from "dayjs";
 import {MoneyDto} from "../../value-history/DTOs/Money";
 
 export type TransactionDto = {
