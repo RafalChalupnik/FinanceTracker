@@ -357,7 +357,7 @@ internal static class Seeder
         int minValue, 
         int maxValue)
     {
-        // Start with the end of the first quarter
+        // Start with the end of the first interval
         var currentDate = new DateOnly(year: startYear, month: 1, day: 1).AddMonths(monthInterval).AddDays(-1);
         var values = new List<DateValue>();
 
@@ -366,18 +366,18 @@ internal static class Seeder
             values.Add(
                 new DateValue(
                     Date: currentDate,
-                    Value: GenerateRandomDecimalValue(minValue, maxValue)
+                    Value: GenerateRandomDecimalValue(minValue, maxValue) - values.LastOrDefault()?.Value ?? 0
                 )
             );
 
-            // End of next quarter
+            // End of next interval
             currentDate = currentDate.AddDays(1).AddMonths(monthInterval).AddDays(-1);
         }
         
         values.Add(
             new DateValue(
                 Date: currentDate,
-                Value: GenerateRandomDecimalValue(minValue, maxValue)
+                Value: GenerateRandomDecimalValue(minValue, maxValue) - values.LastOrDefault()?.Value ?? 0
             )
         );
 
